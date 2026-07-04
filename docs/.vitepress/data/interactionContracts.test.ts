@@ -55,6 +55,7 @@ describe('interactionContracts', () => {
       'YDrawer',
       'YDropdown',
       'YAlert',
+      'YApprovalCommentBox',
       'YFieldArray',
       'YFeatureGrid',
       'YButton',

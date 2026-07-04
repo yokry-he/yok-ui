@@ -668,6 +668,20 @@ const statusTimelineItems = [
   { title: 'Approved', value: 'approved', description: 'Ready to publish after final docs build.', time: 'Next', tone: 'info' }
 ]
 const reviewWorkflowSteps = statusTimelineItems
+const defaultApprovalComment = 'Please add keyboard notes before release.'
+const approvalComment = ref(defaultApprovalComment)
+const defaultApprovalDecision = 'requestChanges'
+const approvalDecision = ref(defaultApprovalDecision)
+const defaultApprovalSuggestions = ['keyboard']
+const selectedApprovalSuggestions = ref([...defaultApprovalSuggestions])
+const approvalSuggestions = [
+  { label: '补充键盘说明', value: 'keyboard' },
+  { label: '补充 API 表', value: 'api' },
+  { label: '需要视觉复核', value: 'visual', tone: 'warning' }
+]
+const approvalAttachments = [
+  { name: 'audit-notes.md', url: '/audit-notes.md', size: '12 KB' }
+]
 const defaultFieldArrayItems = [
   { id: 'ada', name: 'Ada Chen', role: 'Design review' },
   { id: 'lin', name: 'Lin Zhou', role: 'Accessibility' }
@@ -763,6 +777,7 @@ const adminPlaygroundComponents = new Set<PlaygroundComponent>([
   'dataView',
   'resourcePage',
   'crudLayout',
+  'approvalCommentBox',
   'bulkActionBar',
   'bulkActionMenu',
   'dataToolbar',
@@ -843,6 +858,7 @@ const componentImports = computed(() => {
     dataView: 'YDataView',
     resourcePage: 'YResourcePage',
     crudLayout: 'YCrudLayout',
+    approvalCommentBox: 'YApprovalCommentBox',
     bulkActionBar: 'YBulkActionBar',
     bulkActionMenu: 'YBulkActionMenu',
     dataToolbar: 'YDataToolbar',
@@ -1200,6 +1216,10 @@ const generatedMarkup = computed(() => {
       '  </template>',
       '</YCrudLayout>'
     ].join('\n')
+  }
+
+  if (activeComponent.value === 'approvalCommentBox') {
+    return '<YApprovalCommentBox v-model="approvalComment" v-model:decision="approvalDecision" v-model:selected-suggestions="selectedApprovalSuggestions" title="Release review" reviewer="Yok" target="YDataTable" :suggestions="approvalSuggestions" :attachments="approvalAttachments" :max-length="160" />'
   }
 
   if (activeComponent.value === 'bulkActionBar') {
@@ -1742,6 +1762,10 @@ const generatedScript = computed(() => {
 
   if (activeComponent.value === 'crudLayout') {
     return `import { ref } from 'vue'\nimport { YButton } from '@yok-ui/core'\nimport { YCrudLayout, YDataTable, YSearchForm } from '@yok-ui/admin'\n\nconst crudSearchModel = ref(${JSON.stringify(defaultCrudSearchModel, null, 2)})\nconst crudSearchFields = ${JSON.stringify(crudSearchFields, null, 2)}\nconst crudTableColumns = ${JSON.stringify(crudTableColumns, null, 2)}\nconst crudTableRows = ${JSON.stringify(crudTableRows, null, 2)}`
+  }
+
+  if (activeComponent.value === 'approvalCommentBox') {
+    return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/admin'\n\nconst approvalComment = ref('${defaultApprovalComment}')\nconst approvalDecision = ref('${defaultApprovalDecision}')\nconst selectedApprovalSuggestions = ref(${JSON.stringify(defaultApprovalSuggestions, null, 2)})\nconst approvalSuggestions = ${JSON.stringify(approvalSuggestions, null, 2)}\nconst approvalAttachments = ${JSON.stringify(approvalAttachments, null, 2)}`
   }
 
   if (activeComponent.value === 'bulkActionBar') {
@@ -2752,6 +2776,9 @@ function resetGeneratedProps() {
   searchFormModel.value = { ...defaultSearchFormModel }
   resourceSearchModel.value = { ...defaultResourceSearchModel }
   crudSearchModel.value = { ...defaultCrudSearchModel }
+  approvalComment.value = defaultApprovalComment
+  approvalDecision.value = defaultApprovalDecision
+  selectedApprovalSuggestions.value = [...defaultApprovalSuggestions]
   bulkSelectedRowKeys.value = [...defaultBulkSelectedRowKeys]
   savedViewModel.value = defaultSavedViewModel
   savedViewDefault.value = defaultSavedViewDefault
@@ -3412,6 +3439,18 @@ onMounted(() => {
               <section aria-label="Release summary">Release summary: 4 components tracked.</section>
             </template>
           </YCrudLayout>
+          <YApprovalCommentBox
+            v-else-if="activeComponent === 'approvalCommentBox'"
+            v-model="approvalComment"
+            v-model:decision="approvalDecision"
+            v-model:selected-suggestions="selectedApprovalSuggestions"
+            title="Release review"
+            reviewer="Yok"
+            target="YDataTable"
+            :suggestions="approvalSuggestions"
+            :attachments="approvalAttachments"
+            :max-length="160"
+          />
           <YBulkActionBar
             v-else-if="activeComponent === 'bulkActionBar'"
             title="3 components selected"

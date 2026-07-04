@@ -116,6 +116,7 @@ export const yokUiComponentPackages = {
   YCopyButton: '@yok-ui/product',
   YThemeSwitcher: '@yok-ui/product',
 
+  YApprovalCommentBox: '@yok-ui/admin',
   YBulkActionBar: '@yok-ui/admin',
   YBulkActionMenu: '@yok-ui/admin',
   YCrudLayout: '@yok-ui/admin',

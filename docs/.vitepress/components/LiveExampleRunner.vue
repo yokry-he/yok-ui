@@ -91,6 +91,7 @@ import {
 } from '@yok-ui/core'
 import { YBrandHero, YFeatureGrid, YLogoCloud, YProfileCard } from '@yok-ui/brand'
 import {
+  YApprovalCommentBox,
   YBulkActionBar,
   YBulkActionMenu,
   YCrudLayout,
@@ -2397,6 +2398,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   resourcePage: 'Resource Page',
   schemaForm: 'Schema Form',
   bulkActionBar: 'Bulk Action Bar',
+  approvalCommentBox: 'Approval Comment Box',
   statusTimeline: 'Status Timeline',
   reviewWorkflow: 'Review Workflow',
   savedViews: 'Saved Views',
@@ -8905,6 +8907,66 @@ const menuItems = [
       ].filter(Boolean))
     }
   },
+  approvalCommentBox: {
+    title: 'Approval Comment Box scenario',
+    description: '用审批结论、评论输入、建议标签、附件、校验和键盘路径调试审核评论框。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'default', options: [
+        { label: '审批评论', value: 'default' },
+        { label: '必填校验', value: 'required' },
+        { label: '提交中', value: 'loading' },
+        { label: '移动评论', value: 'mobile' },
+        { label: '键盘评论', value: 'keyboard' }
+      ] },
+      { key: 'decision', label: '结论', type: 'select', defaultValue: 'requestChanges', options: [
+        { label: 'Approve', value: 'approve' },
+        { label: 'Request changes', value: 'requestChanges' },
+        { label: 'Reject', value: 'reject' }
+      ] },
+      { key: 'comment', label: '评论', type: 'text', defaultValue: 'Please add keyboard notes before release.' },
+      { key: 'maxLength', label: '最大长度', type: 'number', defaultValue: 160, min: 80, max: 500, step: 20 }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const comment = scenario === 'required' ? '' : scenario === 'keyboard' ? 'Keyboard path verified; API table still needs one event row.' : String(state.comment)
+      const decision = scenario === 'keyboard' ? 'requestChanges' : String(state.decision)
+      const helper = scenario === 'required'
+        ? 'Submitting an empty required comment emits invalid and shows an error.'
+        : scenario === 'loading'
+          ? 'Loading state disables editing and submit while keeping cancel available.'
+        : scenario === 'keyboard'
+          ? 'Tab reaches decision buttons, textarea, suggestions, submit and cancel.'
+          : scenario === 'mobile'
+            ? 'Compact approval comment keeps reviewer metadata and actions readable.'
+            : ''
+      const suggestions = [
+        { label: '补充键盘说明', value: 'keyboard' },
+        { label: '补充 API 表', value: 'api' },
+        { label: '需要视觉复核', value: 'visual', tone: 'warning' }
+      ]
+      const attachments = scenario === 'mobile'
+        ? []
+        : [{ name: 'audit-notes.md', url: '/audit-notes.md', size: '12 KB' }]
+      const imports = [
+        `import { ref } from 'vue'`,
+        `import { YTag } from '@yok-ui/core'`,
+        `import { YApprovalCommentBox } from '@yok-ui/admin'`,
+        ``,
+        `const approvalComment = ref('${comment}')`,
+        `const approvalDecision = ref('${decision}')`,
+        `const selectedApprovalSuggestions = ref(${JSON.stringify(scenario === 'required' ? [] : ['keyboard'], null, 2)})`,
+        `const approvalSuggestions = ${JSON.stringify(suggestions, null, 2)}`,
+        `const approvalAttachments = ${JSON.stringify(attachments, null, 2)}`
+      ].join('\n')
+
+      return sfc(imports, [
+        '<div class="demo-stack">',
+        `  <YApprovalCommentBox v-model="approvalComment" v-model:decision="approvalDecision" v-model:selected-suggestions="selectedApprovalSuggestions" :suggestions="approvalSuggestions" :attachments="approvalAttachments" title="${scenario === 'keyboard' ? 'Keyboard review comment' : 'Release review'}" reviewer="Yok" target="YDataTable" :max-length="${Number(state.maxLength)}"${scenario === 'required' ? ' required' : ''}${scenario === 'loading' ? ' loading' : ''} />`,
+        helper ? `  <YTag tone="${scenario === 'required' ? 'warning' : 'info'}">${helper}</YTag>` : '',
+        '</div>'
+      ].filter((line): line is string => Boolean(line)))
+    }
+  },
   bulkActionBar: {
     title: 'Bulk Action Bar scenario',
     description: '用已选择、多选、空选择、移动和键盘路径调试批量操作栏。',
@@ -12162,6 +12224,7 @@ const componentMap = {
   yresourcepage: YResourcePage,
   yschemaform: YSchemaForm,
   yfieldarray: YFieldArray,
+  yapprovalcommentbox: YApprovalCommentBox,
   ybulkactionbar: YBulkActionBar,
   ybulkactionmenu: YBulkActionMenu,
   ystatustimeline: YStatusTimeline,

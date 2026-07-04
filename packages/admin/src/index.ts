@@ -1,4 +1,12 @@
 export { adminComponents, default, YokAdmin } from './plugin'
+export { YApprovalCommentBox } from './components/approval-comment-box'
+export type {
+  YApprovalAttachment,
+  YApprovalCommentSubmitPayload,
+  YApprovalDecision,
+  YApprovalSuggestion,
+  YApprovalSuggestionTone
+} from './components/approval-comment-box'
 export { YBulkActionBar } from './components/bulk-action-bar'
 export type {
   YBulkActionItem,

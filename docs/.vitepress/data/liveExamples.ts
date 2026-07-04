@@ -84,6 +84,7 @@ export type LiveExamplePreset =
   | 'profileCard'
   | 'pageHeader'
   | 'metricCard'
+  | 'approvalCommentBox'
   | 'fieldArray'
   | 'searchPanel'
   | 'searchForm'
@@ -256,6 +257,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/float-button', preset: 'floatButton' },
   { docs: '/components/button', preset: 'button' },
   { docs: '/components/breadcrumb', preset: 'breadcrumb' },
+  { docs: '/components/approval-comment-box', preset: 'approvalCommentBox' },
   { docs: '/components/bulk-action-bar', preset: 'bulkActionBar' },
   { docs: '/components/calendar', preset: 'calendar' },
   { docs: '/components/carousel', preset: 'carousel' },
@@ -435,6 +437,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'profileCard',
   'pageHeader',
   'metricCard',
+  'approvalCommentBox',
   'fieldArray',
   'filterTabs',
   'dataTable',
@@ -461,6 +464,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'floatButton',
   'breadcrumb',
   'brandHero',
+  'approvalCommentBox',
   'bulkActionBar',
   'button',
   'calendar',
@@ -919,6 +923,43 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: '日期格使用原生 button，Tab 可进入可选日期，Enter 或 Space 触发选择。'
+    }
+  ],
+  approvalCommentBox: [
+    {
+      key: 'approval-comment-default',
+      label: '审批评论',
+      kind: 'basic',
+      controlValue: 'default',
+      description: '覆盖审批结论、评论输入、建议标签和附件展示。'
+    },
+    {
+      key: 'approval-comment-required',
+      label: '必填校验',
+      kind: 'error',
+      controlValue: 'required',
+      description: '空评论提交时展示错误并触发 invalid 事件。'
+    },
+    {
+      key: 'approval-comment-loading',
+      label: '提交中',
+      kind: 'loading',
+      controlValue: 'loading',
+      description: '提交中禁用输入和提交按钮，防止重复发送审批评论。'
+    },
+    {
+      key: 'approval-comment-keyboard',
+      label: '键盘评论',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: '键盘用户可以访问结论按钮、评论框、建议标签、提交和取消。'
+    },
+    {
+      key: 'mobile-approval-comment',
+      label: '移动评论',
+      kind: 'responsive',
+      controlValue: 'mobile',
+      description: '窄屏下元信息和操作区纵向排列，保持评论输入可读。'
     }
   ],
   bulkActionBar: [

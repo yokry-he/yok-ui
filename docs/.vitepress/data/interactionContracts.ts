@@ -1135,6 +1135,22 @@ export const interactionContracts: InteractionContract[] = [
     }
   },
   {
+    componentName: 'YApprovalCommentBox',
+    pattern: 'Approval decision comment composer',
+    keyboard: [
+      'Decision options and suggestion chips activate with Enter / Space',
+      'Textarea keeps native editing behavior while submit and cancel remain in source order'
+    ],
+    focus: 'The decision group, comment field, suggestions, attachments and actions follow the visual review order without adding hidden focus traps.',
+    semantics: ['section', 'aria-label', 'button', 'textarea', 'role="alert"', 'aria-invalid'],
+    status: 'Required comment validation emits invalid and announces the inline error before submit can proceed.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/guide/accessibility.md', 'docs/components/approval-comment-box.md'],
+      tests: ['packages/admin/src/components/approval-comment-box/approval-comment-box.test.ts']
+    }
+  },
+  {
     componentName: 'YSavedViews',
     pattern: 'Saved view selector and management actions',
     keyboard: ['View buttons activate with Enter / Space', 'Save and manage actions are reachable as native buttons'],

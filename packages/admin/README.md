@@ -28,4 +28,4 @@ createApp(App).use(YokCore).use(YokAdmin).mount('#app')
 import { YCrudLayout, YDataTable, YMetricCard, YSearchForm } from '@yok-ui/admin'
 ```
 
-Admin components compose Core primitives for data-heavy pages, filters, saved views, review workflows and bulk operations.
+Admin components compose Core primitives for data-heavy pages, filters, saved views, approval comments, review workflows and bulk operations.

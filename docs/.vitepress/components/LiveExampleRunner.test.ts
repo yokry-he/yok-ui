@@ -564,6 +564,7 @@ describe('LiveExampleRunner', () => {
     ['dataView', 'dataView', '<YDataView'],
     ['resourcePage', 'resourcePage', '<YResourcePage'],
     ['crudLayout', 'crudLayout', '<YCrudLayout'],
+    ['approvalCommentBox', 'approvalCommentBox', '<YApprovalCommentBox'],
     ['bulkActionBar', 'bulkActionBar', '<YBulkActionBar'],
     ['dataToolbar', 'dataToolbar', '<YDataToolbar'],
     ['savedViews', 'savedViews', '<YSavedViews'],
@@ -8433,6 +8434,27 @@ const demo: DemoState = {
   })
 
   it('promotes remaining admin workflow helpers to scenario-rich live examples', async () => {
+    const approvalCommentBox = mount(LiveExampleRunner, {
+      props: {
+        preset: 'approvalCommentBox'
+      }
+    })
+
+    expect(approvalCommentBox.text()).toContain('Approval Comment Box scenario')
+
+    await approvalCommentBox.findAll('.live-example-runner__control select')[0].setValue('required')
+    await nextTick()
+
+    expect(approvalCommentBox.find('textarea').element.value).toContain('<YApprovalCommentBox')
+    expect(approvalCommentBox.find('textarea').element.value).toContain('const approvalComment = ref')
+    expect(approvalCommentBox.find('textarea').element.value).toContain('Submitting an empty required comment emits invalid')
+
+    await approvalCommentBox.findAll('.live-example-runner__control select')[0].setValue('keyboard')
+    await nextTick()
+
+    expect(approvalCommentBox.find('textarea').element.value).toContain('Keyboard review comment')
+    expect(approvalCommentBox.find('textarea').element.value).toContain('Tab reaches decision buttons, textarea, suggestions, submit and cancel.')
+
     const bulkActionBar = mount(LiveExampleRunner, {
       props: {
         preset: 'bulkActionBar'

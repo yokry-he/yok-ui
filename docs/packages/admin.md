@@ -187,7 +187,7 @@ createApp(App).use(YokCore).use(YokAdmin).mount('#app')
 import '@yok-ui/themes/yok-light.css'
 import '@yok-ui/core/style.css'
 import '@yok-ui/admin/style.css'
-import { YBulkActionBar, YPageHeader, YMetricCard, YReviewWorkflow, YSearchForm, YSearchPanel, YCrudLayout, YFilterTabs, YDataTable, YSavedViews, YStatusTimeline } from '@yok-ui/admin'
+import { YApprovalCommentBox, YBulkActionBar, YPageHeader, YMetricCard, YReviewWorkflow, YSearchForm, YSearchPanel, YCrudLayout, YFilterTabs, YDataTable, YSavedViews, YStatusTimeline } from '@yok-ui/admin'
 ```
 
 ## Components

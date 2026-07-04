@@ -1,5 +1,6 @@
 import type { Component } from 'vue'
 import { createYokInstaller } from '@yok-ui/core'
+import { YApprovalCommentBox } from './components/approval-comment-box'
 import { YBulkActionBar } from './components/bulk-action-bar'
 import { YBulkActionMenu } from './components/bulk-action-menu'
 import { YCrudLayout } from './components/crud-layout'
@@ -19,6 +20,7 @@ import { YSearchPanel } from './components/search-panel'
 import { YStatusTimeline } from './components/status-timeline'
 
 export const adminComponents: Component[] = [
+  YApprovalCommentBox,
   YBulkActionBar,
   YBulkActionMenu,
   YCrudLayout,

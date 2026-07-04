@@ -1133,6 +1133,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'documented'
   },
   {
+    name: 'YApprovalCommentBox',
+    title: 'Approval Comment Box',
+    packageName: '@yok-ui/admin',
+    family: 'admin',
+    status: 'Beta',
+    docs: '/components/approval-comment-box',
+    description: '审批评论输入框，支持结论、建议标签、附件展示和提交载荷。',
+    since: '0.3.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YFieldArray',
     title: 'Field Array',
     packageName: '@yok-ui/admin',
@@ -3241,6 +3252,118 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'YBulkActionMenuPayload',
         type: '{ action: YBulkActionMenuItem; selectedRowKeys: string[] }',
         description: '批量菜单动作事件载荷。'
+      }
+    ]
+  },
+  YApprovalCommentBox: {
+    props: [
+      {
+        name: 'modelValue',
+        type: 'string',
+        defaultValue: "''",
+        description: '审批评论内容。'
+      },
+      {
+        name: 'decision',
+        type: 'YApprovalDecision',
+        defaultValue: "'approve'",
+        description: '当前审批结论。'
+      },
+      {
+        name: 'selectedSuggestions',
+        type: 'string[]',
+        defaultValue: '[]',
+        description: '已选择的建议标签 value。'
+      },
+      {
+        name: 'suggestions',
+        type: 'YApprovalSuggestion[]',
+        defaultValue: '[]',
+        description: '可选建议标签。'
+      },
+      {
+        name: 'attachments',
+        type: 'YApprovalAttachment[]',
+        defaultValue: '[]',
+        description: '评论关联附件。'
+      },
+      {
+        name: 'maxLength',
+        type: 'number',
+        defaultValue: '500',
+        description: '评论最大长度。'
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+        defaultValue: 'true',
+        description: '提交时是否要求非空评论。'
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否禁用输入、结论和建议选择。'
+      },
+      {
+        name: 'loading',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否显示提交中状态并阻止重复提交。'
+      }
+    ],
+    events: [
+      {
+        name: 'update:modelValue',
+        type: 'string',
+        description: '评论内容变化。'
+      },
+      {
+        name: 'update:decision',
+        type: 'YApprovalDecision',
+        description: '审批结论变化。'
+      },
+      {
+        name: 'update:selectedSuggestions',
+        type: 'string[]',
+        description: '建议标签选择变化。'
+      },
+      {
+        name: 'submit',
+        type: 'YApprovalCommentSubmitPayload',
+        description: '提交审批评论。'
+      },
+      {
+        name: 'cancel',
+        type: 'void',
+        description: '取消评论编辑。'
+      },
+      {
+        name: 'invalid',
+        type: 'string',
+        description: '提交校验失败。'
+      }
+    ],
+    types: [
+      {
+        name: 'YApprovalDecision',
+        type: "'approve' | 'requestChanges' | 'reject'",
+        description: '审批结论类型。'
+      },
+      {
+        name: 'YApprovalSuggestion',
+        type: '{ label: string; value: string; tone?: YApprovalSuggestionTone; disabled?: boolean }',
+        description: '建议标签定义。'
+      },
+      {
+        name: 'YApprovalAttachment',
+        type: '{ name: string; url?: string; size?: string }',
+        description: '审批评论附件定义。'
+      },
+      {
+        name: 'YApprovalCommentSubmitPayload',
+        type: '{ decision: YApprovalDecision; comment: string; selectedSuggestions: string[]; suggestions: YApprovalSuggestion[]; attachments: YApprovalAttachment[]; reviewer: string; target: string }',
+        description: '审批评论提交载荷。'
       }
     ]
   },

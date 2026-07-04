@@ -31,6 +31,10 @@ describe('playgroundExamples', () => {
       return components.find((item) => item.name === 'YTag')
     }
 
+    if (component === 'savedViewManager') {
+      return components.find((item) => item.name === 'YSavedViewManager')
+    }
+
     return components.find((item) => item.docs === docsRoute)
   }
 
@@ -55,6 +59,7 @@ describe('playgroundExamples', () => {
       'bulkActionBar',
       'dataToolbar',
       'savedViews',
+      'savedViewManager',
       'searchPanel',
       'filterTabs',
       'statusTimeline',
@@ -131,6 +136,7 @@ describe('playgroundExamples', () => {
       bulkActionBar: 'bulkActionBar',
       dataToolbar: 'dataToolbar',
       savedViews: 'savedViews',
+      savedViewManager: 'savedViews',
       searchPanel: 'searchPanel',
       filterTabs: 'filterTabs',
       statusTimeline: 'statusTimeline',

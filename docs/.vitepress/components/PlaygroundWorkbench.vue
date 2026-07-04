@@ -636,8 +636,11 @@ const bulkActions = [
 ]
 const dataToolbarCount = 73
 const defaultSavedViewModel = 'beta'
+const defaultSavedViewDefault = 'live'
 const savedViewModel = ref(defaultSavedViewModel)
 const savedViewItems = dataViewViews
+const savedViewDefault = ref(defaultSavedViewDefault)
+const savedViewManagerItems = ref(dataViewViews.map((item) => ({ ...item })))
 const defaultSearchPanelModel = {
   keyword: 'button',
   status: 'stable',
@@ -757,6 +760,7 @@ const adminPlaygroundComponents = new Set<PlaygroundComponent>([
   'bulkActionBar',
   'dataToolbar',
   'savedViews',
+  'savedViewManager',
   'searchPanel',
   'filterTabs',
   'statusTimeline',
@@ -835,6 +839,7 @@ const componentImports = computed(() => {
     bulkActionBar: 'YBulkActionBar',
     dataToolbar: 'YDataToolbar',
     savedViews: 'YSavedViews',
+    savedViewManager: 'YSavedViewManager',
     searchPanel: 'YSearchPanel',
     filterTabs: 'YFilterTabs',
     statusTimeline: 'YStatusTimeline',
@@ -1208,6 +1213,10 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'savedViews') {
     return '<YSavedViews title="Component views" description="Pinned filters for repeated documentation work." :model-value="savedViewModel" :items="savedViewItems" save-text="Save current" manage-text="Manage views" />'
+  }
+
+  if (activeComponent.value === 'savedViewManager') {
+    return '<YSavedViewManager v-model="savedViewModel" v-model:default-value="savedViewDefault" v-model:items="savedViewManagerItems" title="Manage component views" description="Rename, pin, duplicate, delete and choose the default table view." />'
   }
 
   if (activeComponent.value === 'searchPanel') {
@@ -1733,6 +1742,10 @@ const generatedScript = computed(() => {
 
   if (activeComponent.value === 'savedViews') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/admin'\n\nconst savedViewModel = ref('${defaultSavedViewModel}')\nconst savedViewItems = ${JSON.stringify(savedViewItems, null, 2)}`
+  }
+
+  if (activeComponent.value === 'savedViewManager') {
+    return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/admin'\n\nconst savedViewModel = ref('${defaultSavedViewModel}')\nconst savedViewDefault = ref('${defaultSavedViewDefault}')\nconst savedViewManagerItems = ref(${JSON.stringify(savedViewItems, null, 2)})`
   }
 
   if (activeComponent.value === 'searchPanel') {
@@ -2725,6 +2738,8 @@ function resetGeneratedProps() {
   crudSearchModel.value = { ...defaultCrudSearchModel }
   bulkSelectedRowKeys.value = [...defaultBulkSelectedRowKeys]
   savedViewModel.value = defaultSavedViewModel
+  savedViewDefault.value = defaultSavedViewDefault
+  savedViewManagerItems.value = dataViewViews.map((item) => ({ ...item }))
   searchPanelModel.value = { ...defaultSearchPanelModel }
   filterTabValue.value = defaultFilterTabValue
   fieldArrayItems.value = defaultFieldArrayItems.map((item) => ({ ...item }))
@@ -3405,6 +3420,14 @@ onMounted(() => {
             :items="savedViewItems"
             save-text="Save current"
             manage-text="Manage views"
+          />
+          <YSavedViewManager
+            v-else-if="activeComponent === 'savedViewManager'"
+            v-model="savedViewModel"
+            v-model:default-value="savedViewDefault"
+            v-model:items="savedViewManagerItems"
+            title="Manage component views"
+            description="Rename, pin, duplicate, delete and choose the default table view."
           />
           <YSearchPanel
             v-else-if="activeComponent === 'searchPanel'"

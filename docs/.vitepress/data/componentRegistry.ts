@@ -1188,6 +1188,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'documented'
   },
   {
+    name: 'YSavedViewManager',
+    title: 'Saved View Manager',
+    packageName: '@yok-ui/admin',
+    family: 'admin',
+    status: 'Beta',
+    docs: '/components/saved-views',
+    description: '保存视图的重命名、复制、删除、固定和默认视图管理面板。',
+    since: '0.3.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YDataToolbar',
     title: 'Data Toolbar',
     packageName: '@yok-ui/admin',
@@ -3710,6 +3721,161 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'YSavedViewItem',
         type: '{ label: string; value: string; description?: string; count?: number; pinned?: boolean; disabled?: boolean }',
         description: '保存视图定义。'
+      }
+    ]
+  },
+  YSavedViewManager: {
+    props: [
+      {
+        name: 'modelValue',
+        type: 'string',
+        description: '当前选中的视图 value。',
+        required: true
+      },
+      {
+        name: 'defaultValue',
+        type: 'string',
+        defaultValue: "''",
+        description: '默认视图 value。'
+      },
+      {
+        name: 'items',
+        type: 'YSavedViewItem[]',
+        description: '可管理的保存视图列表。',
+        required: true
+      },
+      {
+        name: 'title',
+        type: 'string',
+        defaultValue: "'Manage saved views'",
+        description: '管理器标题。'
+      },
+      {
+        name: 'description',
+        type: 'string',
+        defaultValue: "'Rename, pin, duplicate, delete and choose the default view.'",
+        description: '管理器说明。'
+      },
+      {
+        name: 'ariaLabel',
+        type: 'string',
+        defaultValue: "'Manage saved views'",
+        description: '外层 section 的可访问名称。'
+      },
+      {
+        name: 'createText',
+        type: 'string',
+        defaultValue: "'Create view'",
+        description: '创建按钮文案。'
+      },
+      {
+        name: 'saveText',
+        type: 'string',
+        defaultValue: "'Save changes'",
+        description: '保存按钮文案。'
+      },
+      {
+        name: 'duplicateText',
+        type: 'string',
+        defaultValue: "'Duplicate'",
+        description: '复制按钮文案。'
+      },
+      {
+        name: 'deleteText',
+        type: 'string',
+        defaultValue: "'Delete'",
+        description: '删除按钮文案。'
+      },
+      {
+        name: 'defaultText',
+        type: 'string',
+        defaultValue: "'Set default'",
+        description: '设为默认按钮文案。'
+      },
+      {
+        name: 'emptyText',
+        type: 'string',
+        defaultValue: "'No saved views to manage'",
+        description: '空状态文案。'
+      }
+    ],
+    events: [
+      {
+        name: 'update:items',
+        type: 'YSavedViewItem[]',
+        description: '管理后返回新的视图列表。'
+      },
+      {
+        name: 'update:modelValue',
+        type: 'string',
+        description: '选中视图变化。'
+      },
+      {
+        name: 'update:defaultValue',
+        type: 'string',
+        description: '默认视图变化。'
+      },
+      {
+        name: 'save',
+        type: 'YSavedViewManagerSavePayload',
+        description: '点击保存变更。'
+      },
+      {
+        name: 'rename',
+        type: 'YSavedViewManagerRenamePayload',
+        description: '重命名视图。'
+      },
+      {
+        name: 'descriptionChange',
+        type: 'YSavedViewManagerDescriptionPayload',
+        description: '修改视图说明。'
+      },
+      {
+        name: 'duplicate',
+        type: 'YSavedViewManagerPayload',
+        description: '复制视图。'
+      },
+      {
+        name: 'delete',
+        type: 'YSavedViewItem',
+        description: '删除视图。'
+      },
+      {
+        name: 'pinChange',
+        type: 'YSavedViewManagerPinPayload',
+        description: '固定状态变化。'
+      },
+      {
+        name: 'setDefault',
+        type: 'YSavedViewItem',
+        description: '设为默认视图。'
+      }
+    ],
+    types: [
+      {
+        name: 'YSavedViewManagerPayload',
+        type: '{ item: YSavedViewItem; items: YSavedViewItem[] }',
+        description: '复制等动作的管理载荷。'
+      },
+      {
+        name: 'YSavedViewManagerSavePayload',
+        type: '{ items: YSavedViewItem[]; activeValue: string; defaultValue: string }',
+        description: '保存管理结果的载荷。'
+      },
+      {
+        name: 'YSavedViewManagerRenamePayload',
+        type: '{ item: YSavedViewItem; label: string }',
+        description: '重命名载荷。'
+      },
+      {
+        name: 'YSavedViewManagerDescriptionPayload',
+        type: '{ item: YSavedViewItem; description: string }',
+        description: '说明修改载荷。'
+      },
+      {
+        name: 'YSavedViewManagerPinPayload',
+        type: '{ item: YSavedViewItem; pinned: boolean }',
+        description: '固定状态载荷。'
       }
     ]
   },

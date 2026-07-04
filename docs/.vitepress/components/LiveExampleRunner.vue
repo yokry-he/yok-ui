@@ -105,6 +105,7 @@ import {
   YReviewWorkflow,
   YResourcePage,
   YSchemaForm,
+  YSavedViewManager,
   YSavedViews,
   YSearchForm,
   YSearchPanel,
@@ -9028,11 +9029,12 @@ const menuItems = [
   },
   savedViews: {
     title: 'Saved Views scenario',
-    description: '用默认、受控、空态、移动和键盘路径调试保存视图。',
+    description: '用默认、受控、管理、空态、移动和键盘路径调试保存视图。',
     controls: [
       { key: 'scenario', label: '场景', type: 'select', defaultValue: 'default', options: [
         { label: '保存视图', value: 'default' },
         { label: '受控视图', value: 'controlled' },
+        { label: '管理视图', value: 'manager' },
         { label: '空视图', value: 'empty' },
         { label: '移动视图', value: 'mobile' },
         { label: '键盘视图', value: 'keyboard' }
@@ -9051,14 +9053,19 @@ const menuItems = [
     build: (state) => {
       const scenario = String(state.scenario)
       const isEmptyScenario = scenario === 'empty'
+      const isManagerScenario = scenario === 'manager'
       const modelValue = scenario === 'controlled' || scenario === 'keyboard' ? 'live' : isEmptyScenario ? '' : state.modelValue
       const title = scenario === 'keyboard'
         ? 'Keyboard saved views'
+        : isManagerScenario
+          ? 'Manage saved views'
         : scenario === 'mobile'
           ? 'Mobile views'
           : state.title
       const description = scenario === 'keyboard'
         ? 'Save, create and manage controls stay reachable after view buttons.'
+        : isManagerScenario
+          ? 'Rename, pin, duplicate, delete and choose a default table view.'
         : isEmptyScenario
           ? 'Create the first reusable view for this table.'
           : scenario === 'mobile'
@@ -9074,15 +9081,18 @@ const menuItems = [
       const imports = [
         `import { ref } from 'vue'`,
         `import { YTag } from '@yok-ui/core'`,
-        `import { YSavedViews } from '@yok-ui/admin'`,
+        `import { ${isManagerScenario ? 'YSavedViewManager' : 'YSavedViews'} } from '@yok-ui/admin'`,
         ``,
         `const savedViewModel = ref('${modelValue}')`,
-        `const savedViewItems = ${JSON.stringify(savedViewItems, null, 2)}`
+        ...(isManagerScenario ? [`const defaultSavedView = ref('live')`] : []),
+        `const savedViewItems = ${isManagerScenario ? `ref(${JSON.stringify(savedViewItems, null, 2)})` : JSON.stringify(savedViewItems, null, 2)}`
       ].join('\n')
 
       return sfc(imports, [
         '<div class="demo-stack">',
-        `  <YSavedViews :model-value="savedViewModel" :items="${isEmptyScenario ? '[]' : 'savedViewItems'}"${textAttribute('title', title)}${textAttribute('description', description)}${textAttribute('create-text', scenario === 'mobile' ? 'New' : state.createText)}${textAttribute('save-text', scenario === 'mobile' ? 'Save' : state.saveText)}${textAttribute('manage-text', scenario === 'mobile' ? 'Manage' : state.manageText)}${isEmptyScenario ? ' empty-text="No saved views yet"' : ''} />`,
+        isManagerScenario
+        ? `  <YSavedViewManager v-model="savedViewModel" v-model:default-value="defaultSavedView" v-model:items="savedViewItems"${textAttribute('title', title)}${textAttribute('description', description)} />`
+          : `  <YSavedViews :model-value="savedViewModel" :items="${isEmptyScenario ? '[]' : 'savedViewItems'}"${textAttribute('title', title)}${textAttribute('description', description)}${textAttribute('create-text', scenario === 'mobile' ? 'New' : state.createText)}${textAttribute('save-text', scenario === 'mobile' ? 'Save' : state.saveText)}${textAttribute('manage-text', scenario === 'mobile' ? 'Manage' : state.manageText)}${isEmptyScenario ? ' empty-text="No saved views yet"' : ''} />`,
         helper ? `  <YTag tone="${isEmptyScenario ? 'warning' : 'info'}">${helper}</YTag>` : '',
         '</div>'
       ].filter((line): line is string => Boolean(line)))
@@ -12136,6 +12146,7 @@ const componentMap = {
   ybulkactionbar: YBulkActionBar,
   ystatustimeline: YStatusTimeline,
   yreviewworkflow: YReviewWorkflow,
+  ysavedviewmanager: YSavedViewManager,
   ysavedviews: YSavedViews,
   ydatatoolbar: YDataToolbar
 }

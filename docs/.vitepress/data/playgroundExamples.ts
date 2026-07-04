@@ -33,6 +33,7 @@ export const playgroundComponents = [
   'bulkActionBar',
   'dataToolbar',
   'savedViews',
+  'savedViewManager',
   'searchPanel',
   'filterTabs',
   'statusTimeline',
@@ -138,6 +139,7 @@ export const playgroundComponentDocs = {
   bulkActionBar: '/components/bulk-action-bar',
   dataToolbar: '/components/data-toolbar',
   savedViews: '/components/saved-views',
+  savedViewManager: '/components/saved-views',
   searchPanel: '/components/search-panel',
   filterTabs: '/components/filter-tabs',
   statusTimeline: '/components/status-timeline',
@@ -233,6 +235,7 @@ const playgroundComponentRegistryName = {
   codeBlock: 'YCodeBlock',
   floatButton: 'YFloatButtonGroup',
   qrCode: 'YQRCode',
+  savedViewManager: 'YSavedViewManager',
   tag: 'YTag',
   themeProvider: 'YThemeProvider'
 } satisfies Partial<Record<PlaygroundComponent, string>>
@@ -295,6 +298,7 @@ export const liveExamplePlaygroundPresetMap = {
   bulkActionBar: 'bulkActionBar',
   dataToolbar: 'dataToolbar',
   savedViews: 'savedViews',
+  savedViewManager: 'savedViews',
   searchPanel: 'searchPanel',
   filterTabs: 'filterTabs',
   statusTimeline: 'statusTimeline',

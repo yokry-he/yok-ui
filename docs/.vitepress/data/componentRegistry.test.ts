@@ -23,7 +23,7 @@ describe('componentRegistry', () => {
     const names = components.map((component) => component.name)
 
     expect(new Set(names).size).toBe(names.length)
-    expect(components).toHaveLength(104)
+    expect(components).toHaveLength(105)
 
     components.forEach((component) => {
       expect(component.docs).toMatch(/^\/(components|guide)\//)
@@ -667,6 +667,15 @@ describe('componentRegistry', () => {
     expect(componentApis.YSavedViews.props?.map((row) => row.name)).toContain('items')
     expect(componentApis.YSavedViews.events?.map((row) => row.name)).toContain('save')
     expect(componentApis.YSavedViews.types?.map((row) => row.name)).toContain('YSavedViewItem')
+    expect(components.find((component) => component.name === 'YSavedViewManager')?.docs).toBe('/components/saved-views')
+    expect(componentApis.YSavedViewManager.props?.map((row) => row.name)).toContain('defaultValue')
+    expect(componentApis.YSavedViewManager.events?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'duplicate',
+      'delete',
+      'setDefault',
+      'update:items'
+    ]))
+    expect(componentApis.YSavedViewManager.types?.map((row) => row.name)).toContain('YSavedViewManagerSavePayload')
     expect(componentApis.YCommandPalette.events?.map((row) => row.name)).toContain('select')
     expect(componentApis.YCommandPalette.types?.map((row) => row.name)).toContain('YokCommand')
     expect(componentApis.YCopyButton.events?.map((row) => row.name)).toContain('copied')

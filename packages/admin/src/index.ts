@@ -74,8 +74,15 @@ export type {
 } from './components/search-form'
 export { YSearchPanel } from './components/search-panel'
 export type { YSearchField } from './components/search-panel'
-export { YSavedViews } from './components/saved-views'
-export type { YSavedViewItem } from './components/saved-views'
+export { YSavedViewManager, YSavedViews } from './components/saved-views'
+export type {
+  YSavedViewItem,
+  YSavedViewManagerDescriptionPayload,
+  YSavedViewManagerPayload,
+  YSavedViewManagerPinPayload,
+  YSavedViewManagerRenamePayload,
+  YSavedViewManagerSavePayload
+} from './components/saved-views'
 export { YStatusTimeline } from './components/status-timeline'
 export type {
   YStatusTimelineItem,

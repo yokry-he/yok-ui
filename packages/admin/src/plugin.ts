@@ -12,7 +12,7 @@ import { YPageHeader } from './components/page-header'
 import { YReviewWorkflow } from './components/review-workflow'
 import { YResourcePage } from './components/resource-page'
 import { YSchemaForm } from './components/schema-form'
-import { YSavedViews } from './components/saved-views'
+import { YSavedViewManager, YSavedViews } from './components/saved-views'
 import { YSearchForm } from './components/search-form'
 import { YSearchPanel } from './components/search-panel'
 import { YStatusTimeline } from './components/status-timeline'
@@ -30,6 +30,7 @@ export const adminComponents: Component[] = [
   YReviewWorkflow,
   YResourcePage,
   YSchemaForm,
+  YSavedViewManager,
   YSavedViews,
   YSearchForm,
   YSearchPanel,

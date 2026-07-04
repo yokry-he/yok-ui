@@ -128,6 +128,7 @@ export const yokUiComponentPackages = {
   YReviewWorkflow: '@yok-ui/admin',
   YResourcePage: '@yok-ui/admin',
   YSchemaForm: '@yok-ui/admin',
+  YSavedViewManager: '@yok-ui/admin',
   YSavedViews: '@yok-ui/admin',
   YSearchForm: '@yok-ui/admin',
   YSearchPanel: '@yok-ui/admin',

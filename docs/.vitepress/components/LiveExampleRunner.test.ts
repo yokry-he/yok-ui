@@ -8489,6 +8489,13 @@ const demo: DemoState = {
 
     expect(savedViews.find('textarea').element.value).toContain('Keyboard saved views')
     expect(savedViews.find('textarea').element.value).toContain('Save, create and manage controls stay reachable after view buttons.')
+
+    await findScenarioButton(savedViews, '管理视图').trigger('click')
+
+    expect(savedViews.find('textarea').element.value).toContain('<YSavedViewManager')
+    expect(savedViews.find('textarea').element.value).toContain('v-model:items="savedViewItems"')
+    expect(savedViews.find('textarea').element.value).toContain("const defaultSavedView = ref('live')")
+    expect(savedViews.find('textarea').element.value).toContain('Rename, pin, duplicate, delete and choose a default table view.')
   })
 
   it('promotes search, timeline and review helpers to empty, loading and keyboard live examples', async () => {

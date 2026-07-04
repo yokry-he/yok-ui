@@ -1129,6 +1129,13 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       description: '受控 model-value 让路由、表格偏好和视图按钮保持同步。'
     },
     {
+      key: 'saved-views-manager',
+      label: '管理视图',
+      kind: 'controlled',
+      controlValue: 'manager',
+      description: '管理器覆盖重命名、复制、删除、固定和默认视图设置。'
+    },
+    {
       key: 'saved-views-empty',
       label: '空视图',
       kind: 'empty',

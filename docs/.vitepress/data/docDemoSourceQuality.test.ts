@@ -76,6 +76,7 @@ const adminWorkflowDocs = [
   'filter-tabs',
   'review-workflow',
   'saved-views',
+  'schema-form',
   'search-panel',
   'virtual-list'
 ]
@@ -188,6 +189,7 @@ describe('DocDemo source quality', () => {
     const carousel = items.find((item) => item.docs === '/components/carousel')
     const notification = items.find((item) => item.docs === '/components/notification')
     const anchor = items.find((item) => item.docs === '/components/anchor')
+    const schemaForm = items.find((item) => item.docs === '/components/schema-form')
 
     expect(items.length).toBeGreaterThan(0)
     expect(summary.totalDocs).toBe(items.length)
@@ -244,6 +246,14 @@ describe('DocDemo source quality', () => {
       completeHandoffCount: 3
     })
     expect(anchor?.checks.every((check) => check.passed)).toBe(true)
+    expect(schemaForm).toMatchObject({
+      docs: '/components/schema-form',
+      title: 'Schema Form',
+      status: 'complete',
+      demoCount: 3,
+      completeHandoffCount: 3
+    })
+    expect(schemaForm?.checks.every((check) => check.passed)).toBe(true)
   })
 
   it('tracks component pages that still use raw demo-box examples instead of DocDemo', () => {

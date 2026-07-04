@@ -58,7 +58,8 @@ defineEmits<{
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: var(--yok-space-3);
-  width: min(380px, calc(100vw - 32px));
+  width: 100%;
+  max-width: 380px;
   border: 1px solid var(--yok-color-border);
   border-radius: var(--yok-radius-lg);
   background: var(--yok-color-surface);

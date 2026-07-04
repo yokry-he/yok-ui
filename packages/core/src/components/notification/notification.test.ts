@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -12,6 +14,14 @@ afterEach(() => {
 })
 
 describe('YNotification', () => {
+  it('sizes the notification card from its container instead of the viewport', () => {
+    const source = readFileSync(resolve(__dirname, 'YNotification.vue'), 'utf8')
+
+    expect(source).not.toContain('width: min(380px, calc(100vw - 32px))')
+    expect(source).toContain('max-width: 380px')
+    expect(source).toContain('width: 100%')
+  })
+
   it('renders title content tone and emits close', async () => {
     const wrapper = mount(YNotification, {
       props: {

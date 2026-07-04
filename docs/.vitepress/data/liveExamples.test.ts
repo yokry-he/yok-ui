@@ -113,6 +113,7 @@ describe('liveExamples', () => {
       'dataView',
       'dataTable',
       'dateRangePicker',
+      'dateTimePicker',
       'backtop',
       'divider',
       'drawer',
@@ -669,6 +670,25 @@ describe('liveExamples', () => {
       expect.objectContaining({ key: 'keyboard-path', passed: true })
     ]))
     expect(timePickerSummary.scenarioKinds).toEqual(expect.arrayContaining([
+      'basic',
+      'controlled',
+      'disabled',
+      'error',
+      'composition',
+      'responsive',
+      'keyboard'
+    ]))
+
+    const dateTimePickerSummary = getLiveExampleValidationSummary('dateTimePicker')
+
+    expect(dateTimePickerSummary.modeLabel).toBe('Guided workflow')
+    expect(dateTimePickerSummary.scenarioCount).toBe(7)
+    expect(dateTimePickerSummary.checks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'responsive', passed: true }),
+      expect.objectContaining({ key: 'error-state', passed: true }),
+      expect.objectContaining({ key: 'keyboard-path', passed: true })
+    ]))
+    expect(dateTimePickerSummary.scenarioKinds).toEqual(expect.arrayContaining([
       'basic',
       'controlled',
       'disabled',

@@ -57,6 +57,7 @@ const componentStubs = {
   YConfigProvider: { template: '<section><slot /></section>' },
   YDatePicker: { template: '<input />' },
   YDateRangePicker: { template: '<input />' },
+  YDateTimePicker: { template: '<input />' },
   YTimePicker: { template: '<input />' },
   YCascader: { template: '<div />' },
   YColorPicker: { template: '<input />' },

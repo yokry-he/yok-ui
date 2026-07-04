@@ -23,7 +23,7 @@ describe('componentRegistry', () => {
     const names = components.map((component) => component.name)
 
     expect(new Set(names).size).toBe(names.length)
-    expect(components).toHaveLength(110)
+    expect(components).toHaveLength(111)
 
     components.forEach((component) => {
       expect(component.docs).toMatch(/^\/(components|guide)\//)
@@ -446,6 +446,27 @@ describe('componentRegistry', () => {
     expect(componentApis.YColorPicker.props?.map((row) => row.name)).toContain('size')
     expect(componentApis.YDatePicker.props?.map((row) => row.name)).toContain('size')
     expect(componentApis.YDateRangePicker.props?.map((row) => row.name)).toContain('size')
+    expect(componentApis.YDateTimePicker.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'modelValue',
+      'minuteStep',
+      'shortcuts',
+      'disabledDate',
+      'disabledTime',
+      'error',
+      'size'
+    ]))
+    expect(componentApis.YDateTimePicker.events?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'update:modelValue',
+      'change',
+      'clear',
+      'visibleChange'
+    ]))
+    expect(componentApis.YDateTimePicker.types?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'YDateTimeValue',
+      'YDateTimeShortcut',
+      'YDateTimePickerDisabledDate',
+      'YDateTimePickerDisabledTime'
+    ]))
     expect(componentApis.YTimePicker.props?.map((row) => row.name)).toContain('size')
     expect(componentApis.YCascader.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
       'size',
@@ -871,6 +892,7 @@ describe('componentRegistry', () => {
     expect(liveExampleDocs).toContain('/components/cascader')
     expect(liveExampleDocs).toContain('/components/date-picker')
     expect(liveExampleDocs).toContain('/components/date-range-picker')
+    expect(liveExampleDocs).toContain('/components/date-time-picker')
     expect(liveExampleDocs).toContain('/components/input-number')
     expect(liveExampleDocs).toContain('/components/rate')
     expect(liveExampleDocs).toContain('/components/slider')

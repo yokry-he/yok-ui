@@ -139,6 +139,7 @@ const radioValue = ref('core')
 const switchValue = ref(true)
 const dateValue = ref('2026-06-13')
 const dateRangeValue = ref(['2026-06-13', '2026-06-20'])
+const dateTimeValue = ref('2026-07-04 20:30')
 const timeValue = ref('09:30')
 const cascaderValue = ref(['core', 'form', 'cascader'])
 const colorValue = ref('#14B8A6')
@@ -851,6 +852,7 @@ const componentImports = computed(() => {
     switch: 'YSwitch',
     datePicker: 'YDatePicker',
     dateRangePicker: 'YDateRangePicker',
+    dateTimePicker: 'YDateTimePicker',
     timePicker: 'YTimePicker',
     transfer: 'YTransfer',
     cascader: 'YCascader',
@@ -1124,6 +1126,10 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'dateRangePicker') {
     return `<YDateRangePicker v-model="sprintRange" label="Sprint range"${disabled.value ? ' disabled' : ''} />`
+  }
+
+  if (activeComponent.value === 'dateTimePicker') {
+    return `<YDateTimePicker v-model="releaseAt" label="Release at" :minute-step="15"${disabled.value ? ' disabled' : ''} />`
   }
 
   if (activeComponent.value === 'timePicker') {
@@ -1758,6 +1764,10 @@ const generatedScript = computed(() => {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst sprintRange = ref(['2026-06-13', '2026-06-20'])`
   }
 
+  if (activeComponent.value === 'dateTimePicker') {
+    return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst releaseAt = ref('2026-07-04 20:30')`
+  }
+
   if (activeComponent.value === 'timePicker') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst reviewTime = ref('09:30')`
   }
@@ -2322,6 +2332,7 @@ const playgroundShareUrl = computed(() => {
       activeComponent.value === 'switch' ||
       activeComponent.value === 'datePicker' ||
       activeComponent.value === 'dateRangePicker' ||
+      activeComponent.value === 'dateTimePicker' ||
       activeComponent.value === 'timePicker' ||
       activeComponent.value === 'cascader' ||
       activeComponent.value === 'colorPicker' ||
@@ -2799,6 +2810,7 @@ function resetGeneratedProps() {
   switchValue.value = true
   dateValue.value = '2026-06-13'
   dateRangeValue.value = ['2026-06-13', '2026-06-20']
+  dateTimeValue.value = '2026-07-04 20:30'
   timeValue.value = '09:30'
   cascaderValue.value = ['core', 'form', 'cascader']
   colorValue.value = '#14B8A6'
@@ -3065,6 +3077,7 @@ onMounted(() => {
             activeComponent === 'switch' ||
             activeComponent === 'datePicker' ||
             activeComponent === 'dateRangePicker' ||
+            activeComponent === 'dateTimePicker' ||
             activeComponent === 'timePicker' ||
             activeComponent === 'cascader' ||
             activeComponent === 'colorPicker' ||
@@ -3339,6 +3352,13 @@ onMounted(() => {
             v-else-if="activeComponent === 'dateRangePicker'"
             v-model="dateRangeValue"
             label="Sprint range"
+            :disabled="disabled"
+          />
+          <YDateTimePicker
+            v-else-if="activeComponent === 'dateTimePicker'"
+            v-model="dateTimeValue"
+            label="Release at"
+            :minute-step="15"
             :disabled="disabled"
           />
           <YTimePicker

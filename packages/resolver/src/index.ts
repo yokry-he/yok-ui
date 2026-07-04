@@ -47,6 +47,7 @@ export const yokUiComponentPackages = {
   YConfigProvider: '@yok-ui/core',
   YDatePicker: '@yok-ui/core',
   YDateRangePicker: '@yok-ui/core',
+  YDateTimePicker: '@yok-ui/core',
   YDescriptions: '@yok-ui/core',
   YDivider: '@yok-ui/core',
   YDrawer: '@yok-ui/core',

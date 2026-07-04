@@ -24,7 +24,7 @@ createApp(App).use(YokCore).mount('#app')
 
 ```vue
 <script setup lang="ts">
-import { YButton, YCheckTag, YInput, YInputOtp, YInputTag, YThemeProvider } from '@yok-ui/core'
+import { YButton, YCheckTag, YDateTimePicker, YInput, YInputOtp, YInputTag, YThemeProvider } from '@yok-ui/core'
 import type { YokThemeTokens } from '@yok-ui/themes'
 
 const yokCustomTheme = {
@@ -79,6 +79,7 @@ const yokCustomTheme = {
 <template>
   <YThemeProvider theme="yok-light" :tokens="yokCustomTheme">
     <YInput label="Project name" />
+    <YDateTimePicker label="Release at" model-value="2026-07-04 20:30" />
     <YInputOtp label="Verification code" :length="6" />
     <YInputTag label="Tags" placeholder="Press Enter to add" />
     <YCheckTag checked tone="success">Core</YCheckTag>

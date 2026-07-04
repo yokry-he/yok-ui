@@ -60,6 +60,7 @@ describe('playgroundExamples', () => {
       'autocomplete',
       'mention',
       'select',
+      'dateTimePicker',
       'configProvider',
       'table',
       'dataTable',

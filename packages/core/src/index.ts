@@ -61,6 +61,15 @@ export type {
   YDateRangeValue,
   YDateShortcut
 } from './components/date-picker'
+export { YDateTimePicker } from './components/date-time-picker'
+export type {
+  YDateTimePickerDisabledDate,
+  YDateTimePickerDisabledTime,
+  YDateTimeShortcut,
+  YDateTimeShortcutValue,
+  YDateTimeValue,
+  YResolvedDateTimeShortcut
+} from './components/date-time-picker'
 export { YDescriptions } from './components/descriptions'
 export type {
   YDescriptionItem,

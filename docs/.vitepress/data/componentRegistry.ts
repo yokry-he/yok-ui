@@ -341,6 +341,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'documented'
   },
   {
+    name: 'YDateTimePicker',
+    title: 'Date Time Picker',
+    packageName: '@yok-ui/core',
+    family: 'form',
+    status: 'Beta',
+    docs: '/components/date-time-picker',
+    description: '单字段日期时间选择，返回 YYYY-MM-DD HH:mm 字符串。',
+    since: '0.14.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YTimePicker',
     title: 'Time Picker',
     packageName: '@yok-ui/core',
@@ -6020,6 +6031,148 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'YDatePickerDisabledDate',
         type: '(date: Date) => boolean',
         description: '禁用日期判断函数。'
+      }
+    ]
+  },
+  YDateTimePicker: {
+    props: [
+      {
+        name: 'id',
+        type: 'string',
+        defaultValue: "''",
+        description: '传给内部 input 的 id；未传入时自动生成稳定 id。'
+      },
+      {
+        name: 'modelValue',
+        type: 'string',
+        defaultValue: "''",
+        description: '当前日期时间值，格式为 YYYY-MM-DD HH:mm。'
+      },
+      {
+        name: 'label',
+        type: 'string',
+        defaultValue: "''",
+        description: '表单标签。'
+      },
+      {
+        name: 'ariaLabel',
+        type: 'string',
+        defaultValue: "''",
+        description: '无可见 label 时传给内部 input 的可访问名称。'
+      },
+      {
+        name: 'ariaDescribedby',
+        type: 'string',
+        defaultValue: "''",
+        description: '传给内部 input 的 aria-describedby，通常来自表单帮助文本或 FormItem messageId。'
+      },
+      {
+        name: 'placeholder',
+        type: 'string',
+        defaultValue: "'Select date and time'",
+        description: '占位文本。'
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '禁用状态。'
+      },
+      {
+        name: 'clearable',
+        type: 'boolean',
+        defaultValue: 'true',
+        description: '是否允许清空日期时间。'
+      },
+      {
+        name: 'locale',
+        type: 'string',
+        defaultValue: 'YConfigProvider.locale',
+        description: '月份和星期显示所用 locale；未传入时读取 YConfigProvider。'
+      },
+      {
+        name: 'minuteStep',
+        type: 'number',
+        defaultValue: '1',
+        description: '分钟选项步长。'
+      },
+      {
+        name: 'disabledDate',
+        type: '(date: Date) => boolean',
+        description: '禁用指定日期。'
+      },
+      {
+        name: 'disabledTime',
+        type: '(time: YTimePickerOption) => boolean',
+        description: '禁用指定时间。'
+      },
+      {
+        name: 'shortcuts',
+        type: 'YDateTimeShortcut[]',
+        defaultValue: '[]',
+        description: '日期时间快捷项，例如评审窗口、上线窗口或预约时间。'
+      },
+      {
+        name: 'error',
+        type: 'string',
+        defaultValue: "''",
+        description: '错误信息。'
+      },
+      {
+        name: 'size',
+        type: 'YokConfigSize',
+        defaultValue: 'YConfigProvider.size',
+        description: '输入框尺寸；未传入时读取 YConfigProvider 的全局 size。'
+      },
+      {
+        name: 'invalid',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '强制标记输入框为无效状态；error 存在时会自动标记。'
+      }
+    ],
+    events: [
+      {
+        name: 'update:modelValue',
+        type: 'string',
+        description: '日期时间值变化。'
+      },
+      {
+        name: 'change',
+        type: 'string',
+        description: '确认选择或清空日期时间后触发。'
+      },
+      {
+        name: 'clear',
+        type: 'void',
+        description: '清空日期时间后触发。'
+      },
+      {
+        name: 'visibleChange',
+        type: 'boolean',
+        description: '日期时间面板打开或关闭时触发。'
+      }
+    ],
+    types: [
+      {
+        name: 'YDateTimeValue',
+        type: '{ date: string; time: string; value: string }',
+        description: '解析后的日期时间值。'
+      },
+      {
+        name: 'YDateTimeShortcut',
+        type: '{ label: string; value: string | (() => string); description?: string; disabled?: boolean }',
+        description: '日期时间快捷项。'
+      },
+      {
+        name: 'YDateTimePickerDisabledDate',
+        type: '(date: Date) => boolean',
+        description: '禁用日期判断函数。'
+      },
+      {
+        name: 'YDateTimePickerDisabledTime',
+        type: '(time: YTimePickerOption) => boolean',
+        description: '禁用时间判断函数。'
       }
     ]
   },

@@ -121,6 +121,19 @@ export const interactionContracts: InteractionContract[] = [
     }
   },
   {
+    componentName: 'YDateTimePicker',
+    pattern: 'Date grid dialog with hour and minute listboxes',
+    keyboard: ['Enter / Space opens the combined dialog', 'Arrow keys move active date and time options', 'Enter confirms the selected date time', 'Escape closes'],
+    focus: 'Opening exposes one dialog with a date grid and time listboxes; closing keeps the input as the stable form control.',
+    semantics: ['role="dialog"', 'role="grid"', 'role="listbox"', 'role="option"', 'aria-selected', 'aria-expanded', 'aria-invalid'],
+    status: 'The single field submits YYYY-MM-DD HH:mm while keeping date and time selection in one audited popup.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/guide/accessibility.md', 'docs/components/date-time-picker.md'],
+      tests: ['packages/core/src/components/date-time-picker/date-time-picker.test.ts']
+    }
+  },
+  {
     componentName: 'YTimePicker',
     pattern: 'Dialog with hour and minute listboxes',
     keyboard: ['Arrow keys move options', 'Enter / Space confirms a time part', 'Escape closes'],

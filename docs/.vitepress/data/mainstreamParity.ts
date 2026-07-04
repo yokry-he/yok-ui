@@ -17,6 +17,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-cascader'
   | 'element-plus-cascader-lazy-load'
   | 'element-plus-date-picker'
+  | 'element-plus-date-time-picker'
   | 'element-plus-input-otp'
   | 'element-plus-input-tag'
   | 'element-plus-check-tag'
@@ -197,6 +198,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     componentNames: ['YDatePicker', 'YDateRangePicker'],
     docs: ['/components/date-picker', '/components/date-range-picker'],
     capabilities: ['structured-api', 'workflow-live-example', 'shortcut-scenario', 'time-preset-shortcuts', 'disabled-date-scenario']
+  },
+  {
+    key: 'element-plus-date-time-picker',
+    label: 'Date time picker form workflows',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus DateTimePicker',
+      url: 'https://element-plus.org/en-US/component/datetime-picker',
+      note: 'Element Plus DateTimePicker documents combined date and time selection with shortcuts, disabled dates and form-oriented usage.'
+    },
+    componentNames: ['YDateTimePicker'],
+    docs: ['/components/date-time-picker'],
+    capabilities: ['structured-api', 'workflow-live-example', 'shortcut-scenario', 'disabled-date-scenario', 'keyboard-scenario']
   },
   {
     key: 'element-plus-input-otp',

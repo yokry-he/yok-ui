@@ -12,6 +12,7 @@ export type LiveExamplePreset =
   | 'carousel'
   | 'datePicker'
   | 'dateRangePicker'
+  | 'dateTimePicker'
   | 'alert'
   | 'loading'
   | 'progress'
@@ -279,6 +280,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/collapse', preset: 'collapse' },
   { docs: '/components/date-picker', preset: 'datePicker' },
   { docs: '/components/date-range-picker', preset: 'dateRangePicker' },
+  { docs: '/components/date-time-picker', preset: 'dateTimePicker' },
   { docs: '/components/descriptions', preset: 'descriptions' },
   { docs: '/components/divider', preset: 'divider' },
   { docs: '/components/dropdown', preset: 'dropdown' },
@@ -369,6 +371,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'carousel',
   'datePicker',
   'dateRangePicker',
+  'dateTimePicker',
   'textarea',
   'timePicker',
   'tooltip',
@@ -491,6 +494,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'dataTable',
   'datePicker',
   'dateRangePicker',
+  'dateTimePicker',
   'descriptions',
   'divider',
   'drawer',
@@ -3077,6 +3081,57 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: '验证打开面板、切换小时、移动分钟、确认和关闭的键盘路径。'
+    }
+  ],
+  dateTimePicker: [
+    {
+      key: 'basic-date-time-picker',
+      label: '基础日期时间',
+      kind: 'basic',
+      controlValue: 'basic',
+      description: '展示发布、预约和排期场景里单个 YYYY-MM-DD HH:mm 日期时间字段。'
+    },
+    {
+      key: 'shortcut-date-time-picker',
+      label: '快捷日期时间',
+      kind: 'controlled',
+      controlValue: 'shortcut',
+      description: '用快捷项填充评审、上线和维护窗口等常用业务时间点。'
+    },
+    {
+      key: 'disabled-date-time-picker',
+      label: '禁用规则',
+      kind: 'disabled',
+      controlValue: 'disabled',
+      description: '同时禁用周末日期和下班后时间，覆盖真实排期限制。'
+    },
+    {
+      key: 'error-date-time-picker',
+      label: '校验错误',
+      kind: 'error',
+      controlValue: 'error',
+      description: '日期时间必填或与冻结窗口冲突时展示明确错误文案。'
+    },
+    {
+      key: 'form-validation-date-time-picker',
+      label: '表单校验',
+      kind: 'composition',
+      controlValue: 'validation',
+      description: '把 id、aria-describedby、error、change 和 visibleChange 接入表单校验链路。'
+    },
+    {
+      key: 'mobile-date-time-picker',
+      label: '移动日期时间',
+      kind: 'responsive',
+      controlValue: 'mobile',
+      description: '窄屏下使用短标签、短占位和 30 分钟粒度，保证面板仍可操作。'
+    },
+    {
+      key: 'keyboard-date-time-picker',
+      label: '键盘日期时间',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: '覆盖打开面板、移动日期、选择小时分钟、确认和关闭弹层的键盘路径。'
     }
   ],
   inputNumber: [

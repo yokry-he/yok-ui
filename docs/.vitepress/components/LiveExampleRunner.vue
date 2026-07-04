@@ -23,6 +23,7 @@ import {
   YCountdown,
   YDatePicker,
   YDateRangePicker,
+  YDateTimePicker,
   YDescriptions,
   YDivider,
   YDropdown,
@@ -1524,6 +1525,23 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '  </div>',
     '</template>'
   ].join('\n'),
+  dateTimePicker: [
+    '<script setup lang="ts">',
+    "import { YDateTimePicker, YTag, type YDateTimeShortcut } from '@yok-ui/core'",
+    'const dateTimeShortcuts: YDateTimeShortcut[] = [',
+    "  { label: 'Review', value: '2026-06-15 10:00', description: 'Design and QA review' },",
+    "  { label: 'Launch', value: '2026-07-04 20:30', description: 'Low traffic release window' }",
+    ']',
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <div class="demo-stack">',
+    '    <YDateTimePicker label="Release at" model-value="2026-07-04 20:30" :minute-step="15" />',
+    '    <YDateTimePicker label="Review slot" placeholder="Pick date and time" :shortcuts="dateTimeShortcuts" />',
+    '    <YTag tone="success">Use YYYY-MM-DD HH:mm values for form and API handoff.</YTag>',
+    '  </div>',
+    '</template>'
+  ].join('\n'),
   alert: [
     '<script setup lang="ts">',
     "import { YAlert, YButton } from '@yok-ui/core'",
@@ -2446,6 +2464,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   themeProvider: 'Theme Provider',
   datePicker: 'Date Picker',
   dateRangePicker: 'Date Range Picker',
+  dateTimePicker: 'Date Time Picker',
   alert: 'Alert',
   loading: 'Loading',
   progress: 'Progress',
@@ -4068,6 +4087,99 @@ const disableWeekends = (date: Date) => [0, 6].includes(date.getDay())`
       `  <YTag tone="${isFreezeScenario || isValidationScenario ? 'danger' : isKeyboardScenario || isPartialScenario || isDisabledDateScenario ? 'warning' : 'info'}">${helperText}</YTag>`,
       '</div>'
     ].filter(Boolean))
+    }
+  },
+  dateTimePicker: {
+    title: 'Date Time Picker scenario',
+    description: '用发布排期、快捷时间点、禁用规则、表单校验、移动面板和键盘路径调试日期时间字段。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'basic', options: [
+        { label: '基础日期时间', value: 'basic' },
+        { label: '快捷日期时间', value: 'shortcut' },
+        { label: '禁用规则', value: 'disabled' },
+        { label: '校验错误', value: 'error' },
+        { label: '表单校验', value: 'validation' },
+        { label: '移动日期时间', value: 'mobile' },
+        { label: '键盘日期时间', value: 'keyboard' }
+      ] },
+      { key: 'clearable', label: '可清空', type: 'boolean', defaultValue: true }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const isShortcutScenario = scenario === 'shortcut'
+      const isDisabledScenario = scenario === 'disabled'
+      const isErrorScenario = scenario === 'error'
+      const isValidationScenario = scenario === 'validation'
+      const isMobileScenario = scenario === 'mobile'
+      const isKeyboardScenario = scenario === 'keyboard'
+      const label = isShortcutScenario
+        ? 'Release slot'
+        : isDisabledScenario
+          ? 'Review window'
+          : isErrorScenario || isValidationScenario
+            ? 'Release date time'
+            : isMobileScenario
+              ? 'Pickup'
+              : isKeyboardScenario
+                ? 'Keyboard date time picker'
+                : 'Release at'
+      const value = isErrorScenario || isValidationScenario
+        ? ''
+        : isDisabledScenario
+          ? '2026-06-15 17:30'
+          : isMobileScenario
+            ? '2026-06-20 10:00'
+            : '2026-07-04 20:30'
+      const minuteStep = isDisabledScenario || isMobileScenario ? 30 : 15
+      const placeholder = isErrorScenario || isValidationScenario
+        ? 'Required before release'
+        : isMobileScenario
+          ? 'Pick time'
+          : isKeyboardScenario
+            ? 'Use keyboard to pick'
+            : 'Pick date and time'
+      const helperText = isShortcutScenario
+        ? 'Shortcuts fill complete date-time values for review and launch workflows.'
+        : isDisabledScenario
+          ? 'Weekends and after-work time slots are disabled by pure functions.'
+        : isErrorScenario
+          ? 'Error text explains why the release cannot continue.'
+        : isValidationScenario
+          ? 'Stable id and aria-describedby connect help text, errors and event log coverage for @change and @visible-change.'
+        : isMobileScenario
+          ? 'Short labels and 30-minute steps keep the panel compact in narrow layouts.'
+        : isKeyboardScenario
+          ? 'Enter opens the dialog; arrows move dates and time options; Escape closes it.'
+          : 'Use YYYY-MM-DD HH:mm values for predictable form and API handoff.'
+      const pickerLine = `<YDateTimePicker${isValidationScenario ? ' id="release-date-time-field"' : ''}${textAttribute('label', label)}${value ? textAttribute('model-value', value) : ''}${numericBinding('minute-step', minuteStep)}${textAttribute('placeholder', placeholder)}${isShortcutScenario || isKeyboardScenario ? ' :shortcuts="dateTimeShortcuts"' : ''}${isDisabledScenario ? ' :disabled-date="disableWeekends" :disabled-time="disableAfterWork"' : ''}${isKeyboardScenario ? ' aria-label="Keyboard date time picker panel"' : ''}${isValidationScenario ? ' aria-describedby="release-date-time-help" invalid' : ''}${isErrorScenario || isValidationScenario ? ' error="Release date time is required."' : ''}${state.clearable ? '' : ' :clearable="false"'} />`
+      const imports = [
+        "import { YDateTimePicker, YTag } from '@yok-ui/core'",
+        isShortcutScenario || isKeyboardScenario ? "import type { YDateTimeShortcut } from '@yok-ui/core'" : '',
+        isDisabledScenario ? "import type { YDateTimePickerDisabledTime } from '@yok-ui/core'" : '',
+        isShortcutScenario || isKeyboardScenario ? [
+          '',
+          'const dateTimeShortcuts: YDateTimeShortcut[] = [',
+          "  { label: 'Review', value: '2026-06-15 10:00', description: 'Design and QA review' },",
+          "  { label: 'Launch', value: '2026-07-04 20:30', description: 'Low traffic release window' }",
+          ']'
+        ].join('\n') : '',
+        isDisabledScenario ? [
+          '',
+          'function disableWeekends(date: Date) {',
+          '  return date.getDay() === 0 || date.getDay() === 6',
+          '}',
+          '',
+          'const disableAfterWork: YDateTimePickerDisabledTime = (time) => time.hour >= 18'
+        ].join('\n') : ''
+      ].filter(Boolean).join('\n')
+
+      return sfc(imports, [
+        '<div class="demo-stack">',
+        `  ${pickerLine}`,
+        isValidationScenario ? '  <p id="release-date-time-help" class="demo-note">Choose a release date and time before publishing.</p>' : '',
+        `  <YTag tone="${isErrorScenario || isValidationScenario ? 'danger' : isDisabledScenario ? 'warning' : 'info'}">${helperText}</YTag>`,
+        '</div>'
+      ].filter(Boolean))
     }
   },
   textarea: {
@@ -12335,6 +12447,7 @@ const componentMap = {
   ycopybutton: YCopyButton,
   ydatepicker: YDatePicker,
   ydaterangepicker: YDateRangePicker,
+  ydatetimepicker: YDateTimePicker,
   ydescriptions: RunnerDescriptionsPreview,
   ydivider: YDivider,
   ydropdown: YDropdown,
@@ -18140,6 +18253,7 @@ const sourcePanelSfcCode = computed(() => {
 })
 const componentSourceDirectoryOverrides: Record<string, string> = {
   YDateRangePicker: 'date-picker',
+  YDateTimePicker: 'date-time-picker',
   YFloatButton: 'float-button',
   YFloatButtonGroup: 'float-button',
   YRadioGroup: 'radio',

@@ -15,6 +15,7 @@ describe('mainstreamParity', () => {
     const elementPlusCascader = items.find((item) => item.key === 'element-plus-cascader')
     const elementPlusCascaderLazy = items.find((item) => item.key === 'element-plus-cascader-lazy-load')
     const elementPlusDatePicker = items.find((item) => item.key === 'element-plus-date-picker')
+    const elementPlusDateTimePicker = items.find((item) => item.key === 'element-plus-date-time-picker')
     const elementPlusInputOtp = items.find((item) => item.key === 'element-plus-input-otp')
     const elementPlusInputTag = items.find((item) => item.key === 'element-plus-input-tag')
     const elementPlusCheckTag = items.find((item) => item.key === 'element-plus-check-tag')
@@ -32,6 +33,7 @@ describe('mainstreamParity', () => {
       'element-plus-cascader',
       'element-plus-cascader-lazy-load',
       'element-plus-date-picker',
+      'element-plus-date-time-picker',
       'element-plus-input-otp',
       'element-plus-input-tag',
       'element-plus-check-tag',
@@ -62,6 +64,7 @@ describe('mainstreamParity', () => {
       'Element Plus Cascader',
       'Element Plus Cascader Dynamic Loading',
       'Element Plus DatePicker',
+      'Element Plus DateTimePicker',
       'Element Plus InputOtp',
       'Element Plus InputTag',
       'Element Plus CheckTag',
@@ -110,6 +113,14 @@ describe('mainstreamParity', () => {
     })
     expect(elementPlusDatePicker?.matchedComponents.map((component) => component.name)).toContain('YDatePicker')
     expect(elementPlusDatePicker?.evidence.liveExamples).toContain('/components/date-picker#live-example')
+
+    expect(elementPlusDateTimePicker).toMatchObject({
+      label: 'Date time picker form workflows',
+      status: 'covered'
+    })
+    expect(elementPlusDateTimePicker?.matchedComponents.map((component) => component.name)).toContain('YDateTimePicker')
+    expect(elementPlusDateTimePicker?.evidence.docs).toContain('/components/date-time-picker')
+    expect(elementPlusDateTimePicker?.evidence.liveExamples).toContain('/components/date-time-picker#live-example')
 
     expect(elementPlusInputOtp).toMatchObject({
       label: 'InputOtp one-time password entry',

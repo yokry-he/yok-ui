@@ -15,6 +15,7 @@ import { YCheckbox, YCheckboxGroup } from './components/checkbox'
 import { YCollapse } from './components/collapse'
 import { YColorPicker } from './components/color-picker'
 import { YConfigProvider } from './components/config-provider'
+import { YDateTimePicker } from './components/date-time-picker'
 import { YDatePicker, YDateRangePicker } from './components/date-picker'
 import { YDescriptions } from './components/descriptions'
 import { YDivider } from './components/divider'
@@ -110,6 +111,7 @@ export const coreComponents: Component[] = [
   YCollapse,
   YColorPicker,
   YConfigProvider,
+  YDateTimePicker,
   YDatePicker,
   YDateRangePicker,
   YDescriptions,

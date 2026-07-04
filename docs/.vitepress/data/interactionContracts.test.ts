@@ -51,6 +51,7 @@ describe('interactionContracts', () => {
       'YDataView',
       'YDatePicker',
       'YDateRangePicker',
+      'YDateTimePicker',
       'YDescriptions',
       'YDrawer',
       'YDropdown',

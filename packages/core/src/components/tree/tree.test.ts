@@ -344,4 +344,50 @@ describe('YTree', () => {
 
     expect(wrapper.emitted('drop')).toBeUndefined()
   })
+
+  it('virtualizes visible tree items while preserving treeitem semantics', async () => {
+    const largeNodes: YTreeNode[] = Array.from({ length: 40 }, (_, index) => ({
+      key: `node-${index + 1}`,
+      label: `Node ${index + 1}`
+    }))
+    const wrapper = mount(YTree, {
+      props: {
+        nodes: largeNodes,
+        virtualized: true,
+        virtualHeight: 96,
+        virtualItemHeight: 32,
+        virtualOverscan: 1,
+        ariaLabel: 'Virtualized tree'
+      }
+    })
+
+    const tree = wrapper.get('[role="tree"]')
+
+    expect(tree.classes()).toContain('yok-tree__list--virtualized')
+    expect(tree.attributes('data-virtualized')).toBe('true')
+    expect(tree.attributes('aria-setsize')).toBe('40')
+    expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual([
+      'Node 1',
+      'Node 2',
+      'Node 3',
+      'Node 4'
+    ])
+    expect(wrapper.get('[aria-posinset="4"]').text()).toBe('Node 4')
+
+    const viewport = wrapper.get('[role="tree"]')
+    Object.defineProperty(viewport.element, 'scrollTop', {
+      configurable: true,
+      value: 160
+    })
+    await viewport.trigger('scroll')
+
+    expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual([
+      'Node 5',
+      'Node 6',
+      'Node 7',
+      'Node 8',
+      'Node 9'
+    ])
+    expect(wrapper.get('[aria-posinset="5"]').text()).toBe('Node 5')
+  })
 })

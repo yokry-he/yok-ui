@@ -758,6 +758,12 @@ describe('componentRegistry', () => {
     expect(componentApis.YTransfer.events?.map((row) => row.name)).toContain('change')
     expect(componentApis.YTree.props?.map((row) => row.name)).toContain('draggable')
     expect(componentApis.YTree.props?.map((row) => row.name)).toContain('checkable')
+    expect(componentApis.YTree.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'virtualized',
+      'virtualHeight',
+      'virtualItemHeight',
+      'virtualOverscan'
+    ]))
     expect(componentApis.YTree.events?.map((row) => row.name)).toContain('check')
     expect(componentApis.YTree.events?.map((row) => row.name)).toContain('drop')
     expect(componentApis.YTree.types?.map((row) => row.name)).toContain('YTreeCheckPayload')

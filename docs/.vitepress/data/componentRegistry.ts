@@ -5991,6 +5991,30 @@ export const componentApis: Record<string, ComponentApi> = {
         description: '自定义拖拽放置规则。'
       },
       {
+        name: 'virtualized',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否启用节点虚拟滚动；适合大量扁平可见节点，只渲染视口附近 treeitem。'
+      },
+      {
+        name: 'virtualHeight',
+        type: 'number',
+        defaultValue: '280',
+        description: '虚拟滚动树的可视高度，单位为 px。'
+      },
+      {
+        name: 'virtualItemHeight',
+        type: 'number',
+        defaultValue: '36',
+        description: '虚拟滚动节点的估算行高，单位为 px；应接近实际节点高度。'
+      },
+      {
+        name: 'virtualOverscan',
+        type: 'number',
+        defaultValue: '4',
+        description: '视口上下额外渲染的节点数量，用于降低快速滚动时的空白感。'
+      },
+      {
         name: 'ariaLabel',
         type: 'string',
         defaultValue: "'Tree'",

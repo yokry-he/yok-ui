@@ -35,6 +35,10 @@ interface Props {
   checkStrictly?: boolean
   draggable?: boolean
   allowDrop?: YTreeAllowDrop
+  virtualized?: boolean
+  virtualHeight?: number
+  virtualItemHeight?: number
+  virtualOverscan?: number
   ariaLabel?: string
   emptyText?: string
 }
@@ -49,6 +53,10 @@ const props = withDefaults(defineProps<Props>(), {
   checkStrictly: false,
   draggable: false,
   allowDrop: undefined,
+  virtualized: false,
+  virtualHeight: 280,
+  virtualItemHeight: 36,
+  virtualOverscan: 4,
   ariaLabel: 'Tree',
   emptyText: 'No tree data yet'
 })
@@ -70,6 +78,7 @@ const internalExpandedKeys = ref<string[]>([...props.defaultExpandedKeys])
 const internalCheckedKeys = ref<string[]>([...props.defaultCheckedKeys])
 const activeKey = ref('')
 const draggingKey = ref('')
+const scrollTop = ref(0)
 const dropTarget = ref<{ key: string; type: YTreeDropType } | null>(null)
 
 const expandedKeysValue = computed(() => props.expandedKeys ?? internalExpandedKeys.value)
@@ -84,6 +93,44 @@ const flatNodes = computed(() => flattenTree({
 }))
 const activeNode = computed(() => flatNodes.value.find((node) => node.key === activeKey.value))
 const draggingNode = computed(() => draggingKey.value ? findNode(props.nodes, draggingKey.value) : null)
+const normalizedVirtualHeight = computed(() => Math.max(1, props.virtualHeight))
+const normalizedVirtualItemHeight = computed(() => Math.max(1, props.virtualItemHeight))
+const normalizedVirtualOverscan = computed(() => Math.max(0, props.virtualOverscan))
+const virtualVisibleCount = computed(() => Math.ceil(normalizedVirtualHeight.value / normalizedVirtualItemHeight.value))
+const canVirtualizeNodes = computed(() => props.virtualized && flatNodes.value.length > virtualVisibleCount.value)
+const virtualRange = computed(() => {
+  if (!canVirtualizeNodes.value) {
+    return {
+      start: 0,
+      end: flatNodes.value.length
+    }
+  }
+
+  const baseStart = Math.floor(scrollTop.value / normalizedVirtualItemHeight.value)
+  const start = Math.max(0, baseStart - normalizedVirtualOverscan.value)
+  const end = Math.min(
+    flatNodes.value.length,
+    baseStart + virtualVisibleCount.value + normalizedVirtualOverscan.value
+  )
+
+  return {
+    start,
+    end
+  }
+})
+const renderedNodes = computed(() => flatNodes.value.slice(virtualRange.value.start, virtualRange.value.end))
+const virtualListStyle = computed(() => canVirtualizeNodes.value
+  ? { height: `${normalizedVirtualHeight.value}px` }
+  : undefined)
+const virtualSpacerStyle = computed(() => ({
+  height: `${flatNodes.value.length * normalizedVirtualItemHeight.value}px`
+}))
+const virtualTrackStyle = computed(() => ({
+  transform: `translateY(${virtualRange.value.start * normalizedVirtualItemHeight.value}px)`
+}))
+const virtualItemStyle = computed(() => canVirtualizeNodes.value
+  ? { height: `${normalizedVirtualItemHeight.value}px` }
+  : undefined)
 
 watch(flatNodes, (nodes) => {
   if (!nodes.length) {
@@ -120,8 +167,34 @@ function focusActive() {
   })
 }
 
+function ensureNodeVisible(key: string) {
+  if (!canVirtualizeNodes.value) {
+    return
+  }
+
+  const index = flatNodes.value.findIndex((node) => node.key === key)
+
+  if (index < 0) {
+    return
+  }
+
+  const itemStart = index * normalizedVirtualItemHeight.value
+  const itemEnd = itemStart + normalizedVirtualItemHeight.value
+  const viewportEnd = scrollTop.value + normalizedVirtualHeight.value
+
+  if (itemStart < scrollTop.value) {
+    scrollTop.value = itemStart
+    treeRef.value && (treeRef.value.scrollTop = itemStart)
+  } else if (itemEnd > viewportEnd) {
+    const nextScrollTop = itemEnd - normalizedVirtualHeight.value
+    scrollTop.value = nextScrollTop
+    treeRef.value && (treeRef.value.scrollTop = nextScrollTop)
+  }
+}
+
 function setActiveKey(key: string) {
   activeKey.value = key
+  ensureNodeVisible(key)
   focusActive()
 }
 
@@ -370,6 +443,14 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 
+function handleScroll(event: Event) {
+  if (!canVirtualizeNodes.value) {
+    return
+  }
+
+  scrollTop.value = (event.target as HTMLElement).scrollTop
+}
+
 function getNodeByKey(key: string) {
   return findNode(props.nodes, key)
 }
@@ -385,72 +466,93 @@ defineExpose({
       v-if="flatNodes.length"
       ref="treeRef"
       class="yok-tree__list"
+      :class="{ 'yok-tree__list--virtualized': canVirtualizeNodes }"
       role="tree"
       :aria-label="ariaLabel"
+      :aria-setsize="flatNodes.length"
+      :data-virtualized="canVirtualizeNodes ? 'true' : undefined"
+      :style="virtualListStyle"
       @keydown="handleKeydown"
+      @scroll="handleScroll"
     >
       <div
-        v-for="flatNode in flatNodes"
-        :key="flatNode.key"
-        class="yok-tree__item yok-focus-ring"
-        :class="{
-          'yok-tree__item--checkable': checkable,
-          'yok-tree__item--selected': flatNode.selected,
-          'yok-tree__item--disabled': flatNode.disabled,
-          'yok-tree__item--dragging': draggingKey === flatNode.key,
-          'yok-tree__item--drop-before': dropTarget?.key === flatNode.key && dropTarget.type === 'before',
-          'yok-tree__item--drop-inside': dropTarget?.key === flatNode.key && dropTarget.type === 'inside',
-          'yok-tree__item--drop-after': dropTarget?.key === flatNode.key && dropTarget.type === 'after'
-        }"
-        role="treeitem"
-        :draggable="draggable && !flatNode.disabled"
-        :aria-level="flatNode.level"
-        :aria-expanded="flatNode.hasChildren ? (flatNode.expanded ? 'true' : 'false') : undefined"
-        :aria-selected="flatNode.selected ? 'true' : 'false'"
-        :aria-disabled="flatNode.disabled ? 'true' : undefined"
-        :data-active-treeitem="activeKey === flatNode.key ? 'true' : 'false'"
-        :tabindex="activeKey === flatNode.key ? 0 : -1"
-        :style="{ '--yok-tree-level': flatNode.level }"
-        @click="handleNodeClick(flatNode)"
-        @dragstart="handleDragStart($event, flatNode)"
-        @dragover="handleDragOver($event, flatNode)"
-        @dragleave="dropTarget = null"
-        @drop="handleDrop($event, flatNode)"
-        @dragend="handleDragEnd"
+        class="yok-tree__render-space"
+        :class="{ 'yok-tree__render-space--virtualized': canVirtualizeNodes }"
+        :style="canVirtualizeNodes ? virtualSpacerStyle : undefined"
+      >
+        <div
+          class="yok-tree__render-track"
+          :class="{ 'yok-tree__render-track--virtualized': canVirtualizeNodes }"
+          :style="canVirtualizeNodes ? virtualTrackStyle : undefined"
         >
-        <button
-          v-if="flatNode.hasChildren"
-          class="yok-tree__toggle yok-focus-ring"
-          type="button"
-          :disabled="flatNode.disabled"
-          :aria-label="flatNode.expanded ? `Collapse ${flatNode.label}` : `Expand ${flatNode.label}`"
-          @click.stop="toggleNode(flatNode)"
-        >
-          <span aria-hidden="true">{{ flatNode.expanded ? '−' : '+' }}</span>
-        </button>
-        <span v-else class="yok-tree__spacer" aria-hidden="true" />
+          <div
+            v-for="(flatNode, renderedIndex) in renderedNodes"
+            :key="flatNode.key"
+            class="yok-tree__item yok-focus-ring"
+            :class="{
+              'yok-tree__item--checkable': checkable,
+              'yok-tree__item--selected': flatNode.selected,
+              'yok-tree__item--disabled': flatNode.disabled,
+              'yok-tree__item--dragging': draggingKey === flatNode.key,
+              'yok-tree__item--drop-before': dropTarget?.key === flatNode.key && dropTarget.type === 'before',
+              'yok-tree__item--drop-inside': dropTarget?.key === flatNode.key && dropTarget.type === 'inside',
+              'yok-tree__item--drop-after': dropTarget?.key === flatNode.key && dropTarget.type === 'after'
+            }"
+            role="treeitem"
+            :draggable="draggable && !flatNode.disabled"
+            :aria-level="flatNode.level"
+            :aria-posinset="virtualRange.start + renderedIndex + 1"
+            :aria-expanded="flatNode.hasChildren ? (flatNode.expanded ? 'true' : 'false') : undefined"
+            :aria-selected="flatNode.selected ? 'true' : 'false'"
+            :aria-disabled="flatNode.disabled ? 'true' : undefined"
+            :data-active-treeitem="activeKey === flatNode.key ? 'true' : 'false'"
+            :tabindex="activeKey === flatNode.key ? 0 : -1"
+            :style="[
+              { '--yok-tree-level': flatNode.level },
+              virtualItemStyle
+            ]"
+            @click="handleNodeClick(flatNode)"
+            @dragstart="handleDragStart($event, flatNode)"
+            @dragover="handleDragOver($event, flatNode)"
+            @dragleave="dropTarget = null"
+            @drop="handleDrop($event, flatNode)"
+            @dragend="handleDragEnd"
+          >
+            <button
+              v-if="flatNode.hasChildren"
+              class="yok-tree__toggle yok-focus-ring"
+              type="button"
+              :disabled="flatNode.disabled"
+              :aria-label="flatNode.expanded ? `Collapse ${flatNode.label}` : `Expand ${flatNode.label}`"
+              @click.stop="toggleNode(flatNode)"
+            >
+              <span aria-hidden="true">{{ flatNode.expanded ? '−' : '+' }}</span>
+            </button>
+            <span v-else class="yok-tree__spacer" aria-hidden="true" />
 
-        <button
-          v-if="checkable"
-          class="yok-tree__checkbox yok-focus-ring"
-          :class="{
-            'yok-tree__checkbox--checked': getCheckState(flatNode).checked,
-            'yok-tree__checkbox--indeterminate': getCheckState(flatNode).indeterminate
-          }"
-          type="button"
-          :disabled="flatNode.disabled"
-          :aria-label="`${getCheckState(flatNode).checked ? 'Uncheck' : 'Check'} ${flatNode.label}`"
-          :aria-checked="getCheckState(flatNode).indeterminate ? 'mixed' : (getCheckState(flatNode).checked ? 'true' : 'false')"
-          @click.stop="toggleCheck(flatNode)"
-        >
-          <span aria-hidden="true">{{ getCheckState(flatNode).indeterminate ? '−' : (getCheckState(flatNode).checked ? '✓' : '') }}</span>
-        </button>
+            <button
+              v-if="checkable"
+              class="yok-tree__checkbox yok-focus-ring"
+              :class="{
+                'yok-tree__checkbox--checked': getCheckState(flatNode).checked,
+                'yok-tree__checkbox--indeterminate': getCheckState(flatNode).indeterminate
+              }"
+              type="button"
+              :disabled="flatNode.disabled"
+              :aria-label="`${getCheckState(flatNode).checked ? 'Uncheck' : 'Check'} ${flatNode.label}`"
+              :aria-checked="getCheckState(flatNode).indeterminate ? 'mixed' : (getCheckState(flatNode).checked ? 'true' : 'false')"
+              @click.stop="toggleCheck(flatNode)"
+            >
+              <span aria-hidden="true">{{ getCheckState(flatNode).indeterminate ? '−' : (getCheckState(flatNode).checked ? '✓' : '') }}</span>
+            </button>
 
-        <span class="yok-tree__label">
-          <slot name="node" :node="flatNode.node" :flat-node="flatNode">
-            {{ flatNode.label }}
-          </slot>
-        </span>
+            <span class="yok-tree__label">
+              <slot name="node" :node="flatNode.node" :flat-node="flatNode">
+                {{ flatNode.label }}
+              </slot>
+            </span>
+          </div>
+        </div>
       </div>
     </div>
     <div v-else class="yok-tree__empty" role="status">
@@ -472,6 +574,28 @@ defineExpose({
 .yok-tree__list {
   display: grid;
   padding: var(--yok-space-2);
+}
+
+.yok-tree__list--virtualized {
+  position: relative;
+  display: block;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.yok-tree__render-space {
+  min-width: 0;
+}
+
+.yok-tree__render-space--virtualized {
+  position: relative;
+}
+
+.yok-tree__render-track--virtualized {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  will-change: transform;
 }
 
 .yok-tree__item {

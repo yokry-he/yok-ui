@@ -4828,6 +4828,13 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       description: '覆盖 draggable 与 allow-drop 约束，展示分类编辑中的拖拽 affordance 和展开状态。'
     },
     {
+      key: 'virtualized-tree',
+      label: '大型虚拟树',
+      kind: 'virtual',
+      controlValue: 'virtualized',
+      description: '覆盖 virtualized、virtual-height、virtual-item-height 和 virtual-overscan 的大量节点滚动场景。'
+    },
+    {
       key: 'empty-tree',
       label: '空树',
       kind: 'empty',

@@ -9,6 +9,10 @@ const strictCheckedKeys = ref(['tree'])
 const lastDrop = ref('No drop yet')
 const lastCheck = ref('Checked: button')
 const lastSelect = ref('Selected: button')
+const largeNodes = Array.from({ length: 160 }, (_, index) => ({
+  key: `node-${index + 1}`,
+  label: `Component node ${index + 1}`
+}))
 
 const nodes = [
   {
@@ -49,6 +53,10 @@ const treeCodeSetup = [
   "const lastDrop = ref('No drop yet')",
   "const lastCheck = ref('Checked: button')",
   "const lastSelect = ref('Selected: button')",
+  'const largeNodes = Array.from({ length: 160 }, (_, index) => ({',
+  '  key: `node-${index + 1}`,',
+  '  label: `Component node ${index + 1}`',
+  '}))',
   '',
   `const nodes = ${JSON.stringify(nodes, null, 2)}`,
   '',
@@ -110,6 +118,17 @@ const draggableCode = [
   '<YTree :nodes="nodes" draggable aria-label="Draggable tree" @drop="handleDrop" />'
 ].join('\n')
 
+const virtualizedCode = [
+  '<YTree',
+  '  :nodes="largeNodes"',
+  '  virtualized',
+  '  :virtual-height="240"',
+  '  :virtual-item-height="36"',
+  '  :virtual-overscan="3"',
+  '  aria-label="Large component tree"',
+  '/>'
+].join('\n')
+
 function handleDrop(payload: YTreeDropPayload) {
   lastDrop.value = `${payload.draggingKey} ${payload.type} ${payload.dropKey}`
 }
@@ -127,7 +146,7 @@ function handleSelect(payload: YTreeSelectPayload) {
 
 Tree 用于展示层级数据，例如组件分类、权限结构、文件目录、资源分组和后台配置树。
 
-当前版本支持单选、展开折叠、禁用节点、受控展开状态、级联勾选、节点插槽、拖拽事件和键盘导航。异步加载和内置重排工具会作为后续增强。
+当前版本支持单选、展开折叠、禁用节点、受控展开状态、级联勾选、节点插槽、拖拽事件、虚拟滚动和键盘导航。异步加载和内置重排工具会作为后续增强。
 
 ## Example
 
@@ -214,6 +233,23 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
   <p class="demo-note">{{ lastDrop }}</p>
 </DocDemo>
 
+<DocDemo
+  title="Virtualized tree"
+  description="大型树可以开启 virtualized，只渲染视口附近节点，同时保留 tree/treeitem 语义和键盘导航。"
+  :code="virtualizedCode"
+  :setup="treeCodeSetup"
+  :usage="['virtualized', 'virtualHeight', 'virtualItemHeight', 'large data']"
+>
+  <YTree
+    :nodes="largeNodes"
+    virtualized
+    :virtual-height="240"
+    :virtual-item-height="36"
+    :virtual-overscan="3"
+    aria-label="Large component tree"
+  />
+</DocDemo>
+
 ## Live example
 
 <LiveExampleRunner
@@ -238,7 +274,7 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
 
 - `nodes` 应保持稳定 key，避免展开、选中和勾选状态丢失。
 - 受控模式使用 `selectedKey`、`expandedKeys`、`checkedKeys`；非受控初始值使用 `defaultExpandedKeys` 和 `defaultCheckedKeys`。
-- 对于大型树，后续应优先补虚拟化树或懒加载，而不是把所有节点一次性渲染。
+- 对于大型树，优先开启 `virtualized`，并让 `virtualItemHeight` 接近实际节点高度；远程目录或超深树再结合懒加载策略。
 
 ## API
 
@@ -252,3 +288,4 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
 - 有子节点的项会暴露 `aria-expanded`。
 - 拖拽使用原生 HTML Drag and Drop，键盘树导航保持原有 roving tabindex 行为。
 - 树使用 roving tabindex，仅当前活动节点进入 Tab 顺序。
+- 开启虚拟滚动时，根节点仍保留 `role="tree"`，可见项保留 `role="treeitem"`，并通过 `aria-setsize` / `aria-posinset` 描述完整集合位置。

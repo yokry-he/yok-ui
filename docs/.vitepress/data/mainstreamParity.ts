@@ -12,6 +12,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-source-actions'
   | 'element-plus-playground-flow'
   | 'element-plus-table'
+  | 'element-plus-virtualized-tree'
   | 'element-plus-cascader'
   | 'element-plus-date-picker'
   | 'element-plus-config-provider-i18n'
@@ -125,6 +126,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     componentNames: ['YTable', 'YDataTable'],
     docs: ['/components/table', '/components/data-table'],
     capabilities: ['structured-api', 'workflow-live-example', 'api-live-coverage']
+  },
+  {
+    key: 'element-plus-virtualized-tree',
+    label: 'Virtualized tree performance',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus Virtualized Tree',
+      url: 'https://element-plus.org/en-US/component/tree-v2',
+      note: 'Element Plus exposes a virtualized Tree V2 for large trees that need fast scrolling with tree-node interaction.'
+    },
+    componentNames: ['YTree'],
+    docs: ['/components/tree'],
+    capabilities: ['virtualized-tree', 'structured-api', 'workflow-live-example', 'keyboard-scenario']
   },
   {
     key: 'element-plus-cascader',

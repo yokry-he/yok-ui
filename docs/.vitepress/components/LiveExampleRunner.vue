@@ -34,6 +34,7 @@ import {
   YIcon,
   YImage,
   YInput,
+  YInputOtp,
   YInputTag,
   YInputNumber,
   YAside,
@@ -1337,6 +1338,21 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '  </div>',
     '</template>'
   ].join('\n'),
+  inputOtp: [
+    '<script setup lang="ts">',
+    "import { ref } from 'vue'",
+    "import { YInputOtp, YTag } from '@yok-ui/core'",
+    '',
+    "const code = ref('123')",
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <div class="demo-stack">',
+    '    <YInputOtp v-model="code" label="Verification code" :length="6" />',
+    '    <YTag tone="info">Paste a full code or type each digit; complete fires when all fields are filled.</YTag>',
+    '  </div>',
+    '</template>'
+  ].join('\n'),
   inputTag: [
     '<script setup lang="ts">',
     "import { ref } from 'vue'",
@@ -2371,6 +2387,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   text: 'Text',
   tagBadge: 'Tag & Badge',
   input: 'Input',
+  inputOtp: 'Input OTP',
   inputTag: 'Input Tag',
   autocomplete: 'Autocomplete',
   mention: 'Mention',
@@ -3102,6 +3119,73 @@ const liveExampleRecipes: Partial<Record<LiveExamplePreset, LiveExampleRecipe>> 
         '<div class="demo-stack">',
         `  <YInput${textAttribute('label', label)}${textAttribute('model-value', modelValue)}${textAttribute('placeholder', placeholder)}${textAttribute('size', state.size)}${isSearchScenario || isClearableScenario ? ' type="search"' : ''}${isClearableScenario ? ' prefix-text="/" clearable show-count :maxlength="24"' : ''}${error ? textAttribute('error', error) : ''}${booleanAttribute('invalid', isValidationScenario || state.invalid)}${describedBy ? textAttribute('aria-describedby', describedBy) : ''}${booleanAttribute('disabled', isDisabledScenario)} />`,
         ...(helper ? [`  ${helper}`] : []),
+        '</div>'
+      ])
+    }
+  },
+  inputOtp: {
+    title: 'Input OTP scenario',
+    description: '调试一次性验证码的长度、粘贴填充、隐藏字符、表单错误、移动换行和键盘路径。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'basic', options: [
+        { label: '基础验证码', value: 'basic' },
+        { label: '粘贴填充', value: 'paste' },
+        { label: '隐藏验证码', value: 'password' },
+        { label: '表单错误', value: 'form' },
+        { label: '移动验证码', value: 'mobile' },
+        { label: '键盘路径', value: 'keyboard' }
+      ] },
+      { key: 'label', label: '标签', type: 'text', defaultValue: 'Verification code' },
+      { key: 'length', label: '长度', type: 'number', defaultValue: 6, min: 4, max: 8, step: 1 },
+      { key: 'mask', label: '过滤', type: 'select', defaultValue: 'numeric', options: [
+        { label: '数字', value: 'numeric' },
+        { label: '字母数字', value: 'alphanumeric' },
+        { label: '任意非空白', value: 'all' }
+      ] },
+      { key: 'password', label: '隐藏字符', type: 'boolean', defaultValue: false },
+      { key: 'disabled', label: '禁用', type: 'boolean', defaultValue: false }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const isPasteScenario = scenario === 'paste'
+      const isPasswordScenario = scenario === 'password'
+      const isFormScenario = scenario === 'form'
+      const isMobileScenario = scenario === 'mobile'
+      const isKeyboardScenario = scenario === 'keyboard'
+      const length = isMobileScenario ? 4 : Number(state.length)
+      const modelValue = isFormScenario
+        ? '12'
+        : isPasteScenario
+          ? '1234'
+          : isPasswordScenario
+            ? '4207'
+            : isKeyboardScenario
+              ? '123'
+              : '123'
+      const type = Boolean(state.password) || isPasswordScenario ? 'password' : 'text'
+      const helperTone = isFormScenario
+        ? 'warning'
+        : isKeyboardScenario || isPasteScenario
+          ? 'info'
+          : 'success'
+      const helperText = isPasteScenario
+        ? 'Paste fills from the active digit and filters separators before emitting complete.'
+        : isPasswordScenario
+          ? 'Password mode hides characters while the model remains a plain string.'
+          : isFormScenario
+            ? 'Partial codes should connect to FormItem error text through aria-describedby.'
+            : isMobileScenario
+              ? 'Short codes keep stable touch targets and wrap when space is constrained.'
+              : isKeyboardScenario
+                ? 'Arrow keys move focus; Backspace deletes and returns to the previous digit.'
+                : 'OTP keeps a single string model while presenting separate focused inputs.'
+      const error = isFormScenario ? 'Enter the full verification code.' : ''
+
+      return sfc("import { YInputOtp, YTag } from '@yok-ui/core'", [
+        '<div class="demo-stack">',
+        `  <YInputOtp${textAttribute('label', isFormScenario ? 'Required code' : state.label)}${textAttribute('model-value', modelValue)}${numericBinding('length', length)}${textAttribute('mask', state.mask)}${type === 'password' ? ' type="password"' : ''}${booleanAttribute('disabled', Boolean(state.disabled))}${error ? textAttribute('error', error) : ''}${isFormScenario ? ' aria-describedby="otp-error"' : ''} />`,
+        ...(isFormScenario ? ['  <p id="otp-error">A complete code is required before submitting.</p>'] : []),
+        `  <YTag tone="${helperTone}">${helperText}</YTag>`,
         '</div>'
       ])
     }
@@ -10771,6 +10855,7 @@ const allowedAttributes = new Set([
   'drop-label',
   'empty-text',
   'list-type',
+  'mask',
   'previewable',
   'downloadable',
   'download-name',
@@ -10796,6 +10881,8 @@ const allowedAttributes = new Set([
   ':min',
   'max',
   ':max',
+  'length',
+  ':length',
   'step',
   ':step',
   ':marks',
@@ -12247,6 +12334,7 @@ const componentMap = {
   yformsummary: YFormSummary,
   yicon: YIcon,
   yinput: YInput,
+  yinputotp: YInputOtp,
   yinputtag: YInputTag,
   yinputnumber: YInputNumber,
   yaside: YAside,
@@ -13310,10 +13398,11 @@ function getNodeProps(element: Element) {
       continue
     }
 
-    if ([':min', ':max', ':step', ':precision', ':page', ':page-size', ':minute-step', ':max-files', ':max-size', ':max-collapse-tags', ':virtual-height', ':virtual-item-height', ':virtual-row-height', ':virtual-overscan', ':total', ':sibling-count', ':show-delay', ':hide-delay', ':rows', ':current', ':column', ':columns', ':visibility-height', ':right', ':bottom', ':height', ':max-height', ':item-height', ':overscan', ':opacity', ':gap', ':rotate', ':font-size', ':collapsed-count', ':count', ':maxlength', ':offset', ':z-index', ':bound', ':duration'].includes(attribute.name)) {
+    if ([':min', ':max', ':length', ':step', ':precision', ':page', ':page-size', ':minute-step', ':max-files', ':max-size', ':max-collapse-tags', ':virtual-height', ':virtual-item-height', ':virtual-row-height', ':virtual-overscan', ':total', ':sibling-count', ':show-delay', ':hide-delay', ':rows', ':current', ':column', ':columns', ':visibility-height', ':right', ':bottom', ':height', ':max-height', ':item-height', ':overscan', ':opacity', ':gap', ':rotate', ':font-size', ':collapsed-count', ':count', ':maxlength', ':offset', ':z-index', ':bound', ':duration'].includes(attribute.name)) {
       const propName = {
         ':min': 'min',
         ':max': 'max',
+        ':length': 'length',
         ':step': 'step',
         ':precision': 'precision',
         ':page': 'page',
@@ -13541,7 +13630,7 @@ function getNodeProps(element: Element) {
       continue
     }
 
-    if (['min', 'max', 'step', 'precision', 'page', 'total', 'rows', 'current', 'column', 'columns', 'right', 'bottom', 'height', 'max-height', 'overscan', 'opacity', 'gap', 'rotate', 'collapsed-count', 'count', 'maxlength', 'virtual-height', 'virtual-item-height', 'virtual-overscan', 'offset', 'z-index', 'bound', 'duration'].includes(attribute.name)) {
+    if (['min', 'max', 'length', 'step', 'precision', 'page', 'total', 'rows', 'current', 'column', 'columns', 'right', 'bottom', 'height', 'max-height', 'overscan', 'opacity', 'gap', 'rotate', 'collapsed-count', 'count', 'maxlength', 'virtual-height', 'virtual-item-height', 'virtual-overscan', 'offset', 'z-index', 'bound', 'duration'].includes(attribute.name)) {
       if (attribute.name === 'z-index') {
         props.zIndex = Number(attribute.value)
         continue

@@ -28,6 +28,7 @@ import { YFormSummary } from './components/form-summary'
 import { YIcon } from './components/icon'
 import { YImage } from './components/image'
 import { YInput } from './components/input'
+import { YInputOtp } from './components/input-otp'
 import { YInputTag } from './components/input-tag'
 import { YInputNumber } from './components/input-number'
 import { YAside, YFooter, YHeader, YLayout, YMain } from './components/layout'
@@ -124,6 +125,7 @@ export const coreComponents: Component[] = [
   YIcon,
   YImage,
   YInput,
+  YInputOtp,
   YInputTag,
   YInputNumber,
   YLayout,

@@ -160,6 +160,7 @@ const guidedPropCoverageHints = new Set([
   'language',
   'line-clamp',
   'level',
+  'length',
   'logo-alt',
   'logo-size',
   'logo-src',
@@ -170,6 +171,7 @@ const guidedPropCoverageHints = new Set([
   'loading-text',
   'loop',
   'list-type',
+  'mask',
   'max',
   'max-collapse-tags',
   'max-length',
@@ -312,6 +314,7 @@ const componentDocModules = import.meta.glob('../../components/*.md', {
 const docDemoCoverageHints: Record<string, string[]> = {
   '/components/button': ['variant', 'size'],
   '/components/input': ['type', 'show-password'],
+  '/components/input-otp': ['length', 'mask', 'type'],
   '/components/upload': ['downloadable', 'sortable'],
   '/components/table': ['striped'],
   '/components/select': ['label']

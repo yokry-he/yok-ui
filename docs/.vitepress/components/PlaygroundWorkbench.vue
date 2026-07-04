@@ -126,6 +126,7 @@ const tone = ref<PlaygroundTone>('info')
 const avatarTone = computed(() => (tone.value === 'info' ? 'primary' : tone.value))
 const avatarShape = ref<PlaygroundAvatarShape>('circle')
 const inputValue = ref('Yok UI')
+const inputOtpValue = ref('123')
 const inputTagValue = ref(['Vue', 'TypeScript'])
 const autocompleteValue = ref('auto')
 const mentionValue = ref('Please review @ad')
@@ -836,6 +837,7 @@ const componentImports = computed(() => {
     segmented: 'YSegmented',
     calendar: 'YCalendar',
     input: 'YInput',
+    inputOtp: 'YInputOtp',
     inputTag: 'YInputTag',
     autocomplete: 'YAutocomplete',
     mention: 'YMention',
@@ -1060,6 +1062,10 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'input') {
     return `<YInput v-model="value" label="Library name"${disabled.value ? ' disabled' : ''} />`
+  }
+
+  if (activeComponent.value === 'inputOtp') {
+    return `<YInputOtp v-model="code" label="Verification code" :length="6"${disabled.value ? ' disabled' : ''} />`
   }
 
   if (activeComponent.value === 'inputTag') {
@@ -1688,6 +1694,10 @@ const generatedScript = computed(() => {
 
   if (activeComponent.value === 'input') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst value = ref('Yok UI')`
+  }
+
+  if (activeComponent.value === 'inputOtp') {
+    return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst code = ref('${inputOtpValue.value}')`
   }
 
   if (activeComponent.value === 'inputTag') {
@@ -3221,6 +3231,13 @@ onMounted(() => {
             v-else-if="activeComponent === 'input'"
             v-model="inputValue"
             label="Library name"
+            :disabled="disabled"
+          />
+          <YInputOtp
+            v-else-if="activeComponent === 'inputOtp'"
+            v-model="inputOtpValue"
+            label="Verification code"
+            :length="6"
             :disabled="disabled"
           />
           <YInputTag

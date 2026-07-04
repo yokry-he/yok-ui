@@ -550,6 +550,7 @@ describe('LiveExampleRunner', () => {
   })
 
   it.each([
+    ['inputOtp', 'inputOtp', '<YInputOtp'],
     ['inputTag', 'inputTag', '<YInputTag'],
     ['inputNumber', 'inputNumber', '<YInputNumber'],
     ['slider', 'slider', '<YSlider'],

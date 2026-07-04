@@ -26,6 +26,7 @@ export type LiveExamplePreset =
   | 'treeSelect'
   | 'form'
   | 'inputNumber'
+  | 'inputOtp'
   | 'inputTag'
   | 'rate'
   | 'slider'
@@ -294,6 +295,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/image', preset: 'image' },
   { docs: '/components/qr-code', preset: 'qrCode' },
   { docs: '/components/input', preset: 'input' },
+  { docs: '/components/input-otp', preset: 'inputOtp' },
   { docs: '/components/input-tag', preset: 'inputTag' },
   { docs: '/components/input-number', preset: 'inputNumber' },
   { docs: '/components/link', preset: 'link' },
@@ -357,6 +359,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'loading',
   'progress',
   'input',
+  'inputOtp',
   'inputTag',
   'autocomplete',
   'mention',
@@ -402,6 +405,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'splitter',
   'link',
   'inputNumber',
+  'inputOtp',
   'inputTag',
   'radioGroup',
   'switch',
@@ -502,6 +506,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'image',
   'qrCode',
   'input',
+  'inputOtp',
   'inputTag',
   'inputNumber',
   'mention',
@@ -4249,6 +4254,50 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: '验证 Tab 能进入原生 input，键入内容通过 update:modelValue 同步。'
+    }
+  ],
+  inputOtp: [
+    {
+      key: 'basic-input-otp',
+      label: '基础验证码',
+      kind: 'basic',
+      controlValue: 'basic',
+      description: '展示 6 位验证码的分格录入、自动推进和完整值回传。'
+    },
+    {
+      key: 'paste-input-otp',
+      label: '粘贴填充',
+      kind: 'controlled',
+      controlValue: 'paste',
+      description: '粘贴短信验证码时过滤空格和分隔符，并一次性填满多个输入格。'
+    },
+    {
+      key: 'password-input-otp',
+      label: '隐藏验证码',
+      kind: 'copy',
+      controlValue: 'password',
+      description: '高风险二次验证可以用 password 输入格隐藏验证码字符。'
+    },
+    {
+      key: 'form-input-otp',
+      label: '表单错误',
+      kind: 'error',
+      controlValue: 'form',
+      description: '验证码长度不足时与 YFormItem 的 invalid 和 aria-describedby 保持一致。'
+    },
+    {
+      key: 'mobile-input-otp',
+      label: '移动验证码',
+      kind: 'responsive',
+      controlValue: 'mobile',
+      description: '窄屏下输入格会换行，保证 4 位或 6 位验证码仍可点击。'
+    },
+    {
+      key: 'keyboard-input-otp',
+      label: '键盘路径',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: 'Tab 进入首格，方向键移动焦点，Backspace 删除并回退。'
     }
   ],
   inputTag: [

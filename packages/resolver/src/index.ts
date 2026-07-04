@@ -60,6 +60,7 @@ export const yokUiComponentPackages = {
   YIconButton: '@yok-ui/core',
   YImage: '@yok-ui/core',
   YInput: '@yok-ui/core',
+  YInputOtp: '@yok-ui/core',
   YInputTag: '@yok-ui/core',
   YInputNumber: '@yok-ui/core',
   YLayout: '@yok-ui/core',

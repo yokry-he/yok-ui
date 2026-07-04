@@ -209,6 +209,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'native'
   },
   {
+    name: 'YInputOtp',
+    title: 'Input OTP',
+    packageName: '@yok-ui/core',
+    family: 'form',
+    status: 'Beta',
+    docs: '/components/input-otp',
+    description: '一次性验证码输入，支持分格录入、粘贴填充、键盘回退和表单校验联动。',
+    since: '0.13.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YInputTag',
     title: 'Input Tag',
     packageName: '@yok-ui/core',
@@ -1573,6 +1584,35 @@ export const componentApis: Record<string, ComponentApi> = {
         type: 'FocusEvent',
         description: '输入框失去焦点时触发。'
       }
+    ]
+  },
+  YInputOtp: {
+    props: [
+      { name: 'id', type: 'string', defaultValue: "''", description: '传给第一个输入格的 id，其余输入格会追加序号。' },
+      { name: 'modelValue', type: 'string', defaultValue: "''", description: '当前验证码字符串，支持 v-model。' },
+      { name: 'length', type: 'number', defaultValue: '6', description: '验证码长度，组件会限制在 1 到 12 位之间。' },
+      { name: 'label', type: 'string', defaultValue: "''", description: '验证码输入组的可见标签。' },
+      { name: 'placeholder', type: 'string', defaultValue: "''", description: '每个输入格的占位文本。' },
+      { name: 'mask', type: "'numeric' | 'alphanumeric' | 'all'", defaultValue: "'numeric'", description: '输入过滤规则：数字、字母数字或任意非空白字符。' },
+      { name: 'type', type: "'text' | 'password'", defaultValue: "'text'", description: '输入格类型；password 可用于隐藏验证码。' },
+      { name: 'disabled', type: 'boolean', defaultValue: 'false', description: '禁用所有输入格。' },
+      { name: 'invalid', type: 'boolean', defaultValue: 'false', description: '外部表单校验传入的无效状态。' },
+      { name: 'error', type: 'string', defaultValue: "''", description: '错误提示，同时把所有输入格标记为 aria-invalid。' },
+      { name: 'ariaLabel', type: 'string', defaultValue: "''", description: '覆盖输入组可访问名称。' },
+      { name: 'ariaDescribedby', type: 'string', defaultValue: "''", description: '传给输入组和输入格的 aria-describedby，通常来自 YFormItem 的 messageId。' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", defaultValue: 'ConfigProvider size', description: '输入格尺寸；未传入时读取 ConfigProvider。' }
+    ],
+    events: [
+      { name: 'update:modelValue', type: 'string', description: '验证码字符串变化时触发。' },
+      { name: 'input', type: 'string', description: '任意输入或粘贴后触发。' },
+      { name: 'change', type: 'string', description: '用户输入、删除或粘贴造成提交变化时触发。' },
+      { name: 'complete', type: 'string', description: '输入达到 length 位时触发。' },
+      { name: 'focus', type: 'FocusEvent', description: '任意输入格获得焦点时触发。' },
+      { name: 'blur', type: 'FocusEvent', description: '任意输入格失去焦点时触发。' }
+    ],
+    types: [
+      { name: 'YInputOtpMask', type: "'numeric' | 'alphanumeric' | 'all'", description: '验证码输入过滤类型。' },
+      { name: 'YInputOtpType', type: "'text' | 'password'", description: '验证码输入格类型。' }
     ]
   },
   YInputTag: {

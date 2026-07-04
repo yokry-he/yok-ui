@@ -122,6 +122,7 @@ describe('liveExamples', () => {
       'formItem',
       'formSummary',
       'input',
+      'inputOtp',
       'image',
       'commandPalette',
       'filterTabs',
@@ -153,6 +154,7 @@ describe('liveExamples', () => {
       'segmented',
       'select',
       'inputTag',
+      'inputOtp',
       'space',
       'splitter',
       'steps',
@@ -265,6 +267,7 @@ describe('liveExamples', () => {
 
     const remainingWorkflowSummaries = [
       ['approvalCommentBox', ['basic', 'error', 'loading', 'responsive', 'keyboard']],
+      ['inputOtp', ['basic', 'controlled', 'copy', 'error', 'responsive', 'keyboard']],
       ['inputTag', ['basic', 'error', 'controlled', 'responsive', 'keyboard']],
       ['bulkActionBar', ['basic', 'multi', 'composition', 'empty', 'responsive', 'keyboard']],
       ['dataToolbar', ['basic', 'composition', 'empty', 'responsive', 'keyboard']],

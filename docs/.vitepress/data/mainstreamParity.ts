@@ -17,6 +17,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-cascader'
   | 'element-plus-cascader-lazy-load'
   | 'element-plus-date-picker'
+  | 'element-plus-input-otp'
   | 'element-plus-input-tag'
   | 'element-plus-config-provider-i18n'
   | 'element-plus-resource-system'
@@ -195,6 +196,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     componentNames: ['YDatePicker', 'YDateRangePicker'],
     docs: ['/components/date-picker', '/components/date-range-picker'],
     capabilities: ['structured-api', 'workflow-live-example', 'shortcut-scenario', 'time-preset-shortcuts', 'disabled-date-scenario']
+  },
+  {
+    key: 'element-plus-input-otp',
+    label: 'InputOtp one-time password entry',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus InputOtp',
+      url: 'https://element-plus.org/en-US/component/input-otp',
+      note: 'Element Plus InputOtp provides segmented one-time-code input with custom length, mask, validation and finish events.'
+    },
+    componentNames: ['YInputOtp'],
+    docs: ['/components/input-otp'],
+    capabilities: ['one-time-code-input', 'paste-to-fill', 'complete-event', 'form-string-value', 'workflow-live-example']
   },
   {
     key: 'element-plus-input-tag',

@@ -15,6 +15,7 @@ describe('mainstreamParity', () => {
     const elementPlusCascader = items.find((item) => item.key === 'element-plus-cascader')
     const elementPlusCascaderLazy = items.find((item) => item.key === 'element-plus-cascader-lazy-load')
     const elementPlusDatePicker = items.find((item) => item.key === 'element-plus-date-picker')
+    const elementPlusInputOtp = items.find((item) => item.key === 'element-plus-input-otp')
     const elementPlusInputTag = items.find((item) => item.key === 'element-plus-input-tag')
     const elementPlusI18n = items.find((item) => item.key === 'element-plus-config-provider-i18n')
     const elementPlusCompatibility = items.find((item) => item.key === 'element-plus-compatibility-support')
@@ -30,6 +31,7 @@ describe('mainstreamParity', () => {
       'element-plus-cascader',
       'element-plus-cascader-lazy-load',
       'element-plus-date-picker',
+      'element-plus-input-otp',
       'element-plus-input-tag',
       'element-plus-config-provider-i18n',
       'element-plus-compatibility-support',
@@ -58,6 +60,7 @@ describe('mainstreamParity', () => {
       'Element Plus Cascader',
       'Element Plus Cascader Dynamic Loading',
       'Element Plus DatePicker',
+      'Element Plus InputOtp',
       'Element Plus InputTag',
       'Element Plus ConfigProvider i18n',
       'Element Plus Installation Compatibility',
@@ -104,6 +107,13 @@ describe('mainstreamParity', () => {
     })
     expect(elementPlusDatePicker?.matchedComponents.map((component) => component.name)).toContain('YDatePicker')
     expect(elementPlusDatePicker?.evidence.liveExamples).toContain('/components/date-picker#live-example')
+
+    expect(elementPlusInputOtp).toMatchObject({
+      label: 'InputOtp one-time password entry',
+      status: 'covered'
+    })
+    expect(elementPlusInputOtp?.matchedComponents.map((component) => component.name)).toContain('YInputOtp')
+    expect(elementPlusInputOtp?.evidence.liveExamples).toContain('/components/input-otp#live-example')
 
     expect(elementPlusInputTag).toMatchObject({
       label: 'InputTag free-form tag entry',

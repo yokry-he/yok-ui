@@ -23,7 +23,7 @@ describe('componentRegistry', () => {
     const names = components.map((component) => component.name)
 
     expect(new Set(names).size).toBe(names.length)
-    expect(components).toHaveLength(108)
+    expect(components).toHaveLength(109)
 
     components.forEach((component) => {
       expect(component.docs).toMatch(/^\/(components|guide)\//)
@@ -218,6 +218,21 @@ describe('componentRegistry', () => {
       'focus',
       'blur'
     ]))
+    expect(componentApis.YInputOtp.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'modelValue',
+      'length',
+      'mask',
+      'type',
+      'ariaDescribedby',
+      'size'
+    ]))
+    expect(componentApis.YInputOtp.events?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'update:modelValue',
+      'input',
+      'change',
+      'complete'
+    ]))
+    expect(componentApis.YInputOtp.types?.map((row) => row.name)).toContain('YInputOtpMask')
     expect(componentApis.YInputTag.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
       'modelValue',
       'inputValue',

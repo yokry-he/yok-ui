@@ -221,6 +221,19 @@ export const interactionContracts: InteractionContract[] = [
     }
   },
   {
+    componentName: 'YInputOtp',
+    pattern: 'Segmented one-time-code input group',
+    keyboard: ['Typing a character advances focus to the next input', 'ArrowLeft / ArrowRight move between inputs', 'Backspace deletes the current digit and moves backward', 'Paste distributes sanitized characters across the group'],
+    focus: 'Each digit input owns focus while the group exposes one accessible label and FormItem describedby linkage.',
+    semantics: ['role="group"', 'input', 'autocomplete="one-time-code"', 'aria-invalid', 'aria-describedby'],
+    status: 'The complete event fires when all visible inputs are filled, while partial values remain available to forms.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/guide/accessibility.md', 'docs/components/input-otp.md'],
+      tests: ['packages/core/src/components/input-otp/input-otp.test.ts']
+    }
+  },
+  {
     componentName: 'YInputTag',
     pattern: 'Tag input with editable token list',
     keyboard: ['Enter creates the current draft as a tag', 'Backspace removes the last tag when the input draft is empty', 'Remove buttons activate with Enter / Space'],

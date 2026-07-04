@@ -951,6 +951,75 @@ describe('PlaygroundWorkbench', () => {
     expect(url.searchParams.get('source')).not.toContain('Compact handoff')
   })
 
+  it('preserves live example source panel metadata when sharing an edited imported source', async () => {
+    const source = [
+      '<script setup lang="ts">',
+      "import { YDataTable } from '@yok-ui/admin'",
+      '</' + 'script>',
+      '',
+      '<template>',
+      '  <YDataTable title="Repro bundle handoff" selectable />',
+      '</template>'
+    ].join('\n')
+    const handoffKey = 'dataTable-repro-panel-handoff'
+
+    window.localStorage.setItem(`yok-ui:playground-handoff:${handoffKey}`, JSON.stringify({
+      version: 1,
+      component: 'dataTable',
+      theme: 'yok-candy',
+      source,
+      origin: 'live-example',
+      language: 'ts',
+      sourcePanel: {
+        mode: 'repro',
+        label: 'Repro bundle',
+        language: 'ts',
+        installPackageManager: 'pnpm'
+      },
+      docsHash: '#live-example?scenario=bulk-selection',
+      scenario: 'bulk-selection'
+    }))
+    window.history.pushState({}, '', `/playground/?handoff=${handoffKey}`)
+
+    const wrapper = mount(PlaygroundWorkbench, {
+      global: {
+        stubs: componentStubs
+      }
+    })
+    await nextTick()
+
+    await wrapper.get<HTMLTextAreaElement>('.playground-workbench__code-editor').setValue(
+      source.replace('Repro bundle handoff', 'Edited repro bundle')
+    )
+    await wrapper.get('[data-playground-code-action="mode-source"]').trigger('click')
+    await wrapper.get('[data-playground-code-action="copy-link"]').trigger('click')
+
+    const copiedUrl = vi.mocked(navigator.clipboard.writeText).mock.calls.at(-1)?.[0] ?? ''
+    const url = new URL(copiedUrl)
+
+    expect(url.searchParams.has('handoff')).toBe(false)
+    expect(url.searchParams.get('source')).toContain('Edited repro bundle')
+    expect(url.searchParams.get('sourcePanelMode')).toBe('repro')
+    expect(url.searchParams.get('sourcePanelLabel')).toBe('Repro bundle')
+    expect(url.searchParams.get('sourcePanelLanguage')).toBe('ts')
+    expect(url.searchParams.get('sourcePanelInstallPackageManager')).toBe('pnpm')
+
+    wrapper.unmount()
+    window.history.pushState({}, '', `${url.pathname}${url.search}`)
+
+    const sharedWrapper = mount(PlaygroundWorkbench, {
+      global: {
+        stubs: componentStubs
+      }
+    })
+    await nextTick()
+
+    expect(sharedWrapper.get('.playground-workbench__import-manifest-grid').text()).toContain('Repro bundle')
+    expect(sharedWrapper.get<HTMLTextAreaElement>('.playground-workbench__code-editor').element.value).toContain(
+      'Edited repro bundle'
+    )
+  })
+
   it('shares the active imported language and theme instead of reusing a stale handoff', async () => {
     const source = [
       '<script setup>',

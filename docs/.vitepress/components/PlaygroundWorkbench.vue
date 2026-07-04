@@ -2182,6 +2182,22 @@ const playgroundShareUrl = computed(() => {
     if (importedReplay.value) {
       params.set('replay', JSON.stringify(importedReplay.value))
     }
+
+    if (importedSourcePanel.value?.mode) {
+      params.set('sourcePanelMode', importedSourcePanel.value.mode)
+    }
+
+    if (importedSourcePanel.value?.label) {
+      params.set('sourcePanelLabel', importedSourcePanel.value.label)
+    }
+
+    if (importedSourcePanel.value?.language) {
+      params.set('sourcePanelLanguage', importedSourcePanel.value.language)
+    }
+
+    if (importedSourcePanel.value?.installPackageManager) {
+      params.set('sourcePanelInstallPackageManager', importedSourcePanel.value.installPackageManager)
+    }
   } else {
     if (activeComponent.value === 'button') {
       params.set('variant', variant.value)
@@ -2326,6 +2342,24 @@ function normalizeDocsHash(value: string | null | undefined) {
   const withHash = trimmedValue.startsWith('#') ? trimmedValue : `#${trimmedValue}`
 
   return /^#[A-Za-z0-9][A-Za-z0-9_-]*(?:\?[A-Za-z0-9%=&_.~+-]*)?$/.test(withHash) ? withHash : ''
+}
+
+function parseImportedSourcePanel(params: URLSearchParams): ImportedPlaygroundHandoffPayload['sourcePanel'] | null {
+  const mode = params.get('sourcePanelMode')?.trim()
+  const label = params.get('sourcePanelLabel')?.trim()
+  const language = params.get('sourcePanelLanguage')?.trim()
+  const installPackageManager = params.get('sourcePanelInstallPackageManager')?.trim()
+
+  if (!mode && !label && !language && !installPackageManager) {
+    return null
+  }
+
+  return {
+    ...(mode ? { mode } : {}),
+    ...(label ? { label } : {}),
+    ...(language ? { language } : {}),
+    ...(installPackageManager ? { installPackageManager } : {})
+  }
 }
 
 function parseImportedControls(value: string | null) {
@@ -2475,7 +2509,7 @@ function hydrateRouteQuery() {
   }
 
   importedSourceOrigin.value = handoffPayload?.origin ?? routeOrigin ?? ''
-  importedSourcePanel.value = handoffPayload?.sourcePanel ?? null
+  importedSourcePanel.value = handoffPayload?.sourcePanel ?? parseImportedSourcePanel(params)
   importedDocsHash.value = normalizeDocsHash(handoffPayload?.docsHash ?? routeDocsHash)
   importedScenario.value = handoffPayload?.scenario ?? routeScenario ?? ''
   importedViewport.value = isPlaygroundViewport(handoffViewport)

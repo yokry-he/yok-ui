@@ -1,4 +1,6 @@
 import { mount } from '@vue/test-utils'
+import { createSSRApp, h } from 'vue'
+import { renderToString } from 'vue/server-renderer'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import YCarousel from './YCarousel.vue'
 
@@ -120,6 +122,24 @@ describe('YCarousel', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([1])
+  })
+
+  it('does not access browser globals during server rendering when autoplay is enabled', async () => {
+    const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window')
+
+    Reflect.deleteProperty(globalThis, 'window')
+
+    try {
+      const app = createSSRApp({
+        render: () => h(YCarousel, { items, autoplay: true })
+      })
+
+      await expect(renderToString(app)).resolves.toContain('yok-carousel')
+    } finally {
+      if (windowDescriptor) {
+        Object.defineProperty(globalThis, 'window', windowDescriptor)
+      }
+    }
   })
 
   it('pauses autoplay on hover by default and can keep autoplay running when disabled', async () => {

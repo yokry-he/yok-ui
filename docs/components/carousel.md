@@ -3,85 +3,164 @@ title: Carousel
 description: 轮播展示区域，支持受控索引、方向键、自动播放、指示器位置和自定义 slide 内容。
 ---
 
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const active = ref(0)
+const basicItems = [
+  { title: 'Design tokens', description: 'Theme primitives and semantic colors.', meta: 'Core' },
+  { title: 'Live examples', description: 'Runnable examples with API evidence.', meta: 'Docs', tone: 'success' },
+  { title: 'Accessibility', description: 'Keyboard and screen reader contracts.', meta: 'A11y', tone: 'warning' }
+]
+const releaseItems = [
+  { title: 'Release notes', description: 'Highlight the latest stable components.', meta: 'Stable' },
+  { title: 'Playground', description: 'Send the current source into a runnable route.', meta: 'DX', tone: 'success' }
+]
+const packageItems = [
+  { title: 'Core', description: 'Base Vue 3 components.', meta: 'Stable', tone: 'success' },
+  { title: 'Admin', description: 'Workflow components.', meta: 'Beta', tone: 'warning' }
+]
+
+const carouselSetup = [
+  "import { ref } from 'vue'",
+  "import { YCarousel, YTag } from '@yok-ui/core'",
+  '',
+  'const active = ref(0)',
+  'const basicItems = [',
+  "  { title: 'Design tokens', description: 'Theme primitives and semantic colors.', meta: 'Core' },",
+  "  { title: 'Live examples', description: 'Runnable examples with API evidence.', meta: 'Docs', tone: 'success' },",
+  "  { title: 'Accessibility', description: 'Keyboard and screen reader contracts.', meta: 'A11y', tone: 'warning' }",
+  ']',
+  'const releaseItems = [',
+  "  { title: 'Release notes', description: 'Highlight the latest stable components.', meta: 'Stable' },",
+  "  { title: 'Playground', description: 'Send the current source into a runnable route.', meta: 'DX', tone: 'success' }",
+  ']',
+  'const packageItems = [',
+  "  { title: 'Core', description: 'Base Vue 3 components.', meta: 'Stable', tone: 'success' },",
+  "  { title: 'Admin', description: 'Workflow components.', meta: 'Beta', tone: 'warning' }",
+  ']'
+].join('\n')
+
+const basicCode = [
+  '<div class="demo-stack">',
+  '  <YCarousel',
+  '    v-model="active"',
+  '    :items="basicItems"',
+  '    aria-label="Yok UI maturity carousel"',
+  '  />',
+  '  <YTag tone="info">Active slide: {{ active + 1 }}</YTag>',
+  '</div>'
+].join('\n')
+
+const autoplayCode = [
+  '<YCarousel',
+  '  :items="releaseItems"',
+  '  autoplay',
+  '  :interval="1800"',
+  '  indicator-position="outside"',
+  '  aria-label="Release update carousel"',
+  '/>'
+].join('\n')
+
+const continuousCode = [
+  '<YCarousel',
+  '  :items="releaseItems"',
+  '  autoplay',
+  '  :interval="1800"',
+  '  :pause-on-hover="false"',
+  '  aria-label="Always running announcement carousel"',
+  '/>'
+].join('\n')
+
+const customItemCode = [
+  '<YCarousel :items="packageItems" indicator-position="outside">',
+  '  <template #item="{ item, active }">',
+  '    <div class="demo-stack">',
+  "      <YTag :tone=\"active ? item.tone ?? 'success' : 'info'\">{{ item.meta }}</YTag>",
+  '      <h3>{{ item.title }}</h3>',
+  '      <p>{{ item.description }}</p>',
+  '    </div>',
+  '  </template>',
+  '</YCarousel>'
+].join('\n')
+</script>
+
 # Carousel
 
 Carousel 用于在有限空间内展示一组产品亮点、公告、运营内容或文档导览。Yok UI 的实现参考 Element Plus Carousel 的箭头、指示器、自动播放和方向配置，也参考 Ant Design Carousel 的轻量受控使用方式，并补充更明确的键盘与 API Live Example 证据。
 
 ## Example
 
-### Basic
+<DocDemo
+  id="demo-basic-carousel"
+  title="Basic carousel"
+  description="受控索引用于把当前 slide 同步到外部状态，适合配置面板、路由查询或埋点。"
+  :code="basicCode"
+  :setup="carouselSetup"
+  :usage="['v-model active index', 'aria-label', 'indicator buttons']"
+>
+  <div class="demo-stack">
+    <YCarousel
+      v-model="active"
+      :items="basicItems"
+      aria-label="Yok UI maturity carousel"
+    />
+    <YTag tone="info">Active slide: {{ active + 1 }}</YTag>
+  </div>
+</DocDemo>
 
-```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-import { YCarousel } from '@yok-ui/core'
-
-const active = ref(0)
-const items = [
-  { title: 'Design tokens', description: 'Theme primitives and semantic colors.', meta: 'Core' },
-  { title: 'Live examples', description: 'Runnable examples with API evidence.', meta: 'Docs', tone: 'success' },
-  { title: 'Accessibility', description: 'Keyboard and screen reader contracts.', meta: 'A11y', tone: 'warning' }
-]
-</script>
-
-<template>
-  <YCarousel v-model="active" :items="items" aria-label="Yok UI maturity carousel" />
-</template>
-```
-
-### Autoplay
-
-```vue
-<script setup lang="ts">
-import { YCarousel } from '@yok-ui/core'
-
-const items = [
-  { title: 'Release notes', description: 'Highlight the latest stable components.' },
-  { title: 'Playground', description: 'Send the current source into a runnable route.' }
-]
-</script>
-
-<template>
-  <YCarousel :items="items" autoplay :interval="1800" indicator-position="outside" />
-</template>
-```
-
-### Continuous Autoplay
-
-```vue
-<template>
+<DocDemo
+  id="demo-autoplay-carousel"
+  title="Autoplay"
+  description="自动播放适合公告、发布动态和运营展示；默认 hover 暂停，避免用户阅读时被强制切换。"
+  :code="autoplayCode"
+  :setup="carouselSetup"
+  :usage="['autoplay', 'interval', 'indicatorPosition=outside']"
+>
   <YCarousel
-    :items="items"
+    :items="releaseItems"
+    autoplay
+    :interval="1800"
+    indicator-position="outside"
+    aria-label="Release update carousel"
+  />
+</DocDemo>
+
+<DocDemo
+  id="demo-continuous-autoplay"
+  title="Continuous autoplay"
+  description="公告墙或大屏展示可以关闭 hover 暂停；普通内容轮播仍建议保留 pauseOnHover。"
+  :code="continuousCode"
+  :setup="carouselSetup"
+  :usage="['pauseOnHover=false', 'announcement wall', 'looping display']"
+>
+  <YCarousel
+    :items="releaseItems"
     autoplay
     :interval="1800"
     :pause-on-hover="false"
     aria-label="Always running announcement carousel"
   />
-</template>
-```
+</DocDemo>
 
-### Custom Item
-
-```vue
-<script setup lang="ts">
-import { YCarousel, YTag } from '@yok-ui/core'
-
-const items = [
-  { title: 'Core', description: 'Base Vue 3 components.', meta: 'Stable' },
-  { title: 'Admin', description: 'Workflow components.', meta: 'Beta' }
-]
-</script>
-
-<template>
-  <YCarousel :items="items">
+<DocDemo
+  id="demo-custom-item"
+  title="Custom item"
+  description="item slot 适合展示包状态、产品卡片或图文内容；保持单个 slide 信息量可扫描。"
+  :code="customItemCode"
+  :setup="carouselSetup"
+  :usage="['item slot', 'active slot prop', 'custom slide content']"
+>
+  <YCarousel :items="packageItems" indicator-position="outside">
     <template #item="{ item, active }">
-      <YTag :tone="active ? 'success' : 'info'">{{ item.meta }}</YTag>
-      <h3>{{ item.title }}</h3>
-      <p>{{ item.description }}</p>
+      <div class="demo-stack">
+        <YTag :tone="active ? item.tone ?? 'success' : 'info'">{{ item.meta }}</YTag>
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.description }}</p>
+      </div>
     </template>
   </YCarousel>
-</template>
-```
+</DocDemo>
 
 ## Live example
 

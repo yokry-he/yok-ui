@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 defineOptions({
   name: 'YCarousel'
@@ -72,6 +72,7 @@ const showArrows = computed(() => props.arrow !== 'never' && props.items.length 
 const showIndicators = computed(() => props.indicatorPosition !== 'none' && props.items.length > 1)
 const isAtStart = computed(() => activeIndex.value === 0)
 const isAtEnd = computed(() => activeIndex.value === props.items.length - 1)
+const isMounted = ref(false)
 
 let autoplayTimer: number | undefined
 
@@ -137,6 +138,11 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 function stopAutoplay() {
+  if (typeof window === 'undefined') {
+    autoplayTimer = undefined
+    return
+  }
+
   if (autoplayTimer) {
     window.clearInterval(autoplayTimer)
     autoplayTimer = undefined
@@ -146,7 +152,7 @@ function stopAutoplay() {
 function startAutoplay() {
   stopAutoplay()
 
-  if (!props.autoplay || props.items.length < 2) {
+  if (typeof window === 'undefined' || !props.autoplay || props.items.length < 2) {
     return
   }
 
@@ -169,8 +175,11 @@ function handlePointerLeave() {
 
 watch(
   () => [props.autoplay, props.interval, props.items.length, activeIndex.value, props.loop] as const,
-  startAutoplay,
-  { immediate: true }
+  () => {
+    if (isMounted.value) {
+      startAutoplay()
+    }
+  }
 )
 
 watch(
@@ -179,6 +188,11 @@ watch(
     internalActiveIndex.value = getWrappedIndex(internalActiveIndex.value)
   }
 )
+
+onMounted(() => {
+  isMounted.value = true
+  startAutoplay()
+})
 
 onBeforeUnmount(stopAutoplay)
 

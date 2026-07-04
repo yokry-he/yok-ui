@@ -185,6 +185,7 @@ describe('DocDemo source quality', () => {
     const select = items.find((item) => item.docs === '/components/select')
     const menu = items.find((item) => item.docs === '/components/menu')
     const calendar = items.find((item) => item.docs === '/components/calendar')
+    const carousel = items.find((item) => item.docs === '/components/carousel')
 
     expect(items.length).toBeGreaterThan(0)
     expect(summary.totalDocs).toBe(items.length)
@@ -217,6 +218,14 @@ describe('DocDemo source quality', () => {
       completeHandoffCount: 3
     })
     expect(calendar?.checks.every((check) => check.passed)).toBe(true)
+    expect(carousel).toMatchObject({
+      docs: '/components/carousel',
+      title: 'Carousel',
+      status: 'complete',
+      demoCount: 4,
+      completeHandoffCount: 4
+    })
+    expect(carousel?.checks.every((check) => check.passed)).toBe(true)
   })
 
   it('tracks component pages that still use raw demo-box examples instead of DocDemo', () => {

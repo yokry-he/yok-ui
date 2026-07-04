@@ -26,7 +26,7 @@ describe('MaturityDashboard', () => {
     expect(wrapper.text()).toContain('DocDemo source quality')
     expect(wrapper.text()).toContain('complete SFC handoff')
     expect(wrapper.text()).toContain('DocDemo pages')
-    expect(wrapper.text()).toContain('raw demo-box')
+    expect(wrapper.text()).not.toContain('raw demo-box')
     expect(wrapper.findAll('.maturity-dashboard__doc-demo-card')).toHaveLength(5)
     expect(
       wrapper.findAll('.maturity-dashboard__doc-demo-links a').length +

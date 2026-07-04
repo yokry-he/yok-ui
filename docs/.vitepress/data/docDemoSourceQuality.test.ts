@@ -122,6 +122,7 @@ const complexInteractionDocs = [
 ]
 
 const remainingStaticDemoDocs = [
+  'affix',
   'backtop',
   'config-provider',
   'float-button',
@@ -194,6 +195,7 @@ describe('DocDemo source quality', () => {
     const schemaForm = items.find((item) => item.docs === '/components/schema-form')
     const fieldArray = items.find((item) => item.docs === '/components/field-array')
     const layout = items.find((item) => item.docs === '/components/layout')
+    const affix = items.find((item) => item.docs === '/components/affix')
 
     expect(items.length).toBeGreaterThan(0)
     expect(summary.totalDocs).toBe(items.length)
@@ -274,6 +276,14 @@ describe('DocDemo source quality', () => {
       completeHandoffCount: 3
     })
     expect(layout?.checks.every((check) => check.passed)).toBe(true)
+    expect(affix).toMatchObject({
+      docs: '/components/affix',
+      title: 'Affix',
+      status: 'complete',
+      demoCount: 3,
+      completeHandoffCount: 3
+    })
+    expect(affix?.checks.every((check) => check.passed)).toBe(true)
   })
 
   it('tracks component pages that still use raw demo-box examples instead of DocDemo', () => {

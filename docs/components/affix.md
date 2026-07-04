@@ -3,50 +3,255 @@ title: Affix
 description: 将工具栏、页内导航或提交操作固定在滚动容器边缘。
 ---
 
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const topFixed = ref(false)
+const topScroll = ref(0)
+const targetFixed = ref(false)
+
+const topToolbarCode = [
+  '<script setup lang="ts">',
+  "import { ref } from 'vue'",
+  "import { YAffix, YButton, YTag } from '@yok-ui/core'",
+  '',
+  'const fixed = ref(false)',
+  'const scrollTop = ref(0)',
+  '</' + 'script>',
+  '',
+  '<template>',
+  '  <YAffix',
+  '    :offset="24"',
+  '    aria-label="Sticky release toolbar"',
+  '    @change="fixed = $event"',
+  '    @scroll="scrollTop = $event.scrollTop"',
+  '  >',
+  '    <div class="affix-demo-toolbar">',
+  '      <YButton variant="primary" size="sm">Publish docs</YButton>',
+  '      <YButton variant="secondary" size="sm">Preview</YButton>',
+  '      <YTag :tone="fixed ? \'success\' : \'info\'">{{ fixed ? \'Pinned\' : \'Ready\' }}</YTag>',
+  '    </div>',
+  '  </YAffix>',
+  '  <p class="affix-demo-note">Window scroll: {{ scrollTop }}px</p>',
+  '</template>',
+  '',
+  '<style scoped>',
+  '.affix-demo-toolbar {',
+  '  display: flex;',
+  '  flex-wrap: wrap;',
+  '  align-items: center;',
+  '  gap: 8px;',
+  '  min-width: 0;',
+  '  border: 1px solid var(--yok-color-border);',
+  '  border-radius: var(--yok-radius-lg);',
+  '  background: var(--yok-color-surface);',
+  '  padding: 10px;',
+  '  box-shadow: var(--yok-shadow-soft);',
+  '}',
+  '',
+  '.affix-demo-note {',
+  '  margin: 12px 0 0;',
+  '  color: var(--yok-color-textMuted);',
+  '}',
+  '</' + 'style>'
+].join('\n')
+
+const bottomBarCode = [
+  '<script setup lang="ts">',
+  "import { YAffix, YButton, YTag } from '@yok-ui/core'",
+  '</' + 'script>',
+  '',
+  '<template>',
+  '  <div class="affix-demo-panel">',
+  '    <div class="affix-demo-card">',
+  '      <strong>Review changes</strong>',
+  '      <span class="affix-demo-card-copy">Long forms can keep the submit action visible near the viewport edge.</span>',
+  '    </div>',
+  '    <YAffix position="bottom" :offset="16" :z-index="120" aria-label="Sticky submit bar">',
+  '      <div class="affix-demo-bottom-bar">',
+  '        <YTag tone="warning">3 pending checks</YTag>',
+  '        <YButton variant="primary" size="sm">Submit review</YButton>',
+  '      </div>',
+  '    </YAffix>',
+  '  </div>',
+  '</template>',
+  '',
+  '<style scoped>',
+  '.affix-demo-panel {',
+  '  display: grid;',
+  '  gap: 12px;',
+  '  min-height: 260px;',
+  '}',
+  '',
+  '.affix-demo-card {',
+  '  display: grid;',
+  '  gap: 8px;',
+  '  min-height: 160px;',
+  '  border: 1px dashed var(--yok-color-border);',
+  '  border-radius: var(--yok-radius-lg);',
+  '  background: var(--yok-color-surfaceMuted);',
+  '  padding: 16px;',
+  '}',
+  '',
+  '.affix-demo-card-copy {',
+  '  color: var(--yok-color-textMuted);',
+  '}',
+  '',
+  '.affix-demo-bottom-bar {',
+  '  display: flex;',
+  '  justify-content: space-between;',
+  '  gap: 8px;',
+  '  border: 1px solid var(--yok-color-border);',
+  '  border-radius: var(--yok-radius-lg);',
+  '  background: var(--yok-color-surface);',
+  '  padding: 10px;',
+  '  box-shadow: var(--yok-shadow-soft);',
+  '}',
+  '</' + 'style>'
+].join('\n')
+
+const targetContainerCode = [
+  '<script setup lang="ts">',
+  "import { ref } from 'vue'",
+  "import { YAffix, YButton, YTag } from '@yok-ui/core'",
+  '',
+  'const fixed = ref(false)',
+  '</' + 'script>',
+  '',
+  '<template>',
+  '  <section class="affix-demo-target-panel">',
+  '    <YAffix',
+  '      target=".affix-demo-target-panel"',
+  '      :offset="12"',
+  '      aria-label="Container toolbar"',
+  '      @change="fixed = $event"',
+  '    >',
+  '      <div class="affix-demo-toolbar">',
+  '        <YButton variant="secondary" size="sm">Sync section</YButton>',
+  '        <YTag :tone="fixed ? \'success\' : \'info\'">{{ fixed ? \'Pinned in panel\' : \'Panel toolbar\' }}</YTag>',
+  '      </div>',
+  '    </YAffix>',
+  '    <div class="affix-demo-target-content">',
+  '      <p v-for="item in 8" :key="item" class="affix-demo-target-item">Release checklist item {{ item }}</p>',
+  '    </div>',
+  '  </section>',
+  '</template>',
+  '',
+  '<style scoped>',
+  '.affix-demo-target-panel {',
+  '  height: 260px;',
+  '  overflow: auto;',
+  '  border: 1px solid var(--yok-color-border);',
+  '  border-radius: var(--yok-radius-lg);',
+  '  background: var(--yok-color-background);',
+  '  padding: 12px;',
+  '}',
+  '',
+  '.affix-demo-toolbar {',
+  '  display: flex;',
+  '  flex-wrap: wrap;',
+  '  align-items: center;',
+  '  gap: 8px;',
+  '  min-width: 0;',
+  '  border: 1px solid var(--yok-color-border);',
+  '  border-radius: var(--yok-radius-lg);',
+  '  background: var(--yok-color-surface);',
+  '  padding: 10px;',
+  '  box-shadow: var(--yok-shadow-soft);',
+  '}',
+  '',
+  '.affix-demo-target-content {',
+  '  display: grid;',
+  '  gap: 10px;',
+  '  padding-block: 14px;',
+  '}',
+  '',
+  '.affix-demo-target-item {',
+  '  margin: 0;',
+  '  border: 1px dashed var(--yok-color-border);',
+  '  border-radius: var(--yok-radius-md);',
+  '  background: var(--yok-color-surfaceMuted);',
+  '  padding: 14px;',
+  '  color: var(--yok-color-textMuted);',
+  '}',
+  '</' + 'style>'
+].join('\n')
+</script>
+
 # Affix
 
 Affix 用于长文档、配置页、审批页和局部滚动容器中的固定操作区。它参考 Element Plus Affix 的核心操作模型，保留 `offset`、`target`、`position`、`zIndex`、`change` 和 `scroll`，但实现上优先使用浏览器原生 `position: sticky`，减少滚动过程中的布局计算。
 
-## Example
+## Top Toolbar
 
-### Top Toolbar
-
-```vue
-<script setup lang="ts">
-import { YAffix, YButton, YTag } from '@yok-ui/core'
-</script>
-
-<template>
-  <YAffix :offset="24" aria-label="Sticky release toolbar">
-    <div class="demo-row">
+<DocDemo
+  title="Top toolbar"
+  description="顶部固定工具栏适合发布按钮、筛选条件、页内导航和批量操作。"
+  :code="topToolbarCode"
+  :usage="['top position', 'offset', 'change event', 'scroll event']"
+>
+  <YAffix
+    :offset="24"
+    aria-label="Sticky release toolbar"
+    @change="topFixed = $event"
+    @scroll="topScroll = $event.scrollTop"
+  >
+    <div class="docs-affix-demo-toolbar">
       <YButton variant="primary" size="sm">Publish docs</YButton>
-      <YTag tone="info">Top sticky toolbar</YTag>
+      <YButton variant="secondary" size="sm">Preview</YButton>
+      <YTag :tone="topFixed ? 'success' : 'info'">{{ topFixed ? 'Pinned' : 'Ready' }}</YTag>
     </div>
   </YAffix>
-</template>
-```
+  <p class="docs-affix-demo-note">Window scroll: {{ topScroll }}px</p>
+</DocDemo>
 
-### Bottom Action Bar
+## Bottom Action Bar
 
-```vue
-<template>
-  <YAffix position="bottom" :offset="16" :z-index="120" aria-label="Sticky submit bar">
-    <YButton variant="primary" size="sm">Submit review</YButton>
-  </YAffix>
-</template>
-```
-
-### Target Container
-
-```vue
-<template>
-  <section class="release-scroll-panel">
-    <YAffix target=".release-scroll-panel" :offset="12" aria-label="Container toolbar">
-      <YButton variant="secondary" size="sm">Sync section</YButton>
+<DocDemo
+  title="Bottom action bar"
+  description="底部固定操作条适合长表单提交和移动端确认操作，需要为内容预留空间避免遮挡。"
+  :code="bottomBarCode"
+  :usage="['bottom position', 'z-index', 'submit bar']"
+>
+  <div class="docs-affix-demo-panel">
+    <div class="docs-affix-demo-card">
+      <strong>Review changes</strong>
+      <span class="docs-affix-demo-card-copy">Long forms can keep the submit action visible near the viewport edge.</span>
+    </div>
+    <YAffix position="bottom" :offset="16" :z-index="120" aria-label="Sticky submit bar">
+      <div class="docs-affix-demo-bottom-bar">
+        <YTag tone="warning">3 pending checks</YTag>
+        <YButton variant="primary" size="sm">Submit review</YButton>
+      </div>
     </YAffix>
+  </div>
+</DocDemo>
+
+## Target Container
+
+<DocDemo
+  title="Target container"
+  description="target 指向局部滚动容器时，固定状态跟随容器滚动，而不是页面滚动。"
+  :code="targetContainerCode"
+  :usage="['target container', 'local scroll', 'sticky section toolbar']"
+>
+  <section class="docs-affix-demo-target-panel">
+    <YAffix
+      target=".docs-affix-demo-target-panel"
+      :offset="12"
+      aria-label="Container toolbar"
+      @change="targetFixed = $event"
+    >
+      <div class="docs-affix-demo-toolbar">
+        <YButton variant="secondary" size="sm">Sync section</YButton>
+        <YTag :tone="targetFixed ? 'success' : 'info'">{{ targetFixed ? 'Pinned in panel' : 'Panel toolbar' }}</YTag>
+      </div>
+    </YAffix>
+    <div class="docs-affix-demo-target-content">
+      <p v-for="item in 8" :key="item" class="docs-affix-demo-target-item">Release checklist item {{ item }}</p>
+    </div>
   </section>
-</template>
-```
+</DocDemo>
 
 ## Live example
 
@@ -73,3 +278,85 @@ import { YAffix, YButton, YTag } from '@yok-ui/core'
 ## API
 
 <ComponentApiSection name="YAffix" />
+
+<style scoped>
+.docs-affix-demo-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid var(--yok-color-border);
+  border-radius: var(--yok-radius-lg);
+  background: var(--yok-color-surface);
+  padding: 10px;
+  box-shadow: var(--yok-shadow-soft);
+}
+
+.docs-affix-demo-note {
+  margin: 12px 0 0;
+  color: var(--yok-color-textMuted);
+}
+
+.docs-affix-demo-panel {
+  display: grid;
+  gap: 12px;
+  min-height: 260px;
+}
+
+.docs-affix-demo-card {
+  display: grid;
+  gap: 8px;
+  min-height: 160px;
+  border: 1px dashed var(--yok-color-border);
+  border-radius: var(--yok-radius-lg);
+  background: var(--yok-color-surfaceMuted);
+  padding: 16px;
+}
+
+.docs-affix-demo-card-copy {
+  color: var(--yok-color-textMuted);
+}
+
+.docs-affix-demo-bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid var(--yok-color-border);
+  border-radius: var(--yok-radius-lg);
+  background: var(--yok-color-surface);
+  padding: 10px;
+  box-shadow: var(--yok-shadow-soft);
+}
+
+.docs-affix-demo-target-panel {
+  height: 260px;
+  overflow: auto;
+  border: 1px solid var(--yok-color-border);
+  border-radius: var(--yok-radius-lg);
+  background: var(--yok-color-background);
+  padding: 12px;
+}
+
+.docs-affix-demo-target-content {
+  display: grid;
+  gap: 10px;
+  padding-block: 14px;
+}
+
+.docs-affix-demo-target-item {
+  margin: 0;
+  border: 1px dashed var(--yok-color-border);
+  border-radius: var(--yok-radius-md);
+  background: var(--yok-color-surfaceMuted);
+  padding: 14px;
+  color: var(--yok-color-textMuted);
+}
+
+@media (max-width: 520px) {
+  .docs-affix-demo-bottom-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+</style>

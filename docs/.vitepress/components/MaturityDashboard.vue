@@ -66,6 +66,10 @@ import {
   getAdoptionReadinessSummary
 } from '../data/adoptionReadiness'
 import {
+  getSupportMatrixSummary,
+  supportMatrixItems
+} from '../data/supportMatrix'
+import {
   auditThemeLabRelease,
   defaultThemeLabState
 } from '../data/themeLab'
@@ -414,6 +418,7 @@ const releaseReadinessSummary = computed(() => getReleaseReadinessSummary())
 const mainstreamParitySummary = computed(() => getMainstreamParitySummary())
 const mainstreamParityItems = computed(() => getMainstreamParityItems())
 const adoptionReadinessSummary = computed(() => getAdoptionReadinessSummary())
+const supportMatrixSummary = computed(() => getSupportMatrixSummary())
 const docDemoSourceQualitySummary = computed(() => getDocDemoSourceQualitySummary())
 const readinessStatusLabels: Record<LiveExampleReadinessStatus, string> = {
   excellent: 'Excellent',
@@ -539,6 +544,34 @@ const adoptionReadinessCards = computed(() => [
     label: 'adoption queue',
     value: adoptionReadinessSummary.value.nextQueue.length,
     detail: 'Any warning or missing install path moves into this queue before release.'
+  }
+])
+
+const supportMatrixCards = computed(() => [
+  {
+    label: 'support matrix',
+    value: `${supportMatrixSummary.value.supportRate}%`,
+    detail: `${supportMatrixSummary.value.total} support surfaces documented or guarded.`
+  },
+  {
+    label: 'categories',
+    value: supportMatrixSummary.value.categories.length,
+    detail: supportMatrixSummary.value.categories.join(' / ')
+  },
+  {
+    label: 'browser baseline',
+    value: supportMatrixItems.find((item) => item.key === 'modern-browser-baseline')?.minimum ?? 'modern',
+    detail: 'Compatibility is documented as an explicit adoption boundary.'
+  },
+  {
+    label: 'guarded surfaces',
+    value: supportMatrixSummary.value.guarded,
+    detail: 'Build, theme, accessibility and resolver support are backed by tests or runtime audit evidence.'
+  },
+  {
+    label: 'support queue',
+    value: supportMatrixSummary.value.nextQueue.length,
+    detail: 'Unsupported or undocumented support promises enter this queue before release.'
   }
 ])
 
@@ -1283,6 +1316,54 @@ const nextPriorities = computed(() =>
           </div>
           <div class="maturity-dashboard__adoption-evidence">
             <span v-for="item in gate.evidence.slice(0, 3)" :key="`${gate.key}-${item}`">{{ item }}</span>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="maturity-dashboard__support">
+      <div class="maturity-dashboard__support-copy">
+        <p class="docs-eyebrow">support matrix</p>
+        <h3>把兼容范围和接入边界变成可维护证据</h3>
+        <p>
+          主流组件库会明确说明浏览器、Vue 版本、包管理器、SSR、主题运行时和自动导入边界。
+          Yok UI 现在把这些支持面拆成结构化矩阵，接入安装指南、资源页、成熟度看板和文档审计目标。
+        </p>
+      </div>
+
+      <div class="maturity-dashboard__support-grid">
+        <article
+          v-for="card in supportMatrixCards"
+          :key="card.label"
+          class="maturity-dashboard__support-card"
+        >
+          <strong>{{ card.value }}</strong>
+          <span>{{ card.label }}</span>
+          <p>{{ card.detail }}</p>
+        </article>
+      </div>
+
+      <div class="maturity-dashboard__support-list">
+        <article
+          v-for="item in supportMatrixItems"
+          :key="item.key"
+          class="maturity-dashboard__support-item"
+          :data-status="item.status"
+        >
+          <header>
+            <div>
+              <span>{{ item.category }}</span>
+              <strong>{{ item.title }}</strong>
+            </div>
+            <em>{{ item.status }}</em>
+          </header>
+          <p>{{ item.detail }}</p>
+          <code v-if="item.minimum">{{ item.minimum }}</code>
+          <div class="maturity-dashboard__support-links">
+            <a v-for="link in item.docs" :key="`${item.key}-${link}`" :href="link">{{ link }}</a>
+          </div>
+          <div class="maturity-dashboard__support-evidence">
+            <span v-for="evidence in item.evidence.slice(0, 3)" :key="`${item.key}-${evidence}`">{{ evidence }}</span>
           </div>
         </article>
       </div>

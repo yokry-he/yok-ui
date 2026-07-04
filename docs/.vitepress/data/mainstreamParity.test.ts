@@ -15,6 +15,7 @@ describe('mainstreamParity', () => {
     const elementPlusCascader = items.find((item) => item.key === 'element-plus-cascader')
     const elementPlusDatePicker = items.find((item) => item.key === 'element-plus-date-picker')
     const elementPlusI18n = items.find((item) => item.key === 'element-plus-config-provider-i18n')
+    const elementPlusCompatibility = items.find((item) => item.key === 'element-plus-compatibility-support')
     const antDesignTheme = items.find((item) => item.key === 'ant-design-vue-theme-token')
     const arcoTokenLab = items.find((item) => item.key === 'arco-design-vue-token-lab')
     const naiveTheme = items.find((item) => item.key === 'naive-ui-theme-system')
@@ -26,6 +27,7 @@ describe('mainstreamParity', () => {
       'element-plus-cascader',
       'element-plus-date-picker',
       'element-plus-config-provider-i18n',
+      'element-plus-compatibility-support',
       'ant-design-vue-theme-token',
       'arco-design-vue-token-lab',
       'naive-ui-theme-system',
@@ -50,6 +52,7 @@ describe('mainstreamParity', () => {
       'Element Plus Cascader',
       'Element Plus DatePicker',
       'Element Plus ConfigProvider i18n',
+      'Element Plus Installation Compatibility',
       'Ant Design Vue Customize Theme',
       'Arco Design Vue Design Token',
       'Naive UI Homepage',
@@ -91,6 +94,16 @@ describe('mainstreamParity', () => {
     })
     expect(elementPlusI18n?.matchedComponents.map((component) => component.name)).toContain('YConfigProvider')
     expect(elementPlusI18n?.evidence.docs).toContain('/components/config-provider')
+
+    expect(elementPlusCompatibility).toMatchObject({
+      label: 'Compatibility and support matrix',
+      status: 'covered'
+    })
+    expect(elementPlusCompatibility?.evidence.docs).toContain('/resources/support')
+    expect(elementPlusCompatibility?.evidence.capabilities).toEqual(expect.arrayContaining([
+      'browser-baseline',
+      'support-matrix'
+    ]))
 
     expect(antDesignTheme).toMatchObject({
       label: 'Design token customization through ConfigProvider',

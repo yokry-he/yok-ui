@@ -6,6 +6,8 @@ Maturity 页面用于持续追踪 Yok UI 和主流组件库之间的差距。这
 
 页面同时追踪 `adoption readiness`：安装预设、全量注册、分包插件、按需导入、`@yok-ui/resolver` 自动导入、`style.css` side effect、类型声明、主题 CSS 导出和文档运行时审计都会作为采用门禁展示。主流组件库的完整度不只来自组件数量，也来自业务项目能否低成本、可类型检查、可按需裁剪地接入。
 
+`support matrix` 会继续把 Vue 版本、现代浏览器、SSR、构建工具、包管理器、CSS 变量主题、可访问性和自动导入支持边界纳入看板。它对应主流组件库安装页常见的 compatibility 说明，目标是让 Yok UI 的接入前判断可以被测试和持续维护。
+
 <MaturityDashboard />
 
 ## How to read this page

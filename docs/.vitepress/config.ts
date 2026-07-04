@@ -73,6 +73,7 @@ export const resourceSidebar = [
       { text: 'Design System', link: '/resources/design-system' },
       { text: 'Theme Lab', link: '/resources/theme-lab' },
       { text: 'Maturity', link: '/resources/maturity' },
+      { text: 'Support Matrix', link: '/resources/support' },
       { text: 'Live Examples', link: '/resources/live-examples' },
       { text: 'Release Center', link: '/resources/release' },
       { text: 'Changelog', link: '/resources/changelog' },

@@ -78,6 +78,7 @@ const routeTitleOverrides: Record<string, string> = {
   '/resources/': 'Resources overview',
   '/playground/': 'Playground overview',
   '/resources/maturity': 'Maturity dashboard',
+  '/resources/support': 'Support Matrix',
   '/resources/live-examples': 'Live Example Matrix',
   '/resources/release': 'Release Center',
   '/resources/changelog': 'Changelog'
@@ -137,6 +138,24 @@ const resourceTargets: DocsA11yAuditTarget[] = [
       ],
       tests: [
         'docs/.vitepress/data/accessibilityEvidence.test.ts',
+        'docs/.vitepress/data/docsA11yAuditTargets.test.ts'
+      ]
+    }
+  }),
+  createStaticTarget({
+    id: 'resource-support',
+    title: 'Support Matrix',
+    route: '/resources/support',
+    priority: 'high',
+    checks: ['structure', 'routing', 'contrast', 'responsive'],
+    evidence: {
+      docs: ['docs/resources/support.md'],
+      data: [
+        'docs/.vitepress/data/supportMatrix.ts',
+        'docs/.vitepress/data/docsA11yAuditTargets.ts'
+      ],
+      tests: [
+        'docs/.vitepress/data/supportMatrix.test.ts',
         'docs/.vitepress/data/docsA11yAuditTargets.test.ts'
       ]
     }

@@ -3,6 +3,7 @@ import { getApiLiveCoverageSummary } from './apiLiveCoverage'
 import { getLiveExampleSourceQualitySummary } from './liveExampleSourceQuality'
 import { liveExampleDocs } from './liveExamples'
 import { getSourcePanelExperienceSummary } from './sourcePanelExperienceQuality'
+import { getSupportMatrixSummary } from './supportMatrix'
 
 export type MainstreamParityStatus = 'covered' | 'partial' | 'missing'
 
@@ -15,6 +16,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-date-picker'
   | 'element-plus-config-provider-i18n'
   | 'element-plus-resource-system'
+  | 'element-plus-compatibility-support'
   | 'ant-design-vue-theme-token'
   | 'ant-design-vue-select-form'
   | 'arco-design-vue-token-lab'
@@ -177,6 +179,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     capabilities: ['guide-component-resource-routing', 'api-reference', 'release-center', 'theme-lab']
   },
   {
+    key: 'element-plus-compatibility-support',
+    label: 'Compatibility and support matrix',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus Installation Compatibility',
+      url: 'https://element-plus.org/en-US/guide/installation',
+      note: 'Element Plus documents browser compatibility, Vue 3/IE boundaries, Sass version and package-manager installation on its installation page.'
+    },
+    docs: ['/guide/installation', '/resources/support'],
+    resources: ['/resources/maturity'],
+    capabilities: ['browser-baseline', 'vue-runtime-boundary', 'ssr-boundary', 'bundler-support', 'support-matrix']
+  },
+  {
     key: 'ant-design-vue-theme-token',
     label: 'Design token customization through ConfigProvider',
     source: {
@@ -292,6 +307,7 @@ function createChecks(benchmark: MainstreamBenchmark, matchedComponents: Compone
   const sourcePanel = getSourcePanelExperienceSummary()
   const sourceQuality = getLiveExampleSourceQualitySummary()
   const apiLiveCoverage = getApiLiveCoverageSummary()
+  const supportMatrix = getSupportMatrixSummary()
   const docs = getBenchmarkDocs(benchmark, matchedComponents)
   const liveExamples = matchedComponents
     .filter((component) => liveExampleDocs.has(component.docs))
@@ -353,6 +369,13 @@ function createChecks(benchmark: MainstreamBenchmark, matchedComponents: Compone
     checks.push({
       label: 'resource pages',
       passed: resources.length >= 3
+    })
+  }
+
+  if (benchmark.key === 'element-plus-compatibility-support') {
+    checks.push({
+      label: 'support matrix coverage',
+      passed: supportMatrix.supportRate === 100 && supportMatrix.total >= 9
     })
   }
 

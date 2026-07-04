@@ -7946,6 +7946,7 @@ body {
 .maturity-dashboard__doc-demo,
 .maturity-dashboard__source-panel,
 .maturity-dashboard__adoption,
+.maturity-dashboard__support,
 .maturity-dashboard__api-live-map,
 .maturity-dashboard__roadmap,
 .maturity-dashboard__mainstream,
@@ -7979,6 +7980,8 @@ body {
 .maturity-dashboard__source-panel p,
 .maturity-dashboard__adoption h3,
 .maturity-dashboard__adoption p,
+.maturity-dashboard__support h3,
+.maturity-dashboard__support p,
 .maturity-dashboard__api-live-map h3,
 .maturity-dashboard__api-live-map h4,
 .maturity-dashboard__api-live-map p,
@@ -8006,6 +8009,7 @@ body {
 .maturity-dashboard__doc-demo p,
 .maturity-dashboard__source-panel p,
 .maturity-dashboard__adoption p,
+.maturity-dashboard__support p,
 .maturity-dashboard__api-live-map p,
 .maturity-dashboard__roadmap p,
 .maturity-dashboard__mainstream p,
@@ -8031,6 +8035,8 @@ body {
 .maturity-dashboard__source-panel-links,
 .maturity-dashboard__adoption-grid,
 .maturity-dashboard__adoption-list,
+.maturity-dashboard__support-grid,
+.maturity-dashboard__support-list,
 .maturity-dashboard__api-live-map-grid,
 .maturity-dashboard__api-live-map-links,
 .maturity-dashboard__roadmap-grid,
@@ -8066,6 +8072,8 @@ body {
 .maturity-dashboard__source-panel-links a,
 .maturity-dashboard__adoption-card,
 .maturity-dashboard__adoption-gate,
+.maturity-dashboard__support-card,
+.maturity-dashboard__support-item,
 .maturity-dashboard__api-live-map-card,
 .maturity-dashboard__api-live-map-links a,
 .maturity-dashboard__roadmap-lane,
@@ -8101,6 +8109,7 @@ body {
 .maturity-dashboard__doc-demo-card strong,
 .maturity-dashboard__source-panel-card strong,
 .maturity-dashboard__adoption-card strong,
+.maturity-dashboard__support-card strong,
 .maturity-dashboard__api-live-map-card strong,
 .maturity-dashboard__roadmap-lane header strong,
 .maturity-dashboard__mainstream-card strong,
@@ -8131,6 +8140,9 @@ body {
 .maturity-dashboard__adoption-card span,
 .maturity-dashboard__adoption-gate header span,
 .maturity-dashboard__adoption-evidence span,
+.maturity-dashboard__support-card span,
+.maturity-dashboard__support-item header span,
+.maturity-dashboard__support-evidence span,
 .maturity-dashboard__api-live-map-card span,
 .maturity-dashboard__api-live-map-queue header > span,
 .maturity-dashboard__api-live-map-links span,
@@ -9097,6 +9109,122 @@ body {
 }
 
 .maturity-dashboard__adoption-links a:hover {
+  text-decoration: underline;
+}
+
+.maturity-dashboard__support {
+  display: grid;
+  gap: 16px;
+}
+
+.maturity-dashboard__support-copy {
+  max-width: 860px;
+}
+
+.maturity-dashboard__support-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.maturity-dashboard__support-card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.maturity-dashboard__support-card p {
+  color: var(--yok-color-textMuted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.maturity-dashboard__support-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.maturity-dashboard__support-item {
+  display: grid;
+  gap: 12px;
+  background: color-mix(in srgb, var(--yok-color-surfaceMuted) 44%, var(--yok-color-surface));
+}
+
+.maturity-dashboard__support-item header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.maturity-dashboard__support-item header div {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.maturity-dashboard__support-item header strong {
+  color: var(--yok-color-text);
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.maturity-dashboard__support-item header em {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--yok-color-success) 12%, var(--yok-color-surface));
+  color: var(--yok-color-success);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 850;
+  line-height: 1;
+  padding: 7px 9px;
+}
+
+.maturity-dashboard__support-item[data-status="documented"] header em {
+  background: var(--yok-color-primarySoft);
+  color: var(--yok-color-primary);
+}
+
+.maturity-dashboard__support-item[data-status="guarded"] header em {
+  background: color-mix(in srgb, #f59e0b 16%, var(--yok-color-surface));
+  color: #92400e;
+}
+
+.maturity-dashboard__support-item code {
+  overflow: auto;
+  border-radius: 12px;
+  background: var(--yok-color-surface);
+  color: var(--yok-color-primary);
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 9px 10px;
+  white-space: nowrap;
+}
+
+.maturity-dashboard__support-links,
+.maturity-dashboard__support-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.maturity-dashboard__support-links a,
+.maturity-dashboard__support-evidence span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  border-radius: 999px;
+  background: var(--yok-color-surface);
+  color: var(--yok-color-textMuted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 7px 9px;
+  text-decoration: none;
+}
+
+.maturity-dashboard__support-links a {
+  color: var(--yok-color-primary);
+}
+
+.maturity-dashboard__support-links a:hover {
   text-decoration: underline;
 }
 
@@ -11373,6 +11501,8 @@ body {
   .maturity-dashboard__source-panel-links,
   .maturity-dashboard__adoption-grid,
   .maturity-dashboard__adoption-list,
+  .maturity-dashboard__support-grid,
+  .maturity-dashboard__support-list,
   .maturity-dashboard__api-live-map-grid,
   .maturity-dashboard__api-live-map-links,
   .maturity-dashboard__api-reference-links,
@@ -11510,6 +11640,14 @@ body {
   }
 
   .maturity-dashboard__adoption-gate header em {
+    justify-self: start;
+  }
+
+  .maturity-dashboard__support-item header {
+    display: grid;
+  }
+
+  .maturity-dashboard__support-item header em {
     justify-self: start;
   }
 

@@ -141,6 +141,7 @@ const dateValue = ref('2026-06-13')
 const dateRangeValue = ref(['2026-06-13', '2026-06-20'])
 const dateTimeValue = ref('2026-07-04 20:30')
 const timeValue = ref('09:30')
+const timeSelectValue = ref('09:00')
 const cascaderValue = ref(['core', 'form', 'cascader'])
 const colorValue = ref('#14B8A6')
 const imageSrc = '/logo.svg'
@@ -854,6 +855,7 @@ const componentImports = computed(() => {
     dateRangePicker: 'YDateRangePicker',
     dateTimePicker: 'YDateTimePicker',
     timePicker: 'YTimePicker',
+    timeSelect: 'YTimeSelect',
     transfer: 'YTransfer',
     cascader: 'YCascader',
     treeSelect: 'YTreeSelect',
@@ -1134,6 +1136,10 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'timePicker') {
     return `<YTimePicker v-model="reviewTime" label="Review time" :minute-step="15"${disabled.value ? ' disabled' : ''} />`
+  }
+
+  if (activeComponent.value === 'timeSelect') {
+    return `<YTimeSelect v-model="startTime" label="Start time" start="08:30" end="18:30" step="00:15"${disabled.value ? ' disabled' : ''} />`
   }
 
   if (activeComponent.value === 'cascader') {
@@ -1772,6 +1778,10 @@ const generatedScript = computed(() => {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst reviewTime = ref('09:30')`
   }
 
+  if (activeComponent.value === 'timeSelect') {
+    return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst startTime = ref('09:00')`
+  }
+
   if (activeComponent.value === 'cascader') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst componentPath = ref(['core', 'form', 'cascader'])\nconst cascaderOptions = ${JSON.stringify(cascaderOptions, null, 2)}`
   }
@@ -2334,6 +2344,7 @@ const playgroundShareUrl = computed(() => {
       activeComponent.value === 'dateRangePicker' ||
       activeComponent.value === 'dateTimePicker' ||
       activeComponent.value === 'timePicker' ||
+      activeComponent.value === 'timeSelect' ||
       activeComponent.value === 'cascader' ||
       activeComponent.value === 'colorPicker' ||
       activeComponent.value === 'textarea'
@@ -3079,6 +3090,7 @@ onMounted(() => {
             activeComponent === 'dateRangePicker' ||
             activeComponent === 'dateTimePicker' ||
             activeComponent === 'timePicker' ||
+            activeComponent === 'timeSelect' ||
             activeComponent === 'cascader' ||
             activeComponent === 'colorPicker' ||
             activeComponent === 'textarea'
@@ -3366,6 +3378,15 @@ onMounted(() => {
             v-model="timeValue"
             label="Review time"
             :minute-step="15"
+            :disabled="disabled"
+          />
+          <YTimeSelect
+            v-else-if="activeComponent === 'timeSelect'"
+            v-model="timeSelectValue"
+            label="Start time"
+            start="08:30"
+            end="18:30"
+            step="00:15"
             :disabled="disabled"
           />
           <YCascader

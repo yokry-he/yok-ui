@@ -76,6 +76,7 @@ import {
   YTimeline,
   YTour,
   YTimePicker,
+  YTimeSelect,
   YTag,
   YTooltip,
   YTransfer,
@@ -1791,6 +1792,23 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '  </div>',
     '</template>'
   ].join('\n'),
+  timeSelect: [
+    '<script setup lang="ts">',
+    "import { ref } from 'vue'",
+    "import { YTimeSelect, YTag } from '@yok-ui/core'",
+    '',
+    "const startTime = ref('09:00')",
+    "const endTime = ref('17:30')",
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <div class="demo-stack">',
+    '    <YTimeSelect v-model="startTime" label="Start time" start="08:30" end="18:30" step="00:15" :max-time="endTime" />',
+    '    <YTimeSelect v-model="endTime" label="End time" start="08:30" end="18:30" step="00:15" :min-time="startTime" />',
+    '    <YTag tone="success">Fixed HH:mm options keep time-range forms predictable.</YTag>',
+    '  </div>',
+    '</template>'
+  ].join('\n'),
   transfer: [
     '<script setup lang="ts">',
     "import { YTransfer, YTag } from '@yok-ui/core'",
@@ -2480,6 +2498,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   timeline: 'Timeline',
   collapse: 'Collapse',
   timePicker: 'Time Picker',
+  timeSelect: 'Time Select',
   transfer: 'Transfer',
   tree: 'Tree',
   form: 'Form',
@@ -6489,6 +6508,81 @@ const treeSelectNodes = ${nodes}`, [
         `  ${pickerLine}`,
         isValidationScenario ? '  <p id="release-time-help" class="demo-note">Choose a release time before publishing.</p>' : '',
         `  <YTag tone="${isErrorScenario || isValidationScenario ? 'danger' : isDisabledScenario ? 'warning' : 'info'}">${helperText}</YTag>`,
+        '</div>'
+      ].filter(Boolean))
+    }
+  },
+  timeSelect: {
+    title: 'Time Select scenario',
+    description: '用固定时间、12 小时展示、范围联动、禁用窗口、校验错误、移动端和键盘路径调试固定时间列表工作流。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'basic', options: [
+        { label: '固定时间', value: 'basic' },
+        { label: '12 小时展示', value: 'format' },
+        { label: '范围联动', value: 'range' },
+        { label: '禁用窗口', value: 'disabled' },
+        { label: '校验错误', value: 'error' },
+        { label: '移动固定时间', value: 'mobile' },
+        { label: '键盘固定时间', value: 'keyboard' }
+      ] },
+      { key: 'clearable', label: '可清空', type: 'boolean', defaultValue: true }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const isFormatScenario = scenario === 'format'
+      const isRangeScenario = scenario === 'range'
+      const isDisabledScenario = scenario === 'disabled'
+      const isErrorScenario = scenario === 'error'
+      const isMobileScenario = scenario === 'mobile'
+      const isKeyboardScenario = scenario === 'keyboard'
+      const label = isRangeScenario
+        ? 'Start'
+        : isErrorScenario
+          ? 'Start time'
+          : isMobileScenario
+            ? 'Pickup'
+            : isKeyboardScenario
+              ? 'Keyboard time select'
+              : isFormatScenario
+                ? 'Review time'
+                : 'Start time'
+      const value = isErrorScenario ? '' : isRangeScenario ? '09:00' : isMobileScenario ? '10:00' : '09:00'
+      const start = isMobileScenario ? '09:00' : '08:30'
+      const end = isMobileScenario ? '17:00' : '18:30'
+      const step = isMobileScenario || isDisabledScenario ? '00:30' : '00:15'
+      const helperText = isFormatScenario
+        ? 'Labels can show 12-hour time while modelValue stays HH:mm.'
+        : isRangeScenario
+          ? 'Start and end selects share minTime and maxTime so users cannot choose an inverted range.'
+          : isDisabledScenario
+            ? 'maxTime disables unavailable slots at and after the linked business boundary.'
+            : isErrorScenario
+              ? 'Validation text explains why the form cannot continue.'
+              : isMobileScenario
+                ? 'Short labels and 30-minute slots keep the fixed list readable on narrow screens.'
+                : isKeyboardScenario
+                  ? 'Arrow keys move through listbox options; Enter or Space commits the active option.'
+                  : 'Fixed HH:mm options keep appointment and schedule forms predictable.'
+
+      if (isRangeScenario) {
+        return sfc("import { ref } from 'vue'\nimport { YTag, YTimeSelect } from '@yok-ui/core'\nconst startTime = ref('09:00')\nconst endTime = ref('17:30')", [
+          '<div class="demo-stack">',
+          '  <div class="demo-grid">',
+          '    <YTimeSelect v-model="startTime" label="Start" start="08:30" end="18:30" step="00:30" :max-time="endTime" />',
+          '    <YTimeSelect v-model="endTime" label="End" start="08:30" end="18:30" step="00:30" :min-time="startTime" />',
+          '  </div>',
+          `  <YTag tone="success">${helperText}</YTag>`,
+          '</div>'
+        ])
+      }
+
+      const selectLine = `<YTimeSelect${isErrorScenario ? ' id="release-start-time"' : ''}${textAttribute('label', label)}${value ? textAttribute('model-value', value) : ''}${textAttribute('start', start)}${textAttribute('end', end)}${textAttribute('step', step)}${isFormatScenario ? ' format="hh:mm A"' : ''}${isDisabledScenario ? ' max-time="17:00"' : ''}${isKeyboardScenario ? ' aria-label="Keyboard time select list"' : ''}${isErrorScenario ? ' aria-describedby="release-start-time-help" invalid error="Start time is required."' : ''}${state.clearable ? '' : ' :clearable="false"'} />`
+
+      return sfc("import { YTag, YTimeSelect } from '@yok-ui/core'", [
+        '<div class="demo-stack">',
+        `  ${selectLine}`,
+        isErrorScenario ? '  <p id="release-start-time-help" class="demo-note">Choose a start time before publishing.</p>' : '',
+        `  <YTag tone="${isErrorScenario ? 'danger' : isDisabledScenario ? 'warning' : 'info'}">${helperText}</YTag>`,
         '</div>'
       ].filter(Boolean))
     }
@@ -12506,6 +12600,7 @@ const componentMap = {
   ytimeline: RunnerTimelinePreview,
   ytour: YTour,
   ytimepicker: YTimePicker,
+  ytimeselect: YTimeSelect,
   ytag: YTag,
   ytooltip: YTooltip,
   ytransfer: YTransfer,

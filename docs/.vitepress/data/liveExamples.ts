@@ -13,6 +13,7 @@ export type LiveExamplePreset =
   | 'datePicker'
   | 'dateRangePicker'
   | 'dateTimePicker'
+  | 'timeSelect'
   | 'alert'
   | 'loading'
   | 'progress'
@@ -343,6 +344,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/theme-switcher', preset: 'themeSwitcher' },
   { docs: '/components/textarea', preset: 'textarea' },
   { docs: '/components/time-picker', preset: 'timePicker' },
+  { docs: '/components/time-select', preset: 'timeSelect' },
   { docs: '/components/timeline', preset: 'timeline' },
   { docs: '/components/tour', preset: 'tour' },
   { docs: '/components/tooltip', preset: 'tooltip' },
@@ -374,6 +376,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'dateTimePicker',
   'textarea',
   'timePicker',
+  'timeSelect',
   'tooltip',
   'dropdown',
   'popover',
@@ -562,6 +565,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'tooltip',
   'timeline',
   'timePicker',
+  'timeSelect',
   'transfer',
   'tree',
   'treeSelect',
@@ -3081,6 +3085,57 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: '验证打开面板、切换小时、移动分钟、确认和关闭的键盘路径。'
+    }
+  ],
+  timeSelect: [
+    {
+      key: 'basic-time-select',
+      label: '固定时间',
+      kind: 'basic',
+      controlValue: 'basic',
+      description: '用 start、end 和 step 生成预约、排班或营业时间的固定列表。'
+    },
+    {
+      key: 'format-time-select',
+      label: '12 小时展示',
+      kind: 'controlled',
+      controlValue: 'format',
+      description: '展示 hh:mm A 标签，同时保持提交值为 HH:mm。'
+    },
+    {
+      key: 'range-time-select',
+      label: '范围联动',
+      kind: 'composition',
+      controlValue: 'range',
+      description: '开始时间和结束时间互相约束，避免选择反向时间段。'
+    },
+    {
+      key: 'disabled-time-select',
+      label: '禁用窗口',
+      kind: 'disabled',
+      controlValue: 'disabled',
+      description: '用 minTime 或 maxTime 禁用不可预约、不可发布的时间点。'
+    },
+    {
+      key: 'error-time-select',
+      label: '校验错误',
+      kind: 'error',
+      controlValue: 'error',
+      description: '必填或冲突时间需要清晰错误反馈。'
+    },
+    {
+      key: 'mobile-time-select',
+      label: '移动固定时间',
+      kind: 'responsive',
+      controlValue: 'mobile',
+      description: '窄屏下使用短标签、粗时间粒度和清晰占位保证可操作。'
+    },
+    {
+      key: 'keyboard-time-select',
+      label: '键盘固定时间',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: '验证 combobox 打开、方向键移动、确认选项和关闭列表路径。'
     }
   ],
   dateTimePicker: [

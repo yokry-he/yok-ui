@@ -107,6 +107,7 @@ export const yokUiComponentPackages = {
   YTimeline: '@yok-ui/core',
   YTour: '@yok-ui/core',
   YTimePicker: '@yok-ui/core',
+  YTimeSelect: '@yok-ui/core',
   YTooltip: '@yok-ui/core',
   YTransfer: '@yok-ui/core',
   YTree: '@yok-ui/core',

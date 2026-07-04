@@ -59,6 +59,7 @@ const componentStubs = {
   YDateRangePicker: { template: '<input />' },
   YDateTimePicker: { template: '<input />' },
   YTimePicker: { template: '<input />' },
+  YTimeSelect: { template: '<input />' },
   YCascader: { template: '<div />' },
   YColorPicker: { template: '<input />' },
   YCarousel: { props: ['items'], template: '<section class="yok-carousel">{{ items?.[0]?.title }}</section>' },

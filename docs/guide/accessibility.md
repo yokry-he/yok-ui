@@ -84,6 +84,7 @@ DOCS_A11Y_BASE_URL=http://127.0.0.1:5179 pnpm docs:a11y:runtime
 | `YDatePicker` | 输入框使用 combobox-like 触发语义，Floating UI 定位日历面板，面板使用 `role="dialog"` + `role="grid"`，快捷项使用命名按钮组，日期使用 `aria-selected`，支持方向键、Home / End、PageUp / PageDown 和 Escape |
 | `YDateRangePicker` | 输入框触发 Floating UI 范围日历面板，日期网格使用 `role="grid"`，快捷项使用命名按钮组，起止日期使用 `aria-selected`，支持方向键、Enter / Space、Home / End、PageUp / PageDown 和 Escape |
 | `YTimePicker` | 输入框触发 Floating UI 时间面板，面板使用 `role="dialog"` 和双 `listbox`，支持方向键、Enter / Space 和 Escape |
+| `YTimeSelect` | 固定时间列表复用 `YSelect` 的 `combobox` / `listbox` 语义，范围禁用项同步设置 disabled 和 `aria-disabled` |
 | `YCascader` | 输入框触发 Floating UI 级联面板，列使用 `role="listbox"`，multiple 时同步 `aria-multiselectable`，选项使用 `role="option"` 和 `aria-selected`，支持方向键、Enter / Space 和 Escape；懒加载节点同步 `aria-busy` / `role="status"`，失败节点使用 `role="alert"` 并保持可重试 |
 | `YUpload` | 使用原生 `input type="file"`，拖拽模式仍保留可点击按钮，文件数量摘要使用 `aria-live`，空状态使用 `role="status"` |
 | `YTransfer` | 使用原生 checkbox 勾选项，左右列表使用 `role="listbox"` 和 `aria-multiselectable`，移动按钮提供明确 `aria-label` |

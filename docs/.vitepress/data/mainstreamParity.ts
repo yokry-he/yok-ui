@@ -18,6 +18,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-cascader-lazy-load'
   | 'element-plus-date-picker'
   | 'element-plus-date-time-picker'
+  | 'element-plus-time-select'
   | 'element-plus-input-otp'
   | 'element-plus-input-tag'
   | 'element-plus-check-tag'
@@ -211,6 +212,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     componentNames: ['YDateTimePicker'],
     docs: ['/components/date-time-picker'],
     capabilities: ['structured-api', 'workflow-live-example', 'shortcut-scenario', 'disabled-date-scenario', 'keyboard-scenario']
+  },
+  {
+    key: 'element-plus-time-select',
+    label: 'Fixed time select list and range linking',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus TimeSelect',
+      url: 'https://element-plus.org/en-US/component/time-select',
+      note: 'Element Plus TimeSelect documents fixed start/end/step time options and range linking through min-time and max-time.'
+    },
+    componentNames: ['YTimeSelect'],
+    docs: ['/components/time-select'],
+    capabilities: ['fixed-time-list', 'range-linked-time-select', 'structured-api', 'workflow-live-example', 'keyboard-scenario']
   },
   {
     key: 'element-plus-input-otp',

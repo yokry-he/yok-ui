@@ -363,6 +363,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'documented'
   },
   {
+    name: 'YTimeSelect',
+    title: 'Time Select',
+    packageName: '@yok-ui/core',
+    family: 'form',
+    status: 'Beta',
+    docs: '/components/time-select',
+    description: '固定时间列表选择，支持 start、end、step 和范围联动。',
+    since: '0.15.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YCascader',
     title: 'Cascader',
     packageName: '@yok-ui/core',
@@ -6288,6 +6299,151 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'YTimePickerDisabledTime',
         type: '(time: YTimePickerOption) => boolean',
         description: '禁用时间判断函数。'
+      }
+    ]
+  },
+  YTimeSelect: {
+    props: [
+      {
+        name: 'id',
+        type: 'string',
+        defaultValue: "''",
+        description: '传给底层 combobox 的 id；未传入时由 YSelect 自动生成稳定 id。'
+      },
+      {
+        name: 'modelValue',
+        type: 'string',
+        defaultValue: "''",
+        description: '当前时间值，格式为 HH:mm。'
+      },
+      {
+        name: 'label',
+        type: 'string',
+        defaultValue: "''",
+        description: '表单标签。'
+      },
+      {
+        name: 'ariaLabel',
+        type: 'string',
+        defaultValue: "''",
+        description: '无可见 label 时传给底层 combobox 的可访问名称。'
+      },
+      {
+        name: 'ariaDescribedby',
+        type: 'string',
+        defaultValue: "''",
+        description: '传给底层 combobox 的 aria-describedby，通常来自表单帮助文本或 FormItem messageId。'
+      },
+      {
+        name: 'placeholder',
+        type: 'string',
+        defaultValue: "'Select time'",
+        description: '占位文本。'
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '禁用状态。'
+      },
+      {
+        name: 'clearable',
+        type: 'boolean',
+        defaultValue: 'true',
+        description: '是否允许清空时间。'
+      },
+      {
+        name: 'start',
+        type: 'string',
+        defaultValue: "'00:00'",
+        description: '固定时间列表的开始时间，格式为 HH:mm。'
+      },
+      {
+        name: 'end',
+        type: 'string',
+        defaultValue: "'23:59'",
+        description: '固定时间列表的结束时间，格式为 HH:mm。'
+      },
+      {
+        name: 'step',
+        type: 'string',
+        defaultValue: "'00:30'",
+        description: '固定时间列表的步长，格式为 HH:mm，例如 00:15 表示 15 分钟。'
+      },
+      {
+        name: 'minTime',
+        type: 'string',
+        defaultValue: "''",
+        description: '禁用小于等于该值的选项，适合结束时间跟随开始时间联动。'
+      },
+      {
+        name: 'maxTime',
+        type: 'string',
+        defaultValue: "''",
+        description: '禁用大于等于该值的选项，适合开始时间跟随结束时间联动。'
+      },
+      {
+        name: 'format',
+        type: 'YTimeSelectFormat',
+        defaultValue: "'HH:mm'",
+        description: '选项展示格式；支持 24 小时 HH:mm 和 12 小时 hh:mm A。'
+      },
+      {
+        name: 'error',
+        type: 'string',
+        defaultValue: "''",
+        description: '错误信息。'
+      },
+      {
+        name: 'invalid',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '强制标记输入框为无效状态；error 存在时会自动标记。'
+      },
+      {
+        name: 'size',
+        type: 'YSelectSize',
+        defaultValue: 'YConfigProvider.size',
+        description: '选择器尺寸；未传入时读取 YConfigProvider 的全局 size。'
+      }
+    ],
+    events: [
+      {
+        name: 'update:modelValue',
+        type: 'string',
+        description: '时间值变化。'
+      },
+      {
+        name: 'change',
+        type: 'string',
+        description: '选择或清空时间后触发。'
+      },
+      {
+        name: 'clear',
+        type: 'void',
+        description: '清空时间后触发。'
+      },
+      {
+        name: 'visibleChange',
+        type: 'boolean',
+        description: '固定时间列表打开或关闭时触发。'
+      }
+    ],
+    types: [
+      {
+        name: 'YTimeSelectFormat',
+        type: "'HH:mm' | 'hh:mm A'",
+        description: '时间选项展示格式。'
+      },
+      {
+        name: 'YTimeSelectOption',
+        type: 'YSelectOption & { value: string }',
+        description: '由 start、end、step、minTime 和 maxTime 生成的固定时间选项。'
+      },
+      {
+        name: 'YTimeSelectOptionsConfig',
+        type: '{ start?: string; end?: string; step?: string; minTime?: string; maxTime?: string; format?: YTimeSelectFormat }',
+        description: '固定时间选项生成配置。'
       }
     ]
   },

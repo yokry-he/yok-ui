@@ -146,6 +146,19 @@ export const interactionContracts: InteractionContract[] = [
     }
   },
   {
+    componentName: 'YTimeSelect',
+    pattern: 'Combobox with fixed time listbox popup',
+    keyboard: ['ArrowDown / ArrowUp moves enabled time options', 'Home / End jumps to the edge time option', 'Enter / Space selects', 'Escape closes and restores trigger focus'],
+    focus: 'Opening focuses the selected or first enabled time option; closing returns focus to the combobox trigger.',
+    semantics: ['role="combobox"', 'role="listbox"', 'role="option"', 'aria-expanded', 'aria-activedescendant', 'aria-disabled', 'aria-invalid'],
+    status: 'minTime and maxTime disable out-of-range fixed time options while keeping submitted values in HH:mm form.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/guide/accessibility.md', 'docs/components/time-select.md'],
+      tests: ['packages/core/src/components/time-select/time-select.test.ts']
+    }
+  },
+  {
     componentName: 'YCascader',
     pattern: 'Cascading listbox selector',
     keyboard: ['Arrow keys move between options and columns', 'ArrowRight can trigger lazy branch loading', 'Enter / Space selects or loads a branch', 'Escape closes'],

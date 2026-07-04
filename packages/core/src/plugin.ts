@@ -69,6 +69,7 @@ import { YThemeProvider } from './components/theme-provider'
 import { YTimeline } from './components/timeline'
 import { YTour } from './components/tour'
 import { YTimePicker } from './components/time-picker'
+import { YTimeSelect } from './components/time-select'
 import { YTooltip } from './components/tooltip'
 import { YTransfer } from './components/transfer'
 import { YTree } from './components/tree'
@@ -174,6 +175,7 @@ export const coreComponents: Component[] = [
   YTimeline,
   YTour,
   YTimePicker,
+  YTimeSelect,
   YTooltip,
   YTransfer,
   YTree,

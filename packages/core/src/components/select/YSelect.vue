@@ -29,6 +29,7 @@ interface Props {
   modelValue?: YSelectValue
   options: YSelectOption[]
   label?: string
+  ariaLabel?: string
   placeholder?: string
   error?: string
   invalid?: boolean
@@ -55,6 +56,7 @@ const props = withDefaults(defineProps<Props>(), {
   id: '',
   modelValue: '',
   label: '',
+  ariaLabel: '',
   placeholder: 'Select an option',
   error: '',
   invalid: false,
@@ -563,7 +565,7 @@ watch(query, (value) => {
         :aria-controls="listboxId"
         :aria-activedescendant="open ? activeOptionId : undefined"
         :aria-labelledby="label ? `${labelId} ${fieldId}` : undefined"
-        :aria-label="label ? undefined : placeholder"
+        :aria-label="label ? undefined : (ariaLabel || placeholder)"
         :aria-invalid="hasInvalidState ? 'true' : 'false'"
         :aria-disabled="disabled ? 'true' : 'false'"
         :aria-describedby="describedBy"
@@ -658,6 +660,7 @@ watch(query, (value) => {
                   role="option"
                   :aria-posinset="index + 1"
                   :aria-selected="isOptionSelected(option) ? 'true' : 'false'"
+                  :aria-disabled="option.disabled ? 'true' : undefined"
                   :disabled="option.disabled"
                   @click="selectOption(option)"
                 >
@@ -687,6 +690,7 @@ watch(query, (value) => {
                   type="button"
                   role="option"
                   :aria-selected="isOptionSelected(option) ? 'true' : 'false'"
+                  :aria-disabled="option.disabled ? 'true' : undefined"
                   :disabled="option.disabled"
                   @click="selectOption(option)"
                 >
@@ -705,6 +709,7 @@ watch(query, (value) => {
                   type="button"
                   role="option"
                   :aria-selected="isOptionSelected(option) ? 'true' : 'false'"
+                  :aria-disabled="option.disabled ? 'true' : undefined"
                   :disabled="option.disabled"
                   @click="selectOption(option)"
                 >

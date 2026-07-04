@@ -4,7 +4,7 @@ const corePreviewSetup = [
   '',
   'const coverageItems = [',
   "  { key: 'button', label: 'Actions', value: 'YButton, YIconButton' },",
-  "  { key: 'form', label: 'Forms', value: 'Input, InputOTP, InputTag, Select, Form, Upload' },",
+  "  { key: 'form', label: 'Forms', value: 'Input, InputOTP, InputTag, Select, TimeSelect, Form, Upload' },",
   "  { key: 'data', label: 'Data', value: 'Table, List, Descriptions, Statistic, Timeline, Tree' },",
   "  { key: 'feedback', label: 'Feedback', value: 'Alert, Message, Result, Empty' }",
   ']'
@@ -12,7 +12,7 @@ const corePreviewSetup = [
 
 const corePreviewCode = [
   '<div class="core-preview-metrics">',
-  '  <YStatistic title="Core components" :value="45" suffix="ready" tone="success" />',
+  '  <YStatistic title="Core components" :value="46" suffix="ready" tone="success" />',
   '  <YStatistic title="Data display" :value="6" suffix="patterns" tone="info" />',
   '</div>',
   '<YDescriptions',
@@ -61,7 +61,7 @@ createApp(App).use(YokCore).mount('#app')
 ```ts
 import '@yok-ui/themes/yok-light.css'
 import '@yok-ui/core/style.css'
-import { YButton, YDateTimePicker, YDescriptions, YInput, YInputOtp, YInputTag, YList, YStatistic, YThemeProvider } from '@yok-ui/core'
+import { YButton, YDateTimePicker, YDescriptions, YInput, YInputOtp, YInputTag, YList, YStatistic, YThemeProvider, YTimeSelect } from '@yok-ui/core'
 ```
 
 ## Components
@@ -78,7 +78,7 @@ import { YButton, YDateTimePicker, YDescriptions, YInput, YInputOtp, YInputTag, 
   :usage="['package preview', 'descriptions', 'statistics']"
 >
   <div class="core-preview-metrics">
-    <YStatistic title="Core components" :value="45" suffix="ready" tone="success" />
+    <YStatistic title="Core components" :value="46" suffix="ready" tone="success" />
     <YStatistic title="Data display" :value="6" suffix="patterns" tone="info" />
   </div>
   <YDescriptions
@@ -88,7 +88,7 @@ import { YButton, YDateTimePicker, YDescriptions, YInput, YInputOtp, YInputTag, 
     :column="2"
     :items="[
       { key: 'button', label: 'Actions', value: 'YButton, YIconButton' },
-      { key: 'form', label: 'Forms', value: 'Input, InputOTP, InputTag, Select, Form, Upload' },
+      { key: 'form', label: 'Forms', value: 'Input, InputOTP, InputTag, Select, TimeSelect, Form, Upload' },
       { key: 'data', label: 'Data', value: 'Table, List, Descriptions, Statistic, Timeline, Tree' },
       { key: 'feedback', label: 'Feedback', value: 'Alert, Message, Result, Empty' }
     ]"

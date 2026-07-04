@@ -979,6 +979,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'native'
   },
   {
+    name: 'YCheckTag',
+    title: 'Check Tag',
+    packageName: '@yok-ui/core',
+    family: 'feedback',
+    status: 'Beta',
+    docs: '/components/tag-badge',
+    description: '可勾选标签，适合轻量筛选、偏好选择和状态开关。',
+    since: '0.13.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YBadge',
     title: 'Badge',
     packageName: '@yok-ui/core',
@@ -7229,6 +7240,31 @@ export const componentApis: Record<string, ComponentApi> = {
     ],
     slots: [
       { name: 'default', type: 'VNode', description: '标签内容。' }
+    ]
+  },
+  YCheckTag: {
+    props: [
+      { name: 'checked', type: 'boolean', defaultValue: 'false', description: '是否处于选中状态，支持 v-model:checked。' },
+      { name: 'disabled', type: 'boolean', defaultValue: 'false', description: '是否禁用交互。' },
+      { name: 'tone', type: "'neutral' | 'success' | 'warning' | 'danger' | 'info'", defaultValue: "'neutral'", description: '选中和焦点状态的语义色。' },
+      { name: 'label', type: 'string', defaultValue: "''", description: '可访问名称，未提供时使用标签文本。' },
+      { name: 'invalid', type: 'boolean', defaultValue: 'false', description: '是否标记为校验错误状态。' },
+      { name: 'error', type: 'string', defaultValue: "''", description: '错误提示文本，会作为 alert 暴露给辅助技术。' },
+      { name: 'ariaDescribedby', type: 'string', defaultValue: "''", description: '关联额外说明或错误提示元素 id。' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", defaultValue: 'global size', description: '标签尺寸，默认继承 ConfigProvider。' }
+    ],
+    events: [
+      { name: 'update:checked', type: '(checked: boolean) => void', description: '选中状态变化时触发。' },
+      { name: 'change', type: '(checked: boolean) => void', description: '用户切换选中状态时触发。' },
+      { name: 'click', type: '(event: MouseEvent) => void', description: '点击标签按钮时触发。' },
+      { name: 'focus', type: '(event: FocusEvent) => void', description: '获得焦点时触发。' },
+      { name: 'blur', type: '(event: FocusEvent) => void', description: '失去焦点时触发。' }
+    ],
+    slots: [
+      { name: 'default', type: 'VNode', description: '标签文本或短内容。' }
+    ],
+    types: [
+      { name: 'YCheckTagTone', type: "'neutral' | 'success' | 'warning' | 'danger' | 'info'", description: '可勾选标签语义色。' }
     ]
   },
   YBadge: {

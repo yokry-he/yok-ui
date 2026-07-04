@@ -14,6 +14,7 @@ import {
   YCarousel,
   YCard,
   YCascader,
+  YCheckTag,
   YCheckbox,
   YCheckboxGroup,
   YCollapse,
@@ -1299,7 +1300,7 @@ const presetExamples: Record<LiveExamplePreset, string> = {
   ].join('\n'),
   tagBadge: [
     '<script setup lang="ts">',
-    "import { YAvatar, YBadge, YButton, YTag } from '@yok-ui/core'",
+    "import { YAvatar, YBadge, YButton, YCheckTag, YTag } from '@yok-ui/core'",
     '</' + 'script>',
     '',
     '<template>',
@@ -1310,6 +1311,11 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '      <YTag tone="warning">Beta</YTag>',
     '      <YTag tone="danger">Deprecated</YTag>',
     '      <YTag tone="info">Roadmap</YTag>',
+    '    </div>',
+    '    <div class="demo-row">',
+    '      <YCheckTag checked tone="success" label="Core package selected">Core</YCheckTag>',
+    '      <YCheckTag tone="info" label="Product package not selected">Product</YCheckTag>',
+    '      <YCheckTag disabled tone="warning" label="Admin package unavailable">Admin</YCheckTag>',
     '    </div>',
     '    <div class="demo-row">',
     '      <YBadge :value="120" :max="99" label="More than 99 unread notifications" />',
@@ -5235,10 +5241,16 @@ const treeSelectNodes = ${nodes}`, [
               ? 'Short mobile tags keep toolbar status compact.'
               : 'Tags carry semantic status; badges carry compact counts.'
 
-      return sfc("import { YBadge, YButton, YTag } from '@yok-ui/core'", [
+      return sfc("import { YBadge, YButton, YCheckTag, YTag } from '@yok-ui/core'", [
         '<div class="demo-stack">',
         '  <div class="demo-row">',
         `    <YTag${textAttribute('tone', tone)}>${escapeAttribute(tagText)}</YTag>`,
+        isBatchScenario
+          ? '    <YCheckTag checked tone="success" label="Core package selected">Core</YCheckTag>'
+          : '',
+        isBatchScenario
+          ? '    <YCheckTag tone="info" label="Product package not selected">Product</YCheckTag>'
+          : '',
         isStatusScenario
           ? `    <YBadge dot text="Online" tone="success" size="lg"${textAttribute('label', badgeLabel)} />`
           : isKeyboardScenario
@@ -12311,6 +12323,7 @@ const componentMap = {
   ycascader: YCascader,
   ycalendar: YCalendar,
   ycarousel: YCarousel,
+  ychecktag: YCheckTag,
   ycheckbox: YCheckbox,
   ycheckboxgroup: YCheckboxGroup,
   ycodeblock: YCodeBlock,
@@ -18131,6 +18144,7 @@ const componentSourceDirectoryOverrides: Record<string, string> = {
   YFloatButtonGroup: 'float-button',
   YRadioGroup: 'radio',
   YBadge: 'tag',
+  YCheckTag: 'tag',
   YIconButton: 'button',
   YCountdown: 'statistic'
 }

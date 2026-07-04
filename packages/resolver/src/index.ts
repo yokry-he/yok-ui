@@ -40,6 +40,7 @@ export const yokUiComponentPackages = {
   YCarousel: '@yok-ui/core',
   YCascader: '@yok-ui/core',
   YCard: '@yok-ui/core',
+  YCheckTag: '@yok-ui/core',
   YCheckbox: '@yok-ui/core',
   YCollapse: '@yok-ui/core',
   YColorPicker: '@yok-ui/core',

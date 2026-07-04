@@ -144,6 +144,7 @@ const cascaderValue = ref(['core', 'form', 'cascader'])
 const colorValue = ref('#14B8A6')
 const imageSrc = '/logo.svg'
 const badgeValue = ref(12)
+const checkTagChecked = ref(true)
 const segmentedValue = ref('list')
 const segmentedOptions = [
   { label: 'List', value: 'list', description: 'Dense review queue' },
@@ -933,6 +934,7 @@ const componentImports = computed(() => {
     avatar: 'YAvatar',
     avatarGroup: 'YAvatar, YAvatarGroup',
     tag: 'YTag',
+    checkTag: 'YCheckTag',
     badge: 'YBadge',
     progress: 'YProgress',
     alert: 'YAlert'
@@ -1110,6 +1112,10 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'switch') {
     return `<YSwitch v-model="enabled" label="Enable fresh cute mode"${disabled.value ? ' disabled' : ''} />`
+  }
+
+  if (activeComponent.value === 'checkTag') {
+    return `<YCheckTag v-model:checked="checked" tone="${tone.value}"${disabled.value ? ' disabled' : ''}>Selectable</YCheckTag>`
   }
 
   if (activeComponent.value === 'datePicker') {
@@ -1738,6 +1744,10 @@ const generatedScript = computed(() => {
 
   if (activeComponent.value === 'switch') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst enabled = ref(true)`
+  }
+
+  if (activeComponent.value === 'checkTag') {
+    return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst checked = ref(${checkTagChecked.value})`
   }
 
   if (activeComponent.value === 'datePicker') {
@@ -3015,7 +3025,7 @@ onMounted(() => {
           </select>
         </label>
 
-        <label v-if="activeComponent === 'tag' || activeComponent === 'badge' || activeComponent === 'progress' || activeComponent === 'alert' || activeComponent === 'avatar' || activeComponent === 'statistic' || activeComponent === 'loading'">
+        <label v-if="activeComponent === 'tag' || activeComponent === 'checkTag' || activeComponent === 'badge' || activeComponent === 'progress' || activeComponent === 'alert' || activeComponent === 'avatar' || activeComponent === 'statistic' || activeComponent === 'loading'">
           <span>Tone</span>
           <select v-model="tone">
             <option value="info">Info</option>
@@ -4115,6 +4125,14 @@ onMounted(() => {
             <YAvatar name="Design Review" tone="warning" />
           </YAvatarGroup>
           <YTag v-else-if="activeComponent === 'tag'" :tone="tone">Fresh cute</YTag>
+          <YCheckTag
+            v-else-if="activeComponent === 'checkTag'"
+            v-model:checked="checkTagChecked"
+            :tone="tone"
+            :disabled="disabled"
+          >
+            Selectable
+          </YCheckTag>
           <div v-else-if="activeComponent === 'badge'" class="playground-workbench__inline-stack">
             <YBadge
               :value="badgeValue"

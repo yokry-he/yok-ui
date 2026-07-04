@@ -112,6 +112,7 @@ const componentStubs = {
   YAvatar: { template: '<span />' },
   YAvatarGroup: { template: '<span><slot /></span>' },
   YTag: { template: '<span><slot /></span>' },
+  YCheckTag: { props: ['checked', 'disabled', 'tone'], template: '<button><slot /></button>' },
   YBadge: { template: '<span><slot /></span>' },
   YAlert: { template: '<section><slot /></section>' },
   YProgress: { template: '<progress />' }
@@ -1529,6 +1530,7 @@ describe('PlaygroundWorkbench', () => {
     ['transfer', 'Transfer', '<YTransfer', 'transferOptions'],
     ['avatarGroup', 'Avatar Group', '<YAvatarGroup', 'Review team'],
     ['badge', 'Badge', '<YBadge', 'badgeValue'],
+    ['checkTag', 'Check Tag', '<YCheckTag', 'checked'],
     ['table', 'Table', '<YTable', 'tableRows'],
     ['dataTable', 'Data Table', '<YDataTable', 'adminTableRows'],
     ['dataView', 'Data View', '<YDataView', 'dataViewViews'],

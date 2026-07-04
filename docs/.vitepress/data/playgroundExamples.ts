@@ -92,6 +92,7 @@ export const playgroundComponents = [
   'avatar',
   'avatarGroup',
   'tag',
+  'checkTag',
   'badge',
   'progress',
   'alert',
@@ -202,6 +203,7 @@ export const playgroundComponentDocs = {
   avatar: '/components/avatar',
   avatarGroup: '/components/avatar',
   tag: '/components/tag-badge',
+  checkTag: '/components/tag-badge',
   badge: '/components/tag-badge',
   progress: '/components/progress',
   alert: '/components/alert',
@@ -246,6 +248,7 @@ const playgroundComponentRegistryName = {
   qrCode: 'YQRCode',
   savedViewManager: 'YSavedViewManager',
   tag: 'YTag',
+  checkTag: 'YCheckTag',
   themeProvider: 'YThemeProvider'
 } satisfies Partial<Record<PlaygroundComponent, string>>
 

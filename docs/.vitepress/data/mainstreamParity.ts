@@ -19,6 +19,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-date-picker'
   | 'element-plus-input-otp'
   | 'element-plus-input-tag'
+  | 'element-plus-check-tag'
   | 'element-plus-config-provider-i18n'
   | 'element-plus-resource-system'
   | 'element-plus-compatibility-support'
@@ -222,6 +223,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     componentNames: ['YInputTag'],
     docs: ['/components/input-tag'],
     capabilities: ['tag-input', 'enter-to-create', 'duplicate-validation', 'form-array-value', 'workflow-live-example']
+  },
+  {
+    key: 'element-plus-check-tag',
+    label: 'Checkable tag filters',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus CheckTag',
+      url: 'https://element-plus.org/en-US/component/tag',
+      note: 'Element Plus Tag includes CheckTag for lightweight selected tag filters; Ant Design and TDesign expose similar checkable tag patterns.'
+    },
+    componentNames: ['YCheckTag'],
+    docs: ['/components/tag-badge'],
+    capabilities: ['checkable-tag', 'aria-pressed', 'structured-api', 'workflow-live-example']
   },
   {
     key: 'element-plus-config-provider-i18n',

@@ -84,6 +84,7 @@ const componentTestEvidenceOverrides: Record<string, string[]> = {
   YFloatButtonGroup: ['packages/core/src/components/float-button/float-button.test.ts'],
   YQRCode: ['packages/core/src/components/qr-code/qr-code.test.ts'],
   YTag: ['packages/core/src/components/tag/tag.test.ts'],
+  YCheckTag: ['packages/core/src/components/tag/tag.test.ts'],
   YBadge: ['packages/core/src/components/tag/tag.test.ts'],
   YSavedViewManager: ['packages/admin/src/components/saved-views/saved-view-manager.test.ts']
 }

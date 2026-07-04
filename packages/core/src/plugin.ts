@@ -60,7 +60,7 @@ import { YCountdown, YStatistic } from './components/statistic'
 import { YSteps } from './components/steps'
 import { YSwitch } from './components/switch'
 import { YTable } from './components/table'
-import { YBadge, YTag } from './components/tag'
+import { YBadge, YCheckTag, YTag } from './components/tag'
 import { YTabs } from './components/tabs'
 import { YTextarea } from './components/textarea'
 import { YText } from './components/text'
@@ -163,6 +163,7 @@ export const coreComponents: Component[] = [
   YSwitch,
   YTable,
   YBadge,
+  YCheckTag,
   YTag,
   YTabs,
   YTextarea,

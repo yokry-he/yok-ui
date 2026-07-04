@@ -23,7 +23,7 @@ describe('componentRegistry', () => {
     const names = components.map((component) => component.name)
 
     expect(new Set(names).size).toBe(names.length)
-    expect(components).toHaveLength(109)
+    expect(components).toHaveLength(110)
 
     components.forEach((component) => {
       expect(component.docs).toMatch(/^\/(components|guide)\//)
@@ -371,6 +371,24 @@ describe('componentRegistry', () => {
       'YBadgeSize',
       'YBadgeOffset'
     ]))
+    expect(components.map((component) => component.name)).toContain('YCheckTag')
+    expect(componentApis.YCheckTag.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'checked',
+      'disabled',
+      'tone',
+      'invalid',
+      'error',
+      'ariaDescribedby',
+      'size'
+    ]))
+    expect(componentApis.YCheckTag.events?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'update:checked',
+      'change',
+      'click',
+      'focus',
+      'blur'
+    ]))
+    expect(componentApis.YCheckTag.types?.map((row) => row.name)).toContain('YCheckTagTone')
     expect(componentApis.YCollapse.events?.map((row) => row.name)).toContain('change')
     expect(componentApis.YBreadcrumb.types?.map((row) => row.name)).toContain('YBreadcrumbItem')
     expect(componentApis.YMenu.events?.map((row) => row.name)).toEqual(expect.arrayContaining(['open', 'close', 'open-change']))

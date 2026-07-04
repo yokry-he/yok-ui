@@ -31,6 +31,10 @@ describe('playgroundExamples', () => {
       return components.find((item) => item.name === 'YTag')
     }
 
+    if (component === 'checkTag') {
+      return components.find((item) => item.name === 'YCheckTag')
+    }
+
     if (component === 'savedViewManager') {
       return components.find((item) => item.name === 'YSavedViewManager')
     }
@@ -114,6 +118,7 @@ describe('playgroundExamples', () => {
       'text',
       'upload',
       'badge',
+      'checkTag',
       'alert',
       'scrollbar',
       'space',

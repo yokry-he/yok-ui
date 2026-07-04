@@ -64,6 +64,7 @@ const sourcePathOverrides: Record<string, string> = {
   YFloatButtonGroup: 'packages/core/src/components/float-button/YFloatButtonGroup.vue',
   YQRCode: 'packages/core/src/components/qr-code/YQRCode.vue',
   YTag: 'packages/core/src/components/tag/YTag.vue',
+  YCheckTag: 'packages/core/src/components/tag/YCheckTag.vue',
   YBadge: 'packages/core/src/components/tag/YBadge.vue',
   YSavedViewManager: 'packages/admin/src/components/saved-views/YSavedViewManager.vue'
 }

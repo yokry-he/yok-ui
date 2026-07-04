@@ -17,6 +17,7 @@ describe('mainstreamParity', () => {
     const elementPlusDatePicker = items.find((item) => item.key === 'element-plus-date-picker')
     const elementPlusInputOtp = items.find((item) => item.key === 'element-plus-input-otp')
     const elementPlusInputTag = items.find((item) => item.key === 'element-plus-input-tag')
+    const elementPlusCheckTag = items.find((item) => item.key === 'element-plus-check-tag')
     const elementPlusI18n = items.find((item) => item.key === 'element-plus-config-provider-i18n')
     const elementPlusCompatibility = items.find((item) => item.key === 'element-plus-compatibility-support')
     const antDesignTheme = items.find((item) => item.key === 'ant-design-vue-theme-token')
@@ -33,6 +34,7 @@ describe('mainstreamParity', () => {
       'element-plus-date-picker',
       'element-plus-input-otp',
       'element-plus-input-tag',
+      'element-plus-check-tag',
       'element-plus-config-provider-i18n',
       'element-plus-compatibility-support',
       'ant-design-vue-theme-token',
@@ -62,6 +64,7 @@ describe('mainstreamParity', () => {
       'Element Plus DatePicker',
       'Element Plus InputOtp',
       'Element Plus InputTag',
+      'Element Plus CheckTag',
       'Element Plus ConfigProvider i18n',
       'Element Plus Installation Compatibility',
       'Ant Design Vue Customize Theme',
@@ -121,6 +124,18 @@ describe('mainstreamParity', () => {
     })
     expect(elementPlusInputTag?.matchedComponents.map((component) => component.name)).toContain('YInputTag')
     expect(elementPlusInputTag?.evidence.liveExamples).toContain('/components/input-tag#live-example')
+
+    expect(elementPlusCheckTag).toMatchObject({
+      label: 'Checkable tag filters',
+      status: 'covered'
+    })
+    expect(elementPlusCheckTag?.matchedComponents.map((component) => component.name)).toContain('YCheckTag')
+    expect(elementPlusCheckTag?.evidence.docs).toContain('/components/tag-badge')
+    expect(elementPlusCheckTag?.evidence.liveExamples).toContain('/components/tag-badge#live-example')
+    expect(elementPlusCheckTag?.evidence.capabilities).toEqual(expect.arrayContaining([
+      'checkable-tag',
+      'aria-pressed'
+    ]))
 
     expect(elementPlusI18n).toMatchObject({
       label: 'ConfigProvider locale and global settings',

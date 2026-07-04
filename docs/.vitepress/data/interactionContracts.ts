@@ -844,6 +844,19 @@ export const interactionContracts: InteractionContract[] = [
     }
   },
   {
+    componentName: 'YCheckTag',
+    pattern: 'Checkable tag button',
+    keyboard: ['Enter or Space toggles through native button activation', 'Disabled check tags are removed from the tab sequence by native disabled behavior'],
+    focus: 'The button element owns focus and exposes pressed state without adding hidden focus targets.',
+    semantics: ['button', 'aria-pressed', 'aria-invalid', 'aria-describedby', 'role="alert" error text'],
+    status: 'Controlled checked state, disabled state, ConfigProvider sizing and FormItem validation are covered.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/guide/accessibility.md', 'docs/components/tag-badge.md'],
+      tests: ['packages/core/src/components/tag/tag.test.ts']
+    }
+  },
+  {
     componentName: 'YBadge',
     pattern: 'Compact count and status badge',
     keyboard: ['No custom keyboard behavior; badges remain presentation-first', 'Wrapped targets keep their native keyboard behavior'],

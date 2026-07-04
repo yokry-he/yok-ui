@@ -75,6 +75,7 @@ const guidedPropCoverageHints = new Set([
   'block',
   'bulk-actions',
   'checkable',
+  'checked',
   'clearable',
   'close',
   'close-label',

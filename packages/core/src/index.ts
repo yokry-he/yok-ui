@@ -190,8 +190,9 @@ export type {
   YTableSortOrder,
   YTableSortPayload
 } from './components/table'
-export { YBadge, YTag } from './components/tag'
+export { YBadge, YCheckTag, YTag } from './components/tag'
 export type { YBadgeOffset, YBadgePlacement, YBadgeSize, YBadgeTone } from './components/tag'
+export type { YCheckTagTone } from './components/tag'
 export { YTextarea } from './components/textarea'
 export { YText } from './components/text'
 export type { YTextSize, YTextTone } from './components/text'

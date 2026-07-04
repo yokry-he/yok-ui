@@ -12,7 +12,7 @@ const corePreviewSetup = [
 
 const corePreviewCode = [
   '<div class="core-preview-metrics">',
-  '  <YStatistic title="Core components" :value="43" suffix="ready" tone="success" />',
+  '  <YStatistic title="Core components" :value="44" suffix="ready" tone="success" />',
   '  <YStatistic title="Data display" :value="6" suffix="patterns" tone="info" />',
   '</div>',
   '<YDescriptions',
@@ -78,7 +78,7 @@ import { YButton, YDescriptions, YInput, YInputOtp, YInputTag, YList, YStatistic
   :usage="['package preview', 'descriptions', 'statistics']"
 >
   <div class="core-preview-metrics">
-    <YStatistic title="Core components" :value="43" suffix="ready" tone="success" />
+    <YStatistic title="Core components" :value="44" suffix="ready" tone="success" />
     <YStatistic title="Data display" :value="6" suffix="patterns" tone="info" />
   </div>
   <YDescriptions

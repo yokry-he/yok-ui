@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   componentApis,
   components,
   packageLabels,
   type ApiRow,
-  type ComponentApi
+  type ComponentApi,
+  type ComponentPackage
 } from '../data/componentRegistry'
 import {
   getApiLiveCoverageForRow,
@@ -28,6 +29,8 @@ const coverageLabels: Record<ApiLiveCoverageStatus, string> = {
   partial: 'Source only',
   missing: 'Needs live'
 }
+const clipboardWriteTimeoutMs = 320
+const componentPackages = Object.keys(packageLabels) as ComponentPackage[]
 
 function getInitialSearchParam(name: string) {
   if (typeof window === 'undefined') {
@@ -49,9 +52,17 @@ function getInitialCoverage(): 'all' | ApiLiveCoverageStatus {
   return coverageStatuses.includes(value as ApiLiveCoverageStatus) ? value as ApiLiveCoverageStatus : 'all'
 }
 
+function getInitialPackage(): 'all' | ComponentPackage {
+  const value = getInitialSearchParam('api-package')
+
+  return componentPackages.includes(value as ComponentPackage) ? value as ComponentPackage : 'all'
+}
+
 const query = ref(getInitialSearchParam('api-q'))
 const selectedKind = ref<'all' | ApiKind>(getInitialKind())
 const selectedCoverage = ref<'all' | ApiLiveCoverageStatus>(getInitialCoverage())
+const selectedPackage = ref<'all' | ComponentPackage>(getInitialPackage())
+const copiedFilterLink = ref(false)
 
 interface ApiRowEntry {
   key: string
@@ -102,6 +113,7 @@ const filteredEntries = computed(() => {
   return apiEntries.value
     .map((entry) => {
       const matchingRows = entry.rows.filter((row) => {
+        const matchesPackage = selectedPackage.value === 'all' || entry.component.packageName === selectedPackage.value
         const matchesKind = selectedKind.value === 'all' || row.kind === selectedKind.value
         const matchesCoverage = selectedCoverage.value === 'all' || row.coverage.status === selectedCoverage.value
         const matchesQuery = !normalizedQuery || [
@@ -120,7 +132,7 @@ const filteredEntries = computed(() => {
           .filter(Boolean)
           .some((value) => value!.toLowerCase().includes(normalizedQuery))
 
-        return matchesKind && matchesCoverage && matchesQuery
+        return matchesPackage && matchesKind && matchesCoverage && matchesQuery
       })
 
       return {
@@ -174,6 +186,136 @@ const missingRowCount = computed(() =>
   apiEntries.value.reduce((total, entry) => total + entry.rows.filter((row) => row.coverage.status === 'missing').length, 0)
 )
 const coverageRate = computed(() => Math.round((coveredRowCount.value / Math.max(totalRowCount.value, 1)) * 100))
+const packageOptions = computed(() => [
+  {
+    value: 'all' as const,
+    label: 'All packages',
+    count: totalRowCount.value
+  },
+  ...componentPackages.map((packageName) => ({
+    value: packageName,
+    label: packageLabels[packageName],
+    count: apiEntries.value
+      .filter((entry) => entry.component.packageName === packageName)
+      .reduce((total, entry) => total + entry.rows.length, 0)
+  }))
+])
+const activeFilterCount = computed(() => [
+  query.value.trim(),
+  selectedKind.value !== 'all',
+  selectedCoverage.value !== 'all',
+  selectedPackage.value !== 'all'
+].filter(Boolean).length)
+const hasActiveFilters = computed(() => activeFilterCount.value > 0)
+const filterShareHref = computed(() => createFilterHref(true))
+
+function createFilterParams() {
+  const params = new URLSearchParams()
+  const normalizedQuery = query.value.trim()
+
+  if (normalizedQuery) {
+    params.set('api-q', normalizedQuery)
+  }
+
+  if (selectedKind.value !== 'all') {
+    params.set('api-kind', selectedKind.value)
+  }
+
+  if (selectedCoverage.value !== 'all') {
+    params.set('api-coverage', selectedCoverage.value)
+  }
+
+  if (selectedPackage.value !== 'all') {
+    params.set('api-package', selectedPackage.value)
+  }
+
+  return params
+}
+
+function createFilterHref(absolute = false) {
+  const params = createFilterParams()
+  const path = '/resources/api-reference'
+  const queryString = params.toString()
+  const href = queryString ? `${path}?${queryString}` : path
+
+  if (!absolute || typeof window === 'undefined') {
+    return href
+  }
+
+  return `${window.location.origin}${href}`
+}
+
+function syncFilterUrl() {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const href = createFilterHref(false)
+  const currentHref = `${window.location.pathname}${window.location.search}`
+
+  if (currentHref !== href) {
+    window.history.replaceState(null, '', href)
+  }
+}
+
+function resetFilters() {
+  query.value = ''
+  selectedKind.value = 'all'
+  selectedCoverage.value = 'all'
+  selectedPackage.value = 'all'
+}
+
+async function copyCurrentFilterLink() {
+  copiedFilterLink.value = true
+  window.setTimeout(() => {
+    copiedFilterLink.value = false
+  }, 1200)
+
+  await writeClipboardText(filterShareHref.value)
+}
+
+async function writeClipboardText(text: string) {
+  const clipboard = globalThis.navigator?.clipboard
+
+  if (clipboard?.writeText) {
+    let clipboardWrite: Promise<void> | void
+
+    try {
+      clipboardWrite = clipboard.writeText(text)
+    } catch {
+      clipboardWrite = undefined
+    }
+
+    const wroteWithClipboard = await Promise.race([
+      Promise.resolve(clipboardWrite).then(() => true).catch(() => false),
+      new Promise<boolean>((resolve) => {
+        window.setTimeout(() => resolve(false), clipboardWriteTimeoutMs)
+      })
+    ])
+
+    if (wroteWithClipboard) {
+      return
+    }
+  }
+
+  const textarea = document.createElement('textarea')
+
+  textarea.value = text
+  textarea.setAttribute('readonly', '')
+  textarea.style.position = 'fixed'
+  textarea.style.inset = '0 auto auto 0'
+  textarea.style.opacity = '0'
+  document.body.appendChild(textarea)
+  textarea.select()
+
+  try {
+    document.execCommand?.('copy')
+  } finally {
+    textarea.remove()
+  }
+}
+
+watch([query, selectedKind, selectedCoverage, selectedPackage], syncFilterUrl)
 </script>
 
 <template>
@@ -194,11 +336,37 @@ const coverageRate = computed(() => Math.round((coveredRowCount.value / Math.max
           {{ kindLabels[kind] }}
         </button>
       </div>
+      <div class="api-reference-explorer__package-filter" aria-label="Package filter">
+        <button
+          v-for="item in packageOptions"
+          :key="item.value"
+          type="button"
+          :class="{ active: selectedPackage === item.value }"
+          @click="selectedPackage = item.value"
+        >
+          <span>{{ item.label }}</span>
+          <small>{{ item.count }}</small>
+        </button>
+      </div>
       <div class="catalog-segments" aria-label="Live evidence filter">
         <button type="button" :class="{ active: selectedCoverage === 'all' }" @click="selectedCoverage = 'all'">All evidence</button>
         <button type="button" :class="{ active: selectedCoverage === 'covered' }" @click="selectedCoverage = 'covered'">Covered</button>
         <button type="button" :class="{ active: selectedCoverage === 'partial' }" @click="selectedCoverage = 'partial'">Source only</button>
         <button type="button" :class="{ active: selectedCoverage === 'missing' }" @click="selectedCoverage = 'missing'">Needs live</button>
+      </div>
+      <div class="api-reference-explorer__actions" aria-label="API filter actions">
+        <a class="api-reference-explorer__share" :href="filterShareHref">打开当前筛选链接</a>
+        <button type="button" class="api-reference-explorer__copy" @click="copyCurrentFilterLink">
+          {{ copiedFilterLink ? '已复制链接' : '复制当前筛选链接' }}
+        </button>
+        <button
+          type="button"
+          class="api-reference-explorer__reset"
+          :disabled="!hasActiveFilters"
+          @click="resetFilters"
+        >
+          重置筛选<span v-if="activeFilterCount"> · {{ activeFilterCount }}</span>
+        </button>
       </div>
     </div>
 

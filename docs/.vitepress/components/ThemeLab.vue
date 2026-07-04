@@ -14,6 +14,8 @@ import {
   type ThemeLabPreviewMode
 } from '../data/themeLab'
 
+type ThemeTokenGroup = 'color' | 'radius' | 'space' | 'shadow' | 'motion' | 'zIndex'
+
 const primary = ref(defaultThemeLabState.primary)
 const surface = ref(defaultThemeLabState.surface)
 const text = ref(defaultThemeLabState.text)
@@ -26,6 +28,9 @@ const copied = ref(false)
 const copiedReport = ref(false)
 const copiedConfig = ref(false)
 const copiedChecklist = ref(false)
+const copiedToken = ref('')
+const tokenQuery = ref('')
+const selectedTokenGroup = ref<'all' | ThemeTokenGroup>('all')
 const previewModes: ThemeLabPreviewMode[] = ['product', 'admin', 'brand']
 
 const themeState = computed(() => ({
@@ -60,8 +65,54 @@ const tokenGroups = computed(() => [
   { label: 'Radius', count: Object.keys(themeTokens.value.radius).length },
   { label: 'Space', count: Object.keys(themeTokens.value.space).length },
   { label: 'Shadow', count: Object.keys(themeTokens.value.shadow).length },
-  { label: 'Motion', count: Object.keys(themeTokens.value.motion).length }
+  { label: 'Motion', count: Object.keys(themeTokens.value.motion).length },
+  { label: 'Z-index', count: Object.keys(themeTokens.value.zIndex).length }
 ])
+const tokenGroupOptions = computed(() => [
+  {
+    label: 'All',
+    value: 'all' as const,
+    count: tokenEntries.value.length
+  },
+  ...Object.entries(themeTokens.value).map(([groupName, groupValue]) => ({
+    label: groupName === 'zIndex' ? 'Z-index' : groupName,
+    value: groupName as ThemeTokenGroup,
+    count: Object.keys(groupValue as Record<string, string>).length
+  }))
+])
+const tokenEntries = computed(() =>
+  Object.entries(themeTokens.value).flatMap(([groupName, groupValue]) =>
+    Object.entries(groupValue as Record<string, string>).map(([tokenName, tokenValue]) => {
+      const cssName = `--yok-${groupName}-${tokenName}`
+
+      return {
+        key: `${groupName}.${tokenName}`,
+        group: groupName as ThemeTokenGroup,
+        groupLabel: groupName === 'zIndex' ? 'Z-index' : groupName,
+        name: tokenName,
+        cssName,
+        value: tokenValue,
+        cssDeclaration: `${cssName}: ${tokenValue};`
+      }
+    })
+  )
+)
+const filteredTokenEntries = computed(() => {
+  const normalizedQuery = tokenQuery.value.trim().toLowerCase()
+
+  return tokenEntries.value.filter((entry) => {
+    const matchesGroup = selectedTokenGroup.value === 'all' || entry.group === selectedTokenGroup.value
+    const matchesQuery = !normalizedQuery || [
+      entry.key,
+      entry.groupLabel,
+      entry.name,
+      entry.cssName,
+      entry.value
+    ].some((value) => value.toLowerCase().includes(normalizedQuery))
+
+    return matchesGroup && matchesQuery
+  })
+})
 const previewTitle = computed(() => ({
   product: 'Personal product surface',
   admin: 'Admin density preview',
@@ -109,6 +160,19 @@ async function copyReleaseChecklist() {
   copiedChecklist.value = true
   window.setTimeout(() => {
     copiedChecklist.value = false
+  }, 1200)
+}
+
+async function copyTokenDeclaration(entry: { key: string; cssDeclaration: string }) {
+  if (navigator.clipboard) {
+    await navigator.clipboard.writeText(entry.cssDeclaration)
+  }
+
+  copiedToken.value = entry.key
+  window.setTimeout(() => {
+    if (copiedToken.value === entry.key) {
+      copiedToken.value = ''
+    }
   }, 1200)
 }
 </script>
@@ -251,6 +315,48 @@ async function copyReleaseChecklist() {
           <span>{{ group.label }} tokens</span>
         </div>
       </div>
+
+      <section class="theme-lab__token-inspector" aria-label="Theme token inspector">
+        <header class="theme-lab__token-inspector-header">
+          <div>
+            <span>Token inspector</span>
+            <strong>{{ filteredTokenEntries.length }} / {{ tokenEntries.length }} tokens</strong>
+          </div>
+          <label class="theme-lab__token-search">
+            <span>Search tokens</span>
+            <input v-model="tokenQuery" type="search" placeholder="primary, radius, --yok-space..." />
+          </label>
+        </header>
+        <div class="theme-lab__token-groups" aria-label="Token group filter">
+          <button
+            v-for="group in tokenGroupOptions"
+            :key="group.value"
+            type="button"
+            :class="{ active: selectedTokenGroup === group.value }"
+            @click="selectedTokenGroup = group.value"
+          >
+            <span>{{ group.label }}</span>
+            <small>{{ group.count }}</small>
+          </button>
+        </div>
+        <div v-if="filteredTokenEntries.length" class="theme-lab__token-table" aria-label="Generated token variables">
+          <button
+            v-for="entry in filteredTokenEntries"
+            :key="entry.key"
+            type="button"
+            class="theme-lab__token-row"
+            @click="copyTokenDeclaration(entry)"
+          >
+            <span class="theme-lab__token-group">{{ entry.groupLabel }}</span>
+            <code>{{ entry.cssName }}</code>
+            <strong>{{ entry.value }}</strong>
+            <em>{{ copiedToken === entry.key ? '已复制' : '复制' }}</em>
+          </button>
+        </div>
+        <p v-else class="theme-lab__token-empty" role="status">
+          没有匹配的 token。换一个关键词，或切回 All 继续浏览。
+        </p>
+      </section>
 
       <div class="theme-lab__code">
         <div>

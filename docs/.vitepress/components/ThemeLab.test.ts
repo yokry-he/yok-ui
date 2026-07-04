@@ -12,16 +12,18 @@ describe('ThemeLab', () => {
     })
   })
 
+  const globalStubs = {
+    YAlert: true,
+    YBrandHero: true,
+    YButton: true,
+    YProgress: true,
+    YTag: true
+  }
+
   it('copies a theme review report with contrast and generated CSS', async () => {
     const wrapper = mount(ThemeLab, {
       global: {
-        stubs: {
-          YAlert: true,
-          YBrandHero: true,
-          YButton: true,
-          YProgress: true,
-          YTag: true
-        }
+        stubs: globalStubs
       }
     })
 
@@ -41,13 +43,7 @@ describe('ThemeLab', () => {
   it('copies a type-safe theme token config for package integration', async () => {
     const wrapper = mount(ThemeLab, {
       global: {
-        stubs: {
-          YAlert: true,
-          YBrandHero: true,
-          YButton: true,
-          YProgress: true,
-          YTag: true
-        }
+        stubs: globalStubs
       }
     })
 
@@ -64,13 +60,7 @@ describe('ThemeLab', () => {
   it('shows and copies a theme release audit checklist', async () => {
     const wrapper = mount(ThemeLab, {
       global: {
-        stubs: {
-          YAlert: true,
-          YBrandHero: true,
-          YButton: true,
-          YProgress: true,
-          YTag: true
-        }
+        stubs: globalStubs
       }
     })
 
@@ -92,5 +82,44 @@ describe('ThemeLab', () => {
     expect(copiedText).toContain('- [x] Token coverage:')
     expect(copiedText).toContain('## Contrast pairs')
     expect(releasePanel.get('.theme-lab__copy-checklist').text()).toContain('已复制清单')
+  })
+
+  it('filters generated token variables and copies a single declaration', async () => {
+    const wrapper = mount(ThemeLab, {
+      global: {
+        stubs: globalStubs
+      }
+    })
+
+    const tokenInspector = wrapper.get('.theme-lab__token-inspector')
+
+    expect(tokenInspector.text()).toContain('Token inspector')
+    expect(tokenInspector.text()).toContain('33 / 33 tokens')
+    expect(wrapper.findAll('.theme-lab__token-row')).toHaveLength(33)
+
+    await wrapper.get('.theme-lab__token-search input').setValue('primary')
+
+    expect(tokenInspector.text()).toContain('--yok-color-primary')
+    expect(wrapper.findAll('.theme-lab__token-row').length).toBeGreaterThan(0)
+    expect(wrapper.findAll('.theme-lab__token-row').every((row) => row.text().toLowerCase().includes('primary'))).toBe(true)
+
+    await wrapper.get('.theme-lab__token-search input').setValue('')
+
+    const shadowGroupButton = wrapper
+      .findAll('.theme-lab__token-groups button')
+      .find((button) => button.text().includes('shadow'))
+
+    expect(shadowGroupButton).toBeTruthy()
+    await shadowGroupButton?.trigger('click')
+
+    const shadowRows = wrapper.findAll('.theme-lab__token-row')
+
+    expect(shadowRows).toHaveLength(2)
+    expect(tokenInspector.text()).toContain('--yok-shadow-soft')
+
+    await shadowRows[0].trigger('click')
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('--yok-shadow-soft: 0 8px 24px rgba(20, 122, 101, 0.1);')
+    expect(shadowRows[0].text()).toContain('已复制')
   })
 })

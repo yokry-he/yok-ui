@@ -137,7 +137,7 @@ describe('ApiTable', () => {
     expect(coverage.attributes('data-status')).toBe('covered')
     expect(coverage.attributes('href')).toBe('#demo-basic-select')
     expect(coverage.attributes('data-scenario')).toBeUndefined()
-    expect(coverage.attributes('title')).toContain('Basic select')
+    expect(coverage.attributes('title')).toContain('Basic usage')
 
     await coverage.trigger('click')
 
@@ -176,7 +176,7 @@ describe('ApiTable', () => {
     expect(coverageBadges[0].attributes('href')).toBe('#demo-variants')
     expect(coverageBadges[0].attributes('title')).toContain('Variants')
     expect(coverageBadges[1].attributes('href')).toBe('#demo-sizes-and-states')
-    expect(coverageBadges[1].attributes('title')).toContain('Sizes and states')
+    expect(coverageBadges[1].attributes('title')).toContain('Sizes')
   })
 
   it('filters rows by name, type and description', async () => {

@@ -63,6 +63,10 @@ export const yokCustomTheme = {
 </template>
 ```
 
+## Inspect single tokens
+
+Token inspector 用来处理“只需要一个变量”的场景。可以按关键词搜索 `primary`、`radius`、`--yok-space` 这类名称，也可以按 color、radius、space、shadow、motion、zIndex 分组筛选；点击任意一行会复制完整 CSS 声明，例如 `--yok-color-primary: #147a65;`。这让主题页面既能导出完整主题，也能像主流组件库的 token 文档一样支持单个变量查找、核对和复制。
+
 ## Review report
 
 `复制报告` 会生成一份 Markdown 主题评审材料，包含 selector、核心颜色、密度、圆角、token 数量、四组对比度结果和完整 CSS 变量。它适合粘到 PR 描述、设计评审记录或主题变更说明里，让主题调整不只停留在截图和口头确认。

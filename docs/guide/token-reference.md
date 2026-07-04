@@ -71,3 +71,5 @@ import { createThemeVars, yokCandy } from '@yok-ui/themes'
 
 const vars = createThemeVars(yokCandy)
 ```
+
+需要在线核对或复制单个变量时，可以进入 Theme Lab 的 Token inspector。它按 token 分组展示生成结果，支持关键词过滤，并且点击变量行即可复制一条完整 CSS 声明。

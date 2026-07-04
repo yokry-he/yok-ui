@@ -937,6 +937,13 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       description: '多选列表进入批量处理时，动作数量、摘要和清空入口保持同一区域可见。'
     },
     {
+      key: 'bulk-action-menu',
+      label: '分组菜单',
+      kind: 'composition',
+      controlValue: 'menu',
+      description: '批量动作较多时收进菜单，按业务域分组，并对危险动作要求二次确认。'
+    },
+    {
       key: 'bulk-action-empty',
       label: '空选择',
       kind: 'empty',

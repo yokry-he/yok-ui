@@ -23,7 +23,7 @@ describe('componentRegistry', () => {
     const names = components.map((component) => component.name)
 
     expect(new Set(names).size).toBe(names.length)
-    expect(components).toHaveLength(105)
+    expect(components).toHaveLength(106)
 
     components.forEach((component) => {
       expect(component.docs).toMatch(/^\/(components|guide)\//)
@@ -643,6 +643,10 @@ describe('componentRegistry', () => {
     expect(componentApis.YBulkActionBar.events?.map((row) => row.name)).toContain('action')
     expect(componentApis.YBulkActionBar.slots?.map((row) => row.name)).toContain('actions')
     expect(componentApis.YBulkActionBar.types?.map((row) => row.name)).toContain('YBulkActionPayload')
+    expect(componentApis.YBulkActionMenu.props?.map((row) => row.name)).toContain('selectedRowKeys')
+    expect(componentApis.YBulkActionMenu.events?.map((row) => row.name)).toContain('update:open')
+    expect(componentApis.YBulkActionMenu.events?.map((row) => row.name)).toContain('action')
+    expect(componentApis.YBulkActionMenu.types?.map((row) => row.name)).toContain('YBulkActionMenuPayload')
     expect(componentApis.YSearchForm.props?.map((row) => row.name)).toContain('collapsedCount')
     expect(componentApis.YSearchForm.events?.map((row) => row.name)).toContain('search')
     expect(componentApis.YSearchForm.slots?.map((row) => row.name)).toContain('field-{key}')

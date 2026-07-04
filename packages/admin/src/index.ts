@@ -5,6 +5,12 @@ export type {
   YBulkActionPayload,
   YBulkActionTone
 } from './components/bulk-action-bar'
+export { YBulkActionMenu } from './components/bulk-action-menu'
+export type {
+  YBulkActionMenuItem,
+  YBulkActionMenuPayload,
+  YBulkActionMenuTone
+} from './components/bulk-action-menu'
 export { YCrudLayout } from './components/crud-layout'
 export type { YCrudLayoutDensity } from './components/crud-layout'
 export { YDataTable } from './components/data-table'

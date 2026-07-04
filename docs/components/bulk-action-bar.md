@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { YBulkActionItem, YBulkActionPayload } from '@yok-ui/admin'
+import type {
+  YBulkActionItem,
+  YBulkActionMenuItem,
+  YBulkActionMenuPayload,
+  YBulkActionPayload
+} from '@yok-ui/admin'
 
 const selectedRowKeys = ref(['table', 'data-table'])
 const tableSelectedRowKeys = ref(['button'])
@@ -10,6 +15,13 @@ const actions: YBulkActionItem[] = [
   { label: 'Archive', value: 'archive', tone: 'info' },
   { label: 'Approve', value: 'approve', tone: 'success' },
   { label: 'Delete', value: 'delete', tone: 'danger' }
+]
+
+const menuActions: YBulkActionMenuItem[] = [
+  { label: 'Publish', value: 'publish', group: 'Workflow', tone: 'success', description: 'Move selected components to stable.' },
+  { label: 'Assign owner', value: 'assign', group: 'Workflow', tone: 'info' },
+  { label: 'Export CSV', value: 'export', group: 'Export' },
+  { label: 'Delete', value: 'delete', group: 'Danger zone', tone: 'danger', requiresConfirm: true, confirmText: 'Confirm delete' }
 ]
 
 const columns = [
@@ -28,9 +40,13 @@ function handleAction(payload: YBulkActionPayload) {
   message.value = `${payload.action.label}: ${payload.selectedRowKeys.join(', ')}`
 }
 
+function handleMenuAction(payload: YBulkActionMenuPayload) {
+  message.value = `${payload.action.label}: ${payload.selectedRowKeys.join(', ')}`
+}
+
 const bulkActionSetup = [
   "import { ref } from 'vue'",
-  "import { YBulkActionBar, YDataTable, type YBulkActionItem, type YBulkActionPayload } from '@yok-ui/admin'",
+  "import { YBulkActionBar, YBulkActionMenu, YDataTable, type YBulkActionItem, type YBulkActionMenuItem, type YBulkActionMenuPayload, type YBulkActionPayload } from '@yok-ui/admin'",
   '',
   "const selectedRowKeys = ref(['table', 'data-table'])",
   "const tableSelectedRowKeys = ref(['button'])",
@@ -40,6 +56,13 @@ const bulkActionSetup = [
   "  { label: 'Archive', value: 'archive', tone: 'info' },",
   "  { label: 'Approve', value: 'approve', tone: 'success' },",
   "  { label: 'Delete', value: 'delete', tone: 'danger' }",
+  ']',
+  '',
+  'const menuActions: YBulkActionMenuItem[] = [',
+  "  { label: 'Publish', value: 'publish', group: 'Workflow', tone: 'success', description: 'Move selected components to stable.' },",
+  "  { label: 'Assign owner', value: 'assign', group: 'Workflow', tone: 'info' },",
+  "  { label: 'Export CSV', value: 'export', group: 'Export' },",
+  "  { label: 'Delete', value: 'delete', group: 'Danger zone', tone: 'danger', requiresConfirm: true, confirmText: 'Confirm delete' }",
   ']',
   '',
   'const columns = [',
@@ -55,6 +78,10 @@ const bulkActionSetup = [
   ']',
   '',
   'function handleAction(payload: YBulkActionPayload) {',
+  "  message.value = `${payload.action.label}: ${payload.selectedRowKeys.join(', ')}`",
+  '}',
+  '',
+  'function handleMenuAction(payload: YBulkActionMenuPayload) {',
   "  message.value = `${payload.action.label}: ${payload.selectedRowKeys.join(', ')}`",
   '}'
 ].join('\n')
@@ -90,6 +117,18 @@ const tableCode = [
   '  </template>',
   '</YDataTable>'
 ].join('\n')
+
+const menuCode = [
+  '<YBulkActionMenu',
+  '  :selected-row-keys="selectedRowKeys"',
+  '  :actions="menuActions"',
+  '  label="More batch actions"',
+  '  clear-text="Clear selection"',
+  '  @clear="selectedRowKeys = []"',
+  '  @action="handleMenuAction"',
+  '/>',
+  '<p class="demo-note">{{ message }}</p>'
+].join('\n')
 </script>
 
 # Bulk Action Bar
@@ -113,6 +152,26 @@ Bulk Action Bar 用于后台列表页的批量选择反馈和操作区。它参�
     aria-label="Selected components"
     @clear="selectedRowKeys = []"
     @action="handleAction"
+  />
+  <p class="demo-note">{{ message }}</p>
+</DocDemo>
+
+## Menu
+
+<DocDemo
+  title="Grouped action menu"
+  description="菜单版本适合批量动作较多的场景，可按业务域分组，并对危险操作做二次确认。"
+  :code="menuCode"
+  :setup="bulkActionSetup"
+  :usage="['grouped actions', 'danger confirm', 'selected row payload']"
+>
+  <YBulkActionMenu
+    :selected-row-keys="selectedRowKeys"
+    :actions="menuActions"
+    label="More batch actions"
+    clear-text="Clear selection"
+    @clear="selectedRowKeys = []"
+    @action="handleMenuAction"
   />
   <p class="demo-note">{{ message }}</p>
 </DocDemo>
@@ -154,9 +213,12 @@ Bulk Action Bar 用于后台列表页的批量选择反馈和操作区。它参�
 
 <ComponentApiSection name="YBulkActionBar" />
 
+<ComponentApiSection name="YBulkActionMenu" />
+
 ## Accessibility
 
 - 外层使用 `role="status"` 和 `aria-live="polite"` 宣告选中状态变化。
 - 批量动作与清空操作都使用原生 `button`。
 - 没有选中项时，内置动作和清空按钮会进入 disabled 状态。
 - 自定义 `actions` 插槽时，业务层仍应保留键盘可达的按钮或菜单控件。
+- `YBulkActionMenu` 使用 `aria-haspopup="menu"`、`role="menu"` 和 `role="menuitem"` 表达菜单关系，危险操作可通过 `requiresConfirm` 要求二次点击确认。

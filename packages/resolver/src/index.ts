@@ -117,6 +117,7 @@ export const yokUiComponentPackages = {
   YThemeSwitcher: '@yok-ui/product',
 
   YBulkActionBar: '@yok-ui/admin',
+  YBulkActionMenu: '@yok-ui/admin',
   YCrudLayout: '@yok-ui/admin',
   YDataTable: '@yok-ui/admin',
   YDataView: '@yok-ui/admin',

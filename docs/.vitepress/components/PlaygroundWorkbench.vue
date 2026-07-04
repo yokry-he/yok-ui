@@ -634,6 +634,12 @@ const bulkActions = [
   { label: 'Assign owner', value: 'assign', tone: 'info' },
   { label: 'Archive', value: 'archive', tone: 'danger' }
 ]
+const bulkMenuActions = [
+  { label: 'Publish', value: 'publish', group: 'Workflow', tone: 'success', description: 'Move selected components to stable.' },
+  { label: 'Assign owner', value: 'assign', group: 'Workflow', tone: 'info' },
+  { label: 'Export CSV', value: 'export', group: 'Export' },
+  { label: 'Delete', value: 'delete', group: 'Danger zone', tone: 'danger', requiresConfirm: true, confirmText: 'Confirm delete' }
+]
 const dataToolbarCount = 73
 const defaultSavedViewModel = 'beta'
 const defaultSavedViewDefault = 'live'
@@ -758,6 +764,7 @@ const adminPlaygroundComponents = new Set<PlaygroundComponent>([
   'resourcePage',
   'crudLayout',
   'bulkActionBar',
+  'bulkActionMenu',
   'dataToolbar',
   'savedViews',
   'savedViewManager',
@@ -837,6 +844,7 @@ const componentImports = computed(() => {
     resourcePage: 'YResourcePage',
     crudLayout: 'YCrudLayout',
     bulkActionBar: 'YBulkActionBar',
+    bulkActionMenu: 'YBulkActionMenu',
     dataToolbar: 'YDataToolbar',
     savedViews: 'YSavedViews',
     savedViewManager: 'YSavedViewManager',
@@ -1196,6 +1204,10 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'bulkActionBar') {
     return '<YBulkActionBar title="3 components selected" clear-text="Clear selection" :selected-row-keys="bulkSelectedRowKeys" :actions="bulkActions" />'
+  }
+
+  if (activeComponent.value === 'bulkActionMenu') {
+    return '<YBulkActionMenu label="More batch actions" clear-text="Clear selection" :selected-row-keys="bulkSelectedRowKeys" :actions="bulkMenuActions" />'
   }
 
   if (activeComponent.value === 'dataToolbar') {
@@ -1734,6 +1746,10 @@ const generatedScript = computed(() => {
 
   if (activeComponent.value === 'bulkActionBar') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/admin'\n\nconst bulkSelectedRowKeys = ref(${JSON.stringify(defaultBulkSelectedRowKeys, null, 2)})\nconst bulkActions = ${JSON.stringify(bulkActions, null, 2)}`
+  }
+
+  if (activeComponent.value === 'bulkActionMenu') {
+    return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/admin'\n\nconst bulkSelectedRowKeys = ref(${JSON.stringify(defaultBulkSelectedRowKeys, null, 2)})\nconst bulkMenuActions = ${JSON.stringify(bulkMenuActions, null, 2)}`
   }
 
   if (activeComponent.value === 'dataToolbar') {
@@ -3402,6 +3418,13 @@ onMounted(() => {
             clear-text="Clear selection"
             :selected-row-keys="bulkSelectedRowKeys"
             :actions="bulkActions"
+          />
+          <YBulkActionMenu
+            v-else-if="activeComponent === 'bulkActionMenu'"
+            label="More batch actions"
+            clear-text="Clear selection"
+            :selected-row-keys="bulkSelectedRowKeys"
+            :actions="bulkMenuActions"
           />
           <YDataToolbar
             v-else-if="activeComponent === 'dataToolbar'"

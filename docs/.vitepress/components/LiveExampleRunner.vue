@@ -92,6 +92,7 @@ import {
 import { YBrandHero, YFeatureGrid, YLogoCloud, YProfileCard } from '@yok-ui/brand'
 import {
   YBulkActionBar,
+  YBulkActionMenu,
   YCrudLayout,
   YDataTable,
   YDataView,
@@ -8911,6 +8912,7 @@ const menuItems = [
       { key: 'scenario', label: '场景', type: 'select', defaultValue: 'selected', options: [
         { label: '三项选择', value: 'selected' },
         { label: '多项批量', value: 'many' },
+        { label: '分组菜单', value: 'menu' },
         { label: '空选择', value: 'empty' },
         { label: '移动批量', value: 'mobile' },
         { label: '键盘批量', value: 'keyboard' }
@@ -8930,6 +8932,8 @@ const menuItems = [
         ? ''
         : scenario === 'many'
           ? 'button,data-table,theme,select,table,form'
+          : scenario === 'menu'
+            ? 'button,data-table,theme'
           : scenario === 'mobile'
             ? 'button'
             : state.selection
@@ -8944,6 +8948,8 @@ const menuItems = [
               : state.title
       const hint = scenario === 'keyboard'
         ? 'Tab reaches Publish, Assign owner, Archive and Clear selection.'
+        : scenario === 'menu'
+          ? 'Grouped menu actions include a second click for dangerous operations.'
         : scenario === 'empty'
           ? 'No rows selected'
           : scenario === 'mobile'
@@ -8956,15 +8962,28 @@ const menuItems = [
       const imports = [
         `import { ref } from 'vue'`,
         `import { YTag } from '@yok-ui/core'`,
-        `import { YBulkActionBar } from '@yok-ui/admin'`,
+        `import { ${scenario === 'menu' ? 'YBulkActionMenu' : 'YBulkActionBar'} } from '@yok-ui/admin'`,
         ``,
         `const bulkSelectedRowKeys = ref(${JSON.stringify(bulkSelectedRowKeys, null, 2)})`,
-        `const bulkActions = ${JSON.stringify(fallbackBulkActions, null, 2)}`
+        `const bulkActions = ${JSON.stringify(
+          scenario === 'menu'
+            ? [
+                { label: 'Publish', value: 'publish', group: 'Workflow', tone: 'success', description: 'Move selected components to stable.' },
+                { label: 'Assign owner', value: 'assign', group: 'Workflow', tone: 'info' },
+                { label: 'Export CSV', value: 'export', group: 'Export' },
+                { label: 'Delete', value: 'delete', group: 'Danger zone', tone: 'danger', requiresConfirm: true, confirmText: 'Confirm delete' }
+              ]
+            : fallbackBulkActions,
+          null,
+          2
+        )}`
       ].join('\n')
 
       return sfc(imports, [
         '<div class="demo-stack">',
-        `  <YBulkActionBar :selected-row-keys="bulkSelectedRowKeys" :actions="bulkActions"${textAttribute('title', title)}${textAttribute('clear-text', scenario === 'mobile' ? 'Clear' : state.clearText)} />`,
+        scenario === 'menu'
+          ? `  <YBulkActionMenu :selected-row-keys="bulkSelectedRowKeys" :actions="bulkActions" label="More batch actions"${textAttribute('clear-text', state.clearText)} />`
+          : `  <YBulkActionBar :selected-row-keys="bulkSelectedRowKeys" :actions="bulkActions"${textAttribute('title', title)}${textAttribute('clear-text', scenario === 'mobile' ? 'Clear' : state.clearText)} />`,
         hint ? `  <YTag tone="${scenario === 'empty' ? 'warning' : 'info'}">${hint}</YTag>` : '',
         '</div>'
       ].filter((line): line is string => Boolean(line)))
@@ -12144,6 +12163,7 @@ const componentMap = {
   yschemaform: YSchemaForm,
   yfieldarray: YFieldArray,
   ybulkactionbar: YBulkActionBar,
+  ybulkactionmenu: YBulkActionMenu,
   ystatustimeline: YStatusTimeline,
   yreviewworkflow: YReviewWorkflow,
   ysavedviewmanager: YSavedViewManager,

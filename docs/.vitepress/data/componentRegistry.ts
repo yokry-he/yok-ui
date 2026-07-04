@@ -1155,6 +1155,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'documented'
   },
   {
+    name: 'YBulkActionMenu',
+    title: 'Bulk Action Menu',
+    packageName: '@yok-ui/admin',
+    family: 'admin',
+    status: 'Beta',
+    docs: '/components/bulk-action-bar',
+    description: '后台列表页的分组批量动作菜单，支持危险操作二次确认。',
+    since: '0.3.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YStatusTimeline',
     title: 'Status Timeline',
     packageName: '@yok-ui/admin',
@@ -3150,6 +3161,86 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'YBulkActionPayload',
         type: '{ action: YBulkActionItem; selectedRowKeys: string[] }',
         description: '批量动作事件载荷。'
+      }
+    ]
+  },
+  YBulkActionMenu: {
+    props: [
+      {
+        name: 'selectedRowKeys',
+        type: 'string[]',
+        description: '当前选中行 key 列表。',
+        required: true
+      },
+      {
+        name: 'actions',
+        type: 'YBulkActionMenuItem[]',
+        defaultValue: '[]',
+        description: '菜单动作列表，支持 group、tone、description 和确认配置。'
+      },
+      {
+        name: 'open',
+        type: 'boolean',
+        defaultValue: 'undefined',
+        description: '受控菜单展开状态。'
+      },
+      {
+        name: 'label',
+        type: 'string',
+        defaultValue: "'More actions'",
+        description: '触发按钮和菜单的可访问名称。'
+      },
+      {
+        name: 'selectedText',
+        type: 'string',
+        defaultValue: "'selected'",
+        description: '选中数量后缀文案。'
+      },
+      {
+        name: 'clearText',
+        type: 'string',
+        defaultValue: "'Clear'",
+        description: '清空选择菜单项文案。'
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否禁用整个菜单。'
+      }
+    ],
+    events: [
+      {
+        name: 'update:open',
+        type: 'boolean',
+        description: '菜单展开状态变化。'
+      },
+      {
+        name: 'action',
+        type: 'YBulkActionMenuPayload',
+        description: '选择批量动作，返回动作定义和当前选中 key。'
+      },
+      {
+        name: 'clear',
+        type: 'void',
+        description: '点击清空选择。'
+      }
+    ],
+    types: [
+      {
+        name: 'YBulkActionMenuTone',
+        type: "'neutral' | 'danger' | 'warning' | 'success' | 'info'",
+        description: '菜单项的语义色。'
+      },
+      {
+        name: 'YBulkActionMenuItem',
+        type: '{ label: string; value: string; group?: string; tone?: YBulkActionMenuTone; description?: string; disabled?: boolean; requiresConfirm?: boolean; confirmText?: string }',
+        description: '批量菜单动作定义。'
+      },
+      {
+        name: 'YBulkActionMenuPayload',
+        type: '{ action: YBulkActionMenuItem; selectedRowKeys: string[] }',
+        description: '批量菜单动作事件载荷。'
       }
     ]
   },

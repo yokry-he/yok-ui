@@ -8453,6 +8453,13 @@ const demo: DemoState = {
     expect(bulkActionBar.find('textarea').element.value).toContain('Keyboard bulk action bar')
     expect(bulkActionBar.find('textarea').element.value).toContain('Tab reaches Publish, Assign owner, Archive and Clear selection.')
 
+    await bulkActionBar.findAll('.live-example-runner__control select')[0].setValue('menu')
+    await nextTick()
+
+    expect(bulkActionBar.find('textarea').element.value).toContain('<YBulkActionMenu')
+    expect(bulkActionBar.find('textarea').element.value).toContain('requiresConfirm')
+    expect(bulkActionBar.find('textarea').element.value).toContain('Grouped menu actions include a second click for dangerous operations.')
+
     const dataToolbar = mount(LiveExampleRunner, {
       props: {
         preset: 'dataToolbar'

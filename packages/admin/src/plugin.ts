@@ -1,6 +1,7 @@
 import type { Component } from 'vue'
 import { createYokInstaller } from '@yok-ui/core'
 import { YBulkActionBar } from './components/bulk-action-bar'
+import { YBulkActionMenu } from './components/bulk-action-menu'
 import { YCrudLayout } from './components/crud-layout'
 import { YDataTable } from './components/data-table'
 import { YDataView } from './components/data-view'
@@ -19,6 +20,7 @@ import { YStatusTimeline } from './components/status-timeline'
 
 export const adminComponents: Component[] = [
   YBulkActionBar,
+  YBulkActionMenu,
   YCrudLayout,
   YDataTable,
   YDataView,

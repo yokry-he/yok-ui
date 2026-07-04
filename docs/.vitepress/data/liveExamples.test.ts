@@ -262,7 +262,7 @@ describe('liveExamples', () => {
     expect(resourcePageSummary.scenarioKinds).toEqual(expect.arrayContaining(['basic', 'controlled', 'filter', 'empty', 'responsive', 'keyboard']))
 
     const remainingWorkflowSummaries = [
-      ['bulkActionBar', ['basic', 'multi', 'empty', 'responsive', 'keyboard']],
+      ['bulkActionBar', ['basic', 'multi', 'composition', 'empty', 'responsive', 'keyboard']],
       ['dataToolbar', ['basic', 'composition', 'empty', 'responsive', 'keyboard']],
       ['savedViews', ['basic', 'controlled', 'empty', 'responsive', 'keyboard']],
       ['searchPanel', ['basic', 'search', 'empty', 'responsive', 'keyboard']],

@@ -35,6 +35,10 @@ describe('playgroundExamples', () => {
       return components.find((item) => item.name === 'YSavedViewManager')
     }
 
+    if (component === 'bulkActionMenu') {
+      return components.find((item) => item.name === 'YBulkActionMenu')
+    }
+
     return components.find((item) => item.docs === docsRoute)
   }
 
@@ -57,6 +61,7 @@ describe('playgroundExamples', () => {
       'resourcePage',
       'crudLayout',
       'bulkActionBar',
+      'bulkActionMenu',
       'dataToolbar',
       'savedViews',
       'savedViewManager',
@@ -134,6 +139,7 @@ describe('playgroundExamples', () => {
       resourcePage: 'resourcePage',
       crudLayout: 'crudLayout',
       bulkActionBar: 'bulkActionBar',
+      bulkActionMenu: 'bulkActionBar',
       dataToolbar: 'dataToolbar',
       savedViews: 'savedViews',
       savedViewManager: 'savedViews',

@@ -581,7 +581,7 @@ const mainstreamParityCards = computed(() => [
   {
     label: 'external source',
     value: mainstreamParitySummary.value.externalSources,
-    detail: '基准来自 Element Plus 官方组件总览、组件页、i18n 指南和首页信息架构。'
+    detail: '基准来自主流 Vue 组件库的官方文档、主题指南、组件页和资源体系。'
   },
   {
     label: 'benchmark queue',
@@ -589,9 +589,9 @@ const mainstreamParityCards = computed(() => [
     detail: '当任一外部基准未覆盖时，会进入下一步追赶队列。'
   },
   {
-    label: 'source labels',
-    value: mainstreamParitySummary.value.sourceLabels.length,
-    detail: mainstreamParitySummary.value.sourceLabels.slice(0, 3).join(' / ')
+    label: 'reference libraries',
+    value: mainstreamParitySummary.value.libraryCount,
+    detail: mainstreamParitySummary.value.libraryLabels.join(' / ')
   }
 ])
 
@@ -863,8 +863,8 @@ const nextPriorities = computed(() =>
         <p class="docs-eyebrow">mainstream parity benchmark</p>
         <h3>把“接近主流组件库”改成外部基准驱动</h3>
         <p>
-          内部成熟度达标后，Yok UI 继续用 Element Plus 的组件总览、示例源码操作、Playground 交接、
-          Table、Cascader、DatePicker、ConfigProvider i18n 和 Guide / Component / Resource 信息架构作为外部对标项。
+          内部成熟度达标后，Yok UI 继续用 Element Plus、Ant Design Vue、Arco Design Vue、Naive UI 和 TDesign Vue Next
+          的组件总览、示例源码操作、Playground 交接、主题 token、企业表单、后台模板和资源体系作为外部对标项。
           每个基准都必须能回到当前组件、文档路由、Live Example、API evidence 或资源页证据。
         </p>
       </div>
@@ -890,6 +890,7 @@ const nextPriorities = computed(() =>
         >
           <header>
             <div>
+              <span class="maturity-dashboard__mainstream-library">{{ item.source.library }}</span>
               <a class="maturity-dashboard__mainstream-link" :href="item.source.url">
                 {{ item.source.label }}
               </a>

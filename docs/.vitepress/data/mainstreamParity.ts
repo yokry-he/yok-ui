@@ -15,8 +15,15 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-date-picker'
   | 'element-plus-config-provider-i18n'
   | 'element-plus-resource-system'
+  | 'ant-design-vue-theme-token'
+  | 'ant-design-vue-select-form'
+  | 'arco-design-vue-token-lab'
+  | 'arco-design-vue-admin-pattern'
+  | 'naive-ui-theme-system'
+  | 'tdesign-vue-next-enterprise-shell'
 
 export interface MainstreamReferenceSource {
+  library: string
   label: string
   url: string
   note: string
@@ -59,6 +66,8 @@ export interface MainstreamParitySummary {
   coverageRate: number
   averageScore: number
   externalSources: number
+  libraryCount: number
+  libraryLabels: string[]
   sourceLabels: string[]
   nextQueue: MainstreamParityItem[]
 }
@@ -68,6 +77,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     key: 'element-plus-overview',
     label: 'Component overview and category IA',
     source: {
+      library: 'Element Plus',
       label: 'Element Plus Overview',
       url: 'https://element-plus.org/en-US/component/overview',
       note: 'Element Plus exposes component categories and an overview route as the primary component discovery surface.'
@@ -81,6 +91,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     key: 'element-plus-source-actions',
     label: 'Example source actions',
     source: {
+      library: 'Element Plus',
       label: 'Element Plus Component demos',
       url: 'https://element-plus.org/en-US/component/select',
       note: 'Element Plus examples expose TS / JS, Playground editing, copy and source-reading actions around each demo.'
@@ -92,6 +103,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     key: 'element-plus-playground-flow',
     label: 'Docs example to Playground handoff',
     source: {
+      library: 'Element Plus',
       label: 'Element Plus Playground',
       url: 'https://element-plus.org/en-US/component/select',
       note: 'Mainstream docs let examples move into an editable playground while preserving runnable source context.'
@@ -103,6 +115,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     key: 'element-plus-table',
     label: 'Data table sorting, filtering and comparison',
     source: {
+      library: 'Element Plus',
       label: 'Element Plus Table',
       url: 'https://element-plus.org/en-US/component/table',
       note: 'Element Plus Table documents sorting, filtering and comparison-oriented data display patterns.'
@@ -115,6 +128,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     key: 'element-plus-cascader',
     label: 'Cascader and cascader-panel depth',
     source: {
+      library: 'Element Plus',
       label: 'Element Plus Cascader',
       url: 'https://element-plus.org/en-US/component/cascader',
       note: 'Element Plus Cascader and CascaderPanel cover single selection, multiple selection and dynamic loading depth.'
@@ -127,6 +141,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     key: 'element-plus-date-picker',
     label: 'Date picker shortcuts and disabled dates',
     source: {
+      library: 'Element Plus',
       label: 'Element Plus DatePicker',
       url: 'https://element-plus.org/en-US/component/date-picker',
       note: 'Element Plus DatePicker highlights shortcuts, disabled dates and calendar-panel usage states.'
@@ -139,6 +154,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     key: 'element-plus-config-provider-i18n',
     label: 'ConfigProvider locale and global settings',
     source: {
+      library: 'Element Plus',
       label: 'Element Plus ConfigProvider i18n',
       url: 'https://element-plus.org/en-US/guide/i18n',
       note: 'Element Plus uses ConfigProvider for locale and global configuration patterns.'
@@ -151,6 +167,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     key: 'element-plus-resource-system',
     label: 'Guide, Component and Resource information architecture',
     source: {
+      library: 'Element Plus',
       label: 'Element Plus Homepage',
       url: 'https://element-plus.org/',
       note: 'Element Plus separates Guide, Component and Resource entries instead of treating documentation as a flat page list.'
@@ -158,6 +175,89 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     docs: ['/guide/introduction', '/components/', '/resources/maturity'],
     resources: ['/resources/api-reference', '/resources/release', '/resources/theme-lab'],
     capabilities: ['guide-component-resource-routing', 'api-reference', 'release-center', 'theme-lab']
+  },
+  {
+    key: 'ant-design-vue-theme-token',
+    label: 'Design token customization through ConfigProvider',
+    source: {
+      library: 'Ant Design Vue',
+      label: 'Ant Design Vue Customize Theme',
+      url: 'https://www.antdv.com/docs/vue/customize-theme',
+      note: 'Ant Design Vue documents token-based customization through ConfigProvider for brand and product theme adaptation.'
+    },
+    componentNames: ['YThemeProvider', 'YConfigProvider'],
+    docs: ['/guide/theming', '/components/config-provider'],
+    resources: ['/resources/theme-lab'],
+    capabilities: ['design-token', 'config-provider-theme', 'brand-customization', 'theme-lab']
+  },
+  {
+    key: 'ant-design-vue-select-form',
+    label: 'Enterprise form selection and validation workflow',
+    source: {
+      library: 'Ant Design Vue',
+      label: 'Ant Design Vue Select',
+      url: 'https://antdv.com/components/select',
+      note: 'Ant Design Vue Select emphasizes enterprise form selection patterns including multiple select and remote search.'
+    },
+    componentNames: ['YSelect', 'YForm', 'YFormItem'],
+    docs: ['/components/select', '/components/form', '/components/form-item'],
+    capabilities: ['enterprise-form', 'remote-search-select', 'structured-api', 'workflow-live-example']
+  },
+  {
+    key: 'arco-design-vue-token-lab',
+    label: 'Design token inventory and visual theme lab',
+    source: {
+      library: 'Arco Design Vue',
+      label: 'Arco Design Vue Design Token',
+      url: 'https://arco.design/vue/en-US/docs/token',
+      note: 'Arco Design Vue exposes global token inventory as an explicit documentation surface for design-system customization.'
+    },
+    componentNames: ['YThemeProvider', 'YColorPicker'],
+    docs: ['/guide/theming', '/components/color-picker'],
+    resources: ['/resources/theme-lab'],
+    capabilities: ['design-token-inventory', 'theme-lab', 'visual-token-editing', 'brand-color-preview']
+  },
+  {
+    key: 'arco-design-vue-admin-pattern',
+    label: 'Admin page templates and data-workbench patterns',
+    source: {
+      library: 'Arco Design Vue',
+      label: 'Arco Design Pro Vue',
+      url: 'https://github.com/arco-design/arco-design-pro-vue',
+      note: 'Arco Design Pro Vue packages common dashboard, table, list, form and visualization patterns into admin templates.'
+    },
+    componentNames: ['YPageHeader', 'YSearchForm', 'YCrudLayout', 'YDataTable'],
+    docs: ['/components/page-header', '/components/search-form', '/components/crud-layout', '/components/data-table'],
+    resources: ['/resources/maturity'],
+    capabilities: ['admin-template', 'data-workbench', 'search-form', 'crud-layout']
+  },
+  {
+    key: 'naive-ui-theme-system',
+    label: 'TypeScript-first theme system and tree-shakable suite',
+    source: {
+      library: 'Naive UI',
+      label: 'Naive UI Homepage',
+      url: 'https://www.naiveui.com/',
+      note: 'Naive UI positions itself around Vue 3, TypeScript, theme customization, speed and a fairly complete component suite.'
+    },
+    componentNames: ['YConfigProvider', 'YThemeProvider'],
+    docs: ['/components/config-provider', '/guide/theming'],
+    resources: ['/resources/theme-lab'],
+    capabilities: ['typescript-first-theme', 'tree-shaking', 'theme-overrides', 'complete-suite']
+  },
+  {
+    key: 'tdesign-vue-next-enterprise-shell',
+    label: 'Enterprise desktop shell and starter workflow',
+    source: {
+      library: 'TDesign Vue Next',
+      label: 'TDesign Vue Next Overview',
+      url: 'https://tdesign.tencent.com/vue-next/overview',
+      note: 'TDesign Vue Next targets Vue 3 desktop application interaction with dark mode, customizable theme and tree-shaking support.'
+    },
+    componentNames: ['YPageHeader', 'YDataTable', 'YSearchForm', 'YCrudLayout'],
+    docs: ['/components/page-header', '/components/data-table', '/components/search-form', '/components/crud-layout'],
+    resources: ['/resources/release', '/resources/maturity'],
+    capabilities: ['desktop-application', 'enterprise-shell', 'dark-mode', 'tree-shaking']
   }
 ]
 
@@ -322,6 +422,8 @@ export function getMainstreamParitySummary(): MainstreamParitySummary {
     coverageRate: Math.round((covered / Math.max(items.length, 1)) * 100),
     averageScore: Math.round(items.reduce((total, item) => total + item.score, 0) / Math.max(items.length, 1)),
     externalSources: new Set(items.map((item) => item.source.url)).size,
+    libraryCount: new Set(items.map((item) => item.source.library)).size,
+    libraryLabels: unique(items.map((item) => item.source.library)),
     sourceLabels: unique(items.map((item) => item.source.label)),
     nextQueue: items
       .filter((item) => item.status !== 'covered')

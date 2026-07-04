@@ -2,7 +2,7 @@
 
 Maturity 页面用于持续追踪 Yok UI 和主流组件库之间的差距。这里不会粉饰进度：组件数量、API 数据、在线示例、guided 示例深度、workflow 场景矩阵、键盘焦点交互契约、可访问性证据档案、文档站审计目标、稳定状态、覆盖率百分比和后续队列都会从当前 registry、live example 覆盖表、interaction contract、accessibility evidence 与 docs audit target 数据中自动汇总。
 
-从当前版本开始，页面还会维护 `mainstream parity benchmark`：把 Element Plus 官方的组件总览、示例源码操作、Playground 交接、Table、Cascader、DatePicker、ConfigProvider i18n 和 Guide / Component / Resource 信息架构拆成外部基准项，再映射到 Yok UI 的组件、文档路由、Live Example、API evidence 和资源页证据。这样即使内部成熟度指标已经满分，也能继续用外部参照发现下一批追赶方向。
+从当前版本开始，页面还会维护 `mainstream parity benchmark`：把 Element Plus、Ant Design Vue、Arco Design Vue、Naive UI 和 TDesign Vue Next 的组件总览、示例源码操作、Playground 交接、主题 token、企业表单、后台模板、桌面应用壳层和 Guide / Component / Resource 信息架构拆成外部基准项，再映射到 Yok UI 的组件、文档路由、Live Example、API evidence 和资源页证据。这样即使内部成熟度指标已经满分，也能继续用外部参照发现下一批追赶方向。
 
 <MaturityDashboard />
 

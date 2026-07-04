@@ -3,66 +3,143 @@ title: Anchor
 description: 为长文档、设置页和滚动容器提供页内锚点导航。
 ---
 
+<script setup lang="ts">
+const anchorItems = [
+  { title: 'Usage', href: '#anchor-demo-usage' },
+  {
+    title: 'API',
+    href: '#anchor-demo-api',
+    children: [
+      { title: 'Props', href: '#anchor-demo-props' },
+      { title: 'Events', href: '#anchor-demo-events', disabled: true }
+    ]
+  },
+  { title: 'Accessibility', href: '#anchor-demo-accessibility' }
+]
+
+const containerItems = [
+  { title: 'Release', href: '#anchor-demo-release' },
+  { title: 'Checklist', href: '#anchor-demo-checklist' },
+  { title: 'Evidence', href: '#anchor-demo-evidence' }
+]
+
+const anchorSetup = [
+  "import { YAnchor } from '@yok-ui/core'",
+  '',
+  'const anchorItems = [',
+  "  { title: 'Usage', href: '#anchor-demo-usage' },",
+  '  {',
+  "    title: 'API',",
+  "    href: '#anchor-demo-api',",
+  '    children: [',
+  "      { title: 'Props', href: '#anchor-demo-props' },",
+  "      { title: 'Events', href: '#anchor-demo-events', disabled: true }",
+  '    ]',
+  '  },',
+  "  { title: 'Accessibility', href: '#anchor-demo-accessibility' }",
+  ']',
+  '',
+  'const containerItems = [',
+  "  { title: 'Release', href: '#anchor-demo-release' },",
+  "  { title: 'Checklist', href: '#anchor-demo-checklist' },",
+  "  { title: 'Evidence', href: '#anchor-demo-evidence' }",
+  ']'
+].join('\n')
+
+const basicCode = [
+  '<YAnchor',
+  '  :items="anchorItems"',
+  '  model-value="#anchor-demo-api"',
+  '  aria-label="Component sections"',
+  '/>'
+].join('\n')
+
+const horizontalCode = [
+  '<YAnchor',
+  '  :items="anchorItems"',
+  '  direction="horizontal"',
+  '  type="underline"',
+  '  model-value="#anchor-demo-usage"',
+  '  aria-label="Page sections"',
+  '/>'
+].join('\n')
+
+const scrollContainerCode = [
+  '<section class="anchor-demo-scroll-panel">',
+  '  <YAnchor',
+  '    :items="containerItems"',
+  '    container=".anchor-demo-scroll-panel"',
+  '    :offset="64"',
+  '    :bound="15"',
+  '    aria-label="Container sections"',
+  '  />',
+  '  <div class="anchor-demo-scroll-content">',
+  '    <section id="anchor-demo-release">Release</section>',
+  '    <section id="anchor-demo-checklist">Checklist</section>',
+  '    <section id="anchor-demo-evidence">Evidence</section>',
+  '  </div>',
+  '</section>'
+].join('\n')
+</script>
+
 # Anchor
 
 Anchor 用于长页面内的章节导航、文档目录、配置页分段定位和局部滚动容器导航。它参考 Element Plus Anchor 的操作模型，保留基础锚点、横向模式、目标滚动容器、`change` / `click` 事件和 `scrollTo` 方法，同时让可访问性状态、禁用项和嵌套目录在 Yok UI 的文档体系里保持一致。
 
 ## Example
 
-### Basic
+<DocDemo
+  title="Basic navigation"
+  description="竖向目录适合文档右侧栏、设置页分段和长表单导航；当前项通过 modelValue 受控。"
+  :code="basicCode"
+  :setup="anchorSetup"
+  :usage="['nested items', 'modelValue', 'aria-current']"
+>
+  <YAnchor
+    :items="anchorItems"
+    model-value="#anchor-demo-api"
+    aria-label="Component sections"
+  />
+</DocDemo>
 
-```vue
-<script setup lang="ts">
-import { YAnchor } from '@yok-ui/core'
-
-const anchorItems = [
-  { title: 'Usage', href: '#usage' },
-  {
-    title: 'API',
-    href: '#api',
-    children: [
-      { title: 'Props', href: '#props' },
-      { title: 'Events', href: '#events' }
-    ]
-  },
-  { title: 'Accessibility', href: '#accessibility' }
-]
-</script>
-
-<template>
-  <YAnchor :items="anchorItems" model-value="#api" aria-label="Component sections" />
-</template>
-```
-
-### Horizontal
-
-```vue
-<template>
+<DocDemo
+  title="Horizontal sections"
+  description="横向模式适合页面顶部的同级章节切换，只渲染一级链接以保持高度稳定。"
+  :code="horizontalCode"
+  :setup="anchorSetup"
+  :usage="['direction=horizontal', 'type=underline', 'top sections']"
+>
   <YAnchor
     :items="anchorItems"
     direction="horizontal"
     type="underline"
-    model-value="#usage"
+    model-value="#anchor-demo-usage"
     aria-label="Page sections"
   />
-</template>
-```
+</DocDemo>
 
-### Scroll Container
-
-```vue
-<template>
-  <section class="release-scroll-panel">
+<DocDemo
+  title="Scroll container"
+  description="局部滚动容器适合发布面板、设置抽屉和内容区域内的分段定位。"
+  :code="scrollContainerCode"
+  :setup="anchorSetup"
+  :usage="['container selector', 'offset', 'bound']"
+>
+  <section class="anchor-demo-scroll-panel">
     <YAnchor
-      :items="anchorItems"
-      container=".release-scroll-panel"
+      :items="containerItems"
+      container=".anchor-demo-scroll-panel"
       :offset="64"
       :bound="15"
       aria-label="Container sections"
     />
+    <div class="anchor-demo-scroll-content">
+      <section id="anchor-demo-release">Release notes</section>
+      <section id="anchor-demo-checklist">Checklist</section>
+      <section id="anchor-demo-evidence">Evidence</section>
+    </div>
   </section>
-</template>
-```
+</DocDemo>
 
 ## Live example
 
@@ -89,3 +166,38 @@ const anchorItems = [
 ## API
 
 <ComponentApiSection name="YAnchor" />
+
+<style scoped>
+.anchor-demo-scroll-panel {
+  display: grid;
+  max-height: 260px;
+  grid-template-columns: minmax(128px, 0.34fr) minmax(0, 1fr);
+  gap: var(--yok-space-4);
+  overflow: auto;
+  border: 1px solid var(--yok-color-border);
+  border-radius: var(--yok-radius-lg);
+  padding: var(--yok-space-4);
+}
+
+.anchor-demo-scroll-content {
+  display: grid;
+  gap: var(--yok-space-4);
+  min-width: 0;
+}
+
+.anchor-demo-scroll-content section {
+  min-height: 120px;
+  border: 1px solid var(--yok-color-border);
+  border-radius: var(--yok-radius-md);
+  background: var(--yok-color-bg-soft);
+  color: var(--yok-color-text);
+  font-weight: 750;
+  padding: var(--yok-space-4);
+}
+
+@media (max-width: 720px) {
+  .anchor-demo-scroll-panel {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

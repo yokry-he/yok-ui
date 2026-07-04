@@ -3,78 +3,243 @@ title: Layout
 description: 页面级 flex 骨架，组织 Header、Aside、Main 和 Footer，适合官网、文档和后台壳层。
 ---
 
-# Layout
-
-Layout 用于搭建页面的基础骨架。它参考 Element Plus Container 的 `Container / Header / Aside / Main / Footer` 组合方式：外层负责 flex 方向和尺寸，内容交互仍交给 Menu、Table、Form 等组件。
-
-## Example
-
-### Page Shell
-
-```vue
 <script setup lang="ts">
-import { YFooter, YHeader, YLayout, YMain } from '@yok-ui/core'
-</script>
+import { ref } from 'vue'
 
-<template>
-  <YLayout full-height aria-label="Documentation page shell">
-    <YHeader height="56px" bordered>Yok UI</YHeader>
-    <YMain>
-      Documentation content
-    </YMain>
-    <YFooter bordered>Released under MIT.</YFooter>
-  </YLayout>
-</template>
-```
-
-### Admin Shell
-
-```vue
-<script setup lang="ts">
-import { YAside, YHeader, YLayout, YMain, YMenu } from '@yok-ui/core'
-
+const activeMenu = ref('components')
 const menuItems = [
   { label: 'Dashboard', value: 'dashboard', icon: 'D' },
   { label: 'Components', value: 'components', icon: 'C' },
   { label: 'Resources', value: 'resources', icon: 'R' }
 ]
+
+const pageShellCode = [
+  '<script setup lang="ts">',
+  "import { YFooter, YHeader, YLayout, YMain } from '@yok-ui/core'",
+  '</' + 'script>',
+  '',
+  '<template>',
+  '  <YLayout class="layout-demo-shell" aria-label="Documentation page shell">',
+  '    <YHeader height="56px" bordered>Yok UI</YHeader>',
+  '    <YMain>',
+  '      <div class="layout-demo-content">',
+  '        <strong>Documentation content</strong>',
+  '        <p>Use Header, Main and Footer to compose a stable documentation page.</p>',
+  '      </div>',
+  '    </YMain>',
+  '    <YFooter bordered>Released under MIT.</YFooter>',
+  '  </YLayout>',
+  '</' + 'template>',
+  '',
+  '<style scoped>',
+  '.layout-demo-shell {',
+  '  min-height: 320px;',
+  '  overflow: hidden;',
+  '  border: 1px solid var(--yok-color-border);',
+  '  border-radius: var(--yok-radius-lg);',
+  '}',
+  '',
+  '.layout-demo-content {',
+  '  display: grid;',
+  '  gap: 8px;',
+  '  min-height: 140px;',
+  '  border: 1px dashed var(--yok-color-border);',
+  '  border-radius: var(--yok-radius-md);',
+  '  background: var(--yok-color-surface);',
+  '  padding: 20px;',
+  '}',
+  '',
+  '.layout-demo-content p {',
+  '  margin: 0;',
+  '  color: var(--yok-color-textMuted);',
+  '}',
+  '</' + 'style>'
+].join('\n')
+
+const adminShellCode = [
+  '<script setup lang="ts">',
+  "import { ref } from 'vue'",
+  "import { YAside, YHeader, YLayout, YMain, YMenu, type YMenuItem } from '@yok-ui/core'",
+  '',
+  "const activeMenu = ref('components')",
+  'const menuItems: YMenuItem[] = [',
+  "  { label: 'Dashboard', value: 'dashboard', icon: 'D' },",
+  "  { label: 'Components', value: 'components', icon: 'C' },",
+  "  { label: 'Resources', value: 'resources', icon: 'R' }",
+  ']',
+  '</' + 'script>',
+  '',
+  '<template>',
+  '  <YLayout class="layout-demo-shell" aria-label="Admin shell">',
+  '    <YHeader sticky bordered>Yok UI Workspace</YHeader>',
+  '    <YLayout direction="horizontal">',
+  '      <YAside width="232px" bordered aria-label="Primary navigation">',
+  '        <YMenu v-model="activeMenu" :items="menuItems" />',
+  '      </YAside>',
+  '      <YMain scrollable>',
+  '        <div class="layout-demo-content">',
+  '          <strong>Workspace</strong>',
+  '          <p>Current route: {{ activeMenu }}</p>',
+  '        </div>',
+  '      </YMain>',
+  '    </YLayout>',
+  '  </YLayout>',
+  '</' + 'template>',
+  '',
+  '<style scoped>',
+  '.layout-demo-shell {',
+  '  min-height: 360px;',
+  '  overflow: hidden;',
+  '  border: 1px solid var(--yok-color-border);',
+  '  border-radius: var(--yok-radius-lg);',
+  '}',
+  '',
+  '.layout-demo-content {',
+  '  display: grid;',
+  '  gap: 8px;',
+  '  min-height: 180px;',
+  '  border: 1px dashed var(--yok-color-border);',
+  '  border-radius: var(--yok-radius-md);',
+  '  background: var(--yok-color-surface);',
+  '  padding: 20px;',
+  '}',
+  '',
+  '.layout-demo-content p {',
+  '  margin: 0;',
+  '  color: var(--yok-color-textMuted);',
+  '}',
+  '</' + 'style>'
+].join('\n')
+
+const collapsedAsideCode = [
+  '<script setup lang="ts">',
+  "import { YAside, YLayout, YMain } from '@yok-ui/core'",
+  '</' + 'script>',
+  '',
+  '<template>',
+  '  <YLayout class="layout-demo-shell layout-demo-shell--compact" direction="horizontal" aria-label="Collapsed shell">',
+  '    <YAside width="232px" collapsed-width="72px" collapsed bordered aria-label="Collapsed navigation">',
+  '      <div class="layout-demo-aside">Nav</div>',
+  '    </YAside>',
+  '    <YMain>',
+  '      <div class="layout-demo-content">',
+  '        <strong>Content</strong>',
+  '        <p>Collapsed sidebars preserve the expanded width token while rendering the compact width.</p>',
+  '      </div>',
+  '    </YMain>',
+  '  </YLayout>',
+  '</' + 'template>',
+  '',
+  '<style scoped>',
+  '.layout-demo-shell {',
+  '  min-height: 280px;',
+  '  overflow: hidden;',
+  '  border: 1px solid var(--yok-color-border);',
+  '  border-radius: var(--yok-radius-lg);',
+  '}',
+  '',
+  '.layout-demo-aside {',
+  '  display: grid;',
+  '  place-items: center;',
+  '  min-height: 100%;',
+  '  color: var(--yok-color-textMuted);',
+  '  font-weight: 700;',
+  '}',
+  '',
+  '.layout-demo-content {',
+  '  display: grid;',
+  '  gap: 8px;',
+  '  min-height: 140px;',
+  '  border: 1px dashed var(--yok-color-border);',
+  '  border-radius: var(--yok-radius-md);',
+  '  background: var(--yok-color-surface);',
+  '  padding: 20px;',
+  '}',
+  '',
+  '.layout-demo-content p {',
+  '  margin: 0;',
+  '  color: var(--yok-color-textMuted);',
+  '}',
+  '</' + 'style>'
+].join('\n')
 </script>
 
-<template>
-  <YLayout full-height aria-label="Admin shell">
+# Layout
+
+Layout 用于搭建页面的基础骨架。它参考 Element Plus Container 的 `Container / Header / Aside / Main / Footer` 组合方式：外层负责 flex 方向和尺寸，内容交互仍交给 Menu、Table、Form 等组件。
+
+## Page Shell
+
+<DocDemo
+  title="Page shell"
+  description="Header、Main、Footer 组成纵向页面骨架，适合文档页、官网详情页和内容页。"
+  :code="pageShellCode"
+  :usage="['header', 'main', 'footer', 'vertical layout']"
+>
+  <YLayout class="docs-layout-demo-shell" aria-label="Documentation page shell">
+    <YHeader height="56px" bordered>Yok UI</YHeader>
+    <YMain>
+      <div class="docs-layout-demo-content">
+        <strong>Documentation content</strong>
+        <p>Use Header, Main and Footer to compose a stable documentation page.</p>
+      </div>
+    </YMain>
+    <YFooter bordered>Released under MIT.</YFooter>
+  </YLayout>
+</DocDemo>
+
+## Admin Shell
+
+<DocDemo
+  title="Admin shell"
+  description="嵌套横向 Layout 可以组织顶栏、侧栏和主体工作区，适合后台、控制台和文档站壳层。"
+  :code="adminShellCode"
+  :usage="['nested layout', 'sticky header', 'aside navigation', 'scrollable main']"
+>
+  <YLayout class="docs-layout-demo-shell" aria-label="Admin shell">
     <YHeader sticky bordered>Yok UI Workspace</YHeader>
     <YLayout direction="horizontal">
       <YAside width="232px" bordered aria-label="Primary navigation">
-        <YMenu :items="menuItems" model-value="components" />
+        <YMenu v-model="activeMenu" :items="menuItems" />
       </YAside>
       <YMain scrollable>
-        Workspace
+        <div class="docs-layout-demo-content">
+          <strong>Workspace</strong>
+          <p>Current route: {{ activeMenu }}</p>
+        </div>
       </YMain>
     </YLayout>
   </YLayout>
-</template>
-```
+</DocDemo>
 
-### Collapsed Aside
+## Collapsed Aside
 
-```vue
-<script setup lang="ts">
-import { YAside, YLayout, YMain } from '@yok-ui/core'
-</script>
-
-<template>
-  <YLayout direction="horizontal" aria-label="Collapsed shell">
-    <YAside width="232px" collapsed-width="72px" collapsed bordered>
-      Nav
+<DocDemo
+  title="Collapsed aside"
+  description="collapsed 侧栏适合图标导航、编辑器面板和工作台紧凑模式。"
+  :code="collapsedAsideCode"
+  :usage="['aside', 'collapsed width', 'horizontal layout']"
+>
+  <YLayout class="docs-layout-demo-shell docs-layout-demo-shell--compact" direction="horizontal" aria-label="Collapsed shell">
+    <YAside width="232px" collapsed-width="72px" collapsed bordered aria-label="Collapsed navigation">
+      <div class="docs-layout-demo-aside">Nav</div>
     </YAside>
-    <YMain>Content</YMain>
+    <YMain>
+      <div class="docs-layout-demo-content">
+        <strong>Content</strong>
+        <p>Collapsed sidebars preserve the expanded width token while rendering the compact width.</p>
+      </div>
+    </YMain>
   </YLayout>
-</template>
-```
+</DocDemo>
 
 ## Live example
 
-<LiveExampleRunner preset="layout" />
+<LiveExampleRunner
+  preset="layout"
+  title="在线编辑 Layout 示例"
+  description="运行器覆盖页面壳层、后台导航和折叠侧栏，可直接进入 Playground 调整完整 SFC。"
+/>
 
 ## Usage Notes
 
@@ -93,3 +258,45 @@ import { YAside, YLayout, YMain } from '@yok-ui/core'
 ## API
 
 <ComponentApiSection name="YLayout" />
+
+<style scoped>
+.docs-layout-demo-shell {
+  min-height: 320px;
+  overflow: hidden;
+  border: 1px solid var(--yok-color-border);
+  border-radius: var(--yok-radius-lg);
+}
+
+.docs-layout-demo-shell--compact {
+  min-height: 280px;
+}
+
+.docs-layout-demo-content {
+  display: grid;
+  gap: 8px;
+  min-height: 140px;
+  border: 1px dashed var(--yok-color-border);
+  border-radius: var(--yok-radius-md);
+  background: var(--yok-color-surface);
+  padding: 20px;
+}
+
+.docs-layout-demo-content p {
+  margin: 0;
+  color: var(--yok-color-textMuted);
+}
+
+.docs-layout-demo-aside {
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  color: var(--yok-color-textMuted);
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .docs-layout-demo-shell {
+    min-height: 260px;
+  }
+}
+</style>

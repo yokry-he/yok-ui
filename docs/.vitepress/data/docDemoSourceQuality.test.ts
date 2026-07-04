@@ -40,7 +40,8 @@ const foundationFormDocs = [
   'divider',
   'empty',
   'form-item',
-  'form-summary'
+  'form-summary',
+  'layout'
 ]
 
 const feedbackDisplayDocs = [
@@ -192,6 +193,7 @@ describe('DocDemo source quality', () => {
     const anchor = items.find((item) => item.docs === '/components/anchor')
     const schemaForm = items.find((item) => item.docs === '/components/schema-form')
     const fieldArray = items.find((item) => item.docs === '/components/field-array')
+    const layout = items.find((item) => item.docs === '/components/layout')
 
     expect(items.length).toBeGreaterThan(0)
     expect(summary.totalDocs).toBe(items.length)
@@ -264,6 +266,14 @@ describe('DocDemo source quality', () => {
       completeHandoffCount: 3
     })
     expect(fieldArray?.checks.every((check) => check.passed)).toBe(true)
+    expect(layout).toMatchObject({
+      docs: '/components/layout',
+      title: 'Layout',
+      status: 'complete',
+      demoCount: 3,
+      completeHandoffCount: 3
+    })
+    expect(layout?.checks.every((check) => check.passed)).toBe(true)
   })
 
   it('tracks component pages that still use raw demo-box examples instead of DocDemo', () => {

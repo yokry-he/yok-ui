@@ -983,6 +983,12 @@ const importedManifestItems = computed(() => [
   { label: 'Replay', value: importedReplay.value ? `${importedReplayEvents.value.length} events` : 'None' },
   { label: 'Handoff', value: importedHandoffKey.value || importedHandoffMissingKey.value || 'Direct' }
 ])
+const importedSummaryItems = computed(() => [
+  { label: 'Component', value: activeMeta.value.label },
+  { label: 'Language', value: importedSourceLanguageLabel.value },
+  { label: 'Source', value: `${importedSourceStats.value.lines} lines` },
+  { label: 'Theme', value: activeThemeLabel.value }
+])
 
 const generatedMarkup = computed(() => {
   if (activeComponent.value === 'button') {
@@ -2935,91 +2941,126 @@ onMounted(() => {
         :class="{ 'playground-workbench__import--missing': importedHandoffMissingKey }"
         aria-live="polite"
       >
-        <div class="playground-workbench__import-body">
-          <span class="playground-workbench__import-kicker">{{ importedSourceKicker }}</span>
-          <strong class="playground-workbench__import-title">{{ importedPanelTitle }}</strong>
-          <span class="playground-workbench__import-meta">
-            <span class="playground-workbench__import-chip">{{ importedSourceOriginLabel }}</span>
-            <span class="playground-workbench__import-chip">{{ importedSourceLanguageLabel }}</span>
-            <span class="playground-workbench__import-chip">{{ activeMeta.family }}</span>
-            <span class="playground-workbench__import-chip">{{ activeThemeLabel }}</span>
-            <span v-if="importedScenario" class="playground-workbench__import-chip">
-              场景 {{ importedScenario }}
+        <div class="playground-workbench__import-main">
+          <div class="playground-workbench__import-body">
+            <span class="playground-workbench__import-kicker">{{ importedSourceKicker }}</span>
+            <strong class="playground-workbench__import-title">{{ importedPanelTitle }}</strong>
+            <span class="playground-workbench__import-meta">
+              <span class="playground-workbench__import-chip">{{ importedSourceOriginLabel }}</span>
+              <span class="playground-workbench__import-chip">{{ activeMeta.family }}</span>
+              <span v-if="importedScenario" class="playground-workbench__import-chip">
+                场景 {{ importedScenario }}
+              </span>
+              <span v-if="importedViewport" class="playground-workbench__import-chip">
+                {{ playgroundViewportLabels[importedViewport] }}
+              </span>
+              <span v-if="importedHandoffKey || importedHandoffMissingKey" class="playground-workbench__import-chip">
+                handoff {{ importedHandoffKey || importedHandoffMissingKey }}
+              </span>
+              <span
+                v-for="entry in importedControlSummary"
+                :key="entry"
+                class="playground-workbench__import-chip"
+              >
+                {{ entry }}
+              </span>
             </span>
-            <span v-if="importedViewport" class="playground-workbench__import-chip">
-              {{ playgroundViewportLabels[importedViewport] }}
-            </span>
-            <span v-if="importedHandoffKey || importedHandoffMissingKey" class="playground-workbench__import-chip">
-              handoff {{ importedHandoffKey || importedHandoffMissingKey }}
-            </span>
-            <span
-              v-for="entry in importedControlSummary"
-              :key="entry"
-              class="playground-workbench__import-chip"
+          </div>
+          <dl class="playground-workbench__import-summary" aria-label="Imported source summary">
+            <div
+              v-for="item in importedSummaryItems"
+              :key="item.label"
+              class="playground-workbench__import-summary-item"
             >
-              {{ entry }}
-            </span>
+              <dt>{{ item.label }}</dt>
+              <dd>{{ item.value }}</dd>
+            </div>
+          </dl>
+          <div class="playground-workbench__import-actions">
             <a class="playground-workbench__import-doc-link" :href="importedDocsRoute">{{ importedDocsLinkLabel }}</a>
-          </span>
+            <button
+              v-if="importedSource"
+              class="playground-workbench__import-restore"
+              type="button"
+              @click="restoreImportedSource"
+            >
+              恢复导入源码
+            </button>
+            <button
+              v-if="importedSource"
+              class="playground-workbench__import-action"
+              type="button"
+              @click="clearImportedSource"
+            >
+              恢复工作台生成
+            </button>
+          </div>
         </div>
         <p v-if="importedHandoffMissingKey" class="playground-workbench__import-missing-note">
           本地 handoff payload 不存在，通常是跨浏览器打开、存储被清理或链接已过期。请从原组件示例重新点击 Playground。
         </p>
-        <ul class="playground-workbench__import-manifest-grid" aria-label="Imported source manifest">
-          <li
-            v-for="item in importedManifestItems"
-            :key="item.label"
-            class="playground-workbench__import-manifest-item"
-          >
-            <span class="playground-workbench__import-manifest-label">{{ item.label }}</span>
-            <strong class="playground-workbench__import-manifest-value">{{ item.value }}</strong>
-          </li>
-        </ul>
-        <section
-          v-if="importedReplay"
-          class="playground-workbench__replay"
-          aria-label="Imported replay evidence"
-        >
-          <header class="playground-workbench__replay-header">
-            <div>
-              <span class="playground-workbench__replay-kicker">Replay manifest</span>
-              <strong class="playground-workbench__replay-title">
-                {{ importedReplayEvents.length }} events · {{ importedReplaySteps.length }} steps
-              </strong>
-            </div>
-            <span class="playground-workbench__replay-status">
-              {{ importedReplay.assertions?.validation ?? 'Pass' }}
-            </span>
-          </header>
-          <ul class="playground-workbench__replay-grid">
+        <details class="playground-workbench__import-details">
+          <summary>
+            <span>查看导入清单</span>
+            <small>{{ importedManifestItems.length }} items</small>
+          </summary>
+          <ul class="playground-workbench__import-manifest-grid" aria-label="Imported source manifest">
             <li
-              v-for="item in importedReplayItems"
+              v-for="item in importedManifestItems"
               :key="item.label"
-              class="playground-workbench__replay-item"
+              class="playground-workbench__import-manifest-item"
             >
-              <span>{{ item.label }}</span>
-              <strong>{{ item.value }}</strong>
-              <small>{{ item.detail }}</small>
+              <span class="playground-workbench__import-manifest-label">{{ item.label }}</span>
+              <strong class="playground-workbench__import-manifest-value">{{ item.value }}</strong>
             </li>
           </ul>
-          <ol class="playground-workbench__replay-steps">
-            <li
-              v-for="step in importedReplaySteps"
-              :key="step.key || step.label"
-              :data-passed="step.passed === false ? 'false' : 'true'"
-            >
-              <strong>{{ step.label }}</strong>
-              <span>{{ step.detail }}</span>
-            </li>
-          </ol>
-        </section>
-        <div v-if="importedSource" class="playground-workbench__import-actions">
-          <button class="playground-workbench__import-manifest" type="button" @click="copyImportedManifest">
+          <section
+            v-if="importedReplay"
+            class="playground-workbench__replay"
+            aria-label="Imported replay evidence"
+          >
+            <header class="playground-workbench__replay-header">
+              <div>
+                <span class="playground-workbench__replay-kicker">Replay manifest</span>
+                <strong class="playground-workbench__replay-title">
+                  {{ importedReplayEvents.length }} events · {{ importedReplaySteps.length }} steps
+                </strong>
+              </div>
+              <span class="playground-workbench__replay-status">
+                {{ importedReplay.assertions?.validation ?? 'Pass' }}
+              </span>
+            </header>
+            <ul class="playground-workbench__replay-grid">
+              <li
+                v-for="item in importedReplayItems"
+                :key="item.label"
+                class="playground-workbench__replay-item"
+              >
+                <span>{{ item.label }}</span>
+                <strong>{{ item.value }}</strong>
+                <small>{{ item.detail }}</small>
+              </li>
+            </ul>
+            <ol class="playground-workbench__replay-steps">
+              <li
+                v-for="step in importedReplaySteps"
+                :key="step.key || step.label"
+                :data-passed="step.passed === false ? 'false' : 'true'"
+              >
+                <strong>{{ step.label }}</strong>
+                <span>{{ step.detail }}</span>
+              </li>
+            </ol>
+          </section>
+          <button
+            v-if="importedSource"
+            class="playground-workbench__import-manifest"
+            type="button"
+            @click="copyImportedManifest"
+          >
             {{ copiedImportManifest ? '已复制清单' : '复制导入清单' }}
           </button>
-          <button class="playground-workbench__import-restore" type="button" @click="restoreImportedSource">恢复导入源码</button>
-          <button class="playground-workbench__import-action" type="button" @click="clearImportedSource">恢复工作台生成</button>
-        </div>
+        </details>
       </section>
 
       <div class="playground-workbench__stage">

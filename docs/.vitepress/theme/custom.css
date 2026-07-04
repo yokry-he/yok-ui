@@ -2834,14 +2834,20 @@ body {
 .playground-workbench__import {
   display: grid;
   grid-column: 1 / -1;
-  grid-template-columns: minmax(180px, 1fr) minmax(260px, 1.45fr) auto;
-  align-items: start;
   gap: 12px;
   min-width: 0;
   border: 1px solid color-mix(in srgb, var(--yok-color-primary) 32%, var(--yok-color-border));
   border-radius: 18px;
   background: color-mix(in srgb, var(--yok-color-primarySoft) 70%, var(--yok-color-surface));
   padding: 12px 14px;
+}
+
+.playground-workbench__import-main {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(300px, 1.1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
 
 .playground-workbench__import--missing {
@@ -2855,6 +2861,48 @@ body {
   display: grid;
   min-width: 0;
   gap: 5px;
+}
+
+.playground-workbench__import-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+}
+
+.playground-workbench__import-summary-item {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--yok-color-primary) 14%, var(--yok-color-border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--yok-color-surface) 84%, var(--yok-color-primarySoft));
+  padding: 7px 9px;
+}
+
+.playground-workbench__import-summary-item dt,
+.playground-workbench__import-summary-item dd {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playground-workbench__import-summary-item dt {
+  color: var(--yok-color-muted);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.playground-workbench__import-summary-item dd {
+  color: var(--yok-color-primary);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.2;
 }
 
 .playground-workbench__import-kicker {
@@ -2889,7 +2937,6 @@ body {
   line-height: 1.7;
   padding: 10px 12px;
 }
-
 
 .playground-workbench__import-chip {
   border: 1px solid color-mix(in srgb, var(--yok-color-primary) 18%, var(--yok-color-border));
@@ -2946,6 +2993,61 @@ body {
   flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
+}
+
+.playground-workbench__import-details {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.playground-workbench__import-details summary {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 32px;
+  gap: 8px;
+  border: 1px solid color-mix(in srgb, var(--yok-color-primary) 24%, var(--yok-color-border));
+  border-radius: var(--yok-radius-md);
+  background: var(--yok-color-surface);
+  color: var(--yok-color-primary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  list-style: none;
+  padding: 0 10px;
+}
+
+.playground-workbench__import-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.playground-workbench__import-details summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 160ms ease;
+}
+
+.playground-workbench__import-details[open] summary::after {
+  transform: rotate(-135deg) translateY(-1px);
+}
+
+.playground-workbench__import-details summary:hover,
+.playground-workbench__import-details summary:focus-visible {
+  border-color: color-mix(in srgb, var(--yok-color-primary) 70%, white);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--yok-color-primarySoft) 68%, transparent);
+  outline: none;
+}
+
+.playground-workbench__import-details summary small {
+  color: var(--yok-color-muted);
+  font-size: 11px;
+  font-weight: 850;
 }
 
 .playground-workbench__import-manifest {
@@ -10760,7 +10862,14 @@ body {
 
   .playground-workbench__import {
     grid-column: auto;
+  }
+
+  .playground-workbench__import-main {
     grid-template-columns: 1fr;
+  }
+
+  .playground-workbench__import-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .playground-workbench__import-actions {
@@ -10804,6 +10913,7 @@ body {
     align-items: flex-start;
   }
 
+  .playground-workbench__import-summary,
   .playground-workbench__import-manifest-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

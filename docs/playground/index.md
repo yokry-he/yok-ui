@@ -10,7 +10,9 @@ Playground 是 Yok UI 的演练入口。它把“看组件 API”和“组合出
   <p>
     当前阶段的 Playground 已经支持组件族筛选、组件选择、主题切换、props 调整、实时预览、TypeScript / JavaScript / 安装命令视图切换和当前视图复制。
     基础按钮、输入、数字输入、选择器、滑块、评分、单选/复选、开关、日期、时间、级联、颜色、Table、List、Statistic、Descriptions、Tabs、Steps、Collapse、头像和反馈组件都能从组件文档带着源码跳入工作台。
-    从 Live runner 打开 Playground 时会同步携带当前主题预设、示例来源、源码语言、场景和导入源码，Playground 也会在分享链接里保留 `theme`、`from`、`language`、`scenario` 和当前编辑后的源码，便于复现组件视觉环境并回到原组件示例。
+    从组件示例或 Live runner 打开 Playground 时会同步携带当前主题预设、示例来源、源码语言、场景和导入源码。
+    Playground 默认展示轻量的导入来源条，保留返回文档、编辑源码、查看源码、复制代码和恢复生成示例的高频操作；需要复现证据时再展开导入清单复制 manifest。
+    分享链接会保留 `theme`、`from`、`language`、`scenario` 和当前编辑后的源码，便于复现组件视觉环境并回到原组件示例。
     每个辅助入口仍然跳到真实页面，而不是页内锚点，保证官网导航逻辑和组件文档一致。
   </p>
 </div>

@@ -83,6 +83,7 @@ import {
   type YTableSelectionPayload,
   type YTableSortOrder,
   type YTableSortPayload,
+  type YCascaderOption,
   type YUploadFile,
   type YUploadRejectReason,
   YVirtualList,
@@ -581,6 +582,29 @@ const fallbackCascaderOptions = [
     ]
   }
 ]
+const fallbackRemoteCascaderOptions: YCascaderOption[] = [
+  { value: 'core', label: 'Core package' },
+  { value: 'product', label: 'Product package' },
+  { value: 'archived', label: 'Archived package', isLeaf: true }
+]
+const fallbackRemoteCascaderChildren: Record<string, YCascaderOption[]> = {
+  core: [
+    { value: 'form', label: 'Form controls' },
+    { value: 'feedback', label: 'Feedback' }
+  ],
+  'core.form': [
+    { value: 'cascader', label: 'Cascader', isLeaf: true },
+    { value: 'select', label: 'Select', isLeaf: true }
+  ],
+  'core.feedback': [
+    { value: 'tooltip', label: 'Tooltip', isLeaf: true },
+    { value: 'message', label: 'Message', isLeaf: true }
+  ],
+  product: [
+    { value: 'command-palette', label: 'Command Palette', isLeaf: true },
+    { value: 'theme-switcher', label: 'Theme Switcher', isLeaf: true }
+  ]
+}
 const fallbackDateShortcuts = [
   { label: 'Today', value: '2026-06-13' },
   { label: 'Review day', value: '2026-06-15' },
@@ -593,6 +617,12 @@ function disableWeekendDate(date: Date) {
 
 function disableAfterWorkTime(time: { hour: number }) {
   return time.hour >= 18
+}
+
+function loadFallbackCascaderOptions(_option: YCascaderOption, path: YCascaderOption[]) {
+  const pathKey = path.map((item) => item.value).join('.')
+
+  return Promise.resolve(fallbackRemoteCascaderChildren[pathKey] ?? [])
 }
 
 const fallbackDateRangeShortcuts = [
@@ -3443,6 +3473,7 @@ const largePackageOptions = Array.from({ length: 1000 }, (_, index) => ({
         { label: '组件路径选择', value: 'component' },
         { label: '多团队权限范围', value: 'access' },
         { label: '禁用错误回填', value: 'locked' },
+        { label: '异步级联', value: 'lazy' },
         { label: '移动级联', value: 'mobile' },
         { label: '键盘级联', value: 'keyboard' }
       ] },
@@ -3460,6 +3491,7 @@ const largePackageOptions = Array.from({ length: 1000 }, (_, index) => ({
       const scenario = String(state.scenario)
       const isAccessScenario = scenario === 'access'
       const isLockedScenario = scenario === 'locked'
+      const isLazyScenario = scenario === 'lazy'
       const isMobileScenario = scenario === 'mobile'
       const isKeyboardScenario = scenario === 'keyboard'
       const multiple = Boolean(state.multiple) || isAccessScenario
@@ -3467,11 +3499,15 @@ const largePackageOptions = Array.from({ length: 1000 }, (_, index) => ({
         ? 'core,form,select|admin,data,data-table'
         : isLockedScenario
           ? 'admin,data,data-table'
+          : isLazyScenario
+            ? ''
           : isKeyboardScenario
             ? 'core,form,cascader'
             : state.modelValue
       const label = isAccessScenario
         ? 'Accessible packages'
+        : isLazyScenario
+          ? 'Remote component'
         : isMobileScenario
           ? 'Path'
           : isKeyboardScenario
@@ -3481,6 +3517,8 @@ const largePackageOptions = Array.from({ length: 1000 }, (_, index) => ({
       const clearable = Boolean(state.clearable) || isKeyboardScenario
       const placeholder = isAccessScenario
         ? 'Choose access scope'
+        : isLazyScenario
+          ? 'Load package tree'
         : isMobileScenario
           ? 'Choose path'
           : 'Choose component'
@@ -3488,16 +3526,30 @@ const largePackageOptions = Array.from({ length: 1000 }, (_, index) => ({
         ? 'Multi-path selection mirrors permission scope review.'
         : isLockedScenario
           ? 'Disabled error states stay visible for review flows.'
+          : isLazyScenario
+            ? 'Lazy loading resolves remote children and keeps failed nodes retryable.'
           : isMobileScenario
             ? 'Compact path copy keeps the trigger readable in narrow layouts.'
             : isKeyboardScenario
               ? 'Enter opens the path picker; Arrow keys move between levels; Escape closes it.'
               : 'Cascader options are injected by the runner.'
+      const optionsExpression = isLazyScenario ? 'remoteCascaderOptions' : 'cascaderOptions'
+      const setupSource = isLazyScenario
+        ? [
+            "import { YCascader, YTag, type YCascaderLoadChildren, type YCascaderOption } from '@yok-ui/core'",
+            `const remoteCascaderOptions: YCascaderOption[] = ${JSON.stringify(fallbackRemoteCascaderOptions, null, 2)}`,
+            `const remoteCascaderChildren: Record<string, YCascaderOption[]> = ${JSON.stringify(fallbackRemoteCascaderChildren, null, 2)}`,
+            'const loadRemoteCascaderOptions: YCascaderLoadChildren = (_option, path) => {',
+            "  const pathKey = path.map((item) => item.value).join('.')",
+            '  return Promise.resolve(remoteCascaderChildren[pathKey] ?? [])',
+            '}'
+          ].join('\n')
+        : "import { YCascader, YTag } from '@yok-ui/core'\nconst cascaderOptions = [{ value: 'core', label: 'Core', children: [{ value: 'form', label: 'Form', children: [{ value: 'cascader', label: 'Cascader' }, { value: 'select', label: 'Select' }] }, { value: 'feedback', label: 'Feedback', children: [{ value: 'tooltip', label: 'Tooltip' }] }] }, { value: 'admin', label: 'Admin', children: [{ value: 'data', label: 'Data', children: [{ value: 'data-table', label: 'Data Table' }] }] }]"
 
-      return sfc("import { YCascader, YTag } from '@yok-ui/core'\nconst cascaderOptions = [{ value: 'core', label: 'Core', children: [{ value: 'form', label: 'Form', children: [{ value: 'cascader', label: 'Cascader' }, { value: 'select', label: 'Select' }] }, { value: 'feedback', label: 'Feedback', children: [{ value: 'tooltip', label: 'Tooltip' }] }] }, { value: 'admin', label: 'Admin', children: [{ value: 'data', label: 'Data', children: [{ value: 'data-table', label: 'Data Table' }] }] }]", [
+      return sfc(setupSource, [
         '<div class="demo-stack">',
-        `  <YCascader${textAttribute('label', label)}${textAttribute('model-value', modelValue)} :options="cascaderOptions"${textAttribute('placeholder', placeholder)}${booleanAttribute('multiple', multiple)}${textAttribute('separator', separator)}${clearable ? '' : ' :clearable="false"'}${booleanAttribute('disabled', isLockedScenario)}${isLockedScenario ? ' error="Current role cannot change this path."' : ''} />`,
-        `  <YTag tone="${isLockedScenario ? 'warning' : isKeyboardScenario ? 'warning' : 'info'}">${helperText}</YTag>`,
+        `  <YCascader${textAttribute('label', label)}${textAttribute('model-value', modelValue)} :options="${optionsExpression}"${textAttribute('placeholder', placeholder)}${booleanAttribute('multiple', multiple)}${textAttribute('separator', separator)}${clearable ? '' : ' :clearable="false"'}${booleanAttribute('disabled', isLockedScenario)}${isLockedScenario ? ' error="Current role cannot change this path."' : ''}${booleanAttribute('lazy', isLazyScenario)}${isLazyScenario ? ' :load="loadRemoteCascaderOptions"' : ''} />`,
+        `  <YTag tone="${isLockedScenario ? 'warning' : isKeyboardScenario ? 'warning' : isLazyScenario ? 'success' : 'info'}">${helperText}</YTag>`,
         '</div>'
       ])
     }
@@ -9239,6 +9291,7 @@ const menuItems = [
         { label: '成员列表', value: 'default' },
         { label: '空态添加', value: 'empty' },
         { label: '数量限制', value: 'limited' },
+        { label: '只读维护', value: 'readonly' },
         { label: '移动布局', value: 'mobile' },
         { label: '键盘巡航', value: 'keyboard' }
       ] },
@@ -9252,6 +9305,7 @@ const menuItems = [
       const scenario = String(state.scenario)
       const isEmptyScenario = scenario === 'empty'
       const isLimitedScenario = scenario === 'limited'
+      const isReadonlyScenario = scenario === 'readonly'
       const isMobileScenario = scenario === 'mobile'
       const isKeyboardScenario = scenario === 'keyboard'
       const fieldArrayItems = isEmptyScenario ? [] : fallbackFieldArrayItems
@@ -9266,7 +9320,7 @@ const menuItems = [
       ].join('\n')
 
       return sfc(imports, [
-        `<YFieldArray :model-value="fieldArrayItems" :default-item="fieldArrayDefaultItem"${textAttribute('title', isMobileScenario ? 'Mobile reviewers' : isKeyboardScenario ? 'Keyboard reviewers' : state.title)}${textAttribute('description', isEmptyScenario ? 'Start with an empty reviewer list and add the first item.' : isLimitedScenario ? 'The current item count has reached the configured maximum.' : state.description)} item-key="id" add-text="Add reviewer" remove-text="Remove reviewer" item-label="Reviewer" empty-text="No reviewers yet"${numericBinding('min', min)}${numericBinding('max', max)}${booleanAttribute('disabled', state.disabled)} />`
+        `<YFieldArray :model-value="fieldArrayItems" :default-item="fieldArrayDefaultItem"${textAttribute('title', isMobileScenario ? 'Mobile reviewers' : isKeyboardScenario ? 'Keyboard reviewers' : isReadonlyScenario ? 'Readonly reviewers' : state.title)}${textAttribute('description', isEmptyScenario ? 'Start with an empty reviewer list and add the first item.' : isLimitedScenario ? 'The current item count has reached the configured maximum.' : isReadonlyScenario ? 'Readonly review groups preserve values while disabling add and remove actions.' : state.description)} item-key="id" add-text="Add reviewer" remove-text="Remove reviewer" item-label="Reviewer" empty-text="No reviewers yet"${numericBinding('min', min)}${numericBinding('max', max)}${booleanAttribute('disabled', Boolean(state.disabled) || isReadonlyScenario)} />`
       ])
     }
   },
@@ -10375,6 +10429,7 @@ const allowedAttributes = new Set([
   ':search-model',
   ':search-fields',
   ':options',
+  ':load',
   'sort-key',
   'sort-order',
   'default-sort-key',
@@ -12471,7 +12526,9 @@ function getNodeProps(element: Element) {
           ? fallbackReleaseChecklistOptions
           : fallbackCheckboxGroupOptions
       } else if (tagName === 'ycascader') {
-        props.options = fallbackCascaderOptions
+        props.options = attribute.value === 'remoteCascaderOptions' || element.hasAttribute('lazy')
+          ? fallbackRemoteCascaderOptions
+          : fallbackCascaderOptions
       } else if (tagName === 'ytransfer') {
         props.options = fallbackTransferOptions
       }
@@ -13499,7 +13556,7 @@ function getNodeProps(element: Element) {
   }
 
   if (tagName === 'ycascader' && !('options' in props)) {
-    props.options = fallbackCascaderOptions
+    props.options = element.hasAttribute('lazy') ? fallbackRemoteCascaderOptions : fallbackCascaderOptions
   }
 
   if (tagName === 'ydatepicker' && !('shortcuts' in props) && element.hasAttribute('shortcuts')) {
@@ -13854,6 +13911,8 @@ function createEventHandlers(tagName: string) {
     onRemove: createHandler('remove'),
     onItemChange: createHandler('itemChange'),
     onClear: createHandler('clear'),
+    onLoad: createHandler('load'),
+    onLoadError: createHandler('loadError'),
     onRefresh: createHandler('refresh'),
     onApprove: createHandler('approve'),
     onReject: createHandler('reject'),
@@ -15695,7 +15754,8 @@ function createInteractiveProps(tagName: string, props: Record<string, unknown>)
 
     return {
       ...props,
-      modelValue: cloneCascaderPreviewModel(previewCascaderModel.value, Boolean(props.multiple))
+      modelValue: cloneCascaderPreviewModel(previewCascaderModel.value, Boolean(props.multiple)),
+      ...(props.lazy ? { load: loadFallbackCascaderOptions } : {})
     }
   }
 
@@ -16749,6 +16809,12 @@ function renderNode(node: ChildNode): VNodeChild {
               onClear: () => {
                 previewCascaderModel.value = []
                 eventHandlers.onClear()
+              },
+              onLoad: (payload: unknown) => {
+                eventHandlers.onLoad(payload)
+              },
+              onLoadError: (payload: unknown) => {
+                eventHandlers.onLoadError(payload)
               }
             }
           : {}),

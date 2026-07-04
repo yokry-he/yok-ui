@@ -12,6 +12,9 @@ import {
   isLeafOption
 } from './cascader'
 import type {
+  YCascaderLoadChildren,
+  YCascaderLoadErrorPayload,
+  YCascaderLoadPayload,
   YCascaderMultipleSelectPayload,
   YCascaderMultipleValue,
   YCascaderOption,
@@ -34,6 +37,8 @@ interface Props {
   placeholder?: string
   disabled?: boolean
   clearable?: boolean
+  lazy?: boolean
+  load?: YCascaderLoadChildren
   separator?: string
   error?: string
   size?: YokConfigSize
@@ -46,6 +51,7 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Select option',
   disabled: false,
   clearable: true,
+  lazy: false,
   separator: ' / ',
   error: ''
 })
@@ -54,6 +60,8 @@ const emit = defineEmits<{
   'update:modelValue': [value: YCascaderValue | YCascaderMultipleValue]
   change: [payload: YCascaderSelectPayload | YCascaderMultipleSelectPayload]
   clear: []
+  load: [payload: YCascaderLoadPayload]
+  loadError: [payload: YCascaderLoadErrorPayload]
 }>()
 
 function getSingleModelValue() {
@@ -65,7 +73,64 @@ const yokConfig = useYokConfig()
 const controlRef = ref<HTMLDivElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
 const panelRef = ref<HTMLDivElement | null>(null)
-const activePath = ref<YCascaderOption[]>(findOptionPath(props.options, getSingleModelValue()))
+const loadedChildrenByPath = ref(new Map<string, YCascaderOption[]>())
+const loadingPathKeys = ref(new Set<string>())
+const loadErrorByPath = ref(new Map<string, unknown>())
+
+function getCascaderPathKey(path: YCascaderOption[]) {
+  return getPathValue(path).join('\u0000')
+}
+
+function replaceLoadedChildren(path: YCascaderOption[], children: YCascaderOption[]) {
+  const nextLoadedChildren = new Map(loadedChildrenByPath.value)
+
+  nextLoadedChildren.set(getCascaderPathKey(path), children)
+  loadedChildrenByPath.value = nextLoadedChildren
+}
+
+function setLoadingPath(path: YCascaderOption[], loading: boolean) {
+  const nextLoadingPathKeys = new Set(loadingPathKeys.value)
+  const pathKey = getCascaderPathKey(path)
+
+  if (loading) {
+    nextLoadingPathKeys.add(pathKey)
+  } else {
+    nextLoadingPathKeys.delete(pathKey)
+  }
+  loadingPathKeys.value = nextLoadingPathKeys
+}
+
+function setLoadError(path: YCascaderOption[], error: unknown | null) {
+  const nextLoadErrorByPath = new Map(loadErrorByPath.value)
+  const pathKey = getCascaderPathKey(path)
+
+  if (error) {
+    nextLoadErrorByPath.set(pathKey, error)
+  } else {
+    nextLoadErrorByPath.delete(pathKey)
+  }
+  loadErrorByPath.value = nextLoadErrorByPath
+}
+
+function mergeLoadedChildren(options: YCascaderOption[], parentPath: YCascaderOption[] = []): YCascaderOption[] {
+  return options.map((option) => {
+    const path = [...parentPath, option]
+    const loadedChildren = loadedChildrenByPath.value.get(getCascaderPathKey(path))
+    const children = loadedChildren ?? getOptionChildren(option)
+
+    if (!children.length && !loadedChildren) {
+      return option
+    }
+
+    return {
+      ...option,
+      children: mergeLoadedChildren(children, path)
+    }
+  })
+}
+
+const cascaderOptions = computed(() => mergeLoadedChildren(props.options))
+const activePath = ref<YCascaderOption[]>(findOptionPath(cascaderOptions.value, getSingleModelValue()))
 const activeColumn = ref(0)
 const activeIndexes = ref<number[]>([])
 
@@ -74,9 +139,9 @@ const resolvedSize = computed(() => props.size ?? yokConfig.size.value)
 const resolvedDensity = computed(() => yokConfig.density.value)
 const singleValue = computed(() => props.multiple ? [] : props.modelValue as YCascaderValue)
 const multipleValue = computed(() => props.multiple ? props.modelValue as YCascaderMultipleValue : [])
-const selectedPath = computed(() => findOptionPath(props.options, singleValue.value))
-const selectedMultipleValues = computed(() => getValidMultipleCascaderValue(props.options, multipleValue.value))
-const selectedMultipleLabels = computed(() => getMultiplePathLabels(props.options, selectedMultipleValues.value))
+const selectedPath = computed(() => findOptionPath(cascaderOptions.value, singleValue.value))
+const selectedMultipleValues = computed(() => getValidMultipleCascaderValue(cascaderOptions.value, multipleValue.value))
+const selectedMultipleLabels = computed(() => getMultiplePathLabels(cascaderOptions.value, selectedMultipleValues.value))
 const displayValue = computed(() => props.multiple ? '' : getPathLabels(selectedPath.value).join(props.separator))
 const hasSelection = computed(() => props.multiple ? selectedMultipleValues.value.length > 0 : singleValue.value.length > 0)
 const multipleSummary = computed(() => {
@@ -84,7 +149,7 @@ const multipleSummary = computed(() => {
 
   return count ? `${count} selected` : ''
 })
-const columns = computed(() => createCascaderColumns(props.options, activePath.value))
+const columns = computed(() => createCascaderColumns(cascaderOptions.value, activePath.value))
 const { floatingStyles } = useFloatingLayer(controlRef, panelRef, {
   open,
   placement: computed(() => 'bottom-start'),
@@ -92,11 +157,14 @@ const { floatingStyles } = useFloatingLayer(controlRef, panelRef, {
 })
 
 watch(() => props.modelValue, (value) => {
-  activePath.value = props.multiple ? activePath.value : findOptionPath(props.options, value as YCascaderValue)
+  activePath.value = props.multiple ? activePath.value : findOptionPath(cascaderOptions.value, value as YCascaderValue)
 })
 
 watch(() => props.options, () => {
-  activePath.value = props.multiple ? activePath.value : findOptionPath(props.options, singleValue.value)
+  loadedChildrenByPath.value = new Map()
+  loadingPathKeys.value = new Set()
+  loadErrorByPath.value = new Map()
+  activePath.value = props.multiple ? activePath.value : findOptionPath(cascaderOptions.value, singleValue.value)
 })
 
 function emitSelection(option: YCascaderOption) {
@@ -121,7 +189,7 @@ function emitMultipleSelection(option: YCascaderOption) {
   emit('update:modelValue', value)
   emit('change', {
     value,
-    labels: getMultiplePathLabels(props.options, value),
+    labels: getMultiplePathLabels(cascaderOptions.value, value),
     option,
     checked,
     checkedValue
@@ -141,15 +209,15 @@ function openPanel() {
 
   activePath.value = selectedPath.value
   if (props.multiple && !activePath.value.length && selectedMultipleValues.value[0]) {
-    activePath.value = findOptionPath(props.options, selectedMultipleValues.value[0])
+    activePath.value = findOptionPath(cascaderOptions.value, selectedMultipleValues.value[0])
   }
   activeColumn.value = Math.max(0, activePath.value.length - 1)
-  if (!activePath.value.length && props.options[0]) {
-    activePath.value = [props.options[0]]
+  if (!activePath.value.length && cascaderOptions.value[0]) {
+    activePath.value = [cascaderOptions.value[0]]
     activeColumn.value = 0
   }
   activeIndexes.value = activePath.value.map((option, index) => {
-    const columnOptions = index === 0 ? props.options : getOptionChildren(activePath.value[index - 1])
+    const columnOptions = index === 0 ? cascaderOptions.value : getOptionChildren(activePath.value[index - 1])
 
     return Math.max(0, columnOptions.findIndex((item) => item.value === option.value))
   })
@@ -193,10 +261,88 @@ function setActiveOption(option: YCascaderOption, columnIndex: number, optionInd
   focusActiveOption()
 }
 
+function getOptionPath(columnIndex: number, option: YCascaderOption) {
+  return [
+    ...activePath.value.slice(0, columnIndex),
+    option
+  ]
+}
+
+function isOptionLoading(path: YCascaderOption[]) {
+  return loadingPathKeys.value.has(getCascaderPathKey(path))
+}
+
+function getOptionLoadError(path: YCascaderOption[]) {
+  return loadErrorByPath.value.get(getCascaderPathKey(path))
+}
+
+function canLazyLoadOption(option: YCascaderOption, path: YCascaderOption[]) {
+  return Boolean(
+    props.lazy &&
+    props.load &&
+    option.isLeaf !== true &&
+    getOptionChildren(option).length === 0 &&
+    !loadedChildrenByPath.value.has(getCascaderPathKey(path))
+  )
+}
+
+function hasOptionChildren(option: YCascaderOption, path: YCascaderOption[]) {
+  return getOptionChildren(option).length > 0 || canLazyLoadOption(option, path)
+}
+
+function isOptionSelectable(option: YCascaderOption, path: YCascaderOption[]) {
+  return !canLazyLoadOption(option, path) && isLeafOption(option)
+}
+
+async function loadLazyOption(option: YCascaderOption, path: YCascaderOption[]) {
+  if (!props.load || isOptionLoading(path)) {
+    return
+  }
+
+  try {
+    setLoadingPath(path, true)
+    setLoadError(path, null)
+
+    const children = await props.load(option, path)
+
+    replaceLoadedChildren(path, children)
+    await nextTick()
+    activePath.value = findOptionPath(cascaderOptions.value, getPathValue(path))
+    activeColumn.value = Math.min(path.length, columns.value.length - 1)
+    activeIndexes.value[activeColumn.value] = activeIndexes.value[activeColumn.value] ?? 0
+    emit('load', {
+      option,
+      path,
+      children
+    })
+  } catch (error) {
+    setLoadError(path, error)
+    emit('loadError', {
+      option,
+      path,
+      error
+    })
+  } finally {
+    setLoadingPath(path, false)
+    focusActiveOption()
+  }
+}
+
 function selectOption(option: YCascaderOption, columnIndex: number, optionIndex: number) {
   setActiveOption(option, columnIndex, optionIndex)
 
-  if (!option.disabled && isLeafOption(option)) {
+  if (option.disabled) {
+    return
+  }
+
+  const path = getOptionPath(columnIndex, option)
+
+  if (canLazyLoadOption(option, path)) {
+    void loadLazyOption(option, path)
+    return
+  }
+
+  if (isOptionSelectable(option, path)) {
     if (props.multiple) {
       emitMultipleSelection(option)
     } else {
@@ -266,8 +412,18 @@ function handlePanelKeydown(event: KeyboardEvent) {
   if (event.key === 'ArrowRight') {
     event.preventDefault()
 
-    if (option && getOptionChildren(option).length) {
+    if (option) {
+      const path = getOptionPath(activeColumn.value, option)
+
       setActiveOption(option, activeColumn.value, optionIndex)
+
+      if (canLazyLoadOption(option, path)) {
+        void loadLazyOption(option, path)
+        return
+      }
+    }
+
+    if (option && getOptionChildren(option).length) {
       activeColumn.value = Math.min(activeColumn.value + 1, columns.value.length - 1)
       activeIndexes.value[activeColumn.value] = activeIndexes.value[activeColumn.value] ?? 0
       focusActiveOption()
@@ -294,12 +450,14 @@ function isOptionActive(columnIndex: number, optionIndex: number) {
 }
 
 function isOptionChecked(option: YCascaderOption, columnIndex: number) {
-  if (!props.multiple || !isLeafOption(option)) {
+  const path = getOptionPath(columnIndex, option)
+
+  if (!props.multiple || !isOptionSelectable(option, path)) {
     return false
   }
 
   return isCascaderValueSelected(
-    getPathValue([...activePath.value.slice(0, columnIndex), option]),
+    getPathValue(path),
     selectedMultipleValues.value
   )
 }
@@ -393,26 +551,50 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
               'yok-cascader__option--multiple': multiple,
               'yok-cascader__option--active': activePath[columnIndex]?.value === option.value,
               'yok-cascader__option--checked': isOptionChecked(option, columnIndex),
-              'yok-cascader__option--disabled': option.disabled
+              'yok-cascader__option--disabled': option.disabled,
+              'yok-cascader__option--loading': isOptionLoading(getOptionPath(columnIndex, option)),
+              'yok-cascader__option--error': getOptionLoadError(getOptionPath(columnIndex, option))
             }"
             type="button"
             role="option"
             :disabled="option.disabled"
             :aria-selected="multiple ? (isOptionChecked(option, columnIndex) ? 'true' : 'false') : (activePath[columnIndex]?.value === option.value ? 'true' : 'false')"
             :aria-disabled="option.disabled ? 'true' : undefined"
+            :aria-busy="isOptionLoading(getOptionPath(columnIndex, option)) ? 'true' : undefined"
             :data-active-cascader-option="isOptionActive(columnIndex, optionIndex) ? 'true' : 'false'"
             @mouseenter="setActiveOption(option, columnIndex, optionIndex)"
             @click="selectOption(option, columnIndex, optionIndex)"
           >
             <span v-if="multiple" class="yok-cascader__check" aria-hidden="true">
-              {{ isLeafOption(option) && isOptionChecked(option, columnIndex) ? '✓' : '' }}
+              {{ isOptionChecked(option, columnIndex) ? '✓' : '' }}
             </span>
             <span class="yok-cascader__option-label">
               <slot name="option" :option="option" :level="column.level">
                 {{ option.label }}
               </slot>
             </span>
-            <span v-if="option.children?.length" class="yok-cascader__option-arrow" aria-hidden="true">›</span>
+            <span
+              v-if="isOptionLoading(getOptionPath(columnIndex, option))"
+              class="yok-cascader__option-status"
+              role="status"
+              aria-live="polite"
+            >
+              Loading {{ option.label }}
+            </span>
+            <span
+              v-else-if="getOptionLoadError(getOptionPath(columnIndex, option))"
+              class="yok-cascader__option-error"
+              role="alert"
+            >
+              Failed to load {{ option.label }}
+            </span>
+            <span
+              v-if="hasOptionChildren(option, getOptionPath(columnIndex, option))"
+              class="yok-cascader__option-arrow"
+              aria-hidden="true"
+            >
+              ›
+            </span>
           </button>
         </div>
       </div>
@@ -619,6 +801,14 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
   font-weight: 750;
 }
 
+.yok-cascader__option--loading {
+  color: var(--yok-color-primary);
+}
+
+.yok-cascader__option--error {
+  color: var(--yok-color-danger);
+}
+
 .yok-cascader__option--disabled {
   cursor: not-allowed;
   opacity: 0.44;
@@ -645,6 +835,18 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
 .yok-cascader__option-label {
   min-width: 0;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.yok-cascader__option-status,
+.yok-cascader__option-error {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  color: currentcolor;
+  font-size: 12px;
+  font-weight: 650;
+  opacity: 0.78;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

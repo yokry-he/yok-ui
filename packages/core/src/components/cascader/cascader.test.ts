@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { YConfigProvider } from '../config-provider'
 import YCascader from './YCascader.vue'
 import {
@@ -14,6 +14,10 @@ import {
   toggleCascaderValue
 } from './cascader'
 import type { YCascaderOption } from './types'
+
+function flushPromises() {
+  return new Promise((resolve) => setTimeout(resolve, 0))
+}
 
 const options: YCascaderOption[] = [
   {
@@ -285,5 +289,80 @@ describe('YCascader', () => {
     })
 
     expect(overrideWrapper.get('.yok-cascader').classes()).toContain('yok-cascader--lg')
+  })
+
+  it('loads lazy option children and keeps selection on loaded leaf options', async () => {
+    let resolveChildren: ((children: YCascaderOption[]) => void) | undefined
+    const load = vi.fn(() => new Promise<YCascaderOption[]>((resolve) => {
+      resolveChildren = resolve
+    }))
+    const wrapper = mount(YCascader, {
+      props: {
+        options: [{ value: 'remote', label: 'Remote package' }],
+        modelValue: [],
+        lazy: true,
+        load
+      }
+    })
+
+    await wrapper.get('input').trigger('click')
+    await getOptionByText(wrapper, 'Remote package').trigger('click')
+
+    expect(load).toHaveBeenCalledWith(
+      { value: 'remote', label: 'Remote package' },
+      [{ value: 'remote', label: 'Remote package' }]
+    )
+    expect(wrapper.get('[role="status"]').text()).toBe('Loading Remote package')
+
+    resolveChildren?.([{ value: 'button', label: 'Button', isLeaf: true }])
+    await flushPromises()
+    await nextTick()
+
+    expect(wrapper.findAll('[role="listbox"]')).toHaveLength(2)
+    expect(getOptionByText(wrapper, 'Button').text()).toBe('Button')
+    expect(wrapper.emitted('load')?.[0]).toEqual([{
+      option: { value: 'remote', label: 'Remote package' },
+      path: [{ value: 'remote', label: 'Remote package' }],
+      children: [{ value: 'button', label: 'Button', isLeaf: true }]
+    }])
+
+    await getOptionByText(wrapper, 'Button').trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([['remote', 'button']])
+  })
+
+  it('keeps failed lazy options retryable', async () => {
+    const loadError = new Error('Network unavailable')
+    const load = vi.fn()
+      .mockRejectedValueOnce(loadError)
+      .mockResolvedValueOnce([{ value: 'retry-child', label: 'Retry child', isLeaf: true }])
+    const wrapper = mount(YCascader, {
+      props: {
+        options: [{ value: 'remote', label: 'Remote package' }],
+        modelValue: [],
+        lazy: true,
+        load
+      }
+    })
+
+    await wrapper.get('input').trigger('click')
+    await getOptionByText(wrapper, 'Remote package').trigger('click')
+    await flushPromises()
+    await nextTick()
+
+    expect(wrapper.get('[role="alert"]').text()).toBe('Failed to load Remote package')
+    expect(wrapper.emitted('loadError')?.[0]).toEqual([{
+      option: { value: 'remote', label: 'Remote package' },
+      path: [{ value: 'remote', label: 'Remote package' }],
+      error: loadError
+    }])
+
+    await getOptionByText(wrapper, 'Remote package').trigger('click')
+    await flushPromises()
+    await nextTick()
+
+    expect(load).toHaveBeenCalledTimes(2)
+    expect(wrapper.findAll('[role="listbox"]')).toHaveLength(2)
+    expect(getOptionByText(wrapper, 'Retry child').text()).toBe('Retry child')
   })
 })

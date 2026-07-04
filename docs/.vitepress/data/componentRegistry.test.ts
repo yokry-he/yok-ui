@@ -401,7 +401,11 @@ describe('componentRegistry', () => {
     expect(componentApis.YDatePicker.props?.map((row) => row.name)).toContain('size')
     expect(componentApis.YDateRangePicker.props?.map((row) => row.name)).toContain('size')
     expect(componentApis.YTimePicker.props?.map((row) => row.name)).toContain('size')
-    expect(componentApis.YCascader.props?.map((row) => row.name)).toContain('size')
+    expect(componentApis.YCascader.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'size',
+      'lazy',
+      'load'
+    ]))
     expect(componentApis.YTable.props?.map((row) => row.name)).toEqual(expect.arrayContaining(['virtualized', 'virtualHeight', 'virtualRowHeight', 'virtualOverscan', 'resizable', 'minColumnWidth', 'columnWidths', 'defaultColumnWidths', 'expandable', 'expandedRowKeys', 'defaultExpandedRowKeys']))
     expect(componentApis.YTable.slots?.map((row) => row.name)).toContain('expand')
     expect(componentApis.YTable.events?.map((row) => row.name)).toContain('update:expandedRowKeys')
@@ -754,7 +758,16 @@ describe('componentRegistry', () => {
     expect(componentApis.YTimePicker.props?.map((row) => row.name)).toContain('minuteStep')
     expect(componentApis.YCascader.types?.map((row) => row.name)).toContain('YCascaderOption')
     expect(componentApis.YCascader.props?.map((row) => row.name)).toContain('multiple')
+    expect(componentApis.YCascader.events?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'load',
+      'loadError'
+    ]))
     expect(componentApis.YCascader.types?.map((row) => row.name)).toContain('YCascaderMultipleSelectPayload')
+    expect(componentApis.YCascader.types?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'YCascaderLoadChildren',
+      'YCascaderLoadPayload',
+      'YCascaderLoadErrorPayload'
+    ]))
     expect(componentApis.YTransfer.events?.map((row) => row.name)).toContain('change')
     expect(componentApis.YTree.props?.map((row) => row.name)).toContain('draggable')
     expect(componentApis.YTree.props?.map((row) => row.name)).toContain('checkable')

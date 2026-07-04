@@ -3149,7 +3149,7 @@ const demo: DemoState = {
     const acceptancePanel = wrapper.find('.live-example-runner__acceptance')
 
     expect(wrapper.text()).toContain('Field Array scenario')
-    expect(acceptancePanel.text()).toContain('5 scenes')
+    expect(acceptancePanel.text()).toContain('6 scenes')
     expect(acceptancePanel.find('[data-check-key="responsive"]').attributes('data-passed')).toBe('true')
     expect(acceptancePanel.find('[data-check-key="keyboard-path"]').attributes('data-passed')).toBe('true')
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('empty')
@@ -3671,7 +3671,7 @@ const demo: DemoState = {
 
     const acceptancePanel = wrapper.find('.live-example-runner__acceptance')
 
-    expect(acceptancePanel.text()).toContain('5 scenes')
+    expect(acceptancePanel.text()).toContain('6 scenes')
     expect(acceptancePanel.find('[data-check-key="responsive"]').attributes('data-passed')).toBe('true')
     expect(acceptancePanel.find('[data-check-key="error-state"]').attributes('data-passed')).toBe('true')
     expect(acceptancePanel.find('[data-check-key="keyboard-path"]').attributes('data-passed')).toBe('true')
@@ -3689,6 +3689,38 @@ const demo: DemoState = {
     expect(wrapper.find('textarea').element.value).toContain('Enter opens the path picker')
     expect(wrapper.find('textarea').element.value).toContain('model-value="core,form,cascader"')
     expect(wrapper.text()).toContain('已切换到「键盘级联」场景。')
+  })
+
+  it('renders cascader async loading sources and preview workflow', async () => {
+    window.location.hash = '#live-example?scenario=async-cascader'
+
+    const wrapper = mount(LiveExampleRunner, {
+      props: {
+        preset: 'cascader'
+      }
+    })
+
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('lazy')
+    expect(wrapper.find('textarea').element.value).toContain('remoteCascaderOptions')
+    expect(wrapper.find('textarea').element.value).toContain(':load="loadRemoteCascaderOptions"')
+    expect(wrapper.find('textarea').element.value).toContain('lazy')
+
+    await wrapper.get<HTMLInputElement>('.live-example-runner__preview .yok-cascader__input').trigger('click')
+    await nextTick()
+    await wrapper
+      .findAll('.live-example-runner__preview [role="option"]')
+      .find((option) => option.text().includes('Core package'))!
+      .trigger('click')
+    await flushPromises()
+    await nextTick()
+
+    expect(wrapper.findAll('.live-example-runner__preview [role="listbox"]')).toHaveLength(2)
+    expect(wrapper.text()).toContain('Form controls')
+    expect(wrapper.find('.live-example-runner__event-log').text()).toContain('load')
+
+    window.location.hash = ''
   })
 
   it('keeps cascader live previews interactive after choosing another leaf path', async () => {

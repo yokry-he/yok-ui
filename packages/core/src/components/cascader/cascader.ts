@@ -5,7 +5,7 @@ export function getOptionChildren(option: YCascaderOption) {
 }
 
 export function isLeafOption(option: YCascaderOption) {
-  return getOptionChildren(option).length === 0
+  return option.isLeaf === true || getOptionChildren(option).length === 0
 }
 
 export function findOptionPath(options: YCascaderOption[], value: string[]): YCascaderOption[] {

@@ -15,11 +15,13 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-virtualized-tree'
   | 'element-plus-tree-lazy-load'
   | 'element-plus-cascader'
+  | 'element-plus-cascader-lazy-load'
   | 'element-plus-date-picker'
   | 'element-plus-config-provider-i18n'
   | 'element-plus-resource-system'
   | 'element-plus-compatibility-support'
   | 'ant-design-vue-theme-token'
+  | 'ant-design-vue-cascader-load-data'
   | 'ant-design-vue-select-form'
   | 'arco-design-vue-token-lab'
   | 'arco-design-vue-admin-pattern'
@@ -165,7 +167,20 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     },
     componentNames: ['YCascader'],
     docs: ['/components/cascader'],
-    capabilities: ['structured-api', 'workflow-live-example', 'keyboard-scenario']
+    capabilities: ['structured-api', 'workflow-live-example', 'keyboard-scenario', 'lazy-cascader-loading']
+  },
+  {
+    key: 'element-plus-cascader-lazy-load',
+    label: 'Cascader dynamic loading and retry state',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus Cascader Dynamic Loading',
+      url: 'https://element-plus.org/en-US/component/cascader',
+      note: 'Element Plus Cascader documents lazy dynamic loading with leaf markers for remote option trees.'
+    },
+    componentNames: ['YCascader'],
+    docs: ['/components/cascader'],
+    capabilities: ['lazy-cascader-loading', 'load-error-retry', 'structured-api', 'workflow-live-example']
   },
   {
     key: 'element-plus-date-picker',
@@ -232,6 +247,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     docs: ['/guide/theming', '/components/config-provider'],
     resources: ['/resources/theme-lab'],
     capabilities: ['design-token', 'config-provider-theme', 'brand-customization', 'theme-lab']
+  },
+  {
+    key: 'ant-design-vue-cascader-load-data',
+    label: 'Cascader loadData remote expansion',
+    source: {
+      library: 'Ant Design Vue',
+      label: 'Ant Design Cascader Load Options Lazily',
+      url: 'https://ant.design/components/cascader/',
+      note: 'Ant Design Cascader documents loadData for lazy option expansion in enterprise selection flows.'
+    },
+    componentNames: ['YCascader'],
+    docs: ['/components/cascader'],
+    capabilities: ['lazy-cascader-loading', 'load-error-retry', 'structured-api', 'workflow-live-example']
   },
   {
     key: 'ant-design-vue-select-form',

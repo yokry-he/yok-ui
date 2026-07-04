@@ -34,6 +34,9 @@ export type {
 export { YCascader } from './components/cascader'
 export type {
   YCascaderColumn,
+  YCascaderLoadChildren,
+  YCascaderLoadErrorPayload,
+  YCascaderLoadPayload,
   YCascaderMultipleSelectPayload,
   YCascaderMultipleValue,
   YCascaderOption,

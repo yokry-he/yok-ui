@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type {
+  YCascaderLoadErrorPayload,
+  YCascaderLoadPayload,
   YCascaderMultipleSelectPayload,
   YCascaderMultipleValue,
+  YCascaderOption,
   YCascaderSelectPayload,
   YCascaderValue
 } from '@yok-ui/core'
@@ -11,12 +14,14 @@ const region = ref<YCascaderValue>(['asia', 'china', 'shanghai'])
 const category = ref<YCascaderValue>([])
 const disabledPath = ref<YCascaderValue>([])
 const customPath = ref<YCascaderValue>(['core', 'form', 'cascader'])
+const remotePath = ref<YCascaderValue>([])
 const accessScopes = ref<YCascaderMultipleValue>([
   ['core', 'form', 'date-picker'],
   ['core', 'form', 'cascader']
 ])
 const cascaderState = ref('等待选择组件路径')
 const accessState = ref('已选择 2 条权限路径')
+const remoteState = ref('等待加载远程组件树')
 
 const options = [
   {
@@ -94,13 +99,39 @@ const categoryOptions = [
   }
 ]
 
+const remoteOptions: YCascaderOption[] = [
+  { value: 'core', label: 'Core package' },
+  { value: 'product', label: 'Product package' },
+  { value: 'archived', label: 'Archived package', isLeaf: true }
+]
+
+const remoteChildrenByPath: Record<string, YCascaderOption[]> = {
+  core: [
+    { value: 'form', label: 'Form controls' },
+    { value: 'feedback', label: 'Feedback' }
+  ],
+  'core.form': [
+    { value: 'cascader', label: 'Cascader', isLeaf: true },
+    { value: 'select', label: 'Select', isLeaf: true }
+  ],
+  'core.feedback': [
+    { value: 'tooltip', label: 'Tooltip', isLeaf: true },
+    { value: 'message', label: 'Message', isLeaf: true }
+  ],
+  product: [
+    { value: 'command-palette', label: 'Command Palette', isLeaf: true },
+    { value: 'theme-switcher', label: 'Theme Switcher', isLeaf: true }
+  ]
+}
+
 const cascaderCodeSetup = [
   "import { ref } from 'vue'",
-  "import { YCascader, YTag, type YCascaderMultipleValue, type YCascaderValue } from '@yok-ui/core'",
+  "import { YCascader, YTag, type YCascaderLoadChildren, type YCascaderMultipleValue, type YCascaderOption, type YCascaderValue } from '@yok-ui/core'",
   '',
   "const region = ref<YCascaderValue>(['asia', 'china', 'shanghai'])",
   'const disabledPath = ref<YCascaderValue>([])',
   "const customPath = ref<YCascaderValue>(['core', 'form', 'cascader'])",
+  'const remotePath = ref<YCascaderValue>([])',
   'const accessScopes = ref<YCascaderMultipleValue>([',
   "  ['core', 'form', 'date-picker'],",
   "  ['core', 'form', 'cascader']",
@@ -108,7 +139,20 @@ const cascaderCodeSetup = [
   '',
   `const options = ${JSON.stringify(options, null, 2)}`,
   '',
-  `const categoryOptions = ${JSON.stringify(categoryOptions, null, 2)}`
+  `const categoryOptions = ${JSON.stringify(categoryOptions, null, 2)}`,
+  '',
+  `const remoteOptions: YCascaderOption[] = ${JSON.stringify(remoteOptions, null, 2)}`,
+  '',
+  `const remoteChildrenByPath: Record<string, YCascaderOption[]> = ${JSON.stringify(remoteChildrenByPath, null, 2)}`,
+  '',
+  'const loadRemoteOptions: YCascaderLoadChildren = (option, path) => {',
+  "  const pathKey = path.map((item) => item.value).join('.')",
+  '  return new Promise((resolve) => {',
+  '    window.setTimeout(() => {',
+  '      resolve(remoteChildrenByPath[pathKey] ?? [])',
+  '    }, 480)',
+  '  })',
+  '}'
 ].join('\n')
 
 const basicCode = [
@@ -137,12 +181,45 @@ const customSlotCode = [
   '</YCascader>'
 ].join('\n')
 
+const lazyCode = [
+  '<YCascader',
+  '  v-model="remotePath"',
+  '  :options="remoteOptions"',
+  '  label="Remote component"',
+  '  placeholder="Load package tree"',
+  '  lazy',
+  '  :load="loadRemoteOptions"',
+  '  @load="handleLazyLoad"',
+  '  @load-error="handleLazyLoadError"',
+  '/>'
+].join('\n')
+
 function handleCategoryChange(payload: YCascaderSelectPayload) {
   cascaderState.value = payload.labels.join(' / ')
 }
 
 function handleAccessChange(payload: YCascaderMultipleSelectPayload) {
   accessState.value = `已选择 ${payload.value.length} 条权限路径`
+}
+
+function loadRemoteOptions(option: YCascaderOption, path: YCascaderOption[]) {
+  const pathKey = path.map((item) => item.value).join('.')
+
+  remoteState.value = `正在加载 ${option.label}`
+
+  return new Promise<YCascaderOption[]>((resolve) => {
+    window.setTimeout(() => {
+      resolve(remoteChildrenByPath[pathKey] ?? [])
+    }, 480)
+  })
+}
+
+function handleLazyLoad(payload: YCascaderLoadPayload) {
+  remoteState.value = `已加载 ${payload.path.map((item) => item.label).join(' / ')}：${payload.children.length} 项`
+}
+
+function handleLazyLoadError(payload: YCascaderLoadErrorPayload) {
+  remoteState.value = `${payload.path.map((item) => item.label).join(' / ')} 加载失败：${String(payload.error)}`
 }
 </script>
 
@@ -216,6 +293,26 @@ Cascader 用于选择层级路径，例如地区、分类、组织结构、权�
   </YCascader>
 </DocDemo>
 
+<DocDemo
+  title="Async loading"
+  description="启用 lazy 后，没有 children 且未声明 isLeaf 的选项会先触发 load。加载成功后子级会进入内部选项树，失败时节点保持可重试。"
+  :code="lazyCode"
+  :setup="cascaderCodeSetup"
+  :usage="['lazy', 'load', 'isLeaf', 'loadError']"
+>
+  <YCascader
+    v-model="remotePath"
+    :options="remoteOptions"
+    label="Remote component"
+    placeholder="Load package tree"
+    lazy
+    :load="loadRemoteOptions"
+    @load="handleLazyLoad"
+    @load-error="handleLazyLoadError"
+  />
+  <p class="demo-note">{{ remoteState }}</p>
+</DocDemo>
+
 ## Live example
 
 <LiveExampleRunner
@@ -232,7 +329,7 @@ Cascader 用于选择层级路径，例如地区、分类、组织结构、权�
 - Live example 覆盖移动级联和键盘级联场景，文档变更时应同时验证窄屏触发器可读性、`Enter` / `Space` 打开面板、方向键跨层级移动和 `Escape` 关闭。
 - 禁用错误回填场景用于审核流：既要保留当前路径可读，也要把错误文案和不可编辑状态同时呈现给用户。
 - 如果同一页面同时存在 Select、Tooltip、Popover、Cascader 等弹层，它们会共享浮层基础设施和 z-index 栈，避免遮挡顺序失控。
-- 复杂远程数据、搜索和懒加载会作为后续增强进入 Cascader 的高级能力，而不是混入基础示例。
+- 远程层级数据使用 `lazy` 与 `load`，远程叶子节点应显式设置 `isLeaf: true`，避免组件继续把该节点视为可展开分支。
 
 ## API
 
@@ -244,4 +341,5 @@ Cascader 用于选择层级路径，例如地区、分类、组织结构、权�
 - 面板使用 `role="dialog"`。
 - 每一列使用 `role="listbox"`；multiple 时同步设置 `aria-multiselectable`。
 - 选项使用 `role="option"` 和 `aria-selected`，多选叶子项提供可视化勾选状态。
+- 懒加载中选项同步 `aria-busy` 和 `role="status"`；加载失败使用 `role="alert"` 并允许再次点击重试。
 - 禁用项同步设置 `disabled` 和 `aria-disabled`。

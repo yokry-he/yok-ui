@@ -14,6 +14,9 @@ export {
 } from './cascader'
 export type {
   YCascaderColumn,
+  YCascaderLoadChildren,
+  YCascaderLoadErrorPayload,
+  YCascaderLoadPayload,
   YCascaderMultipleSelectPayload,
   YCascaderMultipleValue,
   YCascaderOption,

@@ -5694,6 +5694,17 @@ export const componentApis: Record<string, ComponentApi> = {
         description: '是否允许清空选择。'
       },
       {
+        name: 'lazy',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否启用远程懒加载分支；没有 children 且未声明 isLeaf 的选项会先触发 load。'
+      },
+      {
+        name: 'load',
+        type: 'YCascaderLoadChildren',
+        description: '懒加载子级选项的函数，接收当前 option 和完整 path，支持同步或 Promise 返回。'
+      },
+      {
         name: 'separator',
         type: 'string',
         defaultValue: "' / '",
@@ -5727,6 +5738,16 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'clear',
         type: 'void',
         description: '清空选择后触发。'
+      },
+      {
+        name: 'load',
+        type: 'YCascaderLoadPayload',
+        description: '懒加载子级成功后触发。'
+      },
+      {
+        name: 'loadError',
+        type: 'YCascaderLoadErrorPayload',
+        description: '懒加载子级失败后触发；节点保持可重试。'
       }
     ],
     slots: [
@@ -5739,8 +5760,8 @@ export const componentApis: Record<string, ComponentApi> = {
     types: [
       {
         name: 'YCascaderOption',
-        type: '{ value: string; label: string; disabled?: boolean; children?: YCascaderOption[] }',
-        description: '级联选项数据。'
+        type: '{ value: string; label: string; disabled?: boolean; isLeaf?: boolean; children?: YCascaderOption[] }',
+        description: '级联选项数据；懒加载时可用 isLeaf 显式声明远程叶子节点。'
       },
       {
         name: 'YCascaderColumn',
@@ -5766,6 +5787,21 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'YCascaderMultipleSelectPayload',
         type: '{ value: string[][]; labels: string[][]; option: YCascaderOption; checked: boolean; checkedValue: string[] }',
         description: '多选切换事件载荷。'
+      },
+      {
+        name: 'YCascaderLoadChildren',
+        type: '(option: YCascaderOption, path: YCascaderOption[]) => YCascaderOption[] | Promise<YCascaderOption[]>',
+        description: '懒加载函数签名。'
+      },
+      {
+        name: 'YCascaderLoadPayload',
+        type: '{ option: YCascaderOption; path: YCascaderOption[]; children: YCascaderOption[] }',
+        description: '懒加载成功事件载荷。'
+      },
+      {
+        name: 'YCascaderLoadErrorPayload',
+        type: '{ option: YCascaderOption; path: YCascaderOption[]; error: unknown }',
+        description: '懒加载失败事件载荷。'
       }
     ]
   },

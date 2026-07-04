@@ -135,9 +135,9 @@ export const interactionContracts: InteractionContract[] = [
   {
     componentName: 'YCascader',
     pattern: 'Cascading listbox selector',
-    keyboard: ['Arrow keys move between options and columns', 'Enter / Space selects', 'Escape closes'],
-    focus: 'Focus remains inside the active listbox column while the selected path is announced by option state.',
-    semantics: ['role="listbox"', 'role="option"', 'aria-selected', 'aria-multiselectable'],
+    keyboard: ['Arrow keys move between options and columns', 'ArrowRight can trigger lazy branch loading', 'Enter / Space selects or loads a branch', 'Escape closes'],
+    focus: 'Focus remains inside the active listbox column while the selected path, lazy loading state and retryable failures are announced by option state.',
+    semantics: ['role="listbox"', 'role="option"', 'aria-selected', 'aria-multiselectable', 'aria-busy', 'role="status"', 'role="alert"'],
     maturity: 'verified',
     evidence: {
       docs: ['docs/guide/accessibility.md', 'docs/components/cascader.md'],

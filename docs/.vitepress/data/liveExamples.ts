@@ -2891,6 +2891,13 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       description: '展示禁用值、错误文案和已选路径的审核状态。'
     },
     {
+      key: 'async-cascader',
+      label: '异步级联',
+      kind: 'remote',
+      controlValue: 'lazy',
+      description: '覆盖 lazy、load、loadError 和 isLeaf 的远程层级加载。'
+    },
+    {
       key: 'mobile-cascader',
       label: '移动级联',
       kind: 'responsive',
@@ -3445,6 +3452,13 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'disabled',
       controlValue: 'limited',
       description: '达到 max 后禁用添加，低于 min 时禁用删除，避免破坏业务约束。'
+    },
+    {
+      key: 'readonly-field-array',
+      label: '只读维护',
+      kind: 'disabled',
+      controlValue: 'readonly',
+      description: '审核或归档状态下保留动态字段值，但禁用新增和删除操作。'
     },
     {
       key: 'mobile-field-array',

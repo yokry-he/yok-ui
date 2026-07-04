@@ -2,6 +2,7 @@ export interface YCascaderOption {
   value: string
   label: string
   disabled?: boolean
+  isLeaf?: boolean
   children?: YCascaderOption[]
   [key: string]: unknown
 }
@@ -26,4 +27,21 @@ export interface YCascaderMultipleSelectPayload {
   option: YCascaderOption
   checked: boolean
   checkedValue: YCascaderValue
+}
+
+export type YCascaderLoadChildren = (
+  option: YCascaderOption,
+  path: YCascaderOption[]
+) => YCascaderOption[] | Promise<YCascaderOption[]>
+
+export interface YCascaderLoadPayload {
+  option: YCascaderOption
+  path: YCascaderOption[]
+  children: YCascaderOption[]
+}
+
+export interface YCascaderLoadErrorPayload {
+  option: YCascaderOption
+  path: YCascaderOption[]
+  error: unknown
 }

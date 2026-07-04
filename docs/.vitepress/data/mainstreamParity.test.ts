@@ -13,10 +13,12 @@ describe('mainstreamParity', () => {
     const elementPlusOverview = items.find((item) => item.key === 'element-plus-overview')
     const elementPlusTable = items.find((item) => item.key === 'element-plus-table')
     const elementPlusCascader = items.find((item) => item.key === 'element-plus-cascader')
+    const elementPlusCascaderLazy = items.find((item) => item.key === 'element-plus-cascader-lazy-load')
     const elementPlusDatePicker = items.find((item) => item.key === 'element-plus-date-picker')
     const elementPlusI18n = items.find((item) => item.key === 'element-plus-config-provider-i18n')
     const elementPlusCompatibility = items.find((item) => item.key === 'element-plus-compatibility-support')
     const antDesignTheme = items.find((item) => item.key === 'ant-design-vue-theme-token')
+    const antDesignCascaderLoad = items.find((item) => item.key === 'ant-design-vue-cascader-load-data')
     const arcoTokenLab = items.find((item) => item.key === 'arco-design-vue-token-lab')
     const naiveTheme = items.find((item) => item.key === 'naive-ui-theme-system')
     const tdesignEnterprise = items.find((item) => item.key === 'tdesign-vue-next-enterprise-shell')
@@ -25,10 +27,12 @@ describe('mainstreamParity', () => {
       'element-plus-overview',
       'element-plus-table',
       'element-plus-cascader',
+      'element-plus-cascader-lazy-load',
       'element-plus-date-picker',
       'element-plus-config-provider-i18n',
       'element-plus-compatibility-support',
       'ant-design-vue-theme-token',
+      'ant-design-vue-cascader-load-data',
       'arco-design-vue-token-lab',
       'naive-ui-theme-system',
       'tdesign-vue-next-enterprise-shell'
@@ -50,10 +54,12 @@ describe('mainstreamParity', () => {
       'Element Plus Overview',
       'Element Plus Table',
       'Element Plus Cascader',
+      'Element Plus Cascader Dynamic Loading',
       'Element Plus DatePicker',
       'Element Plus ConfigProvider i18n',
       'Element Plus Installation Compatibility',
       'Ant Design Vue Customize Theme',
+      'Ant Design Cascader Load Options Lazily',
       'Arco Design Vue Design Token',
       'Naive UI Homepage',
       'TDesign Vue Next Overview'
@@ -80,6 +86,14 @@ describe('mainstreamParity', () => {
     })
     expect(elementPlusCascader?.matchedComponents.map((component) => component.name)).toContain('YCascader')
     expect(elementPlusCascader?.evidence.liveExamples).toContain('/components/cascader#live-example')
+    expect(elementPlusCascaderLazy).toMatchObject({
+      label: 'Cascader dynamic loading and retry state',
+      status: 'covered'
+    })
+    expect(elementPlusCascaderLazy?.evidence.capabilities).toEqual(expect.arrayContaining([
+      'lazy-cascader-loading',
+      'load-error-retry'
+    ]))
 
     expect(elementPlusDatePicker).toMatchObject({
       label: 'Date picker shortcuts and disabled dates',
@@ -112,6 +126,12 @@ describe('mainstreamParity', () => {
     expect(antDesignTheme?.source.library).toBe('Ant Design Vue')
     expect(antDesignTheme?.matchedComponents.map((component) => component.name)).toContain('YThemeProvider')
     expect(antDesignTheme?.evidence.resources).toContain('/resources/theme-lab')
+
+    expect(antDesignCascaderLoad).toMatchObject({
+      label: 'Cascader loadData remote expansion',
+      status: 'covered'
+    })
+    expect(antDesignCascaderLoad?.matchedComponents.map((component) => component.name)).toContain('YCascader')
 
     expect(arcoTokenLab).toMatchObject({
       label: 'Design token inventory and visual theme lab',

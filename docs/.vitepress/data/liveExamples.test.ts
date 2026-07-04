@@ -309,7 +309,7 @@ describe('liveExamples', () => {
     const fieldArraySummary = getLiveExampleValidationSummary('fieldArray')
 
     expect(fieldArraySummary.modeLabel).toBe('Guided workflow')
-    expect(fieldArraySummary.scenarioCount).toBe(5)
+    expect(fieldArraySummary.scenarioCount).toBe(6)
     expect(fieldArraySummary.workflowReady).toBe(true)
     expect(fieldArraySummary.checks).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'visual-props', passed: true }),
@@ -318,6 +318,7 @@ describe('liveExamples', () => {
       expect.objectContaining({ key: 'responsive', passed: true }),
       expect.objectContaining({ key: 'keyboard-path', passed: true })
     ]))
+    expect(fieldArraySummary.scenarioKinds).toEqual(expect.arrayContaining(['basic', 'empty', 'disabled', 'responsive', 'keyboard']))
     expect(fieldArraySummary.scenarioKinds).toEqual(expect.arrayContaining(['basic', 'empty', 'disabled', 'responsive', 'keyboard']))
 
     const scrollbarSummary = getLiveExampleValidationSummary('scrollbar')
@@ -356,13 +357,13 @@ describe('liveExamples', () => {
     const cascaderSummary = getLiveExampleValidationSummary('cascader')
 
     expect(cascaderSummary.modeLabel).toBe('Guided workflow')
-    expect(cascaderSummary.scenarioCount).toBe(5)
+    expect(cascaderSummary.scenarioCount).toBe(6)
     expect(cascaderSummary.checks).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'responsive', passed: true }),
       expect.objectContaining({ key: 'error-state', passed: true }),
       expect.objectContaining({ key: 'keyboard-path', passed: true })
     ]))
-    expect(cascaderSummary.scenarioKinds).toEqual(expect.arrayContaining(['basic', 'multi', 'error', 'responsive', 'keyboard']))
+    expect(cascaderSummary.scenarioKinds).toEqual(expect.arrayContaining(['basic', 'multi', 'error', 'remote', 'responsive', 'keyboard']))
 
     const dateRangeSummary = getLiveExampleValidationSummary('dateRangePicker')
 

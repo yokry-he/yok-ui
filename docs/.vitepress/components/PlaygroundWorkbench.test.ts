@@ -62,6 +62,7 @@ const componentStubs = {
   YTimeSelect: { template: '<input />' },
   YCascader: { template: '<div />' },
   YColorPicker: { template: '<input />' },
+  YColorPickerPanel: { template: '<section />' },
   YCarousel: { props: ['items'], template: '<section class="yok-carousel">{{ items?.[0]?.title }}</section>' },
   YTable: { template: '<div role="table" />' },
   YDataTable: { template: '<div role="table" />' },

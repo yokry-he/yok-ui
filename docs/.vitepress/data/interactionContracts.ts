@@ -234,6 +234,19 @@ export const interactionContracts: InteractionContract[] = [
     }
   },
   {
+    componentName: 'YColorPickerPanel',
+    pattern: 'Embedded color input group with preset buttons',
+    keyboard: ['Native color input keyboard behavior', 'HEX text input supports typing and paste', 'Preset and clear buttons activate with Enter / Space'],
+    focus: 'The native color input, HEX text input, clear button and preset buttons stay in document order inside one named group.',
+    semantics: ['role="group"', 'input type="color"', 'input type="text"', 'aria-pressed', 'aria-invalid', 'aria-describedby', 'role="alert"'],
+    status: 'The panel is embeddable and does not create a popup; callers choose placement in forms, drawers or theme editors.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/guide/accessibility.md', 'docs/components/color-picker-panel.md'],
+      tests: ['packages/core/src/components/color-picker/color-picker-panel.test.ts']
+    }
+  },
+  {
     componentName: 'YInput',
     pattern: 'Native text input field',
     keyboard: ['Native text input keyboard behavior', 'Tab reaches the input in form order'],

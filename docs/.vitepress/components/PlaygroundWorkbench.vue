@@ -144,6 +144,7 @@ const timeValue = ref('09:30')
 const timeSelectValue = ref('09:00')
 const cascaderValue = ref(['core', 'form', 'cascader'])
 const colorValue = ref('#14B8A6')
+const colorPanelValue = ref('#14B8A6')
 const imageSrc = '/logo.svg'
 const badgeValue = ref(12)
 const checkTagChecked = ref(true)
@@ -860,6 +861,7 @@ const componentImports = computed(() => {
     cascader: 'YCascader',
     treeSelect: 'YTreeSelect',
     colorPicker: 'YColorPicker',
+    colorPickerPanel: 'YColorPickerPanel',
     carousel: 'YCarousel',
     configProvider: 'YConfigProvider',
     table: 'YTable',
@@ -1148,6 +1150,10 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'colorPicker') {
     return `<YColorPicker v-model="accentColor" label="Accent color"${disabled.value ? ' disabled' : ''} show-text />`
+  }
+
+  if (activeComponent.value === 'colorPickerPanel') {
+    return `<YColorPickerPanel v-model="themeColor" label="Theme color"${disabled.value ? ' disabled' : ''} />`
   }
 
   if (activeComponent.value === 'carousel') {
@@ -1790,6 +1796,10 @@ const generatedScript = computed(() => {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst accentColor = ref('#14B8A6')`
   }
 
+  if (activeComponent.value === 'colorPickerPanel') {
+    return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst themeColor = ref('#14B8A6')`
+  }
+
   if (activeComponent.value === 'carousel') {
     return `import { ${componentImports.value} } from '@yok-ui/core'\n\nconst carouselItems = ${JSON.stringify(carouselItems, null, 2)}`
   }
@@ -2347,6 +2357,7 @@ const playgroundShareUrl = computed(() => {
       activeComponent.value === 'timeSelect' ||
       activeComponent.value === 'cascader' ||
       activeComponent.value === 'colorPicker' ||
+      activeComponent.value === 'colorPickerPanel' ||
       activeComponent.value === 'textarea'
     ) {
       params.set('disabled', String(disabled.value))
@@ -3093,6 +3104,7 @@ onMounted(() => {
             activeComponent === 'timeSelect' ||
             activeComponent === 'cascader' ||
             activeComponent === 'colorPicker' ||
+            activeComponent === 'colorPickerPanel' ||
             activeComponent === 'textarea'
           "
           class="playground-workbench__check"
@@ -3402,6 +3414,12 @@ onMounted(() => {
             label="Accent color"
             :disabled="disabled"
             show-text
+          />
+          <YColorPickerPanel
+            v-else-if="activeComponent === 'colorPickerPanel'"
+            v-model="colorPanelValue"
+            label="Theme color"
+            :disabled="disabled"
           />
           <YCarousel
             v-else-if="activeComponent === 'carousel'"

@@ -19,6 +19,7 @@ import {
   YCheckboxGroup,
   YCollapse,
   YColorPicker,
+  YColorPickerPanel,
   YConfigProvider,
   YCountdown,
   YDatePicker,
@@ -1938,6 +1939,22 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '  </div>',
     '</template>'
   ].join('\n'),
+  colorPickerPanel: [
+    '<script setup lang="ts">',
+    "import { ref } from 'vue'",
+    "import { YColorPickerPanel, YTag } from '@yok-ui/core'",
+    '',
+    "const themeColor = ref('#14B8A6')",
+    "const brandPresets = ['#14B8A6', '#38BDF8', '#A78BFA', '#F472B6', '#FBBF24']",
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <div class="demo-stack">',
+    '    <YColorPickerPanel v-model="themeColor" label="Theme color" :presets="brandPresets" />',
+    '    <YTag tone="success">Embedded panels are useful for theme and token editors.</YTag>',
+    '  </div>',
+    '</template>'
+  ].join('\n'),
   checkbox: [
     '<script setup lang="ts">',
     "import { YCheckbox, YCheckboxGroup, YAlert } from '@yok-ui/core'",
@@ -2508,6 +2525,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   rate: 'Rate',
   slider: 'Slider',
   colorPicker: 'Color Picker',
+  colorPickerPanel: 'Color Picker Panel',
   checkbox: 'Checkbox',
   switch: 'Switch',
   pagination: 'Pagination',
@@ -5922,6 +5940,78 @@ const treeSelectNodes = ${nodes}`, [
         `  ${pickerLine}`,
         isValidationScenario ? '  <p id="brand-color-help" class="demo-note">Choose one approved brand token before publishing.</p>' : '',
         `  <YTag tone="${isErrorScenario || isValidationScenario ? 'danger' : isPresetScenario || isAlphaScenario ? 'success' : 'info'}">${helperText}</YTag>`,
+        '</div>'
+      ].filter(Boolean))
+    }
+  },
+  colorPickerPanel: {
+    title: 'Color Picker Panel scenario',
+    description: '用主题面板、品牌预设、透明 token、只读、校验、移动端和键盘输入调试嵌入式颜色面板。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'theme', options: [
+        { label: '主题面板', value: 'theme' },
+        { label: '品牌预设', value: 'presets' },
+        { label: '透明 token', value: 'alpha' },
+        { label: '只读状态', value: 'disabled' },
+        { label: '校验错误', value: 'error' },
+        { label: '移动面板', value: 'mobile' },
+        { label: '键盘输入', value: 'keyboard' }
+      ] },
+      { key: 'showValue', label: '显示值', type: 'boolean', defaultValue: true }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const isPresetScenario = scenario === 'presets'
+      const isAlphaScenario = scenario === 'alpha'
+      const isDisabledScenario = scenario === 'disabled'
+      const isErrorScenario = scenario === 'error'
+      const isMobileScenario = scenario === 'mobile'
+      const isKeyboardScenario = scenario === 'keyboard'
+      const label = isPresetScenario
+        ? 'Brand token'
+        : isAlphaScenario
+          ? 'Overlay token'
+          : isDisabledScenario
+            ? 'Inherited token'
+            : isErrorScenario
+              ? 'Required token'
+              : isMobileScenario
+                ? 'Accent'
+                : isKeyboardScenario
+                  ? 'Keyboard token'
+                  : 'Theme color'
+      const modelValue = isAlphaScenario
+        ? '#14B8A680'
+        : isErrorScenario
+          ? ''
+          : isDisabledScenario
+            ? '#A78BFA'
+            : isKeyboardScenario
+              ? '#38BDF8'
+              : '#14B8A6'
+      const helperText = isPresetScenario
+        ? 'Brand presets keep token choices constrained.'
+        : isAlphaScenario
+          ? 'HEXA values support overlays, glass panels and chart fills.'
+          : isDisabledScenario
+            ? 'Read-only inherited tokens remain visible without allowing edits.'
+            : isErrorScenario
+              ? 'Errors explain why the theme cannot be published.'
+              : isMobileScenario
+                ? 'The preview row wraps on narrow screens while presets remain touchable.'
+                : isKeyboardScenario
+                  ? 'The HEX input and preset buttons stay reachable by Tab.'
+                  : 'Embedded panels keep theme colors visible while editing.'
+      const imports = isPresetScenario || isErrorScenario
+        ? "import { YColorPickerPanel, YTag } from '@yok-ui/core'\nconst brandPresets = ['#14B8A6', '#38BDF8', '#A78BFA', '#F472B6', '#FBBF24']"
+        : "import { YColorPickerPanel, YTag } from '@yok-ui/core'"
+      const panelLine = `<YColorPickerPanel${isErrorScenario ? ' id="brand-panel-color"' : ''}${textAttribute('label', label)}${textAttribute('model-value', modelValue)}${isPresetScenario || isErrorScenario ? ' :presets="brandPresets"' : ''}${booleanAttribute('show-alpha', isAlphaScenario)}${booleanAttribute('disabled', isDisabledScenario)}${isErrorScenario ? ' aria-describedby="brand-panel-color-help" invalid error="Choose a brand-approved color."' : ''}${state.showValue ? '' : ' :show-value="false"'} />`
+
+      return sfc(imports, [
+        '<div class="demo-stack">',
+        `  ${panelLine}`,
+        isErrorScenario ? '  <p id="brand-panel-color-help" class="demo-note">Choose one approved brand token before publishing.</p>' : '',
+        `  <YTag tone="${isErrorScenario ? 'danger' : isPresetScenario || isAlphaScenario ? 'success' : 'info'}">${helperText}</YTag>`,
         '</div>'
       ].filter(Boolean))
     }
@@ -12535,6 +12625,7 @@ const componentMap = {
   ycodeblock: YCodeBlock,
   ycollapse: RunnerCollapsePreview,
   ycolorpicker: YColorPicker,
+  ycolorpickerpanel: YColorPickerPanel,
   yconfigprovider: YConfigProvider,
   ycountdown: YCountdown,
   ycommandpalette: RunnerCommandPalettePreview,

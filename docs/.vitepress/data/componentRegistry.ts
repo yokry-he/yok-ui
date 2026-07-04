@@ -319,6 +319,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'native'
   },
   {
+    name: 'YColorPickerPanel',
+    title: 'Color Picker Panel',
+    packageName: '@yok-ui/core',
+    family: 'form',
+    status: 'Beta',
+    docs: '/components/color-picker-panel',
+    description: '可嵌入的颜色选择面板，适合主题配置、设计 token 和后台设置页。',
+    since: '0.15.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YDatePicker',
     title: 'Date Picker',
     packageName: '@yok-ui/core',
@@ -5779,6 +5790,106 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'YColorPickerSize',
         type: "'small' | 'medium' | 'large'",
         description: '颜色选择器尺寸。'
+      }
+    ]
+  },
+  YColorPickerPanel: {
+    props: [
+      {
+        name: 'id',
+        type: 'string',
+        defaultValue: "''",
+        description: '传给 HEX 文本输入的 id；原生色板输入会使用 `${id}-native`。'
+      },
+      {
+        name: 'modelValue',
+        type: 'string',
+        defaultValue: "''",
+        description: '当前 HEX 或 HEXA 颜色值。'
+      },
+      {
+        name: 'label',
+        type: 'string',
+        defaultValue: "''",
+        description: '颜色面板标签。'
+      },
+      {
+        name: 'ariaLabel',
+        type: 'string',
+        defaultValue: "''",
+        description: '无可见 label 时传给面板和输入的可访问名称。'
+      },
+      {
+        name: 'ariaDescribedby',
+        type: 'string',
+        defaultValue: "''",
+        description: '传给原生色板和 HEX 文本输入的 aria-describedby。'
+      },
+      {
+        name: 'presets',
+        type: 'string[]',
+        defaultValue: 'defaultColorPresets',
+        description: '预设色列表，showAlpha 开启后可支持 4 位或 8 位 HEXA。'
+      },
+      {
+        name: 'showAlpha',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否允许 4 位或 8 位 HEXA 透明度颜色。'
+      },
+      {
+        name: 'clearable',
+        type: 'boolean',
+        defaultValue: 'true',
+        description: '是否显示清空按钮。'
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '禁用状态。'
+      },
+      {
+        name: 'showValue',
+        type: 'boolean',
+        defaultValue: 'true',
+        description: '是否显示当前规范化色值。'
+      },
+      {
+        name: 'error',
+        type: 'string',
+        defaultValue: "''",
+        description: '错误信息。'
+      },
+      {
+        name: 'invalid',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '强制标记原生色板和 HEX 文本输入为无效状态；error 或非法输入存在时会自动标记。'
+      }
+    ],
+    events: [
+      {
+        name: 'update:modelValue',
+        type: 'string',
+        description: '选择或输入合法颜色时触发。'
+      },
+      {
+        name: 'change',
+        type: 'string',
+        description: '提交颜色变化时触发。'
+      },
+      {
+        name: 'clear',
+        type: 'void',
+        description: '清空颜色时触发。'
+      }
+    ],
+    types: [
+      {
+        name: 'defaultColorPresets',
+        type: 'string[]',
+        description: '内置清爽可爱的默认预设色。'
       }
     ]
   },

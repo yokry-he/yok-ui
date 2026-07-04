@@ -44,6 +44,7 @@ export const yokUiComponentPackages = {
   YCheckbox: '@yok-ui/core',
   YCollapse: '@yok-ui/core',
   YColorPicker: '@yok-ui/core',
+  YColorPickerPanel: '@yok-ui/core',
   YConfigProvider: '@yok-ui/core',
   YDatePicker: '@yok-ui/core',
   YDateRangePicker: '@yok-ui/core',

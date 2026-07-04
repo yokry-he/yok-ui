@@ -19,6 +19,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-date-picker'
   | 'element-plus-date-time-picker'
   | 'element-plus-time-select'
+  | 'element-plus-color-picker-panel'
   | 'element-plus-input-otp'
   | 'element-plus-input-tag'
   | 'element-plus-check-tag'
@@ -225,6 +226,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     componentNames: ['YTimeSelect'],
     docs: ['/components/time-select'],
     capabilities: ['fixed-time-list', 'range-linked-time-select', 'structured-api', 'workflow-live-example', 'keyboard-scenario']
+  },
+  {
+    key: 'element-plus-color-picker-panel',
+    label: 'Embeddable color picker panel for token workflows',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus ColorPickerPanel',
+      url: 'https://element-plus.org/en-US/component/color-picker-panel',
+      note: 'Element Plus exposes ColorPickerPanel as a standalone embeddable color panel for workflows that should not depend on a trigger popover.'
+    },
+    componentNames: ['YColorPickerPanel'],
+    docs: ['/components/color-picker-panel'],
+    capabilities: ['embedded-color-panel', 'preset-colors', 'structured-api', 'workflow-live-example', 'keyboard-scenario']
   },
   {
     key: 'element-plus-input-otp',

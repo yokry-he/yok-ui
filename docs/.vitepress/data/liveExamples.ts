@@ -33,6 +33,7 @@ export type LiveExamplePreset =
   | 'rate'
   | 'slider'
   | 'colorPicker'
+  | 'colorPickerPanel'
   | 'checkbox'
   | 'switch'
   | 'pagination'
@@ -270,6 +271,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/checkbox', preset: 'checkbox' },
   { docs: '/components/code-block', preset: 'codeBlock' },
   { docs: '/components/color-picker', preset: 'colorPicker' },
+  { docs: '/components/color-picker-panel', preset: 'colorPickerPanel' },
   { docs: '/components/command-palette', preset: 'commandPalette' },
   { docs: '/components/config-provider', preset: 'configProvider' },
   { docs: '/components/crud-layout', preset: 'crudLayout' },
@@ -396,6 +398,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'empty',
   'upload',
   'colorPicker',
+  'colorPickerPanel',
   'icon',
   'image',
   'qrCode',
@@ -491,6 +494,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'configProvider',
   'collapse',
   'colorPicker',
+  'colorPickerPanel',
   'crudLayout',
   'dataToolbar',
   'dataView',
@@ -3347,6 +3351,57 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: '优先验证 showText 文本输入、粘贴和 Tab 到达预设色。'
+    }
+  ],
+  colorPickerPanel: [
+    {
+      key: 'theme-color-panel',
+      label: '主题面板',
+      kind: 'basic',
+      controlValue: 'theme',
+      description: '嵌入主题配置页，持续展示当前色值和预设色。'
+    },
+    {
+      key: 'brand-token-panel',
+      label: '品牌预设',
+      kind: 'controlled',
+      controlValue: 'presets',
+      description: '通过预设色限制品牌 token，避免不可维护的自由颜色。'
+    },
+    {
+      key: 'alpha-token-panel',
+      label: '透明 token',
+      kind: 'controlled',
+      controlValue: 'alpha',
+      description: '允许 HEXA 值用于遮罩、浮层和图表透明色。'
+    },
+    {
+      key: 'disabled-color-panel',
+      label: '只读状态',
+      kind: 'disabled',
+      controlValue: 'disabled',
+      description: '权限不足或继承主题时，面板保持可读但不可编辑。'
+    },
+    {
+      key: 'error-color-panel',
+      label: '校验错误',
+      kind: 'error',
+      controlValue: 'error',
+      description: '主题发布前提示品牌、对比度或必填约束。'
+    },
+    {
+      key: 'mobile-color-panel',
+      label: '移动面板',
+      kind: 'responsive',
+      controlValue: 'mobile',
+      description: '窄屏下输入区换行，预设色保持可点。'
+    },
+    {
+      key: 'keyboard-color-panel',
+      label: '键盘输入',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: '通过 HEX 文本输入、Tab 和预设色按钮完成颜色选择。'
     }
   ],
   slider: [

@@ -4,6 +4,7 @@ export { YEmpty } from './components/empty';
 export { YInput } from './components/input';
 export { YSwitch } from './components/switch';
 export { YBadge, YCheckTag, YTag } from './components/tag';
+export { YColorPickerPanel } from './components/color-picker';
 export { YDateTimePicker } from './components/date-time-picker';
 export type { YDateTimePickerDisabledDate, YDateTimePickerDisabledTime, YDateTimeShortcut, YDateTimeShortcutValue, YDateTimeValue, YResolvedDateTimeShortcut } from './components/date-time-picker';
 export { YTimeSelect } from './components/time-select';

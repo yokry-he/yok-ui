@@ -13,7 +13,7 @@ import { YCascader } from './components/cascader'
 import { YCard } from './components/card'
 import { YCheckbox, YCheckboxGroup } from './components/checkbox'
 import { YCollapse } from './components/collapse'
-import { YColorPicker } from './components/color-picker'
+import { YColorPicker, YColorPickerPanel } from './components/color-picker'
 import { YConfigProvider } from './components/config-provider'
 import { YDateTimePicker } from './components/date-time-picker'
 import { YDatePicker, YDateRangePicker } from './components/date-picker'
@@ -111,6 +111,7 @@ export const coreComponents: Component[] = [
   YCheckboxGroup,
   YCollapse,
   YColorPicker,
+  YColorPickerPanel,
   YConfigProvider,
   YDateTimePicker,
   YDatePicker,

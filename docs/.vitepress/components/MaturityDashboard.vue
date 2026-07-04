@@ -62,6 +62,10 @@ import {
   getMainstreamParitySummary
 } from '../data/mainstreamParity'
 import {
+  adoptionReadinessGates,
+  getAdoptionReadinessSummary
+} from '../data/adoptionReadiness'
+import {
   auditThemeLabRelease,
   defaultThemeLabState
 } from '../data/themeLab'
@@ -409,6 +413,7 @@ const apiLiveCoverageSummary = computed(() => getApiLiveCoverageSummary())
 const releaseReadinessSummary = computed(() => getReleaseReadinessSummary())
 const mainstreamParitySummary = computed(() => getMainstreamParitySummary())
 const mainstreamParityItems = computed(() => getMainstreamParityItems())
+const adoptionReadinessSummary = computed(() => getAdoptionReadinessSummary())
 const docDemoSourceQualitySummary = computed(() => getDocDemoSourceQualitySummary())
 const readinessStatusLabels: Record<LiveExampleReadinessStatus, string> = {
   excellent: 'Excellent',
@@ -506,6 +511,34 @@ const sourcePanelExperienceCards = computed(() => [
     label: 'Copy source',
     value: sourcePanelExperienceSummary.value.copyActions,
     detail: '每个源码入口都提供复制当前源码的动作。'
+  }
+])
+
+const adoptionReadinessCards = computed(() => [
+  {
+    label: 'adoption readiness',
+    value: `${adoptionReadinessSummary.value.coverageRate}%`,
+    detail: `${adoptionReadinessSummary.value.passed}/${adoptionReadinessSummary.value.total} installation and adoption gates passed.`
+  },
+  {
+    label: 'surfaces',
+    value: adoptionReadinessSummary.value.adoptionSurfaces.length,
+    detail: adoptionReadinessSummary.value.adoptionSurfaces.join(' / ')
+  },
+  {
+    label: 'auto import',
+    value: adoptionReadinessGates.find((gate) => gate.key === 'auto-import-resolver')?.status ?? 'missing',
+    detail: 'Resolver keeps template usage aligned with package roots and style.css side effects.'
+  },
+  {
+    label: 'type contract',
+    value: adoptionReadinessGates.find((gate) => gate.key === 'type-declarations')?.status ?? 'missing',
+    detail: 'Package manifests, declaration output and workspace typecheck remain part of the adoption gate.'
+  },
+  {
+    label: 'adoption queue',
+    value: adoptionReadinessSummary.value.nextQueue.length,
+    detail: 'Any warning or missing install path moves into this queue before release.'
   }
 ])
 
@@ -1204,6 +1237,54 @@ const nextPriorities = computed(() =>
             <span>当前 DocDemo、Live Example 和 Playground 的源码阅读结构保持一致。</span>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="maturity-dashboard__adoption">
+      <div class="maturity-dashboard__adoption-copy">
+        <p class="docs-eyebrow">adoption readiness</p>
+        <h3>把安装、按需导入和自动导入纳入主流组件库门禁</h3>
+        <p>
+          主流组件库不只提供组件页，还要让业务项目能稳定安装、注册、按需导入、自动导入、加载样式并获得类型提示。
+          Yok UI 现在把这些采用链路拆成门禁，和组件成熟度、Live Example、API evidence 一起进入成熟度看板。
+        </p>
+      </div>
+
+      <div class="maturity-dashboard__adoption-grid">
+        <article
+          v-for="card in adoptionReadinessCards"
+          :key="card.label"
+          class="maturity-dashboard__adoption-card"
+        >
+          <strong>{{ card.value }}</strong>
+          <span>{{ card.label }}</span>
+          <p>{{ card.detail }}</p>
+        </article>
+      </div>
+
+      <div class="maturity-dashboard__adoption-list">
+        <article
+          v-for="gate in adoptionReadinessGates"
+          :key="gate.key"
+          class="maturity-dashboard__adoption-gate"
+          :data-status="gate.status"
+        >
+          <header>
+            <div>
+              <span>{{ gate.surface }}</span>
+              <strong>{{ gate.title }}</strong>
+            </div>
+            <em>{{ gate.status }}</em>
+          </header>
+          <p>{{ gate.detail }}</p>
+          <code v-if="gate.command">{{ gate.command }}</code>
+          <div class="maturity-dashboard__adoption-links">
+            <a v-for="link in gate.docs" :key="`${gate.key}-${link}`" :href="link">{{ link }}</a>
+          </div>
+          <div class="maturity-dashboard__adoption-evidence">
+            <span v-for="item in gate.evidence.slice(0, 3)" :key="`${gate.key}-${item}`">{{ item }}</span>
+          </div>
+        </article>
       </div>
     </div>
 

@@ -85,6 +85,45 @@ const routeTitleOverrides: Record<string, string> = {
 
 const resourceTargets: DocsA11yAuditTarget[] = [
   createStaticTarget({
+    id: 'guide-installation',
+    title: 'Installation and auto-import guide',
+    route: '/guide/installation',
+    priority: 'high',
+    checks: ['structure', 'routing', 'contrast', 'responsive'],
+    evidence: {
+      docs: ['docs/guide/installation.md'],
+      data: [
+        'docs/.vitepress/data/adoptionReadiness.ts',
+        'docs/.vitepress/data/docsA11yAuditTargets.ts'
+      ],
+      tests: [
+        'docs/.vitepress/data/adoptionReadiness.test.ts',
+        'docs/.vitepress/data/docsA11yAuditTargets.test.ts',
+        'packages/package-manifest.test.ts',
+        'packages/package-install.test.ts'
+      ]
+    }
+  }),
+  createStaticTarget({
+    id: 'package-resolver',
+    title: 'Resolver package docs',
+    route: '/packages/resolver',
+    priority: 'high',
+    checks: ['structure', 'routing', 'contrast', 'responsive'],
+    evidence: {
+      docs: ['docs/packages/resolver.md', 'packages/resolver/README.md'],
+      data: [
+        'docs/.vitepress/data/adoptionReadiness.ts',
+        'docs/.vitepress/data/docsA11yAuditTargets.ts'
+      ],
+      tests: [
+        'docs/.vitepress/data/adoptionReadiness.test.ts',
+        'docs/.vitepress/data/docsA11yAuditTargets.test.ts',
+        'packages/resolver/src/resolver.test.ts'
+      ]
+    }
+  }),
+  createStaticTarget({
     id: 'resource-maturity',
     title: 'Maturity dashboard',
     route: '/resources/maturity',

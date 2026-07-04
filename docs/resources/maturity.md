@@ -4,6 +4,8 @@ Maturity 页面用于持续追踪 Yok UI 和主流组件库之间的差距。这
 
 从当前版本开始，页面还会维护 `mainstream parity benchmark`：把 Element Plus、Ant Design Vue、Arco Design Vue、Naive UI 和 TDesign Vue Next 的组件总览、示例源码操作、Playground 交接、主题 token、企业表单、后台模板、桌面应用壳层和 Guide / Component / Resource 信息架构拆成外部基准项，再映射到 Yok UI 的组件、文档路由、Live Example、API evidence 和资源页证据。这样即使内部成熟度指标已经满分，也能继续用外部参照发现下一批追赶方向。
 
+页面同时追踪 `adoption readiness`：安装预设、全量注册、分包插件、按需导入、`@yok-ui/resolver` 自动导入、`style.css` side effect、类型声明、主题 CSS 导出和文档运行时审计都会作为采用门禁展示。主流组件库的完整度不只来自组件数量，也来自业务项目能否低成本、可类型检查、可按需裁剪地接入。
+
 <MaturityDashboard />
 
 ## How to read this page

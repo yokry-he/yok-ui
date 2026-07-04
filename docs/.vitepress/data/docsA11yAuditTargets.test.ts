@@ -52,6 +52,8 @@ describe('docsA11yAuditTargets', () => {
 
     expect(targetedRoutes.has('/resources/maturity')).toBe(true)
     expect(targetedRoutes.has('/resources/live-examples')).toBe(true)
+    expect(targetedRoutes.has('/guide/installation')).toBe(true)
+    expect(targetedRoutes.has('/packages/resolver')).toBe(true)
   })
 
   it('turns every high-risk accessibility component into a component-page audit target', () => {

@@ -1,0 +1,41 @@
+{
+  "name": "@yok-ui/product",
+  "version": "0.1.0",
+  "description": "Productivity and developer-experience components for Yok UI.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "vue",
+    "vue3",
+    "productivity",
+    "command-palette",
+    "design-system",
+    "yok-ui"
+  ],
+  "sideEffects": ["**/*.css"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./style.css": "./dist/index.css"
+  },
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json --declaration --emitDeclarationOnly --outDir dist --skipLibCheck",
+    "typecheck": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "dependencies": {
+    "@yok-ui/core": "workspace:*",
+    "@yok-ui/themes": "workspace:*"
+  }
+}

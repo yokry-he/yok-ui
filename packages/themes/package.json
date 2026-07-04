@@ -1,0 +1,39 @@
+{
+  "name": "@yok-ui/themes",
+  "version": "0.1.0",
+  "description": "Theme tokens, theme CSS files and contrast helpers for Yok UI.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "vue",
+    "theme",
+    "tokens",
+    "design-system",
+    "yok-ui"
+  ],
+  "sideEffects": ["**/*.css"],
+  "files": [
+    "dist",
+    "src/themes/*.css",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./yok-light.css": "./src/themes/yok-light.css",
+    "./yok-clean.css": "./src/themes/yok-clean.css",
+    "./yok-candy.css": "./src/themes/yok-candy.css"
+  },
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json --declaration --emitDeclarationOnly --outDir dist --skipLibCheck",
+    "typecheck": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  }
+}

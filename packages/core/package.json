@@ -1,0 +1,46 @@
+{
+  "name": "@yok-ui/core",
+  "version": "0.1.0",
+  "description": "Fresh, cute and production-minded Vue 3 core components for Yok UI.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "vue",
+    "vue3",
+    "components",
+    "design-system",
+    "yok-ui"
+  ],
+  "sideEffects": [
+    "**/*.css",
+    "./src/styles/base.css"
+  ],
+  "files": [
+    "dist",
+    "src/styles/base.css",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./style.css": "./dist/index.css",
+    "./styles/base.css": "./src/styles/base.css"
+  },
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json --declaration --emitDeclarationOnly --outDir dist --skipLibCheck",
+    "typecheck": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "dependencies": {
+    "@floating-ui/vue": "^2.0.0",
+    "@yok-ui/themes": "workspace:*",
+    "qrcode": "^1.5.4"
+  }
+}

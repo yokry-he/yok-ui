@@ -1,0 +1,19 @@
+{
+  "name": "@yok-ui/docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev . --host 127.0.0.1",
+    "build": "vitepress build .",
+    "preview": "vitepress preview . --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@yok-ui/admin": "workspace:*",
+    "@yok-ui/brand": "workspace:*",
+    "@yok-ui/core": "workspace:*",
+    "@yok-ui/hooks": "workspace:*",
+    "@yok-ui/icons": "workspace:*",
+    "@yok-ui/product": "workspace:*",
+    "@yok-ui/themes": "workspace:*"
+  }
+}

@@ -1,0 +1,6 @@
+export { default, productComponents, YokProduct } from './plugin'
+export { YCodeBlock } from './components/code-block'
+export { YCommandPalette } from './components/command-palette'
+export type { YokCommand } from './components/command-palette'
+export { YCopyButton } from './components/copy-button'
+export { YThemeSwitcher } from './components/theme-switcher'

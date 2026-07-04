@@ -1,0 +1,87 @@
+<script setup lang="ts">
+const docsItems = [
+  { label: 'Guide', href: '/guide/introduction' },
+  { label: 'Components', href: '/components/' },
+  { label: 'Breadcrumb' }
+]
+
+const projectItems = [
+  { label: 'Workspace', href: '/workspace' },
+  { label: 'Private package', href: '/private', disabled: true },
+  { label: 'Overview' }
+]
+
+const breadcrumbSetup = [
+  "import { YBreadcrumb } from '@yok-ui/core'",
+  '',
+  'const docsItems = [',
+  "  { label: 'Guide', href: '/guide/introduction' },",
+  "  { label: 'Components', href: '/components/' },",
+  "  { label: 'Breadcrumb' }",
+  ']',
+  '',
+  'const projectItems = [',
+  "  { label: 'Workspace', href: '/workspace' },",
+  "  { label: 'Private package', href: '/private', disabled: true },",
+  "  { label: 'Overview' }",
+  ']'
+].join('\n')
+
+const basicCode = '<YBreadcrumb :items="docsItems" />'
+
+const disabledCode = [
+  '<YBreadcrumb',
+  '  separator=">"',
+  '  aria-label="Project path"',
+  '  :items="projectItems"',
+  '/>'
+].join('\n')
+</script>
+
+# Breadcrumb
+
+Breadcrumb 用于展示当前页面在站点或产品结构中的位置，帮助用户回到上级页面。它适合文档站、后台详情页、设置页和作品集的多层路径。
+
+## Example
+
+<DocDemo
+  title="Documentation path"
+  description="文档站路径应把上级页面作为真实链接，最后一项表达当前位置。"
+  :code="basicCode"
+  :setup="breadcrumbSetup"
+  :usage="['nav', 'aria-current', 'links']"
+>
+  <YBreadcrumb :items="docsItems" />
+</DocDemo>
+
+## Live example
+
+<LiveExampleRunner
+  preset="breadcrumb"
+  title="在线编辑 Breadcrumb 示例"
+  description="预览文档站和后台详情页里的路径层级，确认当前位置和分隔符表达清楚。"
+/>
+
+## Disabled item
+
+<DocDemo
+  title="Disabled item"
+  description="不可访问的中间层级不渲染为链接，并通过 aria-disabled 说明当前不可进入。"
+  :code="disabledCode"
+  :setup="breadcrumbSetup"
+  :usage="['separator', 'disabled', 'aria-label']"
+>
+  <YBreadcrumb
+    separator=">"
+    aria-label="Project path"
+    :items="projectItems"
+  />
+</DocDemo>
+
+## Accessibility
+
+Breadcrumb 使用 `nav` 和有序列表表达路径层级，默认 `aria-label` 为 `Breadcrumb`。最后一项或显式设置 `current: true` 的项目会得到 `aria-current="page"`。禁用项不会渲染为链接，并使用 `aria-disabled="true"`。
+
+## API
+
+<ComponentApiSection name="YBreadcrumb" />

@@ -1,0 +1,1773 @@
+{
+  "schemaVersion": 1,
+  "dryRun": true,
+  "mutatesPackageVersions": false,
+  "generatedAt": "2026-07-03T23:39:37.528Z",
+  "currentVersion": "0.1.0",
+  "targetVersion": "0.2.0",
+  "candidateCount": 57,
+  "blockedCount": 0,
+  "packages": [
+    {
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "currentVersion": "0.1.0",
+      "targetVersion": "0.2.0",
+      "components": [
+        {
+          "name": "YAffix",
+          "title": "Affix",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/affix",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YAnchor",
+          "title": "Anchor",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/anchor",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YAutocomplete",
+          "title": "Autocomplete",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/autocomplete",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YCalendar",
+          "title": "Calendar",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/calendar",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YCarousel",
+          "title": "Carousel",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/carousel",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YCascader",
+          "title": "Cascader",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/cascader",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YColorPicker",
+          "title": "Color Picker",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/color-picker",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YCountdown",
+          "title": "Countdown",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/statistic",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YDatePicker",
+          "title": "Date Picker",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/date-picker",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YDateRangePicker",
+          "title": "Date Range Picker",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/date-range-picker",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YDescriptions",
+          "title": "Descriptions",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/descriptions",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YDrawer",
+          "title": "Drawer",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/drawer",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YDropdown",
+          "title": "Dropdown",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/dropdown",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YFloatButton",
+          "title": "Float Button",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/float-button",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YFloatButtonGroup",
+          "title": "Float Button Group",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/float-button",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YForm",
+          "title": "Form",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/form",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YImage",
+          "title": "Image",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/image",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YInputNumber",
+          "title": "Input Number",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/input-number",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YLayout",
+          "title": "Layout",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/layout",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YList",
+          "title": "List",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/list",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YLoading",
+          "title": "Loading",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/loading",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YMention",
+          "title": "Mention",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/mention",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YMenu",
+          "title": "Menu",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/menu",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YMessageBox",
+          "title": "Message Box",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/message-box",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YModal",
+          "title": "Modal",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/modal",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YNotification",
+          "title": "Notification",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/notification",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YPopover",
+          "title": "Popover",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/popover",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YQRCode",
+          "title": "QRCode",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/qr-code",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YRate",
+          "title": "Rate",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/rate",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YResult",
+          "title": "Result",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/result",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YSegmented",
+          "title": "Segmented",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/segmented",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YSlider",
+          "title": "Slider",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/slider",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YSplitter",
+          "title": "Splitter",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/splitter",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YStatistic",
+          "title": "Statistic",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/statistic",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YTimePicker",
+          "title": "Time Picker",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/time-picker",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YTimeline",
+          "title": "Timeline",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/timeline",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YTooltip",
+          "title": "Tooltip",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/tooltip",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YTour",
+          "title": "Tour",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/tour",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YTransfer",
+          "title": "Transfer",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/transfer",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YTree",
+          "title": "Tree",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/tree",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YTreeSelect",
+          "title": "Tree Select",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/tree-select",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YUpload",
+          "title": "Upload",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/upload",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YVirtualList",
+          "title": "Virtual List",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/virtual-list",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        }
+      ],
+      "changelogLines": [
+        "- Affix: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Anchor: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Autocomplete: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Calendar: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Carousel: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Cascader: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Color Picker: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Countdown: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Date Picker: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Date Range Picker: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Descriptions: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Drawer: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Dropdown: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Float Button: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Float Button Group: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Form: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Image: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Input Number: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Layout: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- List: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Loading: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Mention: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Menu: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Message Box: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Modal: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Notification: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Popover: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- QRCode: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Rate: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Result: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Segmented: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Slider: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Splitter: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Statistic: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Time Picker: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Timeline: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Tooltip: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Tour: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Transfer: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Tree: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Tree Select: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Upload: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Virtual List: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction."
+      ]
+    },
+    {
+      "packageName": "@yok-ui/product",
+      "packageLabel": "Product",
+      "currentVersion": "0.1.0",
+      "targetVersion": "0.2.0",
+      "components": [
+        {
+          "name": "YCommandPalette",
+          "title": "Command Palette",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/command-palette",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        }
+      ],
+      "changelogLines": [
+        "- Command Palette: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction."
+      ]
+    },
+    {
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "currentVersion": "0.1.0",
+      "targetVersion": "0.2.0",
+      "components": [
+        {
+          "name": "YBulkActionBar",
+          "title": "Bulk Action Bar",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/bulk-action-bar",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YCrudLayout",
+          "title": "CRUD Layout",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/crud-layout",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YDataTable",
+          "title": "Data Table",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/data-table",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YDataView",
+          "title": "Data View",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/data-view",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YFieldArray",
+          "title": "Field Array",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/field-array",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YFilterTabs",
+          "title": "Filter Tabs",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/filter-tabs",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YResourcePage",
+          "title": "Resource Page",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/resource-page",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YReviewWorkflow",
+          "title": "Review Workflow",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/review-workflow",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YSavedViews",
+          "title": "Saved Views",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/saved-views",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YSchemaForm",
+          "title": "Schema Form",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/schema-form",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YSearchForm",
+          "title": "Search Form",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/search-form",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YSearchPanel",
+          "title": "Search Panel",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/search-panel",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        },
+        {
+          "name": "YStatusTimeline",
+          "title": "Status Timeline",
+          "status": "Beta",
+          "score": 100,
+          "docs": "/components/status-timeline",
+          "evidence": [
+            "API",
+            "API Live",
+            "Workflow Live",
+            "Source",
+            "Edited Source Share",
+            "Theme",
+            "Maturity",
+            "A11y",
+            "Interaction"
+          ]
+        }
+      ],
+      "changelogLines": [
+        "- Bulk Action Bar: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- CRUD Layout: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Data Table: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Data View: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Field Array: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Filter Tabs: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Resource Page: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Review Workflow: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Saved Views: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Schema Form: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Search Form: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Search Panel: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.",
+        "- Status Timeline: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction."
+      ]
+    }
+  ],
+  "checklist": [
+    {
+      "id": "release-dry-run",
+      "label": "Release plan dry-run",
+      "command": "pnpm release:dry-run",
+      "required": true,
+      "evidence": "先生成包级 release plan、changelog 草稿和发布门禁记录，确认不会改写 package version。"
+    },
+    {
+      "id": "typecheck",
+      "label": "TypeScript package contract",
+      "command": "pnpm typecheck",
+      "required": true,
+      "evidence": "所有 workspace package 必须通过 vue-tsc。"
+    },
+    {
+      "id": "test",
+      "label": "Unit and docs data tests",
+      "command": "pnpm test",
+      "required": true,
+      "evidence": "组件行为、文档数据、live example 和资源页测试必须全部通过。"
+    },
+    {
+      "id": "build",
+      "label": "Package build artifacts",
+      "command": "pnpm build",
+      "required": true,
+      "evidence": "发布前必须生成每个 package 的 dist、CSS 和声明文件。"
+    },
+    {
+      "id": "docs-build",
+      "label": "Documentation production build",
+      "command": "pnpm docs:build",
+      "required": true,
+      "evidence": "官网路由、组件页和资源页需要通过 VitePress SSR 构建。"
+    },
+    {
+      "id": "runtime-a11y",
+      "label": "Runtime docs accessibility audit",
+      "command": "DOCS_A11Y_BASE_URL=http://127.0.0.1:5173 pnpm docs:a11y:runtime",
+      "required": true,
+      "evidence": "真实浏览器验收导航、页面结构、live example 锚点和响应式溢出。"
+    }
+  ],
+  "artifacts": [
+    {
+      "label": "Markdown release plan",
+      "path": "outputs/release/yok-ui-0.2.0-release-plan.md",
+      "format": "markdown",
+      "description": "面向人工复核的包级发布计划、门禁命令和 changelog 草稿。"
+    },
+    {
+      "label": "Machine-readable release plan",
+      "path": "outputs/release/yok-ui-0.2.0-release-plan.json",
+      "format": "json",
+      "description": "面向自动化流程的 dry-run 结构化数据，可供后续 Changesets 或发布脚本接入。"
+    }
+  ],
+  "promotionQueue": [
+    {
+      "name": "YAffix",
+      "title": "Affix",
+      "docs": "/components/affix",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YAnchor",
+      "title": "Anchor",
+      "docs": "/components/anchor",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YAutocomplete",
+      "title": "Autocomplete",
+      "docs": "/components/autocomplete",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YBulkActionBar",
+      "title": "Bulk Action Bar",
+      "docs": "/components/bulk-action-bar",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YCalendar",
+      "title": "Calendar",
+      "docs": "/components/calendar",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YCarousel",
+      "title": "Carousel",
+      "docs": "/components/carousel",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YCascader",
+      "title": "Cascader",
+      "docs": "/components/cascader",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YColorPicker",
+      "title": "Color Picker",
+      "docs": "/components/color-picker",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YCommandPalette",
+      "title": "Command Palette",
+      "docs": "/components/command-palette",
+      "packageName": "@yok-ui/product",
+      "packageLabel": "Product",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YCountdown",
+      "title": "Countdown",
+      "docs": "/components/statistic",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YCrudLayout",
+      "title": "CRUD Layout",
+      "docs": "/components/crud-layout",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YDataTable",
+      "title": "Data Table",
+      "docs": "/components/data-table",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YDataView",
+      "title": "Data View",
+      "docs": "/components/data-view",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YDatePicker",
+      "title": "Date Picker",
+      "docs": "/components/date-picker",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YDateRangePicker",
+      "title": "Date Range Picker",
+      "docs": "/components/date-range-picker",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YDescriptions",
+      "title": "Descriptions",
+      "docs": "/components/descriptions",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YDrawer",
+      "title": "Drawer",
+      "docs": "/components/drawer",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YDropdown",
+      "title": "Dropdown",
+      "docs": "/components/dropdown",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YFieldArray",
+      "title": "Field Array",
+      "docs": "/components/field-array",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YFilterTabs",
+      "title": "Filter Tabs",
+      "docs": "/components/filter-tabs",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YFloatButton",
+      "title": "Float Button",
+      "docs": "/components/float-button",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YFloatButtonGroup",
+      "title": "Float Button Group",
+      "docs": "/components/float-button",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YForm",
+      "title": "Form",
+      "docs": "/components/form",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YImage",
+      "title": "Image",
+      "docs": "/components/image",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YInputNumber",
+      "title": "Input Number",
+      "docs": "/components/input-number",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YLayout",
+      "title": "Layout",
+      "docs": "/components/layout",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YList",
+      "title": "List",
+      "docs": "/components/list",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YLoading",
+      "title": "Loading",
+      "docs": "/components/loading",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YMention",
+      "title": "Mention",
+      "docs": "/components/mention",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YMenu",
+      "title": "Menu",
+      "docs": "/components/menu",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YMessageBox",
+      "title": "Message Box",
+      "docs": "/components/message-box",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YModal",
+      "title": "Modal",
+      "docs": "/components/modal",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YNotification",
+      "title": "Notification",
+      "docs": "/components/notification",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YPopover",
+      "title": "Popover",
+      "docs": "/components/popover",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YQRCode",
+      "title": "QRCode",
+      "docs": "/components/qr-code",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YRate",
+      "title": "Rate",
+      "docs": "/components/rate",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YResourcePage",
+      "title": "Resource Page",
+      "docs": "/components/resource-page",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YResult",
+      "title": "Result",
+      "docs": "/components/result",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YReviewWorkflow",
+      "title": "Review Workflow",
+      "docs": "/components/review-workflow",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YSavedViews",
+      "title": "Saved Views",
+      "docs": "/components/saved-views",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YSchemaForm",
+      "title": "Schema Form",
+      "docs": "/components/schema-form",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YSearchForm",
+      "title": "Search Form",
+      "docs": "/components/search-form",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YSearchPanel",
+      "title": "Search Panel",
+      "docs": "/components/search-panel",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YSegmented",
+      "title": "Segmented",
+      "docs": "/components/segmented",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YSlider",
+      "title": "Slider",
+      "docs": "/components/slider",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YSplitter",
+      "title": "Splitter",
+      "docs": "/components/splitter",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YStatistic",
+      "title": "Statistic",
+      "docs": "/components/statistic",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YStatusTimeline",
+      "title": "Status Timeline",
+      "docs": "/components/status-timeline",
+      "packageName": "@yok-ui/admin",
+      "packageLabel": "Admin",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YTimePicker",
+      "title": "Time Picker",
+      "docs": "/components/time-picker",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YTimeline",
+      "title": "Timeline",
+      "docs": "/components/timeline",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YTooltip",
+      "title": "Tooltip",
+      "docs": "/components/tooltip",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YTour",
+      "title": "Tour",
+      "docs": "/components/tour",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YTransfer",
+      "title": "Transfer",
+      "docs": "/components/transfer",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YTree",
+      "title": "Tree",
+      "docs": "/components/tree",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YTreeSelect",
+      "title": "Tree Select",
+      "docs": "/components/tree-select",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YUpload",
+      "title": "Upload",
+      "docs": "/components/upload",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    },
+    {
+      "name": "YVirtualList",
+      "title": "Virtual List",
+      "docs": "/components/virtual-list",
+      "packageName": "@yok-ui/core",
+      "packageLabel": "Core",
+      "fromStatus": "Beta",
+      "nextStatus": "Stable",
+      "evidenceHref": "/resources/maturity"
+    }
+  ],
+  "changelogDraft": {
+    "title": "Yok UI 0.2.0 release candidate",
+    "markdown": "# Yok UI 0.2.0 release candidate\n\nRelease gate evidence: API Live / Workflow Live / Source / Edited Source Share / Theme / A11y\n\n## Stable promotions\n\n### @yok-ui/core\n- Affix: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Anchor: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Autocomplete: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Calendar: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Carousel: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Cascader: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Color Picker: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Countdown: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Date Picker: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Date Range Picker: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Descriptions: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Drawer: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Dropdown: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Float Button: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Float Button Group: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Form: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Image: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Input Number: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Layout: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- List: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Loading: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Mention: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Menu: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Message Box: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Modal: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Notification: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Popover: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- QRCode: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Rate: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Result: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Segmented: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Slider: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Splitter: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Statistic: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Time Picker: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Timeline: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Tooltip: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Tour: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Transfer: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Tree: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Tree Select: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Upload: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Virtual List: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n\n### @yok-ui/product\n- Command Palette: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n\n### @yok-ui/admin\n- Bulk Action Bar: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- CRUD Layout: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Data Table: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Data View: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Field Array: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Filter Tabs: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Resource Page: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Review Workflow: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Saved Views: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Schema Form: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Search Form: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Search Panel: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n- Status Timeline: promote Beta -> Stable after API / API Live / Workflow Live / Source / Edited Source Share / Theme / Maturity / A11y / Interaction.\n\n## Required verification\n\n- [ ] Release plan dry-run: `pnpm release:dry-run`\n- [ ] TypeScript package contract: `pnpm typecheck`\n- [ ] Unit and docs data tests: `pnpm test`\n- [ ] Package build artifacts: `pnpm build`\n- [ ] Documentation production build: `pnpm docs:build`\n- [ ] Runtime docs accessibility audit: `DOCS_A11Y_BASE_URL=http://127.0.0.1:5173 pnpm docs:a11y:runtime`"
+  },
+  "versionHistory": [
+    {
+      "version": "0.2.0",
+      "status": "release-candidate",
+      "title": "Yok UI 0.2.0",
+      "summary": "57 components are grouped into 3 package release plans with shared readiness evidence."
+    },
+    {
+      "version": "0.1.0",
+      "status": "current-baseline",
+      "title": "Yok UI 0.1.0",
+      "summary": "Initial multi-package workspace baseline with component docs, theme tokens, live examples and resource pages."
+    }
+  ]
+}

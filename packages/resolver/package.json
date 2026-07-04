@@ -1,0 +1,40 @@
+{
+  "name": "@yok-ui/resolver",
+  "version": "0.1.0",
+  "description": "Auto-import resolver for Yok UI Vue 3 component packages.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "vue",
+    "vue3",
+    "unplugin-vue-components",
+    "resolver",
+    "yok-ui"
+  ],
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json --declaration --emitDeclarationOnly --outDir dist --skipLibCheck",
+    "typecheck": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "peerDependencies": {
+    "unplugin-vue-components": ">=0.26.0"
+  },
+  "peerDependenciesMeta": {
+    "unplugin-vue-components": {
+      "optional": true
+    }
+  }
+}

@@ -1,0 +1,108 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import type { YSavedViewItem } from '@yok-ui/admin'
+
+const currentView = ref('release')
+
+const views: YSavedViewItem[] = [
+  {
+    label: 'Release queue',
+    value: 'release',
+    description: 'Beta components ready for review',
+    count: 8,
+    pinned: true
+  },
+  {
+    label: 'Stable core',
+    value: 'stable',
+    description: 'Core components marked stable',
+    count: 18
+  },
+  {
+    label: 'Needs accessibility review',
+    value: 'a11y',
+    description: 'Components with documented gaps',
+    count: 4
+  }
+]
+
+const savedViewsSetup = [
+  "import { ref } from 'vue'",
+  "import { YSavedViews, type YSavedViewItem } from '@yok-ui/admin'",
+  '',
+  "const currentView = ref('release')",
+  '',
+  'const views: YSavedViewItem[] = [',
+  '  {',
+  "    label: 'Release queue',",
+  "    value: 'release',",
+  "    description: 'Beta components ready for review',",
+  '    count: 8,',
+  '    pinned: true',
+  '  },',
+  '  {',
+  "    label: 'Stable core',",
+  "    value: 'stable',",
+  "    description: 'Core components marked stable',",
+  '    count: 18',
+  '  },',
+  '  {',
+  "    label: 'Needs accessibility review',",
+  "    value: 'a11y',",
+  "    description: 'Components with documented gaps',",
+  '    count: 4',
+  '  }',
+  ']'
+].join('\n')
+
+const basicCode = [
+  '<YSavedViews',
+  '  v-model="currentView"',
+  '  title="Component views"',
+  '  description="Switch release-ready filters quickly."',
+  '  aria-label="Component saved views"',
+  '  :items="views"',
+  '/>',
+  '<p class="demo-note">Current view: {{ currentView }}</p>'
+].join('\n')
+</script>
+
+# Saved Views
+
+Saved Views 用于后台列表页的筛选方案保存和快速切换。它参考主流后台产品里的 saved filters / table views 模式，适合放在 `YCrudLayout` 的侧栏或列表工具区。
+
+组件只负责 UI 与事件，不持久化数据。业务层可以把视图保存到接口、localStorage 或用户配置中心。
+
+## Example
+
+<DocDemo
+  title="Saved filter views"
+  description="保存视图适合把高频筛选方案固定在列表侧边或工具区。"
+  :code="basicCode"
+  :setup="savedViewsSetup"
+  :usage="['admin package', 'saved filters', 'aria-pressed current view']"
+>
+  <YSavedViews
+    v-model="currentView"
+    title="Component views"
+    description="Switch release-ready filters quickly."
+    aria-label="Component saved views"
+    :items="views"
+  />
+  <p class="demo-note">Current view: {{ currentView }}</p>
+</DocDemo>
+
+## Live example
+
+<LiveExampleRunner preset="savedViews" />
+
+## API
+
+<ComponentApiSection name="YSavedViews" />
+
+## Accessibility
+
+- 外层使用具名 `section`。
+- 每个保存视图都是原生 `button`，当前视图通过 `aria-pressed` 表达。
+- 空状态使用 `role="status"`。
+- 创建、保存和管理动作都通过事件交给业务层，不隐藏键盘可达的操作。

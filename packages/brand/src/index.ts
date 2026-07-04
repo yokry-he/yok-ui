@@ -1,0 +1,6 @@
+export { brandComponents, default, YokBrand } from './plugin'
+export { YBrandHero } from './components/brand-hero'
+export { YFeatureGrid } from './components/feature-grid'
+export type { YFeatureItem } from './components/feature-grid'
+export { YLogoCloud } from './components/logo-cloud'
+export { YProfileCard } from './components/profile-card'

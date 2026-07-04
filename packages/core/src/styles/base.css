@@ -1,0 +1,119 @@
+* {
+  box-sizing: border-box;
+}
+
+.yok-focus-ring:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--yok-color-primary) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.yok-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.yok-floating-layer-enter-active,
+.yok-floating-layer-leave-active {
+  transition:
+    opacity var(--yok-motion-fast, 120ms ease),
+    transform var(--yok-motion-fast, 120ms ease);
+  transform-origin: var(--yok-layer-transform-origin, top center);
+  will-change: opacity, transform;
+}
+
+.yok-floating-layer-enter-from,
+.yok-floating-layer-leave-to {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+}
+
+.yok-floating-layer-enter-to,
+.yok-floating-layer-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.yok-modal-layer-enter-active,
+.yok-modal-layer-leave-active,
+.yok-drawer-layer-enter-active,
+.yok-drawer-layer-leave-active {
+  transition: opacity var(--yok-motion-normal, 180ms ease);
+}
+
+.yok-modal-layer-enter-active .yok-modal__dialog,
+.yok-modal-layer-leave-active .yok-modal__dialog {
+  transition: transform var(--yok-motion-normal, 180ms ease);
+}
+
+.yok-modal-layer-enter-from,
+.yok-modal-layer-leave-to,
+.yok-drawer-layer-enter-from,
+.yok-drawer-layer-leave-to {
+  opacity: 0;
+}
+
+.yok-modal-layer-enter-from .yok-modal__dialog,
+.yok-modal-layer-leave-to .yok-modal__dialog {
+  transform: translateY(8px) scale(0.96);
+}
+
+.yok-drawer-layer-enter-active .yok-drawer__panel,
+.yok-drawer-layer-leave-active .yok-drawer__panel {
+  transition: transform var(--yok-motion-normal, 180ms ease);
+}
+
+.yok-drawer-layer-enter-from.yok-drawer--right .yok-drawer__panel,
+.yok-drawer-layer-leave-to.yok-drawer--right .yok-drawer__panel {
+  transform: translateX(28px);
+}
+
+.yok-drawer-layer-enter-from.yok-drawer--left .yok-drawer__panel,
+.yok-drawer-layer-leave-to.yok-drawer--left .yok-drawer__panel {
+  transform: translateX(-28px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yok-floating-layer-enter-active,
+  .yok-floating-layer-leave-active,
+  .yok-modal-layer-enter-active,
+  .yok-modal-layer-leave-active,
+  .yok-drawer-layer-enter-active,
+  .yok-drawer-layer-leave-active,
+  .yok-modal-layer-enter-active .yok-modal__dialog,
+  .yok-modal-layer-leave-active .yok-modal__dialog,
+  .yok-drawer-layer-enter-active .yok-drawer__panel,
+  .yok-drawer-layer-leave-active .yok-drawer__panel {
+    transition-duration: 1ms;
+  }
+}
+
+.yok-message-stack {
+  position: fixed;
+  z-index: var(--yok-zIndex-toast, 3000);
+  inset-block-start: max(18px, env(safe-area-inset-top));
+  inset-inline-end: max(18px, env(safe-area-inset-right));
+  display: grid;
+  gap: var(--yok-space-3, 12px);
+  width: min(520px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.yok-message-stack__item {
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+
+@media (max-width: 640px) {
+  .yok-message-stack {
+    inset-inline: 16px;
+    width: auto;
+  }
+}

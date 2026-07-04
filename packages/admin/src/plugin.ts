@@ -1,0 +1,41 @@
+import type { Component } from 'vue'
+import { createYokInstaller } from '@yok-ui/core'
+import { YBulkActionBar } from './components/bulk-action-bar'
+import { YCrudLayout } from './components/crud-layout'
+import { YDataTable } from './components/data-table'
+import { YDataView } from './components/data-view'
+import { YDataToolbar } from './components/data-toolbar'
+import { YFilterTabs } from './components/filter-tabs'
+import { YFieldArray } from './components/field-array'
+import { YMetricCard } from './components/metric-card'
+import { YPageHeader } from './components/page-header'
+import { YReviewWorkflow } from './components/review-workflow'
+import { YResourcePage } from './components/resource-page'
+import { YSchemaForm } from './components/schema-form'
+import { YSavedViews } from './components/saved-views'
+import { YSearchForm } from './components/search-form'
+import { YSearchPanel } from './components/search-panel'
+import { YStatusTimeline } from './components/status-timeline'
+
+export const adminComponents: Component[] = [
+  YBulkActionBar,
+  YCrudLayout,
+  YDataTable,
+  YDataView,
+  YDataToolbar,
+  YFieldArray,
+  YFilterTabs,
+  YMetricCard,
+  YPageHeader,
+  YReviewWorkflow,
+  YResourcePage,
+  YSchemaForm,
+  YSavedViews,
+  YSearchForm,
+  YSearchPanel,
+  YStatusTimeline
+]
+
+export const YokAdmin = createYokInstaller(adminComponents)
+
+export default YokAdmin

@@ -1,0 +1,40 @@
+{
+  "name": "@yok-ui/brand",
+  "version": "0.1.0",
+  "description": "Brand, portfolio and landing-page components for Yok UI.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "vue",
+    "vue3",
+    "brand",
+    "portfolio",
+    "landing-page",
+    "yok-ui"
+  ],
+  "sideEffects": ["**/*.css"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./style.css": "./dist/index.css"
+  },
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json --declaration --emitDeclarationOnly --outDir dist --skipLibCheck",
+    "typecheck": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "dependencies": {
+    "@yok-ui/core": "workspace:*"
+  }
+}

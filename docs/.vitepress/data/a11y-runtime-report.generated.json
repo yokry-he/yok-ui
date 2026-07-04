@@ -1,0 +1,58 @@
+{
+  "baseUrl": "http://127.0.0.1:5173",
+  "generatedAt": "2026-07-03T10:00:51.593Z",
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "issueCount": 0,
+    "failedRoutes": []
+  },
+  "results": [
+    {
+      "targetId": "component-components-select",
+      "route": "/components/select",
+      "title": "Select component page",
+      "url": "http://127.0.0.1:5173/components/select",
+      "viewportId": "desktop",
+      "priority": "high",
+      "checked": [
+        "structure",
+        "live-example",
+        "responsive"
+      ],
+      "passed": true,
+      "issues": []
+    },
+    {
+      "targetId": "component-components-select",
+      "route": "/components/select",
+      "title": "Select component page",
+      "url": "http://127.0.0.1:5173/components/select",
+      "viewportId": "tablet",
+      "priority": "high",
+      "checked": [
+        "structure",
+        "live-example",
+        "responsive"
+      ],
+      "passed": true,
+      "issues": []
+    },
+    {
+      "targetId": "component-components-select",
+      "route": "/components/select",
+      "title": "Select component page",
+      "url": "http://127.0.0.1:5173/components/select",
+      "viewportId": "mobile",
+      "priority": "high",
+      "checked": [
+        "structure",
+        "live-example",
+        "responsive"
+      ],
+      "passed": true,
+      "issues": []
+    }
+  ]
+}

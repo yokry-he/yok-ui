@@ -1,0 +1,30 @@
+{
+  "name": "yok-ui-workspace",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.12.1",
+  "scripts": {
+    "build": "pnpm -r --filter './packages/*' build",
+    "typecheck": "pnpm -r --filter './packages/*' typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "release:dry-run": "node scripts/release-dry-run.mjs",
+    "docs:a11y": "vitest run docs/.vitepress/data/interactionContracts.test.ts docs/.vitepress/data/accessibilityEvidence.test.ts docs/.vitepress/data/docsA11yAuditTargets.test.ts docs/.vitepress/data/docsA11yRuntimeAudit.test.ts",
+    "docs:a11y:runtime": "node scripts/docs-a11y-runtime.mjs",
+    "docs:dev": "pnpm --filter @yok-ui/docs dev",
+    "docs:build": "pnpm --filter @yok-ui/docs build",
+    "playground:dev": "pnpm --filter @yok-ui/playground dev",
+    "playground:build": "pnpm --filter @yok-ui/playground build"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^17.4.7",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitepress": "^1.6.3",
+    "vitest": "^3.2.4",
+    "vue": "^3.5.16",
+    "vue-tsc": "^2.2.10"
+  }
+}

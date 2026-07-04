@@ -1,0 +1,7 @@
+export { default as YAside } from './YAside.vue'
+export { default as YFooter } from './YFooter.vue'
+export { default as YHeader } from './YHeader.vue'
+export { default as YLayout } from './YLayout.vue'
+export { default as YMain } from './YMain.vue'
+export type { YLayoutDirection } from './YLayout.vue'
+export type { YLayoutSize } from './utils'

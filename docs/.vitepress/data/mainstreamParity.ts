@@ -193,7 +193,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     },
     componentNames: ['YDatePicker', 'YDateRangePicker'],
     docs: ['/components/date-picker', '/components/date-range-picker'],
-    capabilities: ['structured-api', 'workflow-live-example', 'shortcut-scenario', 'disabled-date-scenario']
+    capabilities: ['structured-api', 'workflow-live-example', 'shortcut-scenario', 'time-preset-shortcuts', 'disabled-date-scenario']
   },
   {
     key: 'element-plus-config-provider-i18n',

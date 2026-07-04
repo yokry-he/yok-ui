@@ -162,6 +162,33 @@ describe('YDateRangePicker', () => {
     expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
   })
 
+  it('renders range shortcut time presets with accessible descriptions', async () => {
+    const wrapper = mount(YDateRangePicker, {
+      props: {
+        shortcuts: [
+          {
+            label: 'Launch freeze',
+            value: ['2026-06-18', '2026-06-20'],
+            time: '18:00-09:00',
+            description: 'Hold release changes across the weekend'
+          }
+        ]
+      }
+    })
+
+    await wrapper.get('input').trigger('click')
+
+    const shortcut = wrapper.get('[aria-label="Launch freeze, 18:00-09:00, Hold release changes across the weekend"]')
+
+    expect(shortcut.classes()).toContain('yok-date-range__shortcut--detailed')
+    expect(shortcut.get('.yok-date-range__shortcut-time').text()).toBe('18:00-09:00')
+    expect(shortcut.get('.yok-date-range__shortcut-description').text()).toBe('Hold release changes across the weekend')
+
+    await shortcut.trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([['2026-06-18', '2026-06-20']])
+  })
+
   it('prevents selecting disabled dates', async () => {
     const wrapper = mount(YDateRangePicker, {
       props: {

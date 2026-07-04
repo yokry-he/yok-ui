@@ -5342,7 +5342,7 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'shortcuts',
         type: 'YDateShortcut[]',
         defaultValue: '[]',
-        description: '日期快捷项，例如今天、明天、下周。'
+        description: '日期快捷项，例如今天、评审日、上线窗口；可携带 time 和 description 展示业务时间说明。'
       },
       {
         name: 'error',
@@ -5387,8 +5387,8 @@ export const componentApis: Record<string, ComponentApi> = {
       },
       {
         name: 'YDateShortcut',
-        type: '{ label: string; value: string | (() => string); disabled?: boolean }',
-        description: '单日期快捷项。'
+        type: '{ label: string; value: string | (() => string); time?: string; description?: string; disabled?: boolean }',
+        description: '单日期快捷项；time 和 description 用于展示带时间的业务 preset。'
       },
       {
         name: 'YDatePickerCell',
@@ -5468,7 +5468,7 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'shortcuts',
         type: 'YDateRangeShortcut[]',
         defaultValue: '[]',
-        description: '日期范围快捷项，例如本周、本月、最近 7 天。'
+        description: '日期范围快捷项，例如本周、本月、最近 7 天；可携带 time 和 description 展示业务时间窗口。'
       },
       {
         name: 'separator',
@@ -5519,8 +5519,8 @@ export const componentApis: Record<string, ComponentApi> = {
       },
       {
         name: 'YDateRangeShortcut',
-        type: '{ label: string; value: [string, string] | [] | (() => [string, string] | []); disabled?: boolean }',
-        description: '日期范围快捷项。'
+        type: '{ label: string; value: [string, string] | [] | (() => [string, string] | []); time?: string; description?: string; disabled?: boolean }',
+        description: '日期范围快捷项；time 和 description 用于展示带时间的业务区间 preset。'
       },
       {
         name: 'YDateRangePickerCell',

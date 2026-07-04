@@ -22,12 +22,16 @@ export interface YDateRangePickerCell extends YDatePickerCell {
 export interface YDateShortcut {
   label: string
   value: YDateShortcutValue
+  time?: string
+  description?: string
   disabled?: boolean
 }
 
 export interface YDateRangeShortcut {
   label: string
   value: YDateRangeShortcutValue
+  time?: string
+  description?: string
   disabled?: boolean
 }
 

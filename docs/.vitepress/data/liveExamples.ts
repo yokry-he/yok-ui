@@ -2925,7 +2925,7 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       label: '快捷日期',
       kind: 'controlled',
       controlValue: 'shortcut',
-      description: '覆盖 shortcuts，把今天、评审日、上线日等高频日期放入面板快捷项。'
+      description: '覆盖 shortcuts，把今天、评审日、上线日和带时间说明的发布窗口放入面板快捷项。'
     },
     {
       key: 'disabled-date-picker',
@@ -3574,7 +3574,7 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       label: '快捷范围',
       kind: 'controlled',
       controlValue: 'shortcut',
-      description: '覆盖 shortcuts 预设快捷项和受控范围值。'
+      description: '覆盖 shortcuts 预设快捷项、带时间窗口的发布冻结范围和受控范围值。'
     },
     {
       key: 'partial-range',

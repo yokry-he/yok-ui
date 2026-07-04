@@ -141,6 +141,33 @@ describe('YDatePicker', () => {
     expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
   })
 
+  it('renders shortcut time presets with accessible descriptions', async () => {
+    const wrapper = mount(YDatePicker, {
+      props: {
+        shortcuts: [
+          {
+            label: 'Release window',
+            value: '2026-06-18',
+            time: '20:30',
+            description: 'Deploy after traffic drops'
+          }
+        ]
+      }
+    })
+
+    await wrapper.get('input').trigger('click')
+
+    const shortcut = wrapper.get('[aria-label="Release window, 20:30, Deploy after traffic drops"]')
+
+    expect(shortcut.classes()).toContain('yok-date-picker__shortcut--detailed')
+    expect(shortcut.get('.yok-date-picker__shortcut-time').text()).toBe('20:30')
+    expect(shortcut.get('.yok-date-picker__shortcut-description').text()).toBe('Deploy after traffic drops')
+
+    await shortcut.trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['2026-06-18'])
+  })
+
   it('prevents selecting disabled dates', async () => {
     const wrapper = mount(YDatePicker, {
       props: {

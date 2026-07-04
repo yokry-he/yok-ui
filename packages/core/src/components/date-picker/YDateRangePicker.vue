@@ -107,6 +107,8 @@ const resolvedShortcuts = computed(() => props.shortcuts.map((shortcut) => {
   return {
     label: shortcut.label,
     value,
+    time: shortcut.time,
+    description: shortcut.description,
     disabled: props.disabled ||
       shortcut.disabled ||
       value.length !== 2 ||
@@ -215,6 +217,10 @@ function selectShortcut(shortcut: { value: YDateRangeValue; disabled?: boolean }
 
   emitValue(shortcut.value)
   closePanel()
+}
+
+function getShortcutAriaLabel(shortcut: { label: string; time?: string; description?: string }) {
+  return [shortcut.label, shortcut.time, shortcut.description].filter(Boolean).join(', ')
 }
 
 function moveMonth(amount: number) {
@@ -384,11 +390,17 @@ function handleCalendarKeydown(event: KeyboardEvent) {
             v-for="shortcut in resolvedShortcuts"
             :key="`${shortcut.label}-${shortcut.value.join('-')}`"
             class="yok-date-range__shortcut yok-focus-ring"
+            :class="{ 'yok-date-range__shortcut--detailed': shortcut.time || shortcut.description }"
             type="button"
             :disabled="shortcut.disabled"
+            :aria-label="getShortcutAriaLabel(shortcut)"
             @click="selectShortcut(shortcut)"
           >
-            {{ shortcut.label }}
+            <span class="yok-date-range__shortcut-main">
+              <span class="yok-date-range__shortcut-label">{{ shortcut.label }}</span>
+              <span v-if="shortcut.time" class="yok-date-range__shortcut-time">{{ shortcut.time }}</span>
+            </span>
+            <span v-if="shortcut.description" class="yok-date-range__shortcut-description">{{ shortcut.description }}</span>
           </button>
         </div>
 
@@ -597,6 +609,53 @@ function handleCalendarKeydown(event: KeyboardEvent) {
   font-size: 12px;
   font-weight: 750;
   padding: 0 var(--yok-space-2);
+}
+
+.yok-date-range__shortcut--detailed {
+  display: grid;
+  min-height: 44px;
+  min-width: min(100%, 132px);
+  align-content: center;
+  gap: 2px;
+  padding-block: var(--yok-space-1);
+  text-align: start;
+}
+
+.yok-date-range__shortcut-main {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yok-space-2);
+}
+
+.yok-date-range__shortcut-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.yok-date-range__shortcut-time {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--yok-color-surface);
+  color: var(--yok-color-text);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.45;
+  padding: 0 var(--yok-space-1);
+}
+
+.yok-date-range__shortcut-description {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--yok-color-textMuted);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .yok-date-range__shortcut:hover:not(:disabled) {

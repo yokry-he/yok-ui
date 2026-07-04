@@ -27,7 +27,6 @@ Yok UI 的路线图按“可用组件库”的成熟路径推进：先有包结�
 
 | Package | Candidates |
 | --- | --- |
-| Core | Date presets with time |
 | Product | SettingsLayout、ShortcutRecorder、CommandGroup |
 | Admin | SearchForm date / async presets、SavedViewManager、BulkActionMenu、ApprovalCommentBox |
 | Brand | ShowcaseCard、PricingSection、Timeline、Gallery |

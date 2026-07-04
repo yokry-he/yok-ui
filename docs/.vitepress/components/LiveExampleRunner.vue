@@ -607,8 +607,8 @@ const fallbackRemoteCascaderChildren: Record<string, YCascaderOption[]> = {
 }
 const fallbackDateShortcuts = [
   { label: 'Today', value: '2026-06-13' },
-  { label: 'Review day', value: '2026-06-15' },
-  { label: 'Launch day', value: '2026-07-01' }
+  { label: 'Review day', value: '2026-06-15', time: '10:00', description: 'Design and QA review' },
+  { label: 'Launch day', value: '2026-07-01', time: '20:30', description: 'Low traffic release window' }
 ]
 
 function disableWeekendDate(date: Date) {
@@ -627,8 +627,8 @@ function loadFallbackCascaderOptions(_option: YCascaderOption, path: YCascaderOp
 
 const fallbackDateRangeShortcuts = [
   { label: 'Sprint', value: ['2026-06-13', '2026-06-20'] },
-  { label: 'Release week', value: ['2026-07-01', '2026-07-07'] },
-  { label: 'Planning', value: ['2026-06-24', '2026-06-26'] }
+  { label: 'Release week', value: ['2026-07-01', '2026-07-07'], time: '20:30-09:00', description: 'Night release freeze' },
+  { label: 'Planning', value: ['2026-06-24', '2026-06-26'], time: '10:00-17:00', description: 'Roadmap workshop' }
 ]
 const fallbackTransferOptions = [
   { value: 'docs', label: 'Docs editor', description: 'Create and update documentation' },
@@ -1449,27 +1449,37 @@ const presetExamples: Record<LiveExamplePreset, string> = {
   ].join('\n'),
   datePicker: [
     '<script setup lang="ts">',
-    "import { YDatePicker, YTag } from '@yok-ui/core'",
+    "import { YDatePicker, YTag, type YDateShortcut } from '@yok-ui/core'",
+    'const dateShortcuts: YDateShortcut[] = [',
+    "  { label: 'Today', value: '2026-06-13' },",
+    "  { label: 'Review day', value: '2026-06-15', time: '10:00', description: 'Design and QA review' },",
+    "  { label: 'Launch day', value: '2026-07-01', time: '20:30', description: 'Low traffic release window' }",
+    ']',
     '</' + 'script>',
     '',
     '<template>',
     '  <div class="demo-stack">',
     '    <YDatePicker label="Release date" model-value="2026-06-13" />',
-    '    <YDatePicker label="Review date" placeholder="Pick a weekday" shortcuts />',
-    '    <YTag tone="info">Shortcuts are provided by the docs runner.</YTag>',
+    '    <YDatePicker label="Review date" placeholder="Pick a weekday" :shortcuts="dateShortcuts" />',
+    '    <YTag tone="info">Shortcuts include time preset metadata.</YTag>',
     '  </div>',
     '</template>'
   ].join('\n'),
   dateRangePicker: [
     '<script setup lang="ts">',
-    "import { YDateRangePicker, YTag } from '@yok-ui/core'",
+    "import { YDateRangePicker, YTag, type YDateRangeShortcut } from '@yok-ui/core'",
+    'const rangeShortcuts: YDateRangeShortcut[] = [',
+    "  { label: 'Sprint', value: ['2026-06-13', '2026-06-20'] },",
+    "  { label: 'Release week', value: ['2026-07-01', '2026-07-07'], time: '20:30-09:00', description: 'Night release freeze' },",
+    "  { label: 'Planning', value: ['2026-06-24', '2026-06-26'], time: '10:00-17:00', description: 'Roadmap workshop' }",
+    ']',
     '</' + 'script>',
     '',
     '<template>',
     '  <div class="demo-stack">',
-    '    <YDateRangePicker label="Sprint range" model-value="2026-06-13,2026-06-20" shortcuts />',
+    '    <YDateRangePicker label="Sprint range" model-value="2026-06-13,2026-06-20" :shortcuts="rangeShortcuts" />',
     '    <YDateRangePicker label="Booking window" placeholder="Choose a date range" />',
-    '    <YTag tone="info">Range shortcuts are provided by the docs runner.</YTag>',
+    '    <YTag tone="info">Range shortcuts include time window metadata.</YTag>',
     '  </div>',
     '</template>'
   ].join('\n'),
@@ -3727,7 +3737,7 @@ const disableWeekends = (date: Date) => [0, 6].includes(date.getDay())`
               ? 'Use keyboard to pick'
               : 'Pick a date'
       const helperText = isShortcutScenario
-        ? 'Review day shortcuts keep common release dates one click away.'
+        ? 'Review and launch shortcuts include time preset metadata.'
         : isDisabledScenario
           ? 'Weekends are disabled by a pure disabledDate function.'
         : isErrorScenario
@@ -3747,8 +3757,8 @@ const disableWeekends = (date: Date) => [0, 6].includes(date.getDay())`
           '',
           'const dateShortcuts: YDateShortcut[] = [',
           "  { label: 'Today', value: '2026-06-13' },",
-          "  { label: 'Review day', value: '2026-06-15' },",
-          "  { label: 'Launch day', value: '2026-07-01' }",
+          "  { label: 'Review day', value: '2026-06-15', time: '10:00', description: 'Design and QA review' },",
+          "  { label: 'Launch day', value: '2026-07-01', time: '20:30', description: 'Low traffic release window' }",
           ']'
         ].join('\n') : '',
         isDisabledScenario ? [
@@ -3841,7 +3851,7 @@ const disableWeekends = (date: Date) => [0, 6].includes(date.getDay())`
           : isValidationScenario
             ? 'Stable id and aria-describedby connect range help, errors and event log coverage for @change and @visible-change.'
           : isShortcutScenario
-            ? 'Shortcut ranges mirror common reporting windows.'
+            ? 'Shortcut ranges include time window metadata for release freezes and workshops.'
             : isPartialScenario
               ? 'Choose an end date to complete the range.'
               : isDisabledDateScenario
@@ -3853,6 +3863,15 @@ const disableWeekends = (date: Date) => [0, 6].includes(date.getDay())`
                 : 'Range shortcuts are injected by the runner.'
       const imports = [
         "import { YDateRangePicker, YTag } from '@yok-ui/core'",
+        shortcuts ? "import type { YDateRangeShortcut } from '@yok-ui/core'" : '',
+        shortcuts ? [
+          '',
+          'const rangeShortcuts: YDateRangeShortcut[] = [',
+          "  { label: 'Sprint', value: ['2026-06-13', '2026-06-20'] },",
+          "  { label: 'Release week', value: ['2026-07-01', '2026-07-07'], time: '20:30-09:00', description: 'Night release freeze' },",
+          "  { label: 'Planning', value: ['2026-06-24', '2026-06-26'], time: '10:00-17:00', description: 'Roadmap workshop' }",
+          ']'
+        ].join('\n') : '',
         isDisabledDateScenario ? [
           '',
           'function disablePastDates(date: Date) {',
@@ -3863,7 +3882,7 @@ const disableWeekends = (date: Date) => [0, 6].includes(date.getDay())`
 
       return sfc(imports, [
       '<div class="demo-stack">',
-      `  <YDateRangePicker${isValidationScenario ? ' id="release-window-field"' : ''}${textAttribute('label', label)}${textAttribute('model-value', value)}${textAttribute('separator', separator)}${booleanAttribute('shortcuts', shortcuts)}${clearable ? '' : ' :clearable="false"'}${booleanAttribute('disabled', isArchiveScenario)}${isValidationScenario ? ' aria-describedby="release-window-help" invalid' : ''}${isDisabledDateScenario ? ' :disabled-date="disablePastDates"' : ''}${isFreezeScenario ? ' error="Release freeze overlaps with QA handoff."' : ''}${isValidationScenario ? ' error="Select a complete release window."' : ''} />`,
+      `  <YDateRangePicker${isValidationScenario ? ' id="release-window-field"' : ''}${textAttribute('label', label)}${textAttribute('model-value', value)}${textAttribute('separator', separator)}${shortcuts ? ' :shortcuts="rangeShortcuts"' : ''}${clearable ? '' : ' :clearable="false"'}${booleanAttribute('disabled', isArchiveScenario)}${isValidationScenario ? ' aria-describedby="release-window-help" invalid' : ''}${isDisabledDateScenario ? ' :disabled-date="disablePastDates"' : ''}${isFreezeScenario ? ' error="Release freeze overlaps with QA handoff."' : ''}${isValidationScenario ? ' error="Select a complete release window."' : ''} />`,
       isValidationScenario ? '  <p id="release-window-help" class="demo-note">Pick both start and end dates before publishing.</p>' : '',
       `  <YTag tone="${isFreezeScenario || isValidationScenario ? 'danger' : isKeyboardScenario || isPartialScenario || isDisabledDateScenario ? 'warning' : 'info'}">${helperText}</YTag>`,
       '</div>'

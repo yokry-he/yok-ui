@@ -17,6 +17,7 @@ export type {
   YTreeCheckState,
   YTreeDropPayload,
   YTreeDropType,
+  YTreeExpose,
   YTreeFlatNode,
   YTreeLoadChildren,
   YTreeLoadErrorPayload,

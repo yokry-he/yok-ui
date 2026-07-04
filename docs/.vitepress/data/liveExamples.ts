@@ -4853,7 +4853,7 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       label: '异步加载',
       kind: 'remote',
       controlValue: 'lazy',
-      description: '覆盖 lazy、load、loadError 和 isLeaf 的按需加载远端节点场景。'
+      description: '覆盖 lazy、load、reloadNode、loadError 和 isLeaf 的远端节点加载与定向刷新场景。'
     },
     {
       key: 'empty-tree',

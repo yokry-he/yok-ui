@@ -4642,6 +4642,7 @@ const disableWeekends = (date: Date) => [0, 6].includes(date.getDay())`
         { label: '文档导航', value: 'navigation' },
         { label: '权限勾选', value: 'permissions' },
         { label: '拖拽分类', value: 'taxonomy' },
+        { label: '异步刷新', value: 'lazy' },
         { label: '空树', value: 'empty' },
         { label: '移动树', value: 'mobile' },
         { label: '键盘树', value: 'keyboard' }
@@ -4669,6 +4670,7 @@ const disableWeekends = (date: Date) => [0, 6].includes(date.getDay())`
       const scenario = String(state.scenario)
       const isPermissionScenario = scenario === 'permissions'
       const isTaxonomyScenario = scenario === 'taxonomy'
+      const isLazyScenario = scenario === 'lazy'
       const isEmptyScenario = scenario === 'empty'
       const isMobileScenario = scenario === 'mobile'
       const isKeyboardScenario = scenario === 'keyboard'
@@ -4697,9 +4699,48 @@ const disableWeekends = (date: Date) => [0, 6].includes(date.getDay())`
             ? 'Arrow keys move through visible tree items; Enter selects the active node.'
             : isTaxonomyScenario
               ? 'Drag state documents taxonomy editing affordances.'
-              : isPermissionScenario
-                ? 'Checked keys mirror permission review flows.'
-                : 'Tree data is injected by the docs runner.'
+            : isPermissionScenario
+              ? 'Checked keys mirror permission review flows.'
+              : 'Tree data is injected by the docs runner.'
+
+      if (isLazyScenario) {
+        return sfc(`import { ref } from 'vue'
+import { YButton, YTag, YTree, type YTreeExpose, type YTreeLoadPayload, type YTreeNode } from '@yok-ui/core'
+
+const treeRef = ref<YTreeExpose>()
+const lastLoad = ref('Expand remote-core, then refresh it.')
+const loadVersions = new Map<string, number>()
+const lazyTreeNodes: YTreeNode[] = [
+  { key: 'remote-core', label: 'Remote core package' },
+  { key: 'remote-admin', label: 'Remote admin package' }
+]
+
+async function loadRemoteNode(node: YTreeNode) {
+  await new Promise((resolve) => setTimeout(resolve, 240))
+  const version = (loadVersions.get(node.key) ?? 0) + 1
+  loadVersions.set(node.key, version)
+
+  return [
+    { key: \`\${node.key}-workflow-\${version}\`, label: \`Workflow v\${version}\`, isLeaf: true },
+    { key: \`\${node.key}-settings-\${version}\`, label: \`Settings v\${version}\`, isLeaf: true }
+  ]
+}
+
+function handleLoad(payload: YTreeLoadPayload) {
+  lastLoad.value = \`\${payload.key}: \${payload.children.length} children loaded\`
+}
+
+async function reloadRemoteCore() {
+  const refreshed = await treeRef.value?.reloadNode('remote-core')
+  lastLoad.value = refreshed ? 'remote-core refreshed' : 'remote-core is not ready to refresh'
+}`, [
+          '<div class="demo-stack">',
+          '  <YButton size="small" @click="reloadRemoteCore">Reload remote-core</YButton>',
+          '  <YTree ref="treeRef" :nodes="lazyTreeNodes" lazy :load="loadRemoteNode" aria-label="Async component tree" @load="handleLoad" />',
+          '  <YTag tone="info">{{ lastLoad }}</YTag>',
+          '</div>'
+        ])
+      }
 
       return sfc("import { YTag, YTree } from '@yok-ui/core'", [
       '<div class="demo-stack">',

@@ -783,11 +783,16 @@ describe('componentRegistry', () => {
     expect(componentApis.YTree.events?.map((row) => row.name)).toContain('drop')
     expect(componentApis.YTree.events?.map((row) => row.name)).toContain('load')
     expect(componentApis.YTree.events?.map((row) => row.name)).toContain('loadError')
+    expect(componentApis.YTree.methods?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'getNodeByKey',
+      'reloadNode'
+    ]))
     expect(componentApis.YTree.types?.map((row) => row.name)).toContain('YTreeCheckPayload')
     expect(componentApis.YTree.types?.map((row) => row.name)).toContain('YTreeDropPayload')
     expect(componentApis.YTree.types?.map((row) => row.name)).toContain('YTreeLoadChildren')
     expect(componentApis.YTree.types?.map((row) => row.name)).toContain('YTreeLoadPayload')
     expect(componentApis.YTree.types?.map((row) => row.name)).toContain('YTreeLoadErrorPayload')
+    expect(componentApis.YTree.types?.map((row) => row.name)).toContain('YTreeExpose')
   })
 
   it('keeps live example coverage aligned with component docs', () => {

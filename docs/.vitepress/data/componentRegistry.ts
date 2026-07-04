@@ -6143,6 +6143,18 @@ export const componentApis: Record<string, ComponentApi> = {
         description: '自定义空状态。'
       }
     ],
+    methods: [
+      {
+        name: 'getNodeByKey',
+        type: '(key: string) => YTreeNode | null',
+        description: '按 key 获取当前树中的节点，包含已合并的异步 children。'
+      },
+      {
+        name: 'reloadNode',
+        type: '(key: string) => Promise<boolean>',
+        description: '重新加载指定 lazy 节点；成功时替换该节点 children，节点不存在、不可加载或加载失败时返回 false。'
+      }
+    ],
     types: [
       {
         name: 'YTreeNode',
@@ -6203,6 +6215,11 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'YTreeLoadErrorPayload',
         type: '{ node: YTreeNode; key: string; error: unknown }',
         description: 'loadError 事件载荷。'
+      },
+      {
+        name: 'YTreeExpose',
+        type: '{ getNodeByKey: (key: string) => YTreeNode | null; reloadNode: (key: string) => Promise<boolean> }',
+        description: 'Tree 组件 ref 暴露的命令式方法。'
       }
     ]
   },

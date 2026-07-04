@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { YTreeCheckPayload, YTreeDropPayload, YTreeLoadErrorPayload, YTreeLoadPayload, YTreeNode, YTreeSelectPayload } from '@yok-ui/core'
+import type { YTreeCheckPayload, YTreeDropPayload, YTreeExpose, YTreeLoadErrorPayload, YTreeLoadPayload, YTreeNode, YTreeSelectPayload } from '@yok-ui/core'
 
 const selectedKey = ref('button')
 const expandedKeys = ref(['core', 'product'])
 const checkedKeys = ref(['button'])
 const strictCheckedKeys = ref(['tree'])
+const treeRef = ref<YTreeExpose>()
 const lastDrop = ref('No drop yet')
 const lastCheck = ref('Checked: button')
 const lastSelect = ref('Selected: button')
 const lastLoad = ref('No async load yet')
+const loadVersions = new Map<string, number>()
 const largeNodes = Array.from({ length: 160 }, (_, index) => ({
   key: `node-${index + 1}`,
   label: `Component node ${index + 1}`
@@ -49,16 +51,18 @@ const nodes = [
 
 const treeCodeSetup = [
   "import { ref } from 'vue'",
-  "import { YTag, YTree, type YTreeCheckPayload, type YTreeDropPayload, type YTreeLoadErrorPayload, type YTreeLoadPayload, type YTreeNode, type YTreeSelectPayload } from '@yok-ui/core'",
+  "import { YButton, YTag, YTree, type YTreeCheckPayload, type YTreeDropPayload, type YTreeExpose, type YTreeLoadErrorPayload, type YTreeLoadPayload, type YTreeNode, type YTreeSelectPayload } from '@yok-ui/core'",
   '',
   "const selectedKey = ref('button')",
   "const expandedKeys = ref(['core', 'product'])",
   "const checkedKeys = ref(['button'])",
   "const strictCheckedKeys = ref(['tree'])",
+  'const treeRef = ref<YTreeExpose>()',
   "const lastDrop = ref('No drop yet')",
   "const lastCheck = ref('Checked: button')",
   "const lastSelect = ref('Selected: button')",
   "const lastLoad = ref('No async load yet')",
+  'const loadVersions = new Map<string, number>()',
   'const largeNodes = Array.from({ length: 160 }, (_, index) => ({',
   '  key: `node-${index + 1}`,',
   '  label: `Component node ${index + 1}`',
@@ -84,11 +88,13 @@ const treeCodeSetup = [
   '',
   'async function loadRemoteNode(node: YTreeNode) {',
   '  await new Promise((resolve) => setTimeout(resolve, 320))',
+  '  const version = (loadVersions.get(node.key) ?? 0) + 1',
+  '  loadVersions.set(node.key, version)',
   '',
   "  if (node.key === 'remote-core') {",
   '    return [',
-  "      { key: 'remote-core-button', label: 'Button from API', isLeaf: true },",
-  "      { key: 'remote-core-tree', label: 'Tree from API', isLeaf: true }",
+  "      { key: `remote-core-button-${version}`, label: `Button from API v${version}`, isLeaf: true },",
+  "      { key: `remote-core-tree-${version}`, label: `Tree from API v${version}`, isLeaf: true }",
   '    ]',
   '  }',
   '',
@@ -103,6 +109,11 @@ const treeCodeSetup = [
   '',
   'function handleLoadError(payload: YTreeLoadErrorPayload) {',
   '  lastLoad.value = `${payload.key}: load failed`',
+  '}',
+  '',
+  'async function reloadRemoteCore() {',
+  "  const refreshed = await treeRef.value?.reloadNode('remote-core')",
+  "  lastLoad.value = refreshed ? 'remote-core refreshed' : 'remote-core is not ready to refresh'",
   '}'
 ].join('\n')
 
@@ -163,7 +174,9 @@ const virtualizedCode = [
 ].join('\n')
 
 const lazyCode = [
+  '<YButton size="small" @click="reloadRemoteCore">Reload remote-core</YButton>',
   '<YTree',
+  '  ref="treeRef"',
   '  :nodes="lazyNodes"',
   '  lazy',
   '  :load="loadRemoteNode"',
@@ -187,11 +200,13 @@ function handleSelect(payload: YTreeSelectPayload) {
 
 async function loadRemoteNode(node: YTreeNode) {
   await new Promise((resolve) => setTimeout(resolve, 320))
+  const version = (loadVersions.get(node.key) ?? 0) + 1
+  loadVersions.set(node.key, version)
 
   if (node.key === 'remote-core') {
     return [
-      { key: 'remote-core-button', label: 'Button from API', isLeaf: true },
-      { key: 'remote-core-tree', label: 'Tree from API', isLeaf: true }
+      { key: `remote-core-button-${version}`, label: `Button from API v${version}`, isLeaf: true },
+      { key: `remote-core-tree-${version}`, label: `Tree from API v${version}`, isLeaf: true }
     ]
   }
 
@@ -206,6 +221,11 @@ function handleLoad(payload: YTreeLoadPayload) {
 
 function handleLoadError(payload: YTreeLoadErrorPayload) {
   lastLoad.value = `${payload.key}: load failed`
+}
+
+async function reloadRemoteCore() {
+  const refreshed = await treeRef.value?.reloadNode('remote-core')
+  lastLoad.value = refreshed ? 'remote-core refreshed' : 'remote-core is not ready to refresh'
 }
 </script>
 
@@ -319,12 +339,14 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
 
 <DocDemo
   title="Lazy loading"
-  description="lazy + load 可以按需请求远端节点；失败会触发 loadError，并保留节点可再次展开以便重试。"
+  description="lazy + load 可以按需请求远端节点；失败会触发 loadError，已加载节点也可以通过 reloadNode 定向刷新。"
   :code="lazyCode"
   :setup="treeCodeSetup"
-  :usage="['lazy', 'load', 'isLeaf', 'loadError']"
+  :usage="['lazy', 'load', 'reloadNode', 'loadError']"
 >
+  <YButton size="small" @click="reloadRemoteCore">Reload remote-core</YButton>
   <YTree
+    ref="treeRef"
     :nodes="lazyNodes"
     lazy
     :load="loadRemoteNode"
@@ -361,6 +383,7 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
 - 受控模式使用 `selectedKey`、`expandedKeys`、`checkedKeys`；非受控初始值使用 `defaultExpandedKeys` 和 `defaultCheckedKeys`。
 - 对于大型树，优先开启 `virtualized`，并让 `virtualItemHeight` 接近实际节点高度；远程目录或超深树再结合懒加载策略。
 - `lazy` 模式下，未声明 `children` 且 `isLeaf !== true` 的节点会显示展开入口；远端确认叶子节点时应返回 `isLeaf: true`，避免继续显示展开按钮。
+- 已加载的远程节点可以通过组件 ref 调用 `reloadNode(key)` 定向刷新，成功时替换该节点 children，失败时返回 `false` 并触发 `loadError`。
 
 ## API
 

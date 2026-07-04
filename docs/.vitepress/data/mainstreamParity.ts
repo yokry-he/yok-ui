@@ -154,7 +154,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     },
     componentNames: ['YTree'],
     docs: ['/components/tree'],
-    capabilities: ['lazy-tree-loading', 'load-error-retry', 'structured-api', 'workflow-live-example']
+    capabilities: ['lazy-tree-loading', 'load-error-retry', 'lazy-node-refresh', 'structured-api', 'workflow-live-example']
   },
   {
     key: 'element-plus-cascader',

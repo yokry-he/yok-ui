@@ -73,3 +73,8 @@ export interface YTreeLoadErrorPayload {
   key: string
   error: unknown
 }
+
+export interface YTreeExpose {
+  getNodeByKey: (key: string) => YTreeNode | null
+  reloadNode: (key: string) => Promise<boolean>
+}

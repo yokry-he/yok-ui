@@ -463,4 +463,37 @@ describe('YTree', () => {
       'Retry child'
     ])
   })
+
+  it('exposes reloadNode to refresh loaded lazy children', async () => {
+    const load = vi.fn()
+      .mockResolvedValueOnce([{ key: 'remote-child-a', label: 'Remote child A', isLeaf: true }])
+      .mockResolvedValueOnce([{ key: 'remote-child-b', label: 'Remote child B', isLeaf: true }])
+    const wrapper = mount(YTree, {
+      props: {
+        nodes: [{ key: 'remote', label: 'Remote folder' }],
+        lazy: true,
+        load
+      }
+    })
+
+    await wrapper.get('[aria-label="Expand Remote folder"]').trigger('click')
+    await flushPromises()
+    await nextTick()
+
+    expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual([
+      '−Remote folder',
+      'Remote child A'
+    ])
+
+    await expect(wrapper.vm.reloadNode('remote')).resolves.toBe(true)
+    await flushPromises()
+    await nextTick()
+
+    expect(load).toHaveBeenCalledTimes(2)
+    expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual([
+      '−Remote folder',
+      'Remote child B'
+    ])
+    await expect(wrapper.vm.reloadNode('missing')).resolves.toBe(false)
+  })
 })

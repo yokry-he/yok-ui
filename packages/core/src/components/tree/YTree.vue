@@ -14,6 +14,7 @@ import type {
   YTreeCheckPayload,
   YTreeDropPayload,
   YTreeDropType,
+  YTreeExpose,
   YTreeFlatNode,
   YTreeLoadChildren,
   YTreeLoadErrorPayload,
@@ -202,12 +203,12 @@ function mergeLoadedChildren(nodes: YTreeNode[]): YTreeNode[] {
   })
 }
 
-function canLazyLoadNode(node: YTreeNode) {
-  if (!props.lazy || !props.load || node.isLeaf || loadedChildrenByKey.value.has(node.key)) {
+function canLazyLoadNode(node: YTreeNode, force = false) {
+  if (!props.lazy || !props.load || node.isLeaf || (!force && loadedChildrenByKey.value.has(node.key))) {
     return false
   }
 
-  return getNodeChildren(node).length === 0
+  return force || getNodeChildren(node).length === 0
 }
 
 function commitLoadingKey(key: string, loading: boolean) {
@@ -320,9 +321,9 @@ function toggleNode(flatNode: YTreeFlatNode, expanded = !flatNode.expanded) {
   }
 }
 
-async function loadLazyNode(flatNode: YTreeFlatNode) {
-  if (!canLazyLoadNode(flatNode.node) || loadingKeys.value.has(flatNode.key)) {
-    return
+async function loadLazyNode(flatNode: Pick<YTreeFlatNode, 'node' | 'key'>, force = false) {
+  if (!canLazyLoadNode(flatNode.node, force) || loadingKeys.value.has(flatNode.key)) {
+    return false
   }
 
   commitLoadingKey(flatNode.key, true)
@@ -337,6 +338,7 @@ async function loadLazyNode(flatNode: YTreeFlatNode) {
       key: flatNode.key,
       children
     })
+    return true
   } catch (error) {
     commitLoadError(flatNode.key, error)
     emit('loadError', {
@@ -344,6 +346,7 @@ async function loadLazyNode(flatNode: YTreeFlatNode) {
       key: flatNode.key,
       error
     })
+    return false
   } finally {
     commitLoadingKey(flatNode.key, false)
   }
@@ -592,8 +595,19 @@ function getNodeByKey(key: string) {
   return findNode(treeNodes.value, key)
 }
 
-defineExpose({
-  getNodeByKey
+async function reloadNode(key: string) {
+  const node = getNodeByKey(key)
+
+  if (!node) {
+    return false
+  }
+
+  return loadLazyNode({ node, key }, true)
+}
+
+defineExpose<YTreeExpose>({
+  getNodeByKey,
+  reloadNode
 })
 </script>
 

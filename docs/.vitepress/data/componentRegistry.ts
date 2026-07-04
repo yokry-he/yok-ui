@@ -209,6 +209,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'native'
   },
   {
+    name: 'YInputTag',
+    title: 'Input Tag',
+    packageName: '@yok-ui/core',
+    family: 'form',
+    status: 'Beta',
+    docs: '/components/input-tag',
+    description: '多值标签输入，支持 Enter 创建、重复校验、上限限制和表单校验联动。',
+    since: '0.13.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YAutocomplete',
     title: 'Autocomplete',
     packageName: '@yok-ui/core',
@@ -1562,6 +1573,38 @@ export const componentApis: Record<string, ComponentApi> = {
         type: 'FocusEvent',
         description: '输入框失去焦点时触发。'
       }
+    ]
+  },
+  YInputTag: {
+    props: [
+      { name: 'id', type: 'string', defaultValue: "''", description: '传给内部 input 的 id，常用于和 FormItem label 关联。' },
+      { name: 'modelValue', type: 'string[]', defaultValue: '[]', description: '当前标签数组，支持 v-model。' },
+      { name: 'inputValue', type: 'string', defaultValue: "''", description: '当前输入草稿，支持 v-model:inputValue。' },
+      { name: 'label', type: 'string', defaultValue: "''", description: '输入框上方标签，同时作为无 id 时的可访问名称。' },
+      { name: 'placeholder', type: 'string', defaultValue: "''", description: '无标签时展示的占位文本。' },
+      { name: 'max', type: 'number', defaultValue: 'undefined', description: '允许创建的最大标签数量；达到上限后继续提交会触发 invalid。' },
+      { name: 'allowDuplicate', type: 'boolean', defaultValue: 'false', description: '是否允许重复标签。默认会阻止重复值。' },
+      { name: 'validateTag', type: '(value: string, tags: string[]) => boolean | string', defaultValue: 'undefined', description: '自定义单个标签校验；返回字符串时作为错误信息。' },
+      { name: 'disabled', type: 'boolean', defaultValue: 'false', description: '禁用输入、创建和删除。' },
+      { name: 'invalid', type: 'boolean', defaultValue: 'false', description: '外部表单校验传入的无效状态。' },
+      { name: 'error', type: 'string', defaultValue: "''", description: '错误提示，同时把输入框标记为 aria-invalid。' },
+      { name: 'ariaLabel', type: 'string', defaultValue: "''", description: '无可见 label 或需要覆盖可访问名称时传给内部 input 的 aria-label。' },
+      { name: 'ariaDescribedby', type: 'string', defaultValue: "''", description: '传给内部 input 的 aria-describedby，通常来自 YFormItem 的 messageId。' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", defaultValue: 'ConfigProvider size', description: '输入框尺寸；未传入时读取 ConfigProvider。' }
+    ],
+    events: [
+      { name: 'update:modelValue', type: 'string[]', description: '标签数组变化时触发。' },
+      { name: 'update:inputValue', type: 'string', description: '输入草稿变化或提交后清空时触发。' },
+      { name: 'add', type: 'string', description: '成功创建标签时触发。' },
+      { name: 'remove', type: 'string', description: '删除标签时触发。' },
+      { name: 'change', type: 'string[]', description: '标签数组提交变化时触发，适合表单校验。' },
+      { name: 'invalid', type: 'YInputTagInvalidPayload', description: '空值、重复、超出上限或自定义校验失败时触发。' },
+      { name: 'focus', type: 'FocusEvent', description: '输入框获得焦点时触发。' },
+      { name: 'blur', type: 'FocusEvent', description: '输入框失去焦点时触发。' }
+    ],
+    types: [
+      { name: 'YInputTagInvalidReason', type: "'empty' | 'duplicate' | 'max' | 'validator'", description: '标签提交失败原因。' },
+      { name: 'YInputTagInvalidPayload', type: '{ reason: YInputTagInvalidReason; value: string; message: string }', description: 'invalid 事件载荷。' }
     ]
   },
   YAutocomplete: {

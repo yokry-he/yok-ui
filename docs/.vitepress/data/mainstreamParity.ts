@@ -17,6 +17,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-cascader'
   | 'element-plus-cascader-lazy-load'
   | 'element-plus-date-picker'
+  | 'element-plus-input-tag'
   | 'element-plus-config-provider-i18n'
   | 'element-plus-resource-system'
   | 'element-plus-compatibility-support'
@@ -194,6 +195,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     componentNames: ['YDatePicker', 'YDateRangePicker'],
     docs: ['/components/date-picker', '/components/date-range-picker'],
     capabilities: ['structured-api', 'workflow-live-example', 'shortcut-scenario', 'time-preset-shortcuts', 'disabled-date-scenario']
+  },
+  {
+    key: 'element-plus-input-tag',
+    label: 'InputTag free-form tag entry',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus InputTag',
+      url: 'https://element-plus.org/en-US/component/input-tag',
+      note: 'Element Plus provides a dedicated InputTag component where users press Enter to add content as tags.'
+    },
+    componentNames: ['YInputTag'],
+    docs: ['/components/input-tag'],
+    capabilities: ['tag-input', 'enter-to-create', 'duplicate-validation', 'form-array-value', 'workflow-live-example']
   },
   {
     key: 'element-plus-config-provider-i18n',

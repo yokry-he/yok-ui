@@ -11,6 +11,7 @@ const componentStubs = {
   YSegmented: { template: '<section />' },
   YCalendar: { template: '<section />' },
   YInput: { props: ['modelValue', 'label', 'disabled'], template: '<input />' },
+  YInputTag: { props: ['modelValue', 'label', 'disabled', 'max'], template: '<div />' },
   YAutocomplete: { props: ['modelValue', 'label', 'options', 'disabled'], template: '<input />' },
   YMention: { props: ['modelValue', 'label', 'options', 'disabled', 'prefix', 'clearable'], template: '<textarea />' },
   YSelect: { props: ['modelValue', 'label', 'options', 'disabled'], template: '<div />' },
@@ -1488,6 +1489,7 @@ describe('PlaygroundWorkbench', () => {
   it.each([
     ['autocomplete', 'Autocomplete', '<YAutocomplete', 'autocompleteOptions'],
     ['mention', 'Mention', '<YMention', 'mentionOptions'],
+    ['inputTag', 'Input Tag', '<YInputTag', 'tags'],
     ['inputNumber', 'Input Number', '<YInputNumber', 'quantity'],
     ['slider', 'Slider', '<YSlider', 'volume'],
     ['rate', 'Rate', '<YRate', 'rating'],

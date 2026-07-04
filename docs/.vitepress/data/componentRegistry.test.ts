@@ -23,7 +23,7 @@ describe('componentRegistry', () => {
     const names = components.map((component) => component.name)
 
     expect(new Set(names).size).toBe(names.length)
-    expect(components).toHaveLength(107)
+    expect(components).toHaveLength(108)
 
     components.forEach((component) => {
       expect(component.docs).toMatch(/^\/(components|guide)\//)
@@ -218,6 +218,19 @@ describe('componentRegistry', () => {
       'focus',
       'blur'
     ]))
+    expect(componentApis.YInputTag.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'modelValue',
+      'inputValue',
+      'max',
+      'allowDuplicate',
+      'validateTag'
+    ]))
+    expect(componentApis.YInputTag.events?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'add',
+      'remove',
+      'invalid'
+    ]))
+    expect(componentApis.YInputTag.types?.map((row) => row.name)).toContain('YInputTagInvalidPayload')
     expect(componentApis.YAutocomplete.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
       'modelValue',
       'options',

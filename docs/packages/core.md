@@ -4,7 +4,7 @@ const corePreviewSetup = [
   '',
   'const coverageItems = [',
   "  { key: 'button', label: 'Actions', value: 'YButton, YIconButton' },",
-  "  { key: 'form', label: 'Forms', value: 'Input, Select, Form, Upload' },",
+  "  { key: 'form', label: 'Forms', value: 'Input, InputTag, Select, Form, Upload' },",
   "  { key: 'data', label: 'Data', value: 'Table, List, Descriptions, Statistic, Timeline, Tree' },",
   "  { key: 'feedback', label: 'Feedback', value: 'Alert, Message, Result, Empty' }",
   ']'
@@ -12,7 +12,7 @@ const corePreviewSetup = [
 
 const corePreviewCode = [
   '<div class="core-preview-metrics">',
-  '  <YStatistic title="Core components" :value="41" suffix="ready" tone="success" />',
+  '  <YStatistic title="Core components" :value="42" suffix="ready" tone="success" />',
   '  <YStatistic title="Data display" :value="6" suffix="patterns" tone="info" />',
   '</div>',
   '<YDescriptions',
@@ -61,7 +61,7 @@ createApp(App).use(YokCore).mount('#app')
 ```ts
 import '@yok-ui/themes/yok-light.css'
 import '@yok-ui/core/style.css'
-import { YButton, YDescriptions, YInput, YList, YStatistic, YThemeProvider } from '@yok-ui/core'
+import { YButton, YDescriptions, YInput, YInputTag, YList, YStatistic, YThemeProvider } from '@yok-ui/core'
 ```
 
 ## Components
@@ -78,7 +78,7 @@ import { YButton, YDescriptions, YInput, YList, YStatistic, YThemeProvider } fro
   :usage="['package preview', 'descriptions', 'statistics']"
 >
   <div class="core-preview-metrics">
-    <YStatistic title="Core components" :value="41" suffix="ready" tone="success" />
+    <YStatistic title="Core components" :value="42" suffix="ready" tone="success" />
     <YStatistic title="Data display" :value="6" suffix="patterns" tone="info" />
   </div>
   <YDescriptions
@@ -88,7 +88,7 @@ import { YButton, YDescriptions, YInput, YList, YStatistic, YThemeProvider } fro
     :column="2"
     :items="[
       { key: 'button', label: 'Actions', value: 'YButton, YIconButton' },
-      { key: 'form', label: 'Forms', value: 'Input, Select, Form, Upload' },
+      { key: 'form', label: 'Forms', value: 'Input, InputTag, Select, Form, Upload' },
       { key: 'data', label: 'Data', value: 'Table, List, Descriptions, Statistic, Timeline, Tree' },
       { key: 'feedback', label: 'Feedback', value: 'Alert, Message, Result, Empty' }
     ]"

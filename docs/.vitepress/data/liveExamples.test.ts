@@ -152,6 +152,7 @@ describe('liveExamples', () => {
       'scrollbar',
       'segmented',
       'select',
+      'inputTag',
       'space',
       'splitter',
       'steps',
@@ -264,6 +265,7 @@ describe('liveExamples', () => {
 
     const remainingWorkflowSummaries = [
       ['approvalCommentBox', ['basic', 'error', 'loading', 'responsive', 'keyboard']],
+      ['inputTag', ['basic', 'error', 'controlled', 'responsive', 'keyboard']],
       ['bulkActionBar', ['basic', 'multi', 'composition', 'empty', 'responsive', 'keyboard']],
       ['dataToolbar', ['basic', 'composition', 'empty', 'responsive', 'keyboard']],
       ['savedViews', ['basic', 'controlled', 'empty', 'responsive', 'keyboard']],

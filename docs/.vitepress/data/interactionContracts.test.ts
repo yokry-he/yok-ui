@@ -66,6 +66,7 @@ describe('interactionContracts', () => {
       'YFormItem',
       'YIconButton',
       'YInput',
+      'YInputTag',
       'YInputNumber',
       'YLayout',
       'YList',

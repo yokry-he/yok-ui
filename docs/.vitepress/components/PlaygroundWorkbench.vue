@@ -126,6 +126,7 @@ const tone = ref<PlaygroundTone>('info')
 const avatarTone = computed(() => (tone.value === 'info' ? 'primary' : tone.value))
 const avatarShape = ref<PlaygroundAvatarShape>('circle')
 const inputValue = ref('Yok UI')
+const inputTagValue = ref(['Vue', 'TypeScript'])
 const autocompleteValue = ref('auto')
 const mentionValue = ref('Please review @ad')
 const selectValue = ref('core')
@@ -835,6 +836,7 @@ const componentImports = computed(() => {
     segmented: 'YSegmented',
     calendar: 'YCalendar',
     input: 'YInput',
+    inputTag: 'YInputTag',
     autocomplete: 'YAutocomplete',
     mention: 'YMention',
     select: 'YSelect',
@@ -1058,6 +1060,10 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'input') {
     return `<YInput v-model="value" label="Library name"${disabled.value ? ' disabled' : ''} />`
+  }
+
+  if (activeComponent.value === 'inputTag') {
+    return `<YInputTag v-model="tags" label="Tech stack" placeholder="Press Enter to add" :max="5"${disabled.value ? ' disabled' : ''} />`
   }
 
   if (activeComponent.value === 'autocomplete') {
@@ -1682,6 +1688,10 @@ const generatedScript = computed(() => {
 
   if (activeComponent.value === 'input') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst value = ref('Yok UI')`
+  }
+
+  if (activeComponent.value === 'inputTag') {
+    return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst tags = ref(${JSON.stringify(inputTagValue.value, null, 2)})`
   }
 
   if (activeComponent.value === 'autocomplete') {
@@ -3211,6 +3221,14 @@ onMounted(() => {
             v-else-if="activeComponent === 'input'"
             v-model="inputValue"
             label="Library name"
+            :disabled="disabled"
+          />
+          <YInputTag
+            v-else-if="activeComponent === 'inputTag'"
+            v-model="inputTagValue"
+            label="Tech stack"
+            placeholder="Press Enter to add"
+            :max="5"
             :disabled="disabled"
           />
           <YAutocomplete

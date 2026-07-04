@@ -15,6 +15,7 @@ describe('mainstreamParity', () => {
     const elementPlusCascader = items.find((item) => item.key === 'element-plus-cascader')
     const elementPlusCascaderLazy = items.find((item) => item.key === 'element-plus-cascader-lazy-load')
     const elementPlusDatePicker = items.find((item) => item.key === 'element-plus-date-picker')
+    const elementPlusInputTag = items.find((item) => item.key === 'element-plus-input-tag')
     const elementPlusI18n = items.find((item) => item.key === 'element-plus-config-provider-i18n')
     const elementPlusCompatibility = items.find((item) => item.key === 'element-plus-compatibility-support')
     const antDesignTheme = items.find((item) => item.key === 'ant-design-vue-theme-token')
@@ -29,6 +30,7 @@ describe('mainstreamParity', () => {
       'element-plus-cascader',
       'element-plus-cascader-lazy-load',
       'element-plus-date-picker',
+      'element-plus-input-tag',
       'element-plus-config-provider-i18n',
       'element-plus-compatibility-support',
       'ant-design-vue-theme-token',
@@ -56,6 +58,7 @@ describe('mainstreamParity', () => {
       'Element Plus Cascader',
       'Element Plus Cascader Dynamic Loading',
       'Element Plus DatePicker',
+      'Element Plus InputTag',
       'Element Plus ConfigProvider i18n',
       'Element Plus Installation Compatibility',
       'Ant Design Vue Customize Theme',
@@ -101,6 +104,13 @@ describe('mainstreamParity', () => {
     })
     expect(elementPlusDatePicker?.matchedComponents.map((component) => component.name)).toContain('YDatePicker')
     expect(elementPlusDatePicker?.evidence.liveExamples).toContain('/components/date-picker#live-example')
+
+    expect(elementPlusInputTag).toMatchObject({
+      label: 'InputTag free-form tag entry',
+      status: 'covered'
+    })
+    expect(elementPlusInputTag?.matchedComponents.map((component) => component.name)).toContain('YInputTag')
+    expect(elementPlusInputTag?.evidence.liveExamples).toContain('/components/input-tag#live-example')
 
     expect(elementPlusI18n).toMatchObject({
       label: 'ConfigProvider locale and global settings',

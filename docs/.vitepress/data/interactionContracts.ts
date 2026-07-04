@@ -221,6 +221,19 @@ export const interactionContracts: InteractionContract[] = [
     }
   },
   {
+    componentName: 'YInputTag',
+    pattern: 'Tag input with editable token list',
+    keyboard: ['Enter creates the current draft as a tag', 'Backspace removes the last tag when the input draft is empty', 'Remove buttons activate with Enter / Space'],
+    focus: 'The text input remains the primary focus target while each removable tag exposes a focused remove action.',
+    semantics: ['label', 'input', 'button', 'aria-invalid', 'aria-describedby'],
+    status: 'Duplicate, max and validator failures emit invalid payloads so forms can announce or summarize the error.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/guide/accessibility.md', 'docs/components/input-tag.md'],
+      tests: ['packages/core/src/components/input-tag/input-tag.test.ts']
+    }
+  },
+  {
     componentName: 'YInputNumber',
     pattern: 'Numeric input with stepper controls',
     keyboard: ['ArrowUp increases by step', 'ArrowDown decreases by step', 'Native input editing remains available'],

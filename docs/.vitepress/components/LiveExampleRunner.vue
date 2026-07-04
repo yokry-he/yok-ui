@@ -34,6 +34,7 @@ import {
   YIcon,
   YImage,
   YInput,
+  YInputTag,
   YInputNumber,
   YAside,
   YFooter,
@@ -1336,6 +1337,21 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '  </div>',
     '</template>'
   ].join('\n'),
+  inputTag: [
+    '<script setup lang="ts">',
+    "import { ref } from 'vue'",
+    "import { YInputTag, YTag } from '@yok-ui/core'",
+    '',
+    "const tags = ref(['Vue', 'TypeScript'])",
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <div class="demo-stack">',
+    '    <YInputTag v-model="tags" label="Tech stack" placeholder="Press Enter to add" />',
+    '    <YTag tone="info">Enter creates tags; Backspace removes the last tag when input is empty.</YTag>',
+    '  </div>',
+    '</template>'
+  ].join('\n'),
   autocomplete: [
     '<script setup lang="ts">',
     "import { YAutocomplete, YTag } from '@yok-ui/core'",
@@ -2355,6 +2371,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   text: 'Text',
   tagBadge: 'Tag & Badge',
   input: 'Input',
+  inputTag: 'Input Tag',
   autocomplete: 'Autocomplete',
   mention: 'Mention',
   textarea: 'Textarea',
@@ -3085,6 +3102,76 @@ const liveExampleRecipes: Partial<Record<LiveExamplePreset, LiveExampleRecipe>> 
         '<div class="demo-stack">',
         `  <YInput${textAttribute('label', label)}${textAttribute('model-value', modelValue)}${textAttribute('placeholder', placeholder)}${textAttribute('size', state.size)}${isSearchScenario || isClearableScenario ? ' type="search"' : ''}${isClearableScenario ? ' prefix-text="/" clearable show-count :maxlength="24"' : ''}${error ? textAttribute('error', error) : ''}${booleanAttribute('invalid', isValidationScenario || state.invalid)}${describedBy ? textAttribute('aria-describedby', describedBy) : ''}${booleanAttribute('disabled', isDisabledScenario)} />`,
         ...(helper ? [`  ${helper}`] : []),
+        '</div>'
+      ])
+    }
+  },
+  inputTag: {
+    title: 'Input Tag scenario',
+    description: '调试基础标签、重复校验、数量上限、表单校验、移动换行和键盘标签输入场景。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'basic', options: [
+        { label: '基础标签', value: 'basic' },
+        { label: '重复校验', value: 'duplicate' },
+        { label: '数量上限', value: 'max' },
+        { label: '表单校验', value: 'form' },
+        { label: '移动换行', value: 'mobile' },
+        { label: '键盘标签', value: 'keyboard' }
+      ] },
+      { key: 'label', label: '标签', type: 'text', defaultValue: 'Tech stack' },
+      { key: 'placeholder', label: '占位', type: 'text', defaultValue: 'Press Enter to add' },
+      { key: 'max', label: '上限', type: 'number', defaultValue: 4, min: 1, max: 8, step: 1 },
+      { key: 'allowDuplicate', label: '允许重复', type: 'boolean', defaultValue: false },
+      { key: 'disabled', label: '禁用', type: 'boolean', defaultValue: false }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const isDuplicateScenario = scenario === 'duplicate'
+      const isMaxScenario = scenario === 'max'
+      const isFormScenario = scenario === 'form'
+      const isMobileScenario = scenario === 'mobile'
+      const isKeyboardScenario = scenario === 'keyboard'
+      const tags = isDuplicateScenario
+        ? ['Vue', 'Vue']
+        : isMaxScenario
+          ? ['core', 'docs', 'a11y']
+          : isFormScenario
+            ? []
+            : isMobileScenario
+              ? ['core', 'docs', 'theme', 'live']
+              : isKeyboardScenario
+                ? ['Tab', 'Enter']
+                : ['Vue', 'TypeScript']
+      const label = isFormScenario
+        ? 'Required tags'
+        : isMobileScenario
+          ? 'Tags'
+          : isKeyboardScenario
+            ? 'Keyboard tags'
+            : state.label
+      const helperTone = isFormScenario || isDuplicateScenario || isMaxScenario
+        ? 'warning'
+        : isKeyboardScenario
+          ? 'info'
+          : 'success'
+      const helperText = isDuplicateScenario
+        ? 'Duplicate tags should trigger invalid instead of silently changing the array.'
+        : isMaxScenario
+          ? 'Max keeps tag lists short and auditable.'
+          : isFormScenario
+            ? 'Empty arrays should connect to form validation and aria-describedby.'
+            : isMobileScenario
+              ? 'Tags wrap naturally so narrow screens keep the input usable.'
+              : isKeyboardScenario
+                ? 'Enter creates a tag; Backspace removes the last tag when the input is empty.'
+                : 'Input Tag is lighter than Select tags for free-form keyword entry.'
+      const error = isFormScenario ? 'At least one tag is required.' : ''
+
+      return sfc("import { YInputTag, YTag } from '@yok-ui/core'", [
+        '<div class="demo-stack">',
+        `  <YInputTag :model-value='${JSON.stringify(tags)}'${textAttribute('label', label)}${textAttribute('placeholder', isMobileScenario ? 'Add' : state.placeholder)}${numericBinding('max', Number(state.max))}${booleanAttribute('allow-duplicate', Boolean(state.allowDuplicate))}${booleanAttribute('disabled', Boolean(state.disabled))}${error ? textAttribute('error', error) : ''}${isFormScenario ? ' aria-describedby="input-tag-error"' : ''} />`,
+        ...(isFormScenario ? ['  <p id="input-tag-error">Connect array validation to YFormItem or a form summary.</p>'] : []),
+        `  <YTag tone="${helperTone}">${helperText}</YTag>`,
         '</div>'
       ])
     }
@@ -10716,6 +10803,8 @@ const allowedAttributes = new Set([
   ':precision',
   'clearable',
   ':clearable',
+  'allow-duplicate',
+  ':allow-duplicate',
   'open',
   ':open',
   'page',
@@ -12158,6 +12247,7 @@ const componentMap = {
   yformsummary: YFormSummary,
   yicon: YIcon,
   yinput: YInput,
+  yinputtag: YInputTag,
   yinputnumber: YInputNumber,
   yaside: YAside,
   yfooter: YFooter,

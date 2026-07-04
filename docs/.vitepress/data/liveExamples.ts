@@ -26,6 +26,7 @@ export type LiveExamplePreset =
   | 'treeSelect'
   | 'form'
   | 'inputNumber'
+  | 'inputTag'
   | 'rate'
   | 'slider'
   | 'colorPicker'
@@ -293,6 +294,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/image', preset: 'image' },
   { docs: '/components/qr-code', preset: 'qrCode' },
   { docs: '/components/input', preset: 'input' },
+  { docs: '/components/input-tag', preset: 'inputTag' },
   { docs: '/components/input-number', preset: 'inputNumber' },
   { docs: '/components/link', preset: 'link' },
   { docs: '/components/loading', preset: 'loading' },
@@ -355,6 +357,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'loading',
   'progress',
   'input',
+  'inputTag',
   'autocomplete',
   'mention',
   'select',
@@ -399,6 +402,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'splitter',
   'link',
   'inputNumber',
+  'inputTag',
   'radioGroup',
   'switch',
   'tabs',
@@ -498,6 +502,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'image',
   'qrCode',
   'input',
+  'inputTag',
   'inputNumber',
   'mention',
   'link',
@@ -4244,6 +4249,50 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: '验证 Tab 能进入原生 input，键入内容通过 update:modelValue 同步。'
+    }
+  ],
+  inputTag: [
+    {
+      key: 'basic-input-tag',
+      label: '基础标签',
+      kind: 'basic',
+      controlValue: 'basic',
+      description: '展示已有标签、输入草稿和 Enter 创建标签，适合技能、关键词和分类输入。'
+    },
+    {
+      key: 'duplicate-input-tag',
+      label: '重复校验',
+      kind: 'error',
+      controlValue: 'duplicate',
+      description: '默认禁止重复标签，提交已有值时触发 invalid 并保留输入焦点。'
+    },
+    {
+      key: 'max-input-tag',
+      label: '数量上限',
+      kind: 'error',
+      controlValue: 'max',
+      description: '达到 max 后继续提交会返回明确的上限错误，适合筛选标签和发布标签控制。'
+    },
+    {
+      key: 'form-input-tag',
+      label: '表单校验',
+      kind: 'controlled',
+      controlValue: 'form',
+      description: '数组字段通过 YFormItem 的 invalid 和 aria-describedby 进入统一表单校验链路。'
+    },
+    {
+      key: 'mobile-input-tag',
+      label: '移动换行',
+      kind: 'responsive',
+      controlValue: 'mobile',
+      description: '窄屏下标签自然换行，输入区域保持可点可读。'
+    },
+    {
+      key: 'keyboard-input-tag',
+      label: '键盘标签',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: 'Tab 进入输入框，Enter 创建标签，空输入 Backspace 删除最后一个标签。'
     }
   ],
   checkbox: [

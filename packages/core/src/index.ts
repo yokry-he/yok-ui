@@ -212,6 +212,9 @@ export type {
   YTreeDropPayload,
   YTreeDropType,
   YTreeFlatNode,
+  YTreeLoadChildren,
+  YTreeLoadErrorPayload,
+  YTreeLoadPayload,
   YTreeNode,
   YTreeSelectPayload,
   YTreeTogglePayload

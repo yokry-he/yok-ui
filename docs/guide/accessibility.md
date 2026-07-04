@@ -116,7 +116,7 @@ DOCS_A11Y_BASE_URL=http://127.0.0.1:5179 pnpm docs:a11y:runtime
 | `YReviewWorkflow` | 使用具名 section 和 `aria-busy` 表达审核流程容器状态，流程继承 `YStatusTimeline` 的有序列表语义，内置决策操作保持原生 button 并在 loading / disabled 时阻止重复触发 |
 | `YSavedViews` | 使用具名 section、原生 button 列表和 `aria-pressed` 表达当前视图，空状态使用 `role="status"`，创建/保存/管理动作保持原生按钮语义 |
 | `YVirtualList` | 使用 `role="list"` / `role="listitem"`、`aria-setsize` 和 `aria-posinset` 表达虚拟化后的完整列表位置 |
-| `YTree` | 使用 `role="tree"` / `role="treeitem"`、`aria-level`、`aria-expanded`、`aria-selected`，勾选框使用 `aria-checked` 并支持 mixed 半选状态，拖拽模式保留原生 Drag and Drop 与键盘树导航，支持方向键、Home / End、Enter / Space |
+| `YTree` | 使用 `role="tree"` / `role="treeitem"`、`aria-level`、`aria-expanded`、`aria-selected`，勾选框使用 `aria-checked` 并支持 mixed 半选状态；异步节点加载暴露 `aria-busy`、`role="status"` 和 `role="alert"`；拖拽模式保留原生 Drag and Drop 与键盘树导航，支持方向键、Home / End、Enter / Space |
 
 ## Current gaps
 

@@ -1224,8 +1224,8 @@ export const interactionContracts: InteractionContract[] = [
     componentName: 'YTree',
     pattern: 'Tree view',
     keyboard: ['Arrow keys navigate tree items', 'Home / End jumps to edge node', 'Enter / Space selects or checks'],
-    focus: 'The active treeitem exposes level, expanded, selected and checked state.',
-    semantics: ['role="tree"', 'role="treeitem"', 'aria-level', 'aria-expanded', 'aria-selected', 'aria-checked'],
+    focus: 'The active treeitem exposes level, expanded, selected, checked and async loading state.',
+    semantics: ['role="tree"', 'role="treeitem"', 'aria-level', 'aria-expanded', 'aria-selected', 'aria-checked', 'aria-busy', 'role="status"', 'role="alert"'],
     maturity: 'verified',
     evidence: {
       docs: ['docs/guide/accessibility.md', 'docs/components/tree.md'],

@@ -2,6 +2,7 @@ export interface YTreeNode {
   key: string
   label: string
   disabled?: boolean
+  isLeaf?: boolean
   children?: YTreeNode[]
   [key: string]: unknown
 }
@@ -32,6 +33,8 @@ export type YTreeAllowDrop = (payload: {
   type: YTreeDropType
 }) => boolean
 
+export type YTreeLoadChildren = (node: YTreeNode) => YTreeNode[] | Promise<YTreeNode[]>
+
 export interface YTreeSelectPayload {
   node: YTreeNode
   key: string
@@ -57,4 +60,16 @@ export interface YTreeDropPayload {
   dropNode: YTreeNode
   dropKey: string
   type: YTreeDropType
+}
+
+export interface YTreeLoadPayload {
+  node: YTreeNode
+  key: string
+  children: YTreeNode[]
+}
+
+export interface YTreeLoadErrorPayload {
+  node: YTreeNode
+  key: string
+  error: unknown
 }

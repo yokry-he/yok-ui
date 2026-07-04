@@ -5991,6 +5991,17 @@ export const componentApis: Record<string, ComponentApi> = {
         description: '自定义拖拽放置规则。'
       },
       {
+        name: 'lazy',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否启用异步节点加载；无 children 且未标记 isLeaf 的节点会在展开时调用 load。'
+      },
+      {
+        name: 'load',
+        type: 'YTreeLoadChildren',
+        description: '异步加载节点 children 的函数，返回 YTreeNode[] 或 Promise<YTreeNode[]>。'
+      },
+      {
         name: 'virtualized',
         type: 'boolean',
         defaultValue: 'false',
@@ -6072,6 +6083,16 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'dragEnd',
         type: 'YTreeSelectPayload',
         description: '拖拽结束时触发。'
+      },
+      {
+        name: 'load',
+        type: 'YTreeLoadPayload',
+        description: '异步节点加载成功后触发，包含目标节点和返回的 children。'
+      },
+      {
+        name: 'loadError',
+        type: 'YTreeLoadErrorPayload',
+        description: '异步节点加载失败后触发；节点保持可再次展开以便重试。'
       }
     ],
     slots: [
@@ -6089,8 +6110,8 @@ export const componentApis: Record<string, ComponentApi> = {
     types: [
       {
         name: 'YTreeNode',
-        type: '{ key: string; label: string; disabled?: boolean; children?: YTreeNode[] }',
-        description: '树节点数据。'
+        type: '{ key: string; label: string; disabled?: boolean; isLeaf?: boolean; children?: YTreeNode[] }',
+        description: '树节点数据；lazy 模式下 isLeaf=true 会关闭未加载节点的展开入口。'
       },
       {
         name: 'YTreeFlatNode',
@@ -6131,6 +6152,21 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'YTreeDropPayload',
         type: '{ draggingNode: YTreeNode; draggingKey: string; dropNode: YTreeNode; dropKey: string; type: YTreeDropType }',
         description: '拖拽放置事件载荷。'
+      },
+      {
+        name: 'YTreeLoadChildren',
+        type: '(node: YTreeNode) => YTreeNode[] | Promise<YTreeNode[]>',
+        description: '异步加载节点 children 的函数。'
+      },
+      {
+        name: 'YTreeLoadPayload',
+        type: '{ node: YTreeNode; key: string; children: YTreeNode[] }',
+        description: 'load 事件载荷。'
+      },
+      {
+        name: 'YTreeLoadErrorPayload',
+        type: '{ node: YTreeNode; key: string; error: unknown }',
+        description: 'loadError 事件载荷。'
       }
     ]
   },

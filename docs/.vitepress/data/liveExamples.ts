@@ -4835,6 +4835,13 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       description: '覆盖 virtualized、virtual-height、virtual-item-height 和 virtual-overscan 的大量节点滚动场景。'
     },
     {
+      key: 'lazy-tree',
+      label: '异步加载',
+      kind: 'remote',
+      controlValue: 'lazy',
+      description: '覆盖 lazy、load、loadError 和 isLeaf 的按需加载远端节点场景。'
+    },
+    {
       key: 'empty-tree',
       label: '空树',
       kind: 'empty',

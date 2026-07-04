@@ -112,6 +112,7 @@ export function flattenTree(params: {
   nodes: YTreeNode[]
   expandedKeys: Set<string>
   selectedKey: string
+  lazyKeys?: Set<string>
 }) {
   const result: YTreeFlatNode[] = []
 
@@ -119,6 +120,7 @@ export function flattenTree(params: {
     nodes.forEach((node) => {
       const children = getNodeChildren(node)
       const expanded = params.expandedKeys.has(node.key)
+      const hasChildren = children.length > 0 || Boolean(params.lazyKeys?.has(node.key))
       const flatNode: YTreeFlatNode = {
         node,
         key: node.key,
@@ -129,7 +131,7 @@ export function flattenTree(params: {
         expanded,
         selected: node.key === params.selectedKey,
         disabled: node.disabled ?? false,
-        hasChildren: children.length > 0
+        hasChildren
       }
 
       result.push(flatNode)

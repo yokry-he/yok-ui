@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import YTree from './YTree.vue'
 import {
   canDropTreeNode,
@@ -14,6 +14,10 @@ import {
   toggleTreeCheckedKeys
 } from './tree'
 import type { YTreeNode } from './types'
+
+function flushPromises() {
+  return new Promise((resolve) => setTimeout(resolve, 0))
+}
 
 const nodes: YTreeNode[] = [
   {
@@ -389,5 +393,74 @@ describe('YTree', () => {
       'Node 9'
     ])
     expect(wrapper.get('[aria-posinset="5"]').text()).toBe('Node 5')
+  })
+
+  it('loads lazy children when expanding an unloaded node', async () => {
+    let resolveChildren: ((children: YTreeNode[]) => void) | undefined
+    const load = vi.fn(() => new Promise<YTreeNode[]>((resolve) => {
+      resolveChildren = resolve
+    }))
+    const wrapper = mount(YTree, {
+      props: {
+        nodes: [{ key: 'remote', label: 'Remote folder' }],
+        lazy: true,
+        load
+      }
+    })
+
+    await wrapper.get('[aria-label="Expand Remote folder"]').trigger('click')
+
+    expect(load).toHaveBeenCalledWith({ key: 'remote', label: 'Remote folder' })
+    expect(wrapper.get('[role="status"]').text()).toBe('Loading Remote folder')
+
+    resolveChildren?.([{ key: 'remote-child', label: 'Remote child', isLeaf: true }])
+    await flushPromises()
+    await nextTick()
+
+    expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual([
+      '−Remote folder',
+      'Remote child'
+    ])
+    expect(wrapper.emitted('load')?.[0]).toEqual([{
+      node: { key: 'remote', label: 'Remote folder' },
+      key: 'remote',
+      children: [{ key: 'remote-child', label: 'Remote child', isLeaf: true }]
+    }])
+  })
+
+  it('keeps failed lazy nodes retryable after collapsing and expanding again', async () => {
+    const loadError = new Error('Network unavailable')
+    const load = vi.fn()
+      .mockRejectedValueOnce(loadError)
+      .mockResolvedValueOnce([{ key: 'retry-child', label: 'Retry child', isLeaf: true }])
+    const wrapper = mount(YTree, {
+      props: {
+        nodes: [{ key: 'remote', label: 'Remote folder' }],
+        lazy: true,
+        load
+      }
+    })
+
+    await wrapper.get('[aria-label="Expand Remote folder"]').trigger('click')
+    await flushPromises()
+    await nextTick()
+
+    expect(wrapper.get('[role="alert"]').text()).toBe('Failed to load Remote folder')
+    expect(wrapper.emitted('loadError')?.[0]).toEqual([{
+      node: { key: 'remote', label: 'Remote folder' },
+      key: 'remote',
+      error: loadError
+    }])
+
+    await wrapper.get('[aria-label="Collapse Remote folder"]').trigger('click')
+    await wrapper.get('[aria-label="Expand Remote folder"]').trigger('click')
+    await flushPromises()
+    await nextTick()
+
+    expect(load).toHaveBeenCalledTimes(2)
+    expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual([
+      '−Remote folder',
+      'Retry child'
+    ])
   })
 })

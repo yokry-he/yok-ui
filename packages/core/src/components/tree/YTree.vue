@@ -15,6 +15,9 @@ import type {
   YTreeDropPayload,
   YTreeDropType,
   YTreeFlatNode,
+  YTreeLoadChildren,
+  YTreeLoadErrorPayload,
+  YTreeLoadPayload,
   YTreeNode,
   YTreeSelectPayload,
   YTreeTogglePayload
@@ -35,6 +38,8 @@ interface Props {
   checkStrictly?: boolean
   draggable?: boolean
   allowDrop?: YTreeAllowDrop
+  lazy?: boolean
+  load?: YTreeLoadChildren
   virtualized?: boolean
   virtualHeight?: number
   virtualItemHeight?: number
@@ -53,6 +58,8 @@ const props = withDefaults(defineProps<Props>(), {
   checkStrictly: false,
   draggable: false,
   allowDrop: undefined,
+  lazy: false,
+  load: undefined,
   virtualized: false,
   virtualHeight: 280,
   virtualItemHeight: 36,
@@ -71,6 +78,8 @@ const emit = defineEmits<{
   dragStart: [payload: YTreeSelectPayload]
   drop: [payload: YTreeDropPayload]
   dragEnd: [payload: YTreeSelectPayload]
+  load: [payload: YTreeLoadPayload]
+  loadError: [payload: YTreeLoadErrorPayload]
 }>()
 
 const treeRef = ref<HTMLDivElement | null>(null)
@@ -79,20 +88,42 @@ const internalCheckedKeys = ref<string[]>([...props.defaultCheckedKeys])
 const activeKey = ref('')
 const draggingKey = ref('')
 const scrollTop = ref(0)
+const loadedChildrenByKey = ref(new Map<string, YTreeNode[]>())
+const loadingKeys = ref(new Set<string>())
+const loadErrorByKey = ref(new Map<string, unknown>())
 const dropTarget = ref<{ key: string; type: YTreeDropType } | null>(null)
 
 const expandedKeysValue = computed(() => props.expandedKeys ?? internalExpandedKeys.value)
 const checkedKeysValue = computed(() => props.checkedKeys ?? internalCheckedKeys.value)
 const expandedKeySet = computed(() => new Set(expandedKeysValue.value))
 const checkedKeySet = computed(() => new Set(checkedKeysValue.value))
-const halfCheckedKeys = computed(() => getHalfCheckedKeys(props.nodes, checkedKeySet.value, props.checkStrictly))
+const treeNodes = computed(() => mergeLoadedChildren(props.nodes))
+const lazyKeySet = computed(() => {
+  const result = new Set<string>()
+
+  function walk(nodes: YTreeNode[]) {
+    nodes.forEach((node) => {
+      if (canLazyLoadNode(node)) {
+        result.add(node.key)
+      }
+
+      walk(getNodeChildren(node))
+    })
+  }
+
+  walk(treeNodes.value)
+
+  return result
+})
+const halfCheckedKeys = computed(() => getHalfCheckedKeys(treeNodes.value, checkedKeySet.value, props.checkStrictly))
 const flatNodes = computed(() => flattenTree({
-  nodes: props.nodes,
+  nodes: treeNodes.value,
   expandedKeys: expandedKeySet.value,
-  selectedKey: props.selectedKey
+  selectedKey: props.selectedKey,
+  lazyKeys: lazyKeySet.value
 }))
 const activeNode = computed(() => flatNodes.value.find((node) => node.key === activeKey.value))
-const draggingNode = computed(() => draggingKey.value ? findNode(props.nodes, draggingKey.value) : null)
+const draggingNode = computed(() => draggingKey.value ? findNode(treeNodes.value, draggingKey.value) : null)
 const normalizedVirtualHeight = computed(() => Math.max(1, props.virtualHeight))
 const normalizedVirtualItemHeight = computed(() => Math.max(1, props.virtualItemHeight))
 const normalizedVirtualOverscan = computed(() => Math.max(0, props.virtualOverscan))
@@ -143,7 +174,72 @@ watch(flatNodes, (nodes) => {
       ? props.selectedKey
       : nodes[0].key
   }
+
+  nodes.forEach((node) => {
+    if (node.expanded) {
+      void loadLazyNode(node)
+    }
+  })
 }, { immediate: true })
+
+function getNodeChildren(node: YTreeNode) {
+  return node.children ?? []
+}
+
+function mergeLoadedChildren(nodes: YTreeNode[]): YTreeNode[] {
+  return nodes.map((node) => {
+    const loadedChildren = loadedChildrenByKey.value.get(node.key)
+    const sourceChildren = loadedChildren ?? getNodeChildren(node)
+
+    if (!sourceChildren.length && loadedChildren === undefined) {
+      return node
+    }
+
+    return {
+      ...node,
+      children: mergeLoadedChildren(sourceChildren)
+    }
+  })
+}
+
+function canLazyLoadNode(node: YTreeNode) {
+  if (!props.lazy || !props.load || node.isLeaf || loadedChildrenByKey.value.has(node.key)) {
+    return false
+  }
+
+  return getNodeChildren(node).length === 0
+}
+
+function commitLoadingKey(key: string, loading: boolean) {
+  const nextKeys = new Set(loadingKeys.value)
+
+  if (loading) {
+    nextKeys.add(key)
+  } else {
+    nextKeys.delete(key)
+  }
+
+  loadingKeys.value = nextKeys
+}
+
+function commitLoadError(key: string, error: unknown | null) {
+  const nextErrors = new Map(loadErrorByKey.value)
+
+  if (error === null) {
+    nextErrors.delete(key)
+  } else {
+    nextErrors.set(key, error)
+  }
+
+  loadErrorByKey.value = nextErrors
+}
+
+function commitLoadedChildren(key: string, children: YTreeNode[]) {
+  const nextChildren = new Map(loadedChildrenByKey.value)
+
+  nextChildren.set(key, children)
+  loadedChildrenByKey.value = nextChildren
+}
 
 function commitExpandedKeys(keys: string[]) {
   if (!props.expandedKeys) {
@@ -218,6 +314,39 @@ function toggleNode(flatNode: YTreeFlatNode, expanded = !flatNode.expanded) {
     key: flatNode.key,
     expanded
   })
+
+  if (expanded) {
+    void loadLazyNode(flatNode)
+  }
+}
+
+async function loadLazyNode(flatNode: YTreeFlatNode) {
+  if (!canLazyLoadNode(flatNode.node) || loadingKeys.value.has(flatNode.key)) {
+    return
+  }
+
+  commitLoadingKey(flatNode.key, true)
+  commitLoadError(flatNode.key, null)
+
+  try {
+    const children = (await props.load?.(flatNode.node)) ?? []
+
+    commitLoadedChildren(flatNode.key, children)
+    emit('load', {
+      node: flatNode.node,
+      key: flatNode.key,
+      children
+    })
+  } catch (error) {
+    commitLoadError(flatNode.key, error)
+    emit('loadError', {
+      node: flatNode.node,
+      key: flatNode.key,
+      error
+    })
+  } finally {
+    commitLoadingKey(flatNode.key, false)
+  }
 }
 
 function selectNode(flatNode: YTreeFlatNode) {
@@ -451,8 +580,16 @@ function handleScroll(event: Event) {
   scrollTop.value = (event.target as HTMLElement).scrollTop
 }
 
+function isNodeLoading(flatNode: YTreeFlatNode) {
+  return loadingKeys.value.has(flatNode.key)
+}
+
+function getNodeLoadError(flatNode: YTreeFlatNode) {
+  return loadErrorByKey.value.get(flatNode.key)
+}
+
 function getNodeByKey(key: string) {
-  return findNode(props.nodes, key)
+  return findNode(treeNodes.value, key)
 }
 
 defineExpose({
@@ -505,6 +642,7 @@ defineExpose({
             :aria-expanded="flatNode.hasChildren ? (flatNode.expanded ? 'true' : 'false') : undefined"
             :aria-selected="flatNode.selected ? 'true' : 'false'"
             :aria-disabled="flatNode.disabled ? 'true' : undefined"
+            :aria-busy="isNodeLoading(flatNode) ? 'true' : undefined"
             :data-active-treeitem="activeKey === flatNode.key ? 'true' : 'false'"
             :tabindex="activeKey === flatNode.key ? 0 : -1"
             :style="[
@@ -550,6 +688,21 @@ defineExpose({
               <slot name="node" :node="flatNode.node" :flat-node="flatNode">
                 {{ flatNode.label }}
               </slot>
+            </span>
+            <span
+              v-if="isNodeLoading(flatNode)"
+              class="yok-tree__load-status"
+              role="status"
+              aria-live="polite"
+            >
+              Loading {{ flatNode.label }}
+            </span>
+            <span
+              v-else-if="getNodeLoadError(flatNode)"
+              class="yok-tree__load-error"
+              role="alert"
+            >
+              Failed to load {{ flatNode.label }}
             </span>
           </div>
         </div>
@@ -712,6 +865,22 @@ defineExpose({
   line-height: 1.45;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.yok-tree__load-status,
+.yok-tree__load-error {
+  grid-column: -2 / -1;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.yok-tree__load-status {
+  color: var(--yok-color-textMuted);
+}
+
+.yok-tree__load-error {
+  color: var(--yok-color-danger);
 }
 
 .yok-tree__empty {

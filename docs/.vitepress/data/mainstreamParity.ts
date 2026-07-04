@@ -13,6 +13,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-playground-flow'
   | 'element-plus-table'
   | 'element-plus-virtualized-tree'
+  | 'element-plus-tree-lazy-load'
   | 'element-plus-cascader'
   | 'element-plus-date-picker'
   | 'element-plus-config-provider-i18n'
@@ -139,6 +140,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     componentNames: ['YTree'],
     docs: ['/components/tree'],
     capabilities: ['virtualized-tree', 'structured-api', 'workflow-live-example', 'keyboard-scenario']
+  },
+  {
+    key: 'element-plus-tree-lazy-load',
+    label: 'Tree lazy loading and retryable failures',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus Tree Lazy Loading',
+      url: 'https://element-plus.org/en-US/component/tree',
+      note: 'Element Plus Tree documents lazy + load remote node loading, including retryable failure behavior.'
+    },
+    componentNames: ['YTree'],
+    docs: ['/components/tree'],
+    capabilities: ['lazy-tree-loading', 'load-error-retry', 'structured-api', 'workflow-live-example']
   },
   {
     key: 'element-plus-cascader',

@@ -184,6 +184,7 @@ describe('DocDemo source quality', () => {
     const summary = getDocDemoSourceQualitySummary()
     const select = items.find((item) => item.docs === '/components/select')
     const menu = items.find((item) => item.docs === '/components/menu')
+    const calendar = items.find((item) => item.docs === '/components/calendar')
 
     expect(items.length).toBeGreaterThan(0)
     expect(summary.totalDocs).toBe(items.length)
@@ -208,6 +209,14 @@ describe('DocDemo source quality', () => {
       completeHandoffCount: 3
     })
     expect(menu?.checks.every((check) => check.passed)).toBe(true)
+    expect(calendar).toMatchObject({
+      docs: '/components/calendar',
+      title: 'Calendar',
+      status: 'complete',
+      demoCount: 3,
+      completeHandoffCount: 3
+    })
+    expect(calendar?.checks.every((check) => check.passed)).toBe(true)
   })
 
   it('tracks component pages that still use raw demo-box examples instead of DocDemo', () => {

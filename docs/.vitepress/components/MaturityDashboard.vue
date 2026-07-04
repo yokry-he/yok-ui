@@ -612,6 +612,9 @@ const interactionPriorityFamilies = new Set(['form', 'overlay', 'data', 'admin',
 const interactionPriorityComponents = computed(() =>
   trackedComponents.value.filter((component) => interactionPriorityFamilies.has(component.family))
 )
+const interactionPriorityContractComponents = computed(() =>
+  interactionPriorityComponents.value.filter((component) => hasInteractionContract(component.name))
+)
 const interactionContractGapComponents = computed(() =>
   interactionPriorityComponents.value.filter((component) => !hasInteractionContract(component.name))
 )
@@ -646,7 +649,7 @@ const mainstreamGapLanes = computed(() => [
   {
     key: 'interaction',
     title: 'Interaction contracts',
-    value: `${interactionContractComponents.value.length}/${interactionPriorityComponents.value.length}`,
+    value: `${interactionPriorityContractComponents.value.length}/${interactionPriorityComponents.value.length}`,
     detail: '优先补表单、弹层、数据、后台和效率组件的键盘、焦点、ARIA 契约。',
     status: interactionContractGapComponents.value.length
       ? `${interactionContractGapComponents.value.length} gaps`

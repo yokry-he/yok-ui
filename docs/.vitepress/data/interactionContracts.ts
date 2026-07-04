@@ -404,6 +404,71 @@ export const interactionContracts: InteractionContract[] = [
     }
   },
   {
+    componentName: 'YAvatarGroup',
+    pattern: 'Labeled avatar collection with surplus summary',
+    keyboard: ['No custom keyboard behavior; visible avatars keep their own native semantics', 'Surplus avatar remains non-interactive unless wrapped by a caller action'],
+    focus: 'The group itself does not add a focus stop; focus remains on any slotted interactive avatar content.',
+    semantics: ['role="group"', 'aria-label', 'surplus aria-label'],
+    status: 'Avatar groups describe the collaboration set while surplus avatars announce the hidden member count.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/guide/accessibility.md', 'docs/components/avatar.md'],
+      tests: ['packages/core/src/components/avatar/avatar.test.ts']
+    }
+  },
+  {
+    componentName: 'YBrandHero',
+    pattern: 'Marketing hero landmark with native actions',
+    keyboard: ['Primary and secondary actions use native button keyboard behavior', 'Custom action slots must keep their own focus order'],
+    focus: 'The hero itself does not trap focus; focus moves through visible actions in document order.',
+    semantics: ['section', 'h1', 'button', 'aria-hidden decorative visual'],
+    status: 'Decorative hero visuals are hidden from assistive technology while title, description and actions remain textual.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/components/brand-hero.md'],
+      tests: ['packages/brand/src/components/brand-hero/brand-hero.test.ts']
+    }
+  },
+  {
+    componentName: 'YFeatureGrid',
+    pattern: 'Responsive feature article grid',
+    keyboard: ['No custom keyboard behavior; feature cards remain static content', 'Interactive content inside a feature card keeps native focus behavior'],
+    focus: 'Feature cards do not add extra focus stops; focus belongs to any slotted or nested interactive content supplied by the page.',
+    semantics: ['article', 'h3', 'text description'],
+    status: 'Each feature requires a title and description so the card remains understandable without decorative media.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/components/feature-grid.md'],
+      tests: ['packages/brand/src/components/feature-grid/feature-grid.test.ts']
+    }
+  },
+  {
+    componentName: 'YLogoCloud',
+    pattern: 'Labeled logo and package-name collection',
+    keyboard: ['No custom keyboard behavior; logo labels render as readable static text', 'If callers wrap logos with links, links keep native keyboard behavior'],
+    focus: 'The logo cloud itself does not enter the tab order; focus remains on caller-provided interactive logo wrappers.',
+    semantics: ['section', 'aria-label', 'readable text labels'],
+    status: 'Logo entries should be real names or package labels, not image-only decoration.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/components/logo-cloud.md'],
+      tests: ['packages/brand/src/components/logo-cloud/logo-cloud.test.ts']
+    }
+  },
+  {
+    componentName: 'YProfileCard',
+    pattern: 'Profile article with decorative avatar initials',
+    keyboard: ['No custom keyboard behavior; profile metadata remains static content', 'Tags inherit the non-interactive tag contract'],
+    focus: 'The card itself does not add a focus stop; links or actions added around the card keep their own focus behavior.',
+    semantics: ['article', 'h3', 'aria-hidden avatar initials', 'tag text'],
+    status: 'Name and role provide the identity; avatar initials are decorative and hidden from assistive technology.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/components/profile-card.md'],
+      tests: ['packages/brand/src/components/profile-card/profile-card.test.ts']
+    }
+  },
+  {
     componentName: 'YBreadcrumb',
     pattern: 'Breadcrumb navigation',
     keyboard: ['Native link navigation uses browser keyboard behavior', 'Disabled items are not rendered as links'],

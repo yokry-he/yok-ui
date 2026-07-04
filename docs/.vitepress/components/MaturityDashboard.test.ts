@@ -60,6 +60,12 @@ describe('MaturityDashboard', () => {
     expect(wrapper.text()).toContain('API map')
     expect(wrapper.text()).toContain('复现包')
     expect(wrapper.findAll('.maturity-dashboard__roadmap-lane')).toHaveLength(3)
+    const interactionLaneValue = wrapper
+      .get('.maturity-dashboard__roadmap-lane[data-lane="interaction"] header strong')
+      .text()
+    const [interactionCovered, interactionTotal] = interactionLaneValue.split('/').map(Number)
+
+    expect(interactionCovered).toBeLessThanOrEqual(interactionTotal)
     expect(wrapper.findAll('.maturity-dashboard__roadmap-items a').length).toBeGreaterThan(0)
     expect(
       wrapper

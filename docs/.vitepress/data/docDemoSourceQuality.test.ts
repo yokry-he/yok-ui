@@ -73,6 +73,7 @@ const productBrandDocs = [
 const adminWorkflowDocs = [
   'bulk-action-bar',
   'data-toolbar',
+  'field-array',
   'filter-tabs',
   'review-workflow',
   'saved-views',
@@ -190,6 +191,7 @@ describe('DocDemo source quality', () => {
     const notification = items.find((item) => item.docs === '/components/notification')
     const anchor = items.find((item) => item.docs === '/components/anchor')
     const schemaForm = items.find((item) => item.docs === '/components/schema-form')
+    const fieldArray = items.find((item) => item.docs === '/components/field-array')
 
     expect(items.length).toBeGreaterThan(0)
     expect(summary.totalDocs).toBe(items.length)
@@ -254,6 +256,14 @@ describe('DocDemo source quality', () => {
       completeHandoffCount: 3
     })
     expect(schemaForm?.checks.every((check) => check.passed)).toBe(true)
+    expect(fieldArray).toMatchObject({
+      docs: '/components/field-array',
+      title: 'Field Array',
+      status: 'complete',
+      demoCount: 3,
+      completeHandoffCount: 3
+    })
+    expect(fieldArray?.checks.every((check) => check.passed)).toBe(true)
   })
 
   it('tracks component pages that still use raw demo-box examples instead of DocDemo', () => {

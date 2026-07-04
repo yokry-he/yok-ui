@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { YButton, YInput, YSelect } from '@yok-ui/core'
-import type { YSelectValue } from '@yok-ui/core'
+import { computed, ref, watch } from 'vue'
+import { YButton, YDatePicker, YDateRangePicker, YInput, YSelect } from '@yok-ui/core'
+import type { YDateRangeShortcut, YDateRangeValue, YDateShortcut, YSelectValue } from '@yok-ui/core'
 
 defineOptions({
   name: 'YSearchForm'
 })
 
-export type YSearchFormFieldType = 'input' | 'select'
+export type YSearchFormFieldType = 'input' | 'select' | 'date' | 'dateRange'
 export type YSearchFormDensity = 'comfortable' | 'compact'
+export type YSearchFormValue = string | YDateRangeValue
+export type YSearchFormOptionsLoader = () => YSearchFormOption[] | Promise<YSearchFormOption[]>
+export type YSearchFormOptionsSource = YSearchFormOption[] | YSearchFormOptionsLoader
 
 export interface YSearchFormOption {
   label: string
@@ -21,19 +24,20 @@ export interface YSearchFormField {
   label: string
   type?: YSearchFormFieldType
   placeholder?: string
-  options?: YSearchFormOption[]
-  defaultValue?: string
+  options?: YSearchFormOptionsSource
+  shortcuts?: YDateShortcut[] | YDateRangeShortcut[]
+  defaultValue?: YSearchFormValue
   disabled?: boolean
   hidden?: boolean
 }
 
 export interface YSearchFormSubmitPayload {
-  values: Record<string, string>
+  values: Record<string, YSearchFormValue>
   activeFieldKeys: string[]
 }
 
 interface Props {
-  modelValue: Record<string, string>
+  modelValue: Record<string, YSearchFormValue>
   fields: YSearchFormField[]
   title?: string
   description?: string
@@ -63,13 +67,21 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'update:modelValue': [value: Record<string, string>]
+  'update:modelValue': [value: Record<string, YSearchFormValue>]
   search: [payload: YSearchFormSubmitPayload]
-  reset: [value: Record<string, string>]
+  reset: [value: Record<string, YSearchFormValue>]
   collapseChange: [collapsed: boolean]
 }>()
 
+interface AsyncOptionsState {
+  options: YSearchFormOption[]
+  loading: boolean
+  error: string
+}
+
 const collapsed = ref(props.defaultCollapsed)
+const asyncOptionsState = ref<Record<string, AsyncOptionsState>>({})
+let optionsRequestVersion = 0
 const visibleFields = computed(() => props.fields.filter((field) => !field.hidden))
 const visibleFieldKeys = computed(() => visibleFields.value.map((field) => field.key))
 const shouldShowCollapse = computed(() => props.collapsible && visibleFields.value.length > props.collapsedCount)
@@ -82,8 +94,7 @@ const renderedFields = computed(() => {
 })
 const activeFieldCount = computed(() => {
   return visibleFields.value.filter((field) => {
-    const value = props.modelValue[field.key]
-    return typeof value === 'string' && value.length > 0
+    return isActiveValue(props.modelValue[field.key])
   }).length
 })
 const summaryText = computed(() => {
@@ -94,19 +105,67 @@ const summaryText = computed(() => {
   return `${activeFieldCount.value} filter${activeFieldCount.value > 1 ? 's' : ''} applied`
 })
 
-function normalizeFieldValue(value: YSelectValue) {
+function isActiveValue(value: YSearchFormValue | undefined) {
+  if (Array.isArray(value)) {
+    return value.length === 2 && value.every((item) => item.length > 0)
+  }
+
+  return typeof value === 'string' && value.length > 0
+}
+
+function normalizeFieldValue(field: YSearchFormField, value: YSearchFormValue | YSelectValue): YSearchFormValue {
+  if (field.type === 'dateRange') {
+    return Array.isArray(value) && value.length === 2 ? [value[0] ?? '', value[1] ?? ''] : []
+  }
+
   return Array.isArray(value) ? value[0] ?? '' : value
 }
 
-function updateField(key: string, value: YSelectValue) {
+function isOptionsLoader(options: YSearchFormOptionsSource | undefined): options is YSearchFormOptionsLoader {
+  return typeof options === 'function'
+}
+
+function getSelectOptions(field: YSearchFormField): YSearchFormOption[] {
+  if (Array.isArray(field.options)) {
+    return field.options
+  }
+
+  return asyncOptionsState.value[field.key]?.options ?? []
+}
+
+function isSelectOptionsLoading(field: YSearchFormField) {
+  return isOptionsLoader(field.options) && Boolean(asyncOptionsState.value[field.key]?.loading)
+}
+
+function getSelectOptionsError(field: YSearchFormField) {
+  return isOptionsLoader(field.options) ? asyncOptionsState.value[field.key]?.error ?? '' : ''
+}
+
+function getStringValue(value: YSearchFormValue | undefined) {
+  return typeof value === 'string' ? value : ''
+}
+
+function getRangeValue(value: YSearchFormValue | undefined): YDateRangeValue {
+  return Array.isArray(value) && value.length === 2 ? [value[0] ?? '', value[1] ?? ''] : []
+}
+
+function getDateShortcuts(field: YSearchFormField): YDateShortcut[] {
+  return field.type === 'date' && field.shortcuts ? field.shortcuts as YDateShortcut[] : []
+}
+
+function getDateRangeShortcuts(field: YSearchFormField): YDateRangeShortcut[] {
+  return field.type === 'dateRange' && field.shortcuts ? field.shortcuts as YDateRangeShortcut[] : []
+}
+
+function updateField(field: YSearchFormField, value: YSearchFormValue | YSelectValue) {
   emit('update:modelValue', {
     ...props.modelValue,
-    [key]: normalizeFieldValue(value)
+    [field.key]: normalizeFieldValue(field, value)
   })
 }
 
 function createDefaultValues() {
-  return props.fields.reduce<Record<string, string>>((values, field) => {
+  return props.fields.reduce<Record<string, YSearchFormValue>>((values, field) => {
     if (field.defaultValue !== undefined) {
       values[field.key] = field.defaultValue
     }
@@ -119,8 +178,7 @@ function handleSearch() {
   emit('search', {
     values: { ...props.modelValue },
     activeFieldKeys: visibleFieldKeys.value.filter((key) => {
-      const value = props.modelValue[key]
-      return typeof value === 'string' && value.length > 0
+      return isActiveValue(props.modelValue[key])
     })
   })
 }
@@ -135,6 +193,55 @@ function toggleCollapsed() {
   collapsed.value = !collapsed.value
   emit('collapseChange', collapsed.value)
 }
+
+watch(() => props.fields, (fields) => {
+  const version = ++optionsRequestVersion
+
+  fields.forEach((field) => {
+    if (field.type !== 'select' || !isOptionsLoader(field.options)) {
+      return
+    }
+
+    asyncOptionsState.value = {
+      ...asyncOptionsState.value,
+      [field.key]: {
+        options: asyncOptionsState.value[field.key]?.options ?? [],
+        loading: true,
+        error: ''
+      }
+    }
+
+    Promise.resolve(field.options())
+      .then((options) => {
+        if (version !== optionsRequestVersion) {
+          return
+        }
+
+        asyncOptionsState.value = {
+          ...asyncOptionsState.value,
+          [field.key]: {
+            options,
+            loading: false,
+            error: ''
+          }
+        }
+      })
+      .catch(() => {
+        if (version !== optionsRequestVersion) {
+          return
+        }
+
+        asyncOptionsState.value = {
+          ...asyncOptionsState.value,
+          [field.key]: {
+            options: [],
+            loading: false,
+            error: 'Failed to load presets'
+          }
+        }
+      })
+  })
+}, { immediate: true })
 </script>
 
 <template>
@@ -166,24 +273,57 @@ function toggleCollapsed() {
           :name="`field-${field.key}`"
           :field="field"
           :value="modelValue[field.key] ?? ''"
-          :update="(value: string) => updateField(field.key, value)"
+          :update="(value: YSearchFormValue) => updateField(field, value)"
         >
-          <YSelect
-            v-if="field.type === 'select'"
-            :model-value="modelValue[field.key] ?? ''"
+          <template v-if="field.type === 'select'">
+            <YSelect
+              :model-value="getStringValue(modelValue[field.key])"
+              :label="field.label"
+              :placeholder="field.placeholder"
+              :options="getSelectOptions(field)"
+              :disabled="field.disabled || isSelectOptionsLoading(field)"
+              @update:model-value="updateField(field, $event)"
+            />
+            <p
+              v-if="isSelectOptionsLoading(field)"
+              class="yok-search-form__field-status"
+              role="status"
+            >
+              Loading presets
+            </p>
+            <p
+              v-else-if="getSelectOptionsError(field)"
+              class="yok-search-form__field-status yok-search-form__field-status--error"
+              role="alert"
+            >
+              {{ getSelectOptionsError(field) }}
+            </p>
+          </template>
+          <YDatePicker
+            v-else-if="field.type === 'date'"
+            :model-value="getStringValue(modelValue[field.key])"
             :label="field.label"
             :placeholder="field.placeholder"
-            :options="field.options ?? []"
+            :shortcuts="getDateShortcuts(field)"
             :disabled="field.disabled"
-            @update:model-value="updateField(field.key, $event)"
+            @update:model-value="updateField(field, $event)"
+          />
+          <YDateRangePicker
+            v-else-if="field.type === 'dateRange'"
+            :model-value="getRangeValue(modelValue[field.key])"
+            :label="field.label"
+            :placeholder="field.placeholder"
+            :shortcuts="getDateRangeShortcuts(field)"
+            :disabled="field.disabled"
+            @update:model-value="updateField(field, $event)"
           />
           <YInput
             v-else
-            :model-value="modelValue[field.key] ?? ''"
+            :model-value="getStringValue(modelValue[field.key])"
             :label="field.label"
             :placeholder="field.placeholder"
             :disabled="field.disabled"
-            @update:model-value="updateField(field.key, $event)"
+            @update:model-value="updateField(field, $event)"
           />
         </slot>
       </div>
@@ -288,6 +428,17 @@ function toggleCollapsed() {
 
 .yok-search-form__field {
   min-width: 0;
+}
+
+.yok-search-form__field-status {
+  margin: var(--yok-space-1) 0 0;
+  color: var(--yok-color-textMuted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.yok-search-form__field-status--error {
+  color: var(--yok-color-danger);
 }
 
 .yok-search-form__primary-actions,

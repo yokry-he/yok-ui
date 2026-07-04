@@ -4,5 +4,8 @@ export type {
   YSearchFormField,
   YSearchFormFieldType,
   YSearchFormOption,
-  YSearchFormSubmitPayload
+  YSearchFormOptionsLoader,
+  YSearchFormOptionsSource,
+  YSearchFormSubmitPayload,
+  YSearchFormValue
 } from './YSearchForm.vue'

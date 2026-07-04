@@ -19,7 +19,8 @@ import type {
 import type { YBulkActionItem } from '../bulk-action-bar'
 import YSearchForm, {
   type YSearchFormField,
-  type YSearchFormSubmitPayload
+  type YSearchFormSubmitPayload,
+  type YSearchFormValue
 } from '../search-form/YSearchForm.vue'
 
 defineOptions({
@@ -40,7 +41,7 @@ interface Props {
   stickyHeader?: boolean
   ariaLabel?: string
   headingLevel?: 1 | 2 | 3
-  searchModel?: Record<string, string>
+  searchModel?: Record<string, YSearchFormValue>
   searchFields?: YSearchFormField[]
   searchTitle?: string
   searchDescription?: string
@@ -146,9 +147,9 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'update:searchModel': [value: Record<string, string>]
+  'update:searchModel': [value: Record<string, YSearchFormValue>]
   search: [payload: YResourcePageSearchPayload]
-  reset: [value: Record<string, string>]
+  reset: [value: Record<string, YSearchFormValue>]
   searchCollapseChange: [collapsed: boolean]
   'update:viewValue': [value: string]
   viewChange: [view: YDataViewItem]

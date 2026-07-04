@@ -34,6 +34,7 @@ type PlaygroundButtonVariant = (typeof playgroundButtonVariants)[number]
 type PlaygroundAvatarShape = (typeof playgroundAvatarShapes)[number]
 type PlaygroundCodeView = (typeof playgroundCodeViews)[number]
 type PlaygroundViewport = (typeof playgroundViewports)[number]
+type SearchFormModelValue = string | [string, string] | []
 
 interface ImportedReplayStep {
   key?: string
@@ -354,9 +355,11 @@ const schemaFormModel = ref<Record<string, unknown>>({ ...defaultSchemaFormModel
 const defaultSearchFormModel = {
   keyword: 'button',
   status: 'stable',
-  owner: ''
+  owner: '',
+  releaseDate: '2026-07-01',
+  releaseWindow: ['2026-07-01', '2026-07-07'] as [string, string]
 }
-const searchFormModel = ref<Record<string, string>>({ ...defaultSearchFormModel })
+const searchFormModel = ref<Record<string, SearchFormModelValue>>({ ...defaultSearchFormModel })
 const copied = ref(false)
 const copiedShare = ref(false)
 const copiedImportManifest = ref(false)
@@ -718,6 +721,23 @@ const searchFormFields = [
     label: 'Owner',
     type: 'select',
     options: searchFormOwnerOptions
+  },
+  {
+    key: 'releaseDate',
+    label: 'Release date',
+    type: 'date',
+    shortcuts: [
+      { label: 'Today', value: '2026-06-13' },
+      { label: 'Launch day', value: '2026-07-01', time: '20:30', description: 'Low traffic release window' }
+    ]
+  },
+  {
+    key: 'releaseWindow',
+    label: 'Release window',
+    type: 'dateRange',
+    shortcuts: [
+      { label: 'Release week', value: ['2026-07-01', '2026-07-07'], time: '20:30-09:00' }
+    ]
   },
   {
     key: 'package',

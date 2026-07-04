@@ -4621,14 +4621,14 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       label: '基础筛选',
       kind: 'basic',
       controlValue: 'basic',
-      description: '展示 modelValue、fields、关键词、状态和包类型筛选。'
+      description: '展示 modelValue、fields、关键词、状态、包类型、日期和日期范围筛选。'
     },
     {
       key: 'advanced-fields',
       label: '高级条件',
       kind: 'controlled',
       controlValue: 'advanced',
-      description: '覆盖 collapsedCount、collapsible、defaultCollapsed 展开收起、筛选数量和重置动作。'
+      description: '覆盖 collapsedCount、collapsible、defaultCollapsed、日期 preset、筛选数量和重置动作。'
     },
     {
       key: 'toolbar-filter',

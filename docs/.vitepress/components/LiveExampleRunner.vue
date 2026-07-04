@@ -9870,7 +9870,7 @@ const menuItems = [
   },
   searchForm: {
     title: 'Search Form scenario',
-    description: '用基础筛选、高级展开、紧凑表头、禁用和键盘路径调试搜索表单。',
+    description: '用基础筛选、日期范围、高级展开、紧凑表头、禁用和键盘路径调试搜索表单。',
     controls: [
       { key: 'scenario', label: '场景', type: 'select', defaultValue: 'basic', options: [
         { label: '基础筛选', value: 'basic' },
@@ -9911,10 +9911,10 @@ const menuItems = [
             ? 'Advanced fields stay visible for one-pass filtering.'
             : state.description
       const model = isBlockedScenario
-        ? { keyword: 'release', status: 'beta', package: 'admin', owner: 'Ops team' }
+        ? { keyword: 'release', status: 'beta', package: 'admin', releaseDate: '2026-07-01', releaseWindow: ['2026-07-01', '2026-07-07'] }
         : isAdvancedScenario || isKeyboardScenario
-          ? { keyword: 'table', status: 'stable', package: 'admin', owner: 'Core team' }
-          : { keyword: 'button', status: 'stable', package: '' }
+          ? { keyword: 'table', status: 'stable', package: 'admin', releaseDate: '2026-07-01', releaseWindow: ['2026-07-01', '2026-07-07'] }
+          : { keyword: 'button', status: 'stable', package: '', releaseDate: '', releaseWindow: [] }
       const fields = [
         { key: 'keyword', label: 'Keyword', placeholder: 'Search component', disabled: isBlockedScenario },
         {
@@ -9939,6 +9939,25 @@ const menuItems = [
             { label: 'Core', value: 'core' },
             { label: 'Product', value: 'product' },
             { label: 'Admin', value: 'admin' }
+          ]
+        },
+        {
+          key: 'releaseDate',
+          label: 'Release date',
+          type: 'date',
+          disabled: isBlockedScenario,
+          shortcuts: [
+            { label: 'Today', value: '2026-06-13' },
+            { label: 'Launch day', value: '2026-07-01', time: '20:30', description: 'Low traffic release window' }
+          ]
+        },
+        {
+          key: 'releaseWindow',
+          label: 'Release window',
+          type: 'dateRange',
+          disabled: isBlockedScenario,
+          shortcuts: [
+            { label: 'Release week', value: ['2026-07-01', '2026-07-07'], time: '20:30-09:00' }
           ]
         },
         { key: 'owner', label: 'Owner', placeholder: 'Design system', disabled: isBlockedScenario }

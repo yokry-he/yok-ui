@@ -2953,7 +2953,7 @@ export const componentApis: Record<string, ComponentApi> = {
       { name: 'status', type: 'string', defaultValue: "''", description: '标题区状态徽标。' },
       { name: 'density', type: 'YResourcePageDensity', defaultValue: "'comfortable'", description: '页面整体密度，会同步给搜索表单和 CRUD 布局。' },
       { name: 'stickyHeader', type: 'boolean', defaultValue: 'false', description: '是否让标题区在长资源页内吸顶。' },
-      { name: 'searchModel', type: 'Record<string, string>', defaultValue: '{}', description: '搜索表单值。' },
+      { name: 'searchModel', type: 'Record<string, YSearchFormValue>', defaultValue: '{}', description: '搜索表单值，支持日期范围筛选。' },
       { name: 'searchFields', type: 'YSearchFormField[]', defaultValue: '[]', description: '搜索字段配置；为空时不渲染搜索区。' },
       { name: 'searchTitle', type: 'string', defaultValue: "'Search resources'", description: '搜索表单标题。' },
       { name: 'views', type: 'YDataViewItem[]', description: '保存视图列表。', required: true },
@@ -2970,9 +2970,9 @@ export const componentApis: Record<string, ComponentApi> = {
       { name: 'detailPlacement', type: 'YResourcePageDetailPlacement', defaultValue: "'right'", description: '详情抽屉方向。' }
     ],
     events: [
-      { name: 'update:searchModel', type: 'Record<string, string>', description: '搜索表单值变化。' },
+      { name: 'update:searchModel', type: 'Record<string, YSearchFormValue>', description: '搜索表单值变化。' },
       { name: 'search', type: 'YResourcePageSearchPayload', description: '搜索提交。' },
-      { name: 'reset', type: 'Record<string, string>', description: '搜索重置。' },
+      { name: 'reset', type: 'Record<string, YSearchFormValue>', description: '搜索重置。' },
       { name: 'searchCollapseChange', type: 'boolean', description: '高级筛选折叠状态变化。' },
       { name: 'update:viewValue', type: 'string', description: '保存视图值变化。' },
       { name: 'viewChange', type: 'YDataViewItem', description: '保存视图切换。' },
@@ -2997,7 +2997,7 @@ export const componentApis: Record<string, ComponentApi> = {
     types: [
       { name: 'YResourcePageDensity', type: "'comfortable' | 'compact'", description: '资源页密度。' },
       { name: 'YResourcePageDetailPlacement', type: "'left' | 'right'", description: '详情抽屉方向。' },
-      { name: 'YResourcePageSearchPayload', type: '{ values: Record<string, string>; activeFieldKeys: string[] }', description: '搜索提交载荷。' }
+      { name: 'YResourcePageSearchPayload', type: '{ values: Record<string, YSearchFormValue>; activeFieldKeys: string[] }', description: '搜索提交载荷。' }
     ]
   },
   YSchemaForm: {
@@ -3146,8 +3146,8 @@ export const componentApis: Record<string, ComponentApi> = {
     props: [
       {
         name: 'modelValue',
-        type: 'Record<string, string>',
-        description: '受控搜索表单值。',
+        type: 'Record<string, YSearchFormValue>',
+        description: '受控搜索表单值，支持字符串日期和日期范围数组。',
         required: true
       },
       {
@@ -3202,7 +3202,7 @@ export const componentApis: Record<string, ComponentApi> = {
     events: [
       {
         name: 'update:modelValue',
-        type: 'Record<string, string>',
+        type: 'Record<string, YSearchFormValue>',
         description: '字段值变化。'
       },
       {
@@ -3212,7 +3212,7 @@ export const componentApis: Record<string, ComponentApi> = {
       },
       {
         name: 'reset',
-        type: 'Record<string, string>',
+        type: 'Record<string, YSearchFormValue>',
         description: '重置表单，返回默认值。'
       },
       {
@@ -3229,7 +3229,7 @@ export const componentApis: Record<string, ComponentApi> = {
       },
       {
         name: 'field-{key}',
-        type: '{ field: YSearchFormField; value: string; update: (value: string) => void }',
+        type: '{ field: YSearchFormField; value: YSearchFormValue; update: (value: YSearchFormValue) => void }',
         description: '自定义某个字段的渲染。'
       },
       {
@@ -3241,8 +3241,13 @@ export const componentApis: Record<string, ComponentApi> = {
     types: [
       {
         name: 'YSearchFormFieldType',
-        type: "'input' | 'select'",
+        type: "'input' | 'select' | 'date' | 'dateRange'",
         description: '内置字段类型。'
+      },
+      {
+        name: 'YSearchFormValue',
+        type: "string | YDateRangeValue",
+        description: '字段值类型；日期范围使用 `[start, end]` 或空数组。'
       },
       {
         name: 'YSearchFormDensity',
@@ -3255,13 +3260,23 @@ export const componentApis: Record<string, ComponentApi> = {
         description: 'select 字段选项。'
       },
       {
+        name: 'YSearchFormOptionsLoader',
+        type: '() => YSearchFormOption[] | Promise<YSearchFormOption[]>',
+        description: '异步加载 select presets 的函数。'
+      },
+      {
+        name: 'YSearchFormOptionsSource',
+        type: 'YSearchFormOption[] | YSearchFormOptionsLoader',
+        description: '同步或异步 select 选项来源。'
+      },
+      {
         name: 'YSearchFormField',
-        type: '{ key: string; label: string; type?: YSearchFormFieldType; placeholder?: string; options?: YSearchFormOption[]; defaultValue?: string; disabled?: boolean; hidden?: boolean }',
-        description: '搜索字段定义。'
+        type: '{ key: string; label: string; type?: YSearchFormFieldType; placeholder?: string; options?: YSearchFormOptionsSource; shortcuts?: YDateShortcut[] | YDateRangeShortcut[]; defaultValue?: YSearchFormValue; disabled?: boolean; hidden?: boolean }',
+        description: '搜索字段定义，支持文本、选择器、日期和日期范围。'
       },
       {
         name: 'YSearchFormSubmitPayload',
-        type: '{ values: Record<string, string>; activeFieldKeys: string[] }',
+        type: '{ values: Record<string, YSearchFormValue>; activeFieldKeys: string[] }',
         description: '查询提交载荷。'
       }
     ]

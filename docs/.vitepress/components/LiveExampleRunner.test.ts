@@ -670,6 +670,8 @@ describe('LiveExampleRunner', () => {
     expect(source).toContain('const searchFormFields =')
     expect(source).toContain(':fields="searchFormFields"')
     expect(source).toContain(':model-value="searchFormModel"')
+    expect(source).toContain('"type": "date"')
+    expect(source).toContain('"type": "dateRange"')
   })
 
   it('links data view live examples with runnable views, columns and rows source', async () => {

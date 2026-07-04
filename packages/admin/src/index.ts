@@ -67,7 +67,10 @@ export type {
   YSearchFormField,
   YSearchFormFieldType,
   YSearchFormOption,
-  YSearchFormSubmitPayload
+  YSearchFormOptionsLoader,
+  YSearchFormOptionsSource,
+  YSearchFormSubmitPayload,
+  YSearchFormValue
 } from './components/search-form'
 export { YSearchPanel } from './components/search-panel'
 export type { YSearchField } from './components/search-panel'

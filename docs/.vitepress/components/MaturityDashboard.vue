@@ -58,6 +58,10 @@ import {
   getReleaseReadinessSummary
 } from '../data/releaseReadiness'
 import {
+  getMainstreamParityItems,
+  getMainstreamParitySummary
+} from '../data/mainstreamParity'
+import {
   auditThemeLabRelease,
   defaultThemeLabState
 } from '../data/themeLab'
@@ -403,6 +407,8 @@ const workflowScenarioCards = computed(() => {
 const liveExampleReadinessSummary = computed(() => getLiveExampleReadinessSummary())
 const apiLiveCoverageSummary = computed(() => getApiLiveCoverageSummary())
 const releaseReadinessSummary = computed(() => getReleaseReadinessSummary())
+const mainstreamParitySummary = computed(() => getMainstreamParitySummary())
+const mainstreamParityItems = computed(() => getMainstreamParityItems())
 const docDemoSourceQualitySummary = computed(() => getDocDemoSourceQualitySummary())
 const readinessStatusLabels: Record<LiveExampleReadinessStatus, string> = {
   excellent: 'Excellent',
@@ -558,6 +564,34 @@ const apiReferenceHandoffCards = computed(() => [
     value: 'query',
     detail: '用一个常见 prop 演示 API 数据中心的 row 级深链和组件页锚点跳转。',
     href: '/resources/api-reference?api-q=variant&api-kind=props'
+  }
+])
+
+const mainstreamParityCards = computed(() => [
+  {
+    label: 'mainstream parity',
+    value: `${mainstreamParitySummary.value.coverageRate}%`,
+    detail: `${mainstreamParitySummary.value.covered}/${mainstreamParitySummary.value.total} external benchmarks covered`
+  },
+  {
+    label: 'average score',
+    value: `${mainstreamParitySummary.value.averageScore}%`,
+    detail: '按外部基准逐项计算组件、文档、Live Example、源码体验和资源页证据。'
+  },
+  {
+    label: 'external source',
+    value: mainstreamParitySummary.value.externalSources,
+    detail: '基准来自 Element Plus 官方组件总览、组件页、i18n 指南和首页信息架构。'
+  },
+  {
+    label: 'benchmark queue',
+    value: mainstreamParitySummary.value.nextQueue.length,
+    detail: '当任一外部基准未覆盖时，会进入下一步追赶队列。'
+  },
+  {
+    label: 'source labels',
+    value: mainstreamParitySummary.value.sourceLabels.length,
+    detail: mainstreamParitySummary.value.sourceLabels.slice(0, 3).join(' / ')
   }
 ])
 
@@ -820,6 +854,64 @@ const nextPriorities = computed(() =>
               <span>继续保留回归测试和文档证据。</span>
             </div>
           </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="maturity-dashboard__mainstream">
+      <div class="maturity-dashboard__mainstream-copy">
+        <p class="docs-eyebrow">mainstream parity benchmark</p>
+        <h3>把“接近主流组件库”改成外部基准驱动</h3>
+        <p>
+          内部成熟度达标后，Yok UI 继续用 Element Plus 的组件总览、示例源码操作、Playground 交接、
+          Table、Cascader、DatePicker、ConfigProvider i18n 和 Guide / Component / Resource 信息架构作为外部对标项。
+          每个基准都必须能回到当前组件、文档路由、Live Example、API evidence 或资源页证据。
+        </p>
+      </div>
+
+      <div class="maturity-dashboard__mainstream-grid">
+        <article
+          v-for="card in mainstreamParityCards"
+          :key="card.label"
+          class="maturity-dashboard__mainstream-card"
+        >
+          <strong>{{ card.value }}</strong>
+          <span>{{ card.label }}</span>
+          <p>{{ card.detail }}</p>
+        </article>
+      </div>
+
+      <div class="maturity-dashboard__mainstream-list">
+        <article
+          v-for="item in mainstreamParityItems"
+          :key="item.key"
+          class="maturity-dashboard__mainstream-item"
+          :data-status="item.status"
+        >
+          <header>
+            <div>
+              <a class="maturity-dashboard__mainstream-link" :href="item.source.url">
+                {{ item.source.label }}
+              </a>
+              <strong>{{ item.label }}</strong>
+            </div>
+            <span>{{ item.score }}% · {{ item.status }}</span>
+          </header>
+          <p>{{ item.source.note }}</p>
+          <div class="maturity-dashboard__mainstream-evidence">
+            <span>{{ item.matchedComponents.length }} components</span>
+            <span>{{ item.evidence.docs.length }} docs</span>
+            <span>{{ item.evidence.liveExamples.length }} live examples</span>
+            <span>{{ item.evidence.resources.length }} resources</span>
+          </div>
+          <div class="maturity-dashboard__mainstream-tags">
+            <span v-for="capability in item.evidence.capabilities.slice(0, 4)" :key="`${item.key}-${capability}`">
+              {{ capability }}
+            </span>
+          </div>
+          <em v-if="item.missing.length">
+            待补齐：{{ item.missing.join(' / ') }}
+          </em>
         </article>
       </div>
     </div>

@@ -7947,6 +7947,7 @@ body {
 .maturity-dashboard__source-panel,
 .maturity-dashboard__api-live-map,
 .maturity-dashboard__roadmap,
+.maturity-dashboard__mainstream,
 .maturity-dashboard__coverage-queue,
 .maturity-dashboard__theme-release,
 .maturity-dashboard__a11y,
@@ -7980,6 +7981,8 @@ body {
 .maturity-dashboard__api-live-map p,
 .maturity-dashboard__roadmap h3,
 .maturity-dashboard__roadmap p,
+.maturity-dashboard__mainstream h3,
+.maturity-dashboard__mainstream p,
 .maturity-dashboard__coverage-queue h3,
 .maturity-dashboard__coverage-queue p,
 .maturity-dashboard__theme-release h3,
@@ -8001,6 +8004,7 @@ body {
 .maturity-dashboard__source-panel p,
 .maturity-dashboard__api-live-map p,
 .maturity-dashboard__roadmap p,
+.maturity-dashboard__mainstream p,
 .maturity-dashboard__coverage-queue p,
 .maturity-dashboard__theme-release p,
 .maturity-dashboard__a11y p,
@@ -8025,6 +8029,8 @@ body {
 .maturity-dashboard__api-live-map-links,
 .maturity-dashboard__roadmap-grid,
 .maturity-dashboard__roadmap-items,
+.maturity-dashboard__mainstream-grid,
+.maturity-dashboard__mainstream-list,
 .maturity-dashboard__coverage-queue-list,
 .maturity-dashboard__theme-release-board,
 .maturity-dashboard__theme-release-grid,
@@ -8056,6 +8062,8 @@ body {
 .maturity-dashboard__api-live-map-links a,
 .maturity-dashboard__roadmap-lane,
 .maturity-dashboard__roadmap-items a,
+.maturity-dashboard__mainstream-card,
+.maturity-dashboard__mainstream-item,
 .maturity-dashboard__coverage-queue-item,
 .maturity-dashboard__theme-release-score,
 .maturity-dashboard__theme-release-card,
@@ -8086,6 +8094,7 @@ body {
 .maturity-dashboard__source-panel-card strong,
 .maturity-dashboard__api-live-map-card strong,
 .maturity-dashboard__roadmap-lane header strong,
+.maturity-dashboard__mainstream-card strong,
 .maturity-dashboard__theme-release-score strong,
 .maturity-dashboard__a11y-summary strong,
 .maturity-dashboard__a11y-risk-card strong,
@@ -8115,6 +8124,8 @@ body {
 .maturity-dashboard__api-live-map-links span,
 .maturity-dashboard__roadmap-lane header span,
 .maturity-dashboard__roadmap-items span,
+.maturity-dashboard__mainstream-card span,
+.maturity-dashboard__mainstream-evidence span,
 .maturity-dashboard__coverage-meta,
 .maturity-dashboard__coverage-detail,
 .maturity-dashboard__theme-release-score span,
@@ -8849,6 +8860,114 @@ body {
   color: var(--yok-color-textMuted);
   font-size: 12px;
   font-weight: 800;
+}
+
+.maturity-dashboard__mainstream {
+  display: grid;
+  gap: 16px;
+}
+
+.maturity-dashboard__mainstream-copy {
+  max-width: 860px;
+}
+
+.maturity-dashboard__mainstream-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.maturity-dashboard__mainstream-card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.maturity-dashboard__mainstream-card p {
+  color: var(--yok-color-textMuted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.maturity-dashboard__mainstream-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.maturity-dashboard__mainstream-item {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  background: color-mix(in srgb, var(--yok-color-surfaceMuted) 44%, var(--yok-color-surface));
+}
+
+.maturity-dashboard__mainstream-item header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.maturity-dashboard__mainstream-item header div {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.maturity-dashboard__mainstream-item header strong {
+  color: var(--yok-color-text);
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.maturity-dashboard__mainstream-item header span {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--yok-color-primarySoft);
+  color: var(--yok-color-primary);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1;
+  padding: 7px 9px;
+}
+
+.maturity-dashboard__mainstream-link {
+  width: fit-content;
+  color: var(--yok-color-primary);
+  font-size: 12px;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.maturity-dashboard__mainstream-link:hover {
+  text-decoration: underline;
+}
+
+.maturity-dashboard__mainstream-evidence,
+.maturity-dashboard__mainstream-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.maturity-dashboard__mainstream-evidence span,
+.maturity-dashboard__mainstream-tags span {
+  border-radius: 999px;
+  background: var(--yok-color-surface);
+  color: var(--yok-color-textMuted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 7px 9px;
+}
+
+.maturity-dashboard__mainstream-tags span {
+  background: color-mix(in srgb, var(--yok-color-primarySoft) 58%, var(--yok-color-surface));
+  color: var(--yok-color-primary);
+}
+
+.maturity-dashboard__mainstream-item em {
+  color: #92400e;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 850;
 }
 
 .maturity-dashboard__coverage-queue {
@@ -11126,6 +11245,8 @@ body {
   .maturity-dashboard__api-live-map-links,
   .maturity-dashboard__api-reference-links,
   .maturity-dashboard__roadmap-grid,
+  .maturity-dashboard__mainstream-grid,
+  .maturity-dashboard__mainstream-list,
   .maturity-dashboard__coverage-queue-list,
   .maturity-dashboard__theme-release-board,
   .maturity-dashboard__theme-release-grid,
@@ -11242,6 +11363,14 @@ body {
     text-align: left;
     white-space: normal;
     word-break: break-word;
+  }
+
+  .maturity-dashboard__mainstream-item header {
+    display: grid;
+  }
+
+  .maturity-dashboard__mainstream-item header span {
+    justify-self: start;
   }
 
   .theme-lab__token-row em {

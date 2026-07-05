@@ -56,6 +56,7 @@ const componentStubs = {
   YTransfer: { template: '<section />' },
   YConfigProvider: { template: '<section><slot /></section>' },
   YDatePicker: { template: '<input />' },
+  YDatePickerPanel: { template: '<section />' },
   YDateRangePicker: { template: '<input />' },
   YDateTimePicker: { template: '<input />' },
   YTimePicker: { template: '<input />' },

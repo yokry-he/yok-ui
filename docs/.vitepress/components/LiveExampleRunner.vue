@@ -23,6 +23,7 @@ import {
   YConfigProvider,
   YCountdown,
   YDatePicker,
+  YDatePickerPanel,
   YDateRangePicker,
   YDateTimePicker,
   YDescriptions,
@@ -1509,6 +1510,23 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '  </div>',
     '</template>'
   ].join('\n'),
+  datePickerPanel: [
+    '<script setup lang="ts">',
+    "import { YDatePickerPanel, YTag, type YDateShortcut } from '@yok-ui/core'",
+    'const dateShortcuts: YDateShortcut[] = [',
+    "  { label: 'Today', value: '2026-06-13' },",
+    "  { label: 'Review day', value: '2026-06-15', time: '10:00', description: 'Design review' },",
+    "  { label: 'Launch day', value: '2026-07-01', time: '20:30', description: 'Low traffic window' }",
+    ']',
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <div class="demo-stack">',
+    '    <YDatePickerPanel label="Release calendar" model-value="2026-06-13" :shortcuts="dateShortcuts" />',
+    '    <YTag tone="info">Standalone panel for embedded date selection.</YTag>',
+    '  </div>',
+    '</template>'
+  ].join('\n'),
   dateRangePicker: [
     '<script setup lang="ts">',
     "import { YDateRangePicker, YTag, type YDateRangeShortcut } from '@yok-ui/core'",
@@ -2498,6 +2516,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   dataToolbar: 'Data Toolbar',
   themeProvider: 'Theme Provider',
   datePicker: 'Date Picker',
+  datePickerPanel: 'Date Picker Panel',
   dateRangePicker: 'Date Range Picker',
   dateTimePicker: 'Date Time Picker',
   alert: 'Alert',
@@ -4011,6 +4030,85 @@ const disableWeekends = (date: Date) => [0, 6].includes(date.getDay())`
         `  ${pickerLine}`,
         isValidationScenario ? '  <p id="release-date-help" class="demo-note">Choose a release date before publishing.</p>' : '',
         `  <YTag tone="${isErrorScenario || isValidationScenario ? 'danger' : isDisabledScenario ? 'warning' : 'info'}">${helperText}</YTag>`,
+        '</div>'
+      ].filter(Boolean))
+    }
+  },
+  datePickerPanel: {
+    title: 'Date Picker Panel scenario',
+    description: '用嵌入面板、快捷日期、禁用日期、无边框、校验错误、移动和键盘场景调试独立日期面板。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'embedded', options: [
+        { label: '嵌入面板', value: 'embedded' },
+        { label: '快捷日期', value: 'shortcut' },
+        { label: '禁用日期', value: 'disabled' },
+        { label: '无边框面板', value: 'borderless' },
+        { label: '校验错误', value: 'error' },
+        { label: '移动面板', value: 'mobile' },
+        { label: '键盘日期', value: 'keyboard' }
+      ] },
+      { key: 'showAdjacentMonths', label: '显示相邻月份', type: 'boolean', defaultValue: true }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const isShortcutScenario = scenario === 'shortcut'
+      const isDisabledScenario = scenario === 'disabled'
+      const isBorderlessScenario = scenario === 'borderless'
+      const isErrorScenario = scenario === 'error'
+      const isMobileScenario = scenario === 'mobile'
+      const isKeyboardScenario = scenario === 'keyboard'
+      const label = isShortcutScenario
+        ? 'Release shortcuts'
+        : isDisabledScenario
+          ? 'Weekday calendar'
+          : isBorderlessScenario
+            ? 'Inline calendar'
+            : isErrorScenario
+              ? 'Required release date'
+              : isMobileScenario
+                ? 'Due date'
+                : isKeyboardScenario
+                  ? 'Keyboard calendar'
+                  : 'Release calendar'
+      const value = isErrorScenario ? '' : isShortcutScenario ? '2026-06-15' : '2026-06-13'
+      const helperText = isShortcutScenario
+        ? 'Shortcuts surface review and launch dates directly in the panel.'
+        : isDisabledScenario
+          ? 'Weekends are disabled and keyboard navigation skips blocked cells.'
+          : isBorderlessScenario
+            ? 'Borderless mode fits inside cards, drawers and popover bodies.'
+            : isErrorScenario
+              ? 'Group-level invalid state links help and alert text.'
+              : isMobileScenario
+                ? 'Compact labels and stable day cells keep the panel usable on narrow screens.'
+                : isKeyboardScenario
+                  ? 'Arrow keys move dates; PageUp and PageDown switch months.'
+                  : 'Standalone panels avoid trigger popovers for always-visible date workflows.'
+      const imports = [
+        "import { YDatePickerPanel, YTag } from '@yok-ui/core'",
+        isShortcutScenario || isKeyboardScenario ? "import type { YDateShortcut } from '@yok-ui/core'" : '',
+        isShortcutScenario || isKeyboardScenario ? [
+          '',
+          'const dateShortcuts: YDateShortcut[] = [',
+          "  { label: 'Today', value: '2026-06-13' },",
+          "  { label: 'Review day', value: '2026-06-15', time: '10:00', description: 'Design and QA review' },",
+          "  { label: 'Launch day', value: '2026-07-01', time: '20:30', description: 'Low traffic release window' }",
+          ']'
+        ].join('\n') : '',
+        isDisabledScenario || isKeyboardScenario ? [
+          '',
+          'function disableWeekends(date: Date) {',
+          '  return date.getDay() === 0 || date.getDay() === 6',
+          '}'
+        ].join('\n') : ''
+      ].filter(Boolean).join('\n')
+      const panelLine = `<YDatePickerPanel${isErrorScenario ? ' id="release-date-panel"' : ''}${textAttribute('label', label)}${value ? textAttribute('model-value', value) : ''}${isShortcutScenario || isKeyboardScenario ? ' :shortcuts="dateShortcuts"' : ''}${isDisabledScenario || isKeyboardScenario ? ' :disabled-date="disableWeekends"' : ''}${isBorderlessScenario ? ' :border="false"' : ''}${Boolean(state.showAdjacentMonths) ? '' : ' :show-adjacent-months="false"'}${isKeyboardScenario ? ' aria-label="Keyboard date panel"' : ''}${isErrorScenario ? ' aria-describedby="release-date-panel-help" invalid error="Release date is required."' : ''} />`
+
+      return sfc(imports, [
+        `<div class="demo-stack${isMobileScenario ? ' demo-stack--mobile' : ''}">`,
+        `  ${panelLine}`,
+        isErrorScenario ? '  <p id="release-date-panel-help" class="demo-note">Choose a release date before publishing.</p>' : '',
+        `  <YTag tone="${isErrorScenario || isDisabledScenario ? 'warning' : 'info'}">${helperText}</YTag>`,
         '</div>'
       ].filter(Boolean))
     }
@@ -12631,6 +12729,7 @@ const componentMap = {
   ycommandpalette: RunnerCommandPalettePreview,
   ycopybutton: YCopyButton,
   ydatepicker: YDatePicker,
+  ydatepickerpanel: YDatePickerPanel,
   ydaterangepicker: YDateRangePicker,
   ydatetimepicker: YDateTimePicker,
   ydescriptions: RunnerDescriptionsPreview,

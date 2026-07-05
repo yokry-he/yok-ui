@@ -273,6 +273,7 @@ const guidedPropCoverageHints = new Set([
   'select-scroll-top',
   'text',
   'texts',
+  'today',
   'title',
   'tone',
   'end',

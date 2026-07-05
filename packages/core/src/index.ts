@@ -52,7 +52,7 @@ export { YColorPicker, YColorPickerPanel } from './components/color-picker'
 export type { YColorPickerSize } from './components/color-picker'
 export { YConfigProvider } from './components/config-provider'
 export type { YokConfigContext, YokConfigDensity, YokConfigProviderProps, YokConfigSize } from './components/config-provider'
-export { YDatePicker, YDateRangePicker } from './components/date-picker'
+export { YDatePicker, YDatePickerPanel, YDateRangePicker } from './components/date-picker'
 export type {
   YDatePickerCell,
   YDatePickerDisabledDate,

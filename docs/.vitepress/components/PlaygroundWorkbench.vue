@@ -138,6 +138,7 @@ const checkboxValue = ref(true)
 const radioValue = ref('core')
 const switchValue = ref(true)
 const dateValue = ref('2026-06-13')
+const datePanelValue = ref('2026-06-13')
 const dateRangeValue = ref(['2026-06-13', '2026-06-20'])
 const dateTimeValue = ref('2026-07-04 20:30')
 const timeValue = ref('09:30')
@@ -853,6 +854,7 @@ const componentImports = computed(() => {
     radioGroup: 'YRadioGroup',
     switch: 'YSwitch',
     datePicker: 'YDatePicker',
+    datePickerPanel: 'YDatePickerPanel',
     dateRangePicker: 'YDateRangePicker',
     dateTimePicker: 'YDateTimePicker',
     timePicker: 'YTimePicker',
@@ -1126,6 +1128,10 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'datePicker') {
     return `<YDatePicker v-model="releaseDate" label="Release date"${disabled.value ? ' disabled' : ''} />`
+  }
+
+  if (activeComponent.value === 'datePickerPanel') {
+    return `<YDatePickerPanel v-model="releaseDate" label="Release calendar"${disabled.value ? ' disabled' : ''} />`
   }
 
   if (activeComponent.value === 'dateRangePicker') {
@@ -1772,6 +1778,10 @@ const generatedScript = computed(() => {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst releaseDate = ref('2026-06-13')`
   }
 
+  if (activeComponent.value === 'datePickerPanel') {
+    return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst releaseDate = ref('2026-06-13')`
+  }
+
   if (activeComponent.value === 'dateRangePicker') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst sprintRange = ref(['2026-06-13', '2026-06-20'])`
   }
@@ -2351,6 +2361,7 @@ const playgroundShareUrl = computed(() => {
       activeComponent.value === 'radioGroup' ||
       activeComponent.value === 'switch' ||
       activeComponent.value === 'datePicker' ||
+      activeComponent.value === 'datePickerPanel' ||
       activeComponent.value === 'dateRangePicker' ||
       activeComponent.value === 'dateTimePicker' ||
       activeComponent.value === 'timePicker' ||
@@ -2831,6 +2842,7 @@ function resetGeneratedProps() {
   radioValue.value = 'core'
   switchValue.value = true
   dateValue.value = '2026-06-13'
+  datePanelValue.value = '2026-06-13'
   dateRangeValue.value = ['2026-06-13', '2026-06-20']
   dateTimeValue.value = '2026-07-04 20:30'
   timeValue.value = '09:30'
@@ -3098,6 +3110,7 @@ onMounted(() => {
             activeComponent === 'radioGroup' ||
             activeComponent === 'switch' ||
             activeComponent === 'datePicker' ||
+            activeComponent === 'datePickerPanel' ||
             activeComponent === 'dateRangePicker' ||
             activeComponent === 'dateTimePicker' ||
             activeComponent === 'timePicker' ||
@@ -3370,6 +3383,12 @@ onMounted(() => {
             v-else-if="activeComponent === 'datePicker'"
             v-model="dateValue"
             label="Release date"
+            :disabled="disabled"
+          />
+          <YDatePickerPanel
+            v-else-if="activeComponent === 'datePickerPanel'"
+            v-model="datePanelValue"
+            label="Release calendar"
             :disabled="disabled"
           />
           <YDateRangePicker

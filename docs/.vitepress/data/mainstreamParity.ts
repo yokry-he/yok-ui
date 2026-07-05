@@ -202,6 +202,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     capabilities: ['structured-api', 'workflow-live-example', 'shortcut-scenario', 'time-preset-shortcuts', 'disabled-date-scenario']
   },
   {
+    key: 'element-plus-date-picker-panel',
+    label: 'Embeddable date picker panel for inline date workflows',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus DatePickerPanel',
+      url: 'https://element-plus.org/en-US/component/date-picker-panel',
+      note: 'Element Plus exposes DatePickerPanel as a standalone panel for workflows that should not depend on a trigger popover.'
+    },
+    componentNames: ['YDatePickerPanel'],
+    docs: ['/components/date-picker-panel'],
+    capabilities: ['embedded-date-panel', 'shortcut-scenario', 'disabled-date-scenario', 'structured-api', 'workflow-live-example', 'keyboard-scenario']
+  },
+  {
     key: 'element-plus-date-time-picker',
     label: 'Date time picker form workflows',
     source: {

@@ -4,7 +4,7 @@ const corePreviewSetup = [
   '',
   'const coverageItems = [',
   "  { key: 'button', label: 'Actions', value: 'YButton, YIconButton' },",
-  "  { key: 'form', label: 'Forms', value: 'Input, InputOTP, InputTag, Select, TimeSelect, Form, Upload' },",
+  "  { key: 'form', label: 'Forms', value: 'Input, Select, DatePickerPanel, TimeSelect, Form, Upload' },",
   "  { key: 'data', label: 'Data', value: 'Table, List, Descriptions, Statistic, Timeline, Tree' },",
   "  { key: 'feedback', label: 'Feedback', value: 'Alert, Message, Result, Empty' }",
   ']'
@@ -12,7 +12,7 @@ const corePreviewSetup = [
 
 const corePreviewCode = [
   '<div class="core-preview-metrics">',
-  '  <YStatistic title="Core components" :value="47" suffix="ready" tone="success" />',
+  '  <YStatistic title="Core components" :value="48" suffix="ready" tone="success" />',
   '  <YStatistic title="Data display" :value="6" suffix="patterns" tone="info" />',
   '</div>',
   '<YDescriptions',
@@ -78,7 +78,7 @@ import { YButton, YDateTimePicker, YDescriptions, YInput, YInputOtp, YInputTag, 
   :usage="['package preview', 'descriptions', 'statistics']"
 >
   <div class="core-preview-metrics">
-    <YStatistic title="Core components" :value="47" suffix="ready" tone="success" />
+    <YStatistic title="Core components" :value="48" suffix="ready" tone="success" />
     <YStatistic title="Data display" :value="6" suffix="patterns" tone="info" />
   </div>
   <YDescriptions

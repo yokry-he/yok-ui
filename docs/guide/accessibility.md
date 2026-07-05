@@ -83,6 +83,7 @@ DOCS_A11Y_BASE_URL=http://127.0.0.1:5179 pnpm docs:a11y:runtime
 | `YColorPicker` | 使用原生 `input type="color"` 和文本 input，预设色保留 button 语义，支持 `aria-pressed`、错误宣告和键盘操作 |
 | `YColorPickerPanel` | 嵌入式面板使用 `role="group"`，原生色板和 HEX 文本输入共享 `aria-describedby`，预设色按钮使用 `aria-pressed` |
 | `YDatePicker` | 输入框使用 combobox-like 触发语义，Floating UI 定位日历面板，面板使用 `role="dialog"` + `role="grid"`，快捷项使用命名按钮组，日期使用 `aria-selected`，支持方向键、Home / End、PageUp / PageDown 和 Escape |
+| `YDatePickerPanel` | 独立面板使用 `role="group"`，日历区使用 `role="grid"`，快捷项使用命名按钮组，日期使用 `aria-selected`，支持方向键、Home / End、PageUp / PageDown 并跳过禁用日期 |
 | `YDateRangePicker` | 输入框触发 Floating UI 范围日历面板，日期网格使用 `role="grid"`，快捷项使用命名按钮组，起止日期使用 `aria-selected`，支持方向键、Enter / Space、Home / End、PageUp / PageDown 和 Escape |
 | `YTimePicker` | 输入框触发 Floating UI 时间面板，面板使用 `role="dialog"` 和双 `listbox`，支持方向键、Enter / Space 和 Escape |
 | `YTimeSelect` | 固定时间列表复用 `YSelect` 的 `combobox` / `listbox` 语义，范围禁用项同步设置 disabled 和 `aria-disabled` |

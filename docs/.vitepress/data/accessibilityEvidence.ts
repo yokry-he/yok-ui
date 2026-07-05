@@ -78,6 +78,7 @@ function packageNameToFolder(packageName: ComponentMeta['packageName']) {
 const componentTestEvidenceOverrides: Record<string, string[]> = {
   YThemeProvider: ['packages/core/src/components/theme-provider/theme-provider.test.ts'],
   YIconButton: ['packages/core/src/components/button/button.test.ts'],
+  YDatePickerPanel: ['packages/core/src/components/date-picker/date-picker-panel.test.ts'],
   YDateRangePicker: ['packages/core/src/components/date-picker/date-range-picker.test.ts'],
   YDateTimePicker: ['packages/core/src/components/date-time-picker/date-time-picker.test.ts'],
   YTimeSelect: ['packages/core/src/components/time-select/time-select.test.ts'],

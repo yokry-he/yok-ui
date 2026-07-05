@@ -16,7 +16,7 @@ import { YCollapse } from './components/collapse'
 import { YColorPicker, YColorPickerPanel } from './components/color-picker'
 import { YConfigProvider } from './components/config-provider'
 import { YDateTimePicker } from './components/date-time-picker'
-import { YDatePicker, YDateRangePicker } from './components/date-picker'
+import { YDatePicker, YDatePickerPanel, YDateRangePicker } from './components/date-picker'
 import { YDescriptions } from './components/descriptions'
 import { YDivider } from './components/divider'
 import { YDrawer } from './components/drawer'
@@ -115,6 +115,7 @@ export const coreComponents: Component[] = [
   YConfigProvider,
   YDateTimePicker,
   YDatePicker,
+  YDatePickerPanel,
   YDateRangePicker,
   YDescriptions,
   YDivider,

@@ -109,6 +109,19 @@ export const interactionContracts: InteractionContract[] = [
     }
   },
   {
+    componentName: 'YDatePickerPanel',
+    pattern: 'Embedded date grid panel',
+    keyboard: ['Arrow keys move active date and skip disabled dates', 'Home / End jumps within week', 'PageUp / PageDown changes month'],
+    focus: 'The panel exposes one roving active date button while remaining embedded in the page flow.',
+    semantics: ['role="group"', 'role="grid"', 'role="gridcell"', 'aria-selected', 'aria-invalid'],
+    status: 'The standalone panel avoids popover focus traps while preserving grid semantics for embedded date selection.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/guide/accessibility.md', 'docs/components/date-picker-panel.md'],
+      tests: ['packages/core/src/components/date-picker/date-picker-panel.test.ts']
+    }
+  },
+  {
     componentName: 'YDateRangePicker',
     pattern: 'Range date grid dialog',
     keyboard: ['Arrow keys move active date', 'Enter / Space selects start and end', 'Home / End jumps within week', 'PageUp / PageDown changes month', 'Escape closes'],

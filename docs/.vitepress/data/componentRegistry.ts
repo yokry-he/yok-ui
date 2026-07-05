@@ -341,6 +341,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'documented'
   },
   {
+    name: 'YDatePickerPanel',
+    title: 'Date Picker Panel',
+    packageName: '@yok-ui/core',
+    family: 'form',
+    status: 'Beta',
+    docs: '/components/date-picker-panel',
+    description: '可嵌入的日期选择面板，适合日历筛选、配置页和无弹层日期选择。',
+    since: '0.15.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YDateRangePicker',
     title: 'Date Range Picker',
     packageName: '@yok-ui/core',
@@ -6011,6 +6022,138 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'YDateShortcut',
         type: '{ label: string; value: string | (() => string); time?: string; description?: string; disabled?: boolean }',
         description: '单日期快捷项；time 和 description 用于展示带时间的业务 preset。'
+      },
+      {
+        name: 'YDatePickerCell',
+        type: "{ date: Date; value: string; day: number; inCurrentMonth: boolean; selected: boolean; today: boolean; disabled: boolean }",
+        description: '日历单元格数据。'
+      }
+    ]
+  },
+  YDatePickerPanel: {
+    props: [
+      {
+        name: 'id',
+        type: 'string',
+        defaultValue: "''",
+        description: '传给面板根节点的 id；未传入时自动生成稳定 id。'
+      },
+      {
+        name: 'modelValue',
+        type: 'string',
+        defaultValue: "''",
+        description: '当前日期值，格式为 YYYY-MM-DD。'
+      },
+      {
+        name: 'label',
+        type: 'string',
+        defaultValue: "''",
+        description: '面板可见标题，会作为 group 的可访问名称。'
+      },
+      {
+        name: 'ariaLabel',
+        type: 'string',
+        defaultValue: "''",
+        description: '无可见 label 时传给面板 group 的可访问名称。'
+      },
+      {
+        name: 'ariaDescribedby',
+        type: 'string',
+        defaultValue: "''",
+        description: '传给面板 group 的 aria-describedby，通常来自帮助文本或 FormItem messageId。'
+      },
+      {
+        name: 'locale',
+        type: 'string',
+        defaultValue: "'en-US'",
+        description: '月份、星期和日期 aria-label 使用的 locale。'
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '禁用整个日期面板。'
+      },
+      {
+        name: 'disabledDate',
+        type: '(date: Date) => boolean',
+        description: '禁用指定日期。'
+      },
+      {
+        name: 'shortcuts',
+        type: 'YDateShortcut[]',
+        defaultValue: '[]',
+        description: '日期快捷项，支持 time 和 description 展示业务时间说明。'
+      },
+      {
+        name: 'border',
+        type: 'boolean',
+        defaultValue: 'true',
+        description: '是否显示外框和面板阴影。'
+      },
+      {
+        name: 'showAdjacentMonths',
+        type: 'boolean',
+        defaultValue: 'true',
+        description: '是否显示上月和下月补齐日期。'
+      },
+      {
+        name: 'today',
+        type: 'Date',
+        description: '用于测试或业务场景固定“今天”的日期。'
+      },
+      {
+        name: 'error',
+        type: 'string',
+        defaultValue: "''",
+        description: '错误信息。'
+      },
+      {
+        name: 'invalid',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '强制标记面板为无效状态；error 存在时会自动标记。'
+      }
+    ],
+    events: [
+      {
+        name: 'update:modelValue',
+        type: 'string',
+        description: '日期值变化。'
+      },
+      {
+        name: 'change',
+        type: 'string',
+        description: '选择日期或快捷项后触发。'
+      },
+      {
+        name: 'select',
+        type: 'YDatePickerCell',
+        description: '选择日期单元格后触发，返回完整 cell 数据。'
+      },
+      {
+        name: 'panel-change',
+        type: 'string',
+        description: '月份面板变化，格式为 YYYY-MM。'
+      }
+    ],
+    slots: [
+      {
+        name: 'dateCell',
+        type: '{ cell: YDatePickerCell }',
+        description: '自定义日期单元格内容。'
+      }
+    ],
+    types: [
+      {
+        name: 'YDatePickerDisabledDate',
+        type: '(date: Date) => boolean',
+        description: '禁用日期判断函数。'
+      },
+      {
+        name: 'YDateShortcut',
+        type: '{ label: string; value: string | (() => string); time?: string; description?: string; disabled?: boolean }',
+        description: '单日期快捷项。'
       },
       {
         name: 'YDatePickerCell',

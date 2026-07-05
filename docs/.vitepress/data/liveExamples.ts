@@ -11,6 +11,7 @@ export type LiveExamplePreset =
   | 'calendar'
   | 'carousel'
   | 'datePicker'
+  | 'datePickerPanel'
   | 'dateRangePicker'
   | 'dateTimePicker'
   | 'timeSelect'
@@ -282,6 +283,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/data-toolbar', preset: 'dataToolbar' },
   { docs: '/components/collapse', preset: 'collapse' },
   { docs: '/components/date-picker', preset: 'datePicker' },
+  { docs: '/components/date-picker-panel', preset: 'datePickerPanel' },
   { docs: '/components/date-range-picker', preset: 'dateRangePicker' },
   { docs: '/components/date-time-picker', preset: 'dateTimePicker' },
   { docs: '/components/descriptions', preset: 'descriptions' },
@@ -374,6 +376,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'calendar',
   'carousel',
   'datePicker',
+  'datePickerPanel',
   'dateRangePicker',
   'dateTimePicker',
   'textarea',
@@ -500,6 +503,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'dataView',
   'dataTable',
   'datePicker',
+  'datePickerPanel',
   'dateRangePicker',
   'dateTimePicker',
   'descriptions',
@@ -3038,6 +3042,57 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: '验证 Enter、Space、方向键、PageUp、PageDown 和 Escape 的日历路径。'
+    }
+  ],
+  datePickerPanel: [
+    {
+      key: 'embedded-date-panel',
+      label: '嵌入面板',
+      kind: 'basic',
+      controlValue: 'embedded',
+      description: '无弹层日期选择，适合筛选侧栏、配置页和日期仪表盘。'
+    },
+    {
+      key: 'shortcut-date-panel',
+      label: '快捷日期',
+      kind: 'controlled',
+      controlValue: 'shortcut',
+      description: '通过 shortcuts 提供今天、评审日、上线日等高频日期。'
+    },
+    {
+      key: 'disabled-date-panel',
+      label: '禁用日期',
+      kind: 'disabled',
+      controlValue: 'disabled',
+      description: '禁用周末、维护窗口或业务不可预约日期。'
+    },
+    {
+      key: 'borderless-date-panel',
+      label: '无边框面板',
+      kind: 'layout',
+      controlValue: 'borderless',
+      description: '嵌入卡片、抽屉或 Popover 内容区时移除外框和阴影。'
+    },
+    {
+      key: 'error-date-panel',
+      label: '校验错误',
+      kind: 'error',
+      controlValue: 'error',
+      description: '保留 group 级 aria-invalid、错误文案和帮助文本关联。'
+    },
+    {
+      key: 'mobile-date-panel',
+      label: '移动面板',
+      kind: 'responsive',
+      controlValue: 'mobile',
+      description: '窄屏下日期格保持稳定尺寸，标题和按钮不挤压。'
+    },
+    {
+      key: 'keyboard-date-panel',
+      label: '键盘日期',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: '方向键、Home、End、PageUp 和 PageDown 可移动焦点并跳过禁用日期。'
     }
   ],
   timePicker: [

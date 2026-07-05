@@ -20,6 +20,7 @@ import {
   YCollapse,
   YColorPicker,
   YColorPickerPanel,
+  YCol,
   YConfigProvider,
   YCountdown,
   YDatePicker,
@@ -61,6 +62,7 @@ import {
   YRadioGroup,
   YRate,
   YResult,
+  YRow,
   YScrollbar,
   YSegmented,
   YSelect,
@@ -1225,6 +1227,19 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '    <YDivider label="Product" />',
     '    <div class="demo-row"><YTag tone="info">Command Palette</YTag><YTag tone="info">Code Block</YTag></div>',
     '  </div>',
+    '</template>'
+  ].join('\n'),
+  grid: [
+    '<script setup lang="ts">',
+    "import { YCol, YRow, YTag } from '@yok-ui/core'",
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <YRow :gutter="[16, 20]" align="stretch" :wrap="true">',
+    '    <YCol :xs="24" :sm="12" :md="12" :lg="8" :xl="8" :xxl="6"><div class="demo-panel">Core <YTag tone="success">Stable</YTag></div></YCol>',
+    '    <YCol :xs="24" :sm="12" :md="12" :lg="8" :xl="8" :xxl="6"><div class="demo-panel">Product <YTag tone="info">Workflow</YTag></div></YCol>',
+    '    <YCol :xs="24" :sm="24" :md="24" :lg="8" :xl="8" :xxl="12"><div class="demo-panel">Admin <YTag tone="warning">Dense</YTag></div></YCol>',
+    '  </YRow>',
     '</template>'
   ].join('\n'),
   flex: [
@@ -2495,6 +2510,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   icon: 'Icon',
   backtop: 'Backtop',
   divider: 'Divider',
+  grid: 'Grid',
   flex: 'Flex',
   space: 'Space',
   splitter: 'Splitter',
@@ -3770,6 +3786,110 @@ const largePackageOptions = Array.from({ length: 1000 }, (_, index) => ({
       `  <YTag tone="${tagTone}">${helperText}</YTag>`,
       '</div>'
     ])
+    }
+  },
+  grid: {
+    title: 'Grid scenario',
+    description: '调试 24 栅格、gutter、断点、offset、order 和键盘路径，源码可直接复制到业务页面。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'responsive', options: [
+        { label: '基础栅格', value: 'basic' },
+        { label: '响应式断点', value: 'responsive' },
+        { label: '偏移布局', value: 'offset' },
+        { label: '视觉排序', value: 'ordered' },
+        { label: '加载占位', value: 'loading' },
+        { label: '键盘路径', value: 'keyboard' }
+      ] },
+      { key: 'horizontalGutter', label: '横向 gutter', type: 'range', defaultValue: 16, min: 0, max: 40, step: 4 },
+      { key: 'verticalGutter', label: '纵向 gutter', type: 'range', defaultValue: 20, min: 0, max: 40, step: 4 },
+      { key: 'align', label: '对齐', type: 'select', defaultValue: 'stretch', options: [
+        { label: 'top', value: 'top' },
+        { label: 'middle', value: 'middle' },
+        { label: 'bottom', value: 'bottom' },
+        { label: 'stretch', value: 'stretch' }
+      ] },
+      { key: 'justify', label: '分布', type: 'select', defaultValue: 'start', options: [
+        { label: 'start', value: 'start' },
+        { label: 'center', value: 'center' },
+        { label: 'between', value: 'between' },
+        { label: 'evenly', value: 'evenly' }
+      ] },
+      { key: 'wrap', label: '换行', type: 'boolean', defaultValue: true }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const isBasic = scenario === 'basic'
+      const isOffset = scenario === 'offset'
+      const isOrdered = scenario === 'ordered'
+      const isLoading = scenario === 'loading'
+      const isKeyboard = scenario === 'keyboard'
+      const horizontalGutter = Number(state.horizontalGutter)
+      const verticalGutter = Number(state.verticalGutter)
+      const align = String(state.align)
+      const justify = String(state.justify)
+      const wrapAttribute = Boolean(state.wrap) ? ' :wrap="true"' : ' :wrap="false"'
+      const helperText = isBasic
+        ? 'Three equal columns split the 24-grid into 8 / 8 / 8 spans.'
+        : isOffset
+          ? 'Offset leaves predictable blank columns without custom margins.'
+          : isOrdered
+            ? 'Visual order changes while source order stays explicit for accessibility review.'
+            : isLoading
+              ? 'Loading cards keep their grid footprint and gutter stable.'
+              : isKeyboard
+                ? 'Tab moves through buttons in DOM order inside each column.'
+                : 'xs, md and lg spans make cards stack on mobile and split on desktop.'
+      const firstCol = isOffset
+        ? '    <YCol :xs="24" :md="{ span: 12, offset: 6 }">'
+        : isOrdered
+          ? '    <YCol :xs="24" :md="{ span: 8, order: 2 }">'
+          : isBasic
+            ? '    <YCol :span="8">'
+        : '    <YCol :xs="24" :sm="12" :md="12" :lg="8" :xl="8" :xxl="6">'
+      const secondCol = isOrdered
+        ? '    <YCol :xs="24" :md="{ span: 8, order: 1 }">'
+        : isBasic
+          ? '    <YCol :span="8">'
+          : '    <YCol :xs="24" :sm="12" :md="12" :lg="8" :xl="8" :xxl="6">'
+      const thirdCol = isOrdered
+        ? '    <YCol :xs="24" :md="{ span: 8, order: 3 }">'
+        : isBasic
+          ? '    <YCol :span="8">'
+          : isOffset
+            ? '    <YCol :xs="24" :md="{ span: 12, offset: 6 }">'
+            : '    <YCol :xs="24" :sm="24" :md="24" :lg="8" :xl="8" :xxl="12">'
+      const firstBody = isKeyboard
+        ? '      <YButton variant="secondary">Focus first</YButton>'
+        : isLoading
+          ? '      <YButton loading variant="secondary">Loading Core</YButton>'
+          : '      <YTag tone="success">Core</YTag>'
+      const secondBody = isKeyboard
+        ? '      <YButton variant="primary">Focus second</YButton>'
+        : isLoading
+          ? '      <YButton loading variant="secondary">Loading Product</YButton>'
+          : '      <YTag tone="info">Product</YTag>'
+      const thirdBody = isKeyboard
+        ? '      <YButton variant="secondary">Focus third</YButton>'
+        : isLoading
+          ? '      <YButton loading variant="secondary">Loading Admin</YButton>'
+          : '      <YTag tone="warning">Admin</YTag>'
+
+      return sfc("import { YButton, YCol, YRow, YTag } from '@yok-ui/core'", [
+        '<div class="demo-stack">',
+        `  <YRow :gutter="[${horizontalGutter}, ${verticalGutter}]"${textAttribute('align', align)}${textAttribute('justify', justify)}${wrapAttribute} aria-label="Component package grid">`,
+        firstCol,
+        firstBody,
+        '    </YCol>',
+        secondCol,
+        secondBody,
+        '    </YCol>',
+        thirdCol,
+        thirdBody,
+        '    </YCol>',
+        '  </YRow>',
+        `  <YTag tone="${isLoading ? 'info' : isKeyboard || isOrdered ? 'warning' : 'success'}">${helperText}</YTag>`,
+        '</div>'
+      ])
     }
   },
   flex: {
@@ -11151,6 +11271,7 @@ const allowedTags = new Set([
   'ydropdown',
   'ydrawer',
   'yempty',
+  'ycol',
   'yflex',
   'yfloatbutton',
   'yfloatbuttongroup',
@@ -11183,6 +11304,7 @@ const allowedTags = new Set([
   'yradiogroup',
   'yrate',
   'yresult',
+  'yrow',
   'ysegmented',
   'yselect',
   'yskeleton',
@@ -11286,6 +11408,7 @@ const allowedAttributes = new Set([
   'theme',
   'density',
   'mode',
+  'as',
   'title',
   'subtitle',
   'status',
@@ -11545,6 +11668,28 @@ const allowedAttributes = new Set([
   'target',
   'position',
   'offset',
+  'gutter',
+  ':gutter',
+  'span',
+  ':span',
+  'order',
+  ':order',
+  'push',
+  ':push',
+  'pull',
+  ':pull',
+  'xs',
+  ':xs',
+  'sm',
+  ':sm',
+  'md',
+  ':md',
+  'lg',
+  ':lg',
+  'xl',
+  ':xl',
+  'xxl',
+  ':xxl',
   ':offset',
   'z-index',
   ':z-index',
@@ -12942,6 +13087,7 @@ const componentMap = {
   ydropdown: YDropdown,
   ydrawer: RunnerDrawerPreview,
   yempty: YEmpty,
+  ycol: YCol,
   yflex: YFlex,
   yfloatbutton: YFloatButton,
   yfloatbuttongroup: YFloatButtonGroup,
@@ -12975,6 +13121,7 @@ const componentMap = {
   yradiogroup: YRadioGroup,
   yrate: YRate,
   yresult: RunnerResultPreview,
+  yrow: YRow,
   yscrollbar: YScrollbar,
   ysegmented: YSegmented,
   yselect: YSelect,

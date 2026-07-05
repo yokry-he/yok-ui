@@ -74,6 +74,7 @@ export type LiveExamplePreset =
   | 'empty'
   | 'skeleton'
   | 'flex'
+  | 'grid'
   | 'space'
   | 'breadcrumb'
   | 'steps'
@@ -339,6 +340,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/skeleton', preset: 'skeleton' },
   { docs: '/components/slider', preset: 'slider' },
   { docs: '/components/flex', preset: 'flex' },
+  { docs: '/components/grid', preset: 'grid' },
   { docs: '/components/space', preset: 'space' },
   { docs: '/components/splitter', preset: 'splitter' },
   { docs: '/components/statistic', preset: 'statistic' },
@@ -419,6 +421,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'rate',
   'slider',
   'flex',
+  'grid',
   'space',
   'splitter',
   'link',
@@ -564,6 +567,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'skeleton',
   'slider',
   'flex',
+  'grid',
   'space',
   'splitter',
   'statistic',
@@ -2999,6 +3003,50 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: 'Flex 不改变 DOM 顺序，Tab 路径仍按源码内按钮和链接顺序移动。'
+    }
+  ],
+  grid: [
+    {
+      key: 'basic-grid',
+      label: '基础栅格',
+      kind: 'basic',
+      controlValue: 'basic',
+      description: '24 栅格通过 span 分配列宽，适合卡片、指标和内容区块。'
+    },
+    {
+      key: 'responsive-grid',
+      label: '响应式断点',
+      kind: 'responsive',
+      controlValue: 'responsive',
+      description: 'xs/md/lg 断点让移动端堆叠、桌面端分栏，避免小屏横向溢出。'
+    },
+    {
+      key: 'offset-grid',
+      label: '偏移布局',
+      kind: 'layout',
+      controlValue: 'offset',
+      description: 'offset 适合居中窄内容、表单分栏和设置页辅助说明。'
+    },
+    {
+      key: 'ordered-grid',
+      label: '视觉排序',
+      kind: 'composition',
+      controlValue: 'ordered',
+      description: 'order / push / pull 只处理视觉排序，阅读顺序仍以 DOM 为准。'
+    },
+    {
+      key: 'loading-grid',
+      label: '加载占位',
+      kind: 'loading',
+      controlValue: 'loading',
+      description: '加载态保持列宽和 gutter 稳定，避免异步卡片出现跳动。'
+    },
+    {
+      key: 'keyboard-grid',
+      label: '键盘路径',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: 'Grid 不抢焦点，Tab 路径自然进入列内按钮和链接。'
     }
   ],
   virtualizedSelect: [

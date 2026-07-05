@@ -27,6 +27,7 @@ import { YFloatButton, YFloatButtonGroup } from './components/float-button'
 import { YForm } from './components/form'
 import { YFormItem } from './components/form-item'
 import { YFormSummary } from './components/form-summary'
+import { YCol, YRow } from './components/grid'
 import { YIcon } from './components/icon'
 import { YImage } from './components/image'
 import { YInput } from './components/input'
@@ -130,6 +131,8 @@ export const coreComponents: Component[] = [
   YForm,
   YFormItem,
   YFormSummary,
+  YRow,
+  YCol,
   YIcon,
   YImage,
   YInput,

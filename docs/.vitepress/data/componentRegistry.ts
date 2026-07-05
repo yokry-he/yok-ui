@@ -946,6 +946,28 @@ export const components: ComponentMeta[] = [
     accessibility: 'native'
   },
   {
+    name: 'YRow',
+    title: 'Row',
+    packageName: '@yok-ui/core',
+    family: 'basic',
+    status: 'Stable',
+    docs: '/components/grid',
+    description: '24 栅格的行容器，管理 gutter、对齐、换行和响应式间距。',
+    since: '0.15.0',
+    accessibility: 'native'
+  },
+  {
+    name: 'YCol',
+    title: 'Col',
+    packageName: '@yok-ui/core',
+    family: 'basic',
+    status: 'Stable',
+    docs: '/components/grid',
+    description: '24 栅格的列容器，支持 span、offset、order、push/pull 和断点配置。',
+    since: '0.15.0',
+    accessibility: 'native'
+  },
+  {
     name: 'YSplitter',
     title: 'Splitter',
     packageName: '@yok-ui/core',
@@ -7808,6 +7830,49 @@ export const componentApis: Record<string, ComponentApi> = {
       { name: 'YFlexJustify', type: "'start' | 'center' | 'end' | 'between' | 'around' | 'evenly' | 'normal'", description: '主轴分布枚举。' },
       { name: 'YFlexSize', type: "'none' | 'xs' | 'sm' | 'md' | 'lg' | number | string", description: '内置间距、像素数值或任意 CSS gap 值。' },
       { name: 'YFlexElement', type: "'div' | 'span' | 'section' | 'nav' | 'header' | 'footer' | 'main' | 'ul' | 'ol'", description: '根节点语义标签。' }
+    ]
+  },
+  YRow: {
+    props: [
+      { name: 'as', type: 'YGridElement', defaultValue: "'div'", description: '根节点语义标签，可用于 section、main、nav、ul 等布局区域。' },
+      { name: 'gutter', type: 'YGridGutter', defaultValue: '0', description: '栅格间距；支持数字、CSS 长度、响应式对象或 [horizontal, vertical]。' },
+      { name: 'justify', type: 'YGridJustify', defaultValue: "'start'", description: '主轴分布方式。' },
+      { name: 'align', type: 'YGridAlign', defaultValue: "'top'", description: '交叉轴对齐方式，top/middle/bottom/stretch 对应 flex-start/center/flex-end/stretch。' },
+      { name: 'wrap', type: 'boolean', defaultValue: 'true', description: '是否允许列换行；关闭后适合横向滚动或固定比例布局。' },
+      { name: 'ariaLabel', type: 'string', defaultValue: "''", description: '需要把栅格区域作为具名 group 暴露时使用；普通布局无需传入。' }
+    ],
+    slots: [
+      { name: 'default', type: 'YCol | VNode', description: '栅格列。推荐直接放置 YCol。' }
+    ],
+    types: [
+      { name: 'YGridGutter', type: "number | string | ResponsiveGutter | [Gutter, Gutter]", description: '行列间距配置。响应式对象支持 xs/sm/md/lg/xl/xxl。' },
+      { name: 'YGridJustify', type: "'start' | 'center' | 'end' | 'between' | 'around' | 'evenly'", description: '主轴分布枚举。' },
+      { name: 'YGridAlign', type: "'top' | 'middle' | 'bottom' | 'stretch'", description: '交叉轴对齐枚举。' },
+      { name: 'YGridBreakpoint', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl'", description: '栅格响应式断点。' }
+    ]
+  },
+  YCol: {
+    props: [
+      { name: 'as', type: 'YGridElement', defaultValue: "'div'", description: '根节点语义标签。列表布局中可使用 li。' },
+      { name: 'span', type: 'number', defaultValue: '24', description: '列占据的 24 栅格份数。' },
+      { name: 'offset', type: 'number', defaultValue: '0', description: '列左侧偏移的栅格份数。' },
+      { name: 'order', type: 'number', defaultValue: '0', description: '列排序。仅用于视觉重排，不应改变必须线性朗读的内容顺序。' },
+      { name: 'push', type: 'number', defaultValue: '0', description: '相对当前位置向右移动的栅格份数。' },
+      { name: 'pull', type: 'number', defaultValue: '0', description: '相对当前位置向左移动的栅格份数。' },
+      { name: 'xs', type: 'number | YColBreakpointConfig', description: 'xs 断点列配置。数字等价于 { span }。' },
+      { name: 'sm', type: 'number | YColBreakpointConfig', description: 'sm 断点列配置。' },
+      { name: 'md', type: 'number | YColBreakpointConfig', description: 'md 断点列配置。' },
+      { name: 'lg', type: 'number | YColBreakpointConfig', description: 'lg 断点列配置。' },
+      { name: 'xl', type: 'number | YColBreakpointConfig', description: 'xl 断点列配置。' },
+      { name: 'xxl', type: 'number | YColBreakpointConfig', description: 'xxl 断点列配置。' }
+    ],
+    slots: [
+      { name: 'default', type: 'VNode', description: '列内容。' }
+    ],
+    types: [
+      { name: 'YColBreakpointConfig', type: '{ span?: number; offset?: number; order?: number; push?: number; pull?: number }', description: '单个断点下的列配置。' },
+      { name: 'YColResponsiveValue', type: 'number | YColBreakpointConfig', description: '断点 prop 值。数字会映射为 span。' },
+      { name: 'YGridElement', type: "'div' | 'section' | 'article' | 'header' | 'footer' | 'main' | 'nav' | 'ul' | 'ol' | 'li'", description: 'Row 和 Col 可用根节点标签。' }
     ]
   },
   YSpace: {

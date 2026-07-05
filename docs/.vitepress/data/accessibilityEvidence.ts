@@ -92,6 +92,8 @@ const componentTestEvidenceOverrides: Record<string, string[]> = {
   YTag: ['packages/core/src/components/tag/tag.test.ts'],
   YCheckTag: ['packages/core/src/components/tag/tag.test.ts'],
   YBadge: ['packages/core/src/components/tag/tag.test.ts'],
+  YRow: ['packages/core/src/components/grid/grid.test.ts'],
+  YCol: ['packages/core/src/components/grid/grid.test.ts'],
   YSavedViewManager: ['packages/admin/src/components/saved-views/saved-view-manager.test.ts']
 }
 

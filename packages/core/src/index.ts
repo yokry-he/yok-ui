@@ -106,6 +106,8 @@ export type {
 export { YFormItem } from './components/form-item'
 export { YFormSummary } from './components/form-summary'
 export type { YFormSummaryItem } from './components/form-summary'
+export { YCol, YRow } from './components/grid'
+export type { YColBreakpointConfig, YColResponsiveValue, YGridAlign, YGridBreakpoint, YGridElement, YGridGutter, YGridGutterSize, YGridJustify, YGridResponsiveGutter } from './components/grid'
 export { YIcon } from './components/icon'
 export type { YIconNamedSize, YIconSize } from './components/icon'
 export { YImage } from './components/image'

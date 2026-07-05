@@ -10,6 +10,8 @@ export { YColorPickerPanel } from './components/color-picker';
 export { YDatePickerPanel } from './components/date-picker';
 export { YDateTimePicker } from './components/date-time-picker';
 export type { YDateTimePickerDisabledDate, YDateTimePickerDisabledTime, YDateTimeShortcut, YDateTimeShortcutValue, YDateTimeValue, YResolvedDateTimeShortcut } from './components/date-time-picker';
+export { YCol, YRow } from './components/grid';
+export type { YColBreakpointConfig, YColResponsiveValue, YGridAlign, YGridBreakpoint, YGridElement, YGridGutter, YGridGutterSize, YGridJustify, YGridResponsiveGutter } from './components/grid';
 export { YTimeSelect } from './components/time-select';
 export type { YTimeSelectFormat, YTimeSelectOption, YTimeSelectOptionsConfig } from './components/time-select';
 export { YVirtualizedSelect } from './components/virtualized-select';

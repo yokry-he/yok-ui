@@ -12,7 +12,7 @@ const corePreviewSetup = [
 
 const corePreviewCode = [
   '<div class="core-preview-metrics">',
-  '  <YStatistic title="Core components" :value="50" suffix="ready" tone="success" />',
+  '  <YStatistic title="Core components" :value="52" suffix="ready" tone="success" />',
   '  <YStatistic title="Data display" :value="6" suffix="patterns" tone="info" />',
   '</div>',
   '<YDescriptions',
@@ -61,7 +61,7 @@ createApp(App).use(YokCore).mount('#app')
 ```ts
 import '@yok-ui/themes/yok-light.css'
 import '@yok-ui/core/style.css'
-import { YButton, YDateTimePicker, YDescriptions, YFlex, YInput, YInputOtp, YInputTag, YList, YStatistic, YThemeProvider, YTimeSelect, YVirtualizedSelect } from '@yok-ui/core'
+import { YButton, YCol, YDateTimePicker, YDescriptions, YFlex, YInput, YInputOtp, YInputTag, YList, YRow, YStatistic, YThemeProvider, YTimeSelect, YVirtualizedSelect } from '@yok-ui/core'
 ```
 
 ## Components
@@ -78,7 +78,7 @@ import { YButton, YDateTimePicker, YDescriptions, YFlex, YInput, YInputOtp, YInp
   :usage="['package preview', 'descriptions', 'statistics']"
 >
   <div class="core-preview-metrics">
-    <YStatistic title="Core components" :value="50" suffix="ready" tone="success" />
+    <YStatistic title="Core components" :value="52" suffix="ready" tone="success" />
     <YStatistic title="Data display" :value="6" suffix="patterns" tone="info" />
   </div>
   <YDescriptions

@@ -935,6 +935,7 @@ const componentImports = computed(() => {
     text: 'YText',
     upload: 'YUpload',
     scrollbar: 'YScrollbar',
+    grid: 'YCol, YRow, YTag',
     flex: 'YFlex, YButton, YTag',
     space: 'YSpace',
     splitter: 'YSplitter',
@@ -1105,6 +1106,14 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'virtualizedSelect') {
     return `<YVirtualizedSelect v-model="packageName" label="Package" :options="packageOptions" filterable clearable :height="220" :item-height="36" :overscan="3"${disabled.value ? ' disabled' : ''} />`
+  }
+
+  if (activeComponent.value === 'grid') {
+    return `<YRow :gutter="[16, 20]" align="stretch">
+  <YCol :xs="24" :md="12" :lg="8"><YTag tone="success">Core</YTag></YCol>
+  <YCol :xs="24" :md="12" :lg="8"><YTag tone="info">Product</YTag></YCol>
+  <YCol :xs="24" :md="24" :lg="8"><YTag tone="warning">Admin</YTag></YCol>
+</YRow>`
   }
 
   if (activeComponent.value === 'flex') {
@@ -1770,6 +1779,10 @@ const generatedScript = computed(() => {
 
   if (activeComponent.value === 'virtualizedSelect') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst packageName = ref('pkg-42')\nconst packageOptions = Array.from({ length: 1000 }, (_, index) => ({\n  label: \`Package \${index + 1}\`,\n  value: \`pkg-\${index + 1}\`,\n  description: index % 3 === 0 ? 'Stable docs coverage' : 'Large option set'\n}))`
+  }
+
+  if (activeComponent.value === 'grid') {
+    return `import { ${componentImports.value} } from '@yok-ui/core'`
   }
 
   if (activeComponent.value === 'flex') {
@@ -3378,6 +3391,21 @@ onMounted(() => {
             :overscan="3"
             :disabled="disabled"
           />
+          <YRow
+            v-else-if="activeComponent === 'grid'"
+            :gutter="[16, 20]"
+            align="stretch"
+          >
+            <YCol :xs="24" :md="12" :lg="8">
+              <YTag tone="success">Core</YTag>
+            </YCol>
+            <YCol :xs="24" :md="12" :lg="8">
+              <YTag tone="info">Product</YTag>
+            </YCol>
+            <YCol :xs="24" :md="24" :lg="8">
+              <YTag tone="warning">Admin</YTag>
+            </YCol>
+          </YRow>
           <YFlex
             v-else-if="activeComponent === 'flex'"
             wrap

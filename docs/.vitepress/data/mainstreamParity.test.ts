@@ -11,6 +11,7 @@ describe('mainstreamParity', () => {
     const benchmarkKeys = mainstreamBenchmarks.map((benchmark) => benchmark.key)
     const items = getMainstreamParityItems()
     const elementPlusOverview = items.find((item) => item.key === 'element-plus-overview')
+    const elementPlusGrid = items.find((item) => item.key === 'element-plus-grid-layout')
     const elementPlusTable = items.find((item) => item.key === 'element-plus-table')
     const elementPlusCascader = items.find((item) => item.key === 'element-plus-cascader')
     const elementPlusCascaderLazy = items.find((item) => item.key === 'element-plus-cascader-lazy-load')
@@ -30,6 +31,7 @@ describe('mainstreamParity', () => {
 
     expect(benchmarkKeys).toEqual(expect.arrayContaining([
       'element-plus-overview',
+      'element-plus-grid-layout',
       'element-plus-table',
       'element-plus-cascader',
       'element-plus-cascader-lazy-load',
@@ -62,6 +64,7 @@ describe('mainstreamParity', () => {
     ]))
     expect(summary.sourceLabels).toEqual(expect.arrayContaining([
       'Element Plus Overview',
+      'Element Plus Layout',
       'Element Plus Table',
       'Element Plus Cascader',
       'Element Plus Cascader Dynamic Loading',
@@ -94,6 +97,13 @@ describe('mainstreamParity', () => {
     })
     expect(elementPlusTable?.matchedComponents.map((component) => component.name)).toContain('YTable')
     expect(elementPlusTable?.evidence.liveExamples).toContain('/components/table#live-example')
+
+    expect(elementPlusGrid).toMatchObject({
+      label: '24-column Row and Col layout',
+      status: 'covered'
+    })
+    expect(elementPlusGrid?.matchedComponents.map((component) => component.name)).toEqual(expect.arrayContaining(['YRow', 'YCol']))
+    expect(elementPlusGrid?.evidence.liveExamples).toContain('/components/grid#live-example')
 
     expect(elementPlusCascader).toMatchObject({
       label: 'Cascader and cascader-panel depth',

@@ -23,7 +23,7 @@ describe('componentRegistry', () => {
     const names = components.map((component) => component.name)
 
     expect(new Set(names).size).toBe(names.length)
-    expect(components).toHaveLength(116)
+    expect(components).toHaveLength(118)
 
     components.forEach((component) => {
       expect(component.docs).toMatch(/^\/(components|guide)\//)

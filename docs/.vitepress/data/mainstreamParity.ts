@@ -11,6 +11,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-overview'
   | 'element-plus-source-actions'
   | 'element-plus-playground-flow'
+  | 'element-plus-grid-layout'
   | 'element-plus-virtualized-select'
   | 'element-plus-table'
   | 'element-plus-virtualized-tree'
@@ -137,6 +138,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     componentNames: ['YVirtualizedSelect'],
     docs: ['/components/virtualized-select'],
     capabilities: ['virtualized-select', 'structured-api', 'workflow-live-example', 'keyboard-scenario', 'playground-handoff']
+  },
+  {
+    key: 'element-plus-grid-layout',
+    label: '24-column Row and Col layout',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus Layout',
+      url: 'https://element-plus.org/en-US/component/layout',
+      note: 'Element Plus documents row/col layout with span and gutter as a foundation for page and component composition.'
+    },
+    componentNames: ['YRow', 'YCol'],
+    docs: ['/components/grid'],
+    capabilities: ['structured-api', 'workflow-live-example', 'playground-handoff', 'responsive-grid', 'gutter']
   },
   {
     key: 'ant-design-vue-flex-layout',

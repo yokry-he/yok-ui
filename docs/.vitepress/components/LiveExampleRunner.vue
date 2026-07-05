@@ -30,6 +30,7 @@ import {
   YDivider,
   YDropdown,
   YEmpty,
+  YFlex,
   YFloatButton,
   YFloatButtonGroup,
   YForm,
@@ -1224,6 +1225,24 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '    <YDivider label="Product" />',
     '    <div class="demo-row"><YTag tone="info">Command Palette</YTag><YTag tone="info">Code Block</YTag></div>',
     '  </div>',
+    '</template>'
+  ].join('\n'),
+  flex: [
+    '<script setup lang="ts">',
+    "import { YButton, YFlex, YTag } from '@yok-ui/core'",
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <YFlex wrap align="center" justify="between" gap="md" aria-label="Release actions">',
+    '    <YFlex wrap align="center" gap="sm">',
+    '      <YTag tone="success">Stable</YTag>',
+    '      <YTag tone="info">Core package</YTag>',
+    '    </YFlex>',
+    '    <YFlex wrap align="center" gap="sm">',
+    '      <YButton variant="secondary">Preview</YButton>',
+    '      <YButton variant="primary">Publish</YButton>',
+    '    </YFlex>',
+    '  </YFlex>',
     '</template>'
   ].join('\n'),
   space: [
@@ -2476,6 +2495,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   icon: 'Icon',
   backtop: 'Backtop',
   divider: 'Divider',
+  flex: 'Flex',
   space: 'Space',
   splitter: 'Splitter',
   scrollbar: 'Scrollbar',
@@ -3750,6 +3770,87 @@ const largePackageOptions = Array.from({ length: 1000 }, (_, index) => ({
       `  <YTag tone="${tagTone}">${helperText}</YTag>`,
       '</div>'
     ])
+    }
+  },
+  flex: {
+    title: 'Flex scenario',
+    description: '调试不包裹子节点的布局容器：方向、对齐、换行、语义标签和键盘顺序都可以直接生成源码。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'toolbar', options: [
+        { label: '工具栏', value: 'toolbar' },
+        { label: '语义导航', value: 'semantic' },
+        { label: '纵向内容', value: 'vertical' },
+        { label: '响应式换行', value: 'wrap' },
+        { label: '加载工具栏', value: 'loading' },
+        { label: '键盘顺序', value: 'keyboard' }
+      ] },
+      { key: 'align', label: '交叉轴', type: 'select', defaultValue: 'center', options: [
+        { label: 'center', value: 'center' },
+        { label: 'start', value: 'start' },
+        { label: 'end', value: 'end' },
+        { label: 'stretch', value: 'stretch' }
+      ] },
+      { key: 'justify', label: '主轴', type: 'select', defaultValue: 'between', options: [
+        { label: 'between', value: 'between' },
+        { label: 'start', value: 'start' },
+        { label: 'center', value: 'center' },
+        { label: 'end', value: 'end' },
+        { label: 'evenly', value: 'evenly' }
+      ] },
+      { key: 'gap', label: '间距', type: 'select', defaultValue: 'md', options: [
+        { label: 'sm', value: 'sm' },
+        { label: 'md', value: 'md' },
+        { label: 'lg', value: 'lg' }
+      ] },
+      { key: 'wrap', label: '换行', type: 'boolean', defaultValue: true }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const isSemantic = scenario === 'semantic'
+      const isVertical = scenario === 'vertical'
+      const isWrap = scenario === 'wrap'
+      const isLoading = scenario === 'loading'
+      const isKeyboard = scenario === 'keyboard'
+      const asValue = isSemantic ? 'nav' : 'div'
+      const align = String(state.align)
+      const justify = isVertical ? 'start' : String(state.justify)
+      const gap = String(state.gap)
+      const wrap = Boolean(state.wrap) || isWrap || isKeyboard
+      const helperText = isSemantic
+        ? 'Semantic root keeps links readable while Flex only manages layout.'
+        : isVertical
+          ? 'Vertical content uses the same gap tokens without extra child wrappers.'
+          : isWrap
+            ? 'Wrap protects dense action groups from horizontal overflow on small screens.'
+            : isLoading
+              ? 'Loading actions keep their footprint while the surrounding status stays aligned.'
+            : isKeyboard
+              ? 'Tab order follows DOM order because Flex does not reorder children.'
+              : 'Status and actions share a row while children keep their own markup.'
+
+      return sfc("import { YButton, YFlex, YLink, YTag } from '@yok-ui/core'", [
+        '<div class="demo-stack">',
+        `  <YFlex${isSemantic ? textAttribute('as', asValue) : ''}${booleanAttribute('vertical', isVertical)}${textAttribute('align', align)}${textAttribute('justify', justify)}${textAttribute('gap', gap)}${booleanAttribute('wrap', wrap)} aria-label="Release actions">`,
+        isSemantic
+          ? '    <YLink href="/guide/">Guide</YLink>'
+          : '    <YTag tone="success">Stable</YTag>',
+        isSemantic
+          ? '    <YLink href="/components/">Components</YLink>'
+          : '    <YTag tone="info">Core package</YTag>',
+        isKeyboard
+          ? '    <YButton variant="secondary">First action</YButton>'
+          : isLoading
+            ? '    <YButton variant="secondary" loading>Preview</YButton>'
+          : '    <YButton variant="secondary">Preview</YButton>',
+        isKeyboard
+          ? '    <YButton variant="primary">Second action</YButton>'
+          : isLoading
+            ? '    <YButton variant="primary" loading>Publish</YButton>'
+          : '    <YButton variant="primary">Publish</YButton>',
+        '  </YFlex>',
+        `  <YTag tone="${isKeyboard ? 'warning' : isWrap || isLoading ? 'info' : 'success'}">${helperText}</YTag>`,
+        '</div>'
+      ])
     }
   },
   virtualizedSelect: {
@@ -11050,6 +11151,7 @@ const allowedTags = new Set([
   'ydropdown',
   'ydrawer',
   'yempty',
+  'yflex',
   'yfloatbutton',
   'yfloatbuttongroup',
   'yform',
@@ -11288,6 +11390,7 @@ const allowedAttributes = new Set([
   ':default-filters',
   ':default-view-preference',
   'multiple',
+  'as',
   ':multiple',
   'collapse-tags',
   'allow-create',
@@ -12839,6 +12942,7 @@ const componentMap = {
   ydropdown: YDropdown,
   ydrawer: RunnerDrawerPreview,
   yempty: YEmpty,
+  yflex: YFlex,
   yfloatbutton: YFloatButton,
   yfloatbuttongroup: YFloatButtonGroup,
   yform: YForm,

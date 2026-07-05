@@ -73,6 +73,7 @@ export type LiveExamplePreset =
   | 'card'
   | 'empty'
   | 'skeleton'
+  | 'flex'
   | 'space'
   | 'breadcrumb'
   | 'steps'
@@ -337,6 +338,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/virtualized-select', preset: 'virtualizedSelect' },
   { docs: '/components/skeleton', preset: 'skeleton' },
   { docs: '/components/slider', preset: 'slider' },
+  { docs: '/components/flex', preset: 'flex' },
   { docs: '/components/space', preset: 'space' },
   { docs: '/components/splitter', preset: 'splitter' },
   { docs: '/components/statistic', preset: 'statistic' },
@@ -416,6 +418,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'checkbox',
   'rate',
   'slider',
+  'flex',
   'space',
   'splitter',
   'link',
@@ -560,6 +563,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'virtualizedSelect',
   'skeleton',
   'slider',
+  'flex',
   'space',
   'splitter',
   'statistic',
@@ -2951,6 +2955,50 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: '验证 Enter / Space 打开 listbox，方向键移动选项，Escape 关闭。'
+    }
+  ],
+  flex: [
+    {
+      key: 'toolbar-flex',
+      label: '工具栏',
+      kind: 'basic',
+      controlValue: 'toolbar',
+      description: 'Flex 不包裹子节点，适合状态标签和操作按钮分布在同一条工具栏。'
+    },
+    {
+      key: 'semantic-flex',
+      label: '语义导航',
+      kind: 'composition',
+      controlValue: 'semantic',
+      description: '通过 as 切换根节点语义，保留内部链接或按钮自己的可访问能力。'
+    },
+    {
+      key: 'vertical-flex',
+      label: '纵向内容',
+      kind: 'layout',
+      controlValue: 'vertical',
+      description: 'vertical 快捷方式用于卡片内容、设置项和局部表单片段。'
+    },
+    {
+      key: 'wrap-flex',
+      label: '响应式换行',
+      kind: 'responsive',
+      controlValue: 'wrap',
+      description: 'wrap 让密集工具区在窄视口中保持可读可点，避免横向溢出。'
+    },
+    {
+      key: 'loading-flex',
+      label: '加载工具栏',
+      kind: 'loading',
+      controlValue: 'loading',
+      description: '加载状态下仍保持主操作区和状态标签的稳定间距，避免骨架或按钮造成布局跳动。'
+    },
+    {
+      key: 'keyboard-flex',
+      label: '键盘顺序',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: 'Flex 不改变 DOM 顺序，Tab 路径仍按源码内按钮和链接顺序移动。'
     }
   ],
   virtualizedSelect: [

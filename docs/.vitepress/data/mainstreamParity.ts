@@ -27,6 +27,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-config-provider-i18n'
   | 'element-plus-resource-system'
   | 'element-plus-compatibility-support'
+  | 'ant-design-vue-flex-layout'
   | 'ant-design-vue-theme-token'
   | 'ant-design-vue-cascader-load-data'
   | 'ant-design-vue-select-form'
@@ -136,6 +137,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     componentNames: ['YVirtualizedSelect'],
     docs: ['/components/virtualized-select'],
     capabilities: ['virtualized-select', 'structured-api', 'workflow-live-example', 'keyboard-scenario', 'playground-handoff']
+  },
+  {
+    key: 'ant-design-vue-flex-layout',
+    label: 'Flex layout without child wrappers',
+    source: {
+      library: 'Ant Design Vue',
+      label: 'Ant Design Vue Flex',
+      url: 'https://antdv.com/components/flex',
+      note: 'Ant Design Vue documents Flex as a block-level layout helper for alignment, gap and wrapping, while Space focuses on inline spacing.'
+    },
+    componentNames: ['YFlex'],
+    docs: ['/components/flex'],
+    capabilities: ['structured-api', 'workflow-live-example', 'playground-handoff', 'responsive-wrap', 'semantic-root']
   },
   {
     key: 'element-plus-table',

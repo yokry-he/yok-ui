@@ -55,6 +55,7 @@ export const yokUiComponentPackages = {
   YDrawer: '@yok-ui/core',
   YDropdown: '@yok-ui/core',
   YEmpty: '@yok-ui/core',
+  YFlex: '@yok-ui/core',
   YFloatButton: '@yok-ui/core',
   YFloatButtonGroup: '@yok-ui/core',
   YForm: '@yok-ui/core',

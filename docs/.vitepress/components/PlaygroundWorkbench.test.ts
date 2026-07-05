@@ -17,6 +17,7 @@ const componentStubs = {
   YMention: { props: ['modelValue', 'label', 'options', 'disabled', 'prefix', 'clearable'], template: '<textarea />' },
   YSelect: { props: ['modelValue', 'label', 'options', 'disabled'], template: '<div />' },
   YVirtualizedSelect: { props: ['modelValue', 'label', 'options', 'disabled'], template: '<div />' },
+  YFlex: { template: '<div><slot /></div>' },
   YInputNumber: { template: '<input />' },
   YSlider: { template: '<input />' },
   YRate: { template: '<div />' },

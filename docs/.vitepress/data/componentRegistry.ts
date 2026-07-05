@@ -935,6 +935,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'documented'
   },
   {
+    name: 'YFlex',
+    title: 'Flex',
+    packageName: '@yok-ui/core',
+    family: 'basic',
+    status: 'Stable',
+    docs: '/components/flex',
+    description: '轻量 flex 布局容器，不包裹子节点，适合对齐、换行和响应式工具区。',
+    since: '0.14.0',
+    accessibility: 'native'
+  },
+  {
     name: 'YSplitter',
     title: 'Splitter',
     packageName: '@yok-ui/core',
@@ -7773,6 +7784,30 @@ export const componentApis: Record<string, ComponentApi> = {
     props: [
       { name: 'label', type: 'string', defaultValue: "''", description: '分割线中间的标签文本。' },
       { name: 'align', type: "'start' | 'center' | 'end'", defaultValue: "'center'", description: '标签对齐方式。' }
+    ]
+  },
+  YFlex: {
+    props: [
+      { name: 'as', type: 'YFlexElement', defaultValue: "'div'", description: '根节点语义标签，可用于 nav、section、main、ul 等场景。' },
+      { name: 'direction', type: 'YFlexDirection', defaultValue: "'row'", description: 'flex-direction；vertical 为 true 时会切换为 column。' },
+      { name: 'vertical', type: 'boolean', defaultValue: 'false', description: '纵向排列快捷方式，适合表单片段和卡片内容。' },
+      { name: 'align', type: 'YFlexAlign', defaultValue: "'normal'", description: '交叉轴对齐方式，映射到 align-items。' },
+      { name: 'justify', type: 'YFlexJustify', defaultValue: "'normal'", description: '主轴分布方式，映射到 justify-content。' },
+      { name: 'gap', type: "YFlexSize | [YFlexSize, YFlexSize]", defaultValue: "'md'", description: '行列间距；数组形式分别控制 row gap 和 column gap。' },
+      { name: 'wrap', type: "boolean | 'reverse'", defaultValue: 'false', description: '是否换行，reverse 会映射为 wrap-reverse。' },
+      { name: 'inline', type: 'boolean', defaultValue: 'false', description: '是否使用 inline-flex 渲染，适合行内状态和短工具组。' },
+      { name: 'flex', type: 'string | number', defaultValue: "''", description: '透传 CSS flex 简写，让当前容器作为父级 flex item 时可伸缩。' },
+      { name: 'ariaLabel', type: 'string', defaultValue: "''", description: '需要把布局区域作为具名 group 暴露时使用；普通布局无需传入。' }
+    ],
+    slots: [
+      { name: 'default', type: 'VNode', description: '默认内容。Flex 不会为子节点增加额外包裹层。' }
+    ],
+    types: [
+      { name: 'YFlexDirection', type: "'row' | 'row-reverse' | 'column' | 'column-reverse'", description: 'flex-direction 可选值。' },
+      { name: 'YFlexAlign', type: "'start' | 'center' | 'end' | 'stretch' | 'baseline' | 'normal'", description: '交叉轴对齐枚举。' },
+      { name: 'YFlexJustify', type: "'start' | 'center' | 'end' | 'between' | 'around' | 'evenly' | 'normal'", description: '主轴分布枚举。' },
+      { name: 'YFlexSize', type: "'none' | 'xs' | 'sm' | 'md' | 'lg' | number | string", description: '内置间距、像素数值或任意 CSS gap 值。' },
+      { name: 'YFlexElement', type: "'div' | 'span' | 'section' | 'nav' | 'header' | 'footer' | 'main' | 'ul' | 'ol'", description: '根节点语义标签。' }
     ]
   },
   YSpace: {

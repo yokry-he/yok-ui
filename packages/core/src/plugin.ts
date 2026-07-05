@@ -22,6 +22,7 @@ import { YDivider } from './components/divider'
 import { YDrawer } from './components/drawer'
 import { YDropdown } from './components/dropdown'
 import { YEmpty } from './components/empty'
+import { YFlex } from './components/flex'
 import { YFloatButton, YFloatButtonGroup } from './components/float-button'
 import { YForm } from './components/form'
 import { YFormItem } from './components/form-item'
@@ -123,6 +124,7 @@ export const coreComponents: Component[] = [
   YDrawer,
   YDropdown,
   YEmpty,
+  YFlex,
   YFloatButton,
   YFloatButtonGroup,
   YForm,

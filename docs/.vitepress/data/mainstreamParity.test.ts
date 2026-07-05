@@ -21,6 +21,7 @@ describe('mainstreamParity', () => {
     const elementPlusCheckTag = items.find((item) => item.key === 'element-plus-check-tag')
     const elementPlusI18n = items.find((item) => item.key === 'element-plus-config-provider-i18n')
     const elementPlusCompatibility = items.find((item) => item.key === 'element-plus-compatibility-support')
+    const antDesignFlex = items.find((item) => item.key === 'ant-design-vue-flex-layout')
     const antDesignTheme = items.find((item) => item.key === 'ant-design-vue-theme-token')
     const antDesignCascaderLoad = items.find((item) => item.key === 'ant-design-vue-cascader-load-data')
     const arcoTokenLab = items.find((item) => item.key === 'arco-design-vue-token-lab')
@@ -39,6 +40,7 @@ describe('mainstreamParity', () => {
       'element-plus-check-tag',
       'element-plus-config-provider-i18n',
       'element-plus-compatibility-support',
+      'ant-design-vue-flex-layout',
       'ant-design-vue-theme-token',
       'ant-design-vue-cascader-load-data',
       'arco-design-vue-token-lab',
@@ -70,6 +72,7 @@ describe('mainstreamParity', () => {
       'Element Plus CheckTag',
       'Element Plus ConfigProvider i18n',
       'Element Plus Installation Compatibility',
+      'Ant Design Vue Flex',
       'Ant Design Vue Customize Theme',
       'Ant Design Cascader Load Options Lazily',
       'Arco Design Vue Design Token',
@@ -172,6 +175,14 @@ describe('mainstreamParity', () => {
     expect(antDesignTheme?.source.library).toBe('Ant Design Vue')
     expect(antDesignTheme?.matchedComponents.map((component) => component.name)).toContain('YThemeProvider')
     expect(antDesignTheme?.evidence.resources).toContain('/resources/theme-lab')
+
+    expect(antDesignFlex).toMatchObject({
+      label: 'Flex layout without child wrappers',
+      status: 'covered'
+    })
+    expect(antDesignFlex?.source.library).toBe('Ant Design Vue')
+    expect(antDesignFlex?.matchedComponents.map((component) => component.name)).toContain('YFlex')
+    expect(antDesignFlex?.evidence.liveExamples).toContain('/components/flex#live-example')
 
     expect(antDesignCascaderLoad).toMatchObject({
       label: 'Cascader loadData remote expansion',

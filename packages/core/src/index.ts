@@ -81,6 +81,8 @@ export { YDrawer } from './components/drawer'
 export { YDropdown } from './components/dropdown'
 export type { YDropdownItem, YDropdownPlacement, YDropdownTrigger } from './components/dropdown'
 export { YEmpty } from './components/empty'
+export { YFlex } from './components/flex'
+export type { YFlexAlign, YFlexDirection, YFlexElement, YFlexGap, YFlexJustify, YFlexSize, YFlexWrap } from './components/flex'
 export { YFloatButton, YFloatButtonGroup } from './components/float-button'
 export type {
   YFloatButtonAction,

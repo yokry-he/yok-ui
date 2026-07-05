@@ -1,6 +1,8 @@
 import './styles/base.css';
 export { YButton, YIconButton } from './components/button';
 export { YEmpty } from './components/empty';
+export { YFlex } from './components/flex';
+export type { YFlexAlign, YFlexDirection, YFlexElement, YFlexGap, YFlexJustify, YFlexSize, YFlexWrap } from './components/flex';
 export { YInput } from './components/input';
 export { YSwitch } from './components/switch';
 export { YBadge, YCheckTag, YTag } from './components/tag';

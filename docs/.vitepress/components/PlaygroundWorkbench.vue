@@ -935,6 +935,7 @@ const componentImports = computed(() => {
     text: 'YText',
     upload: 'YUpload',
     scrollbar: 'YScrollbar',
+    flex: 'YFlex, YButton, YTag',
     space: 'YSpace',
     splitter: 'YSplitter',
     commandPalette: 'YCommandPalette',
@@ -1104,6 +1105,15 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'virtualizedSelect') {
     return `<YVirtualizedSelect v-model="packageName" label="Package" :options="packageOptions" filterable clearable :height="220" :item-height="36" :overscan="3"${disabled.value ? ' disabled' : ''} />`
+  }
+
+  if (activeComponent.value === 'flex') {
+    return `<YFlex wrap align="center" justify="between" gap="md" aria-label="Release actions">
+  <YTag tone="success">Stable</YTag>
+  <YTag tone="info">Core package</YTag>
+  <YButton variant="secondary">Preview</YButton>
+  <YButton variant="primary">Publish</YButton>
+</YFlex>`
   }
 
   if (activeComponent.value === 'treeSelect') {
@@ -1760,6 +1770,10 @@ const generatedScript = computed(() => {
 
   if (activeComponent.value === 'virtualizedSelect') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst packageName = ref('pkg-42')\nconst packageOptions = Array.from({ length: 1000 }, (_, index) => ({\n  label: \`Package \${index + 1}\`,\n  value: \`pkg-\${index + 1}\`,\n  description: index % 3 === 0 ? 'Stable docs coverage' : 'Large option set'\n}))`
+  }
+
+  if (activeComponent.value === 'flex') {
+    return `import { ${componentImports.value} } from '@yok-ui/core'`
   }
 
   if (activeComponent.value === 'inputNumber') {
@@ -3364,6 +3378,19 @@ onMounted(() => {
             :overscan="3"
             :disabled="disabled"
           />
+          <YFlex
+            v-else-if="activeComponent === 'flex'"
+            wrap
+            align="center"
+            justify="between"
+            gap="md"
+            aria-label="Release actions"
+          >
+            <YTag tone="success">Stable</YTag>
+            <YTag tone="info">Core package</YTag>
+            <YButton variant="secondary">Preview</YButton>
+            <YButton variant="primary">Publish</YButton>
+          </YFlex>
           <YInputNumber
             v-else-if="activeComponent === 'inputNumber'"
             v-model="numberValue"

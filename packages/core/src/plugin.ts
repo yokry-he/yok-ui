@@ -74,7 +74,7 @@ import { YTimePicker } from './components/time-picker'
 import { YTimeSelect } from './components/time-select'
 import { YTooltip } from './components/tooltip'
 import { YTransfer } from './components/transfer'
-import { YTree } from './components/tree'
+import { YTree, YVirtualTree } from './components/tree'
 import { YTreeSelect } from './components/tree-select'
 import { YUpload } from './components/upload'
 import { YVirtualList } from './components/virtual-list'
@@ -188,6 +188,7 @@ export const coreComponents: Component[] = [
   YTooltip,
   YTransfer,
   YTree,
+  YVirtualTree,
   YTreeSelect,
   YUpload,
   YVirtualList,

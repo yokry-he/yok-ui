@@ -28,6 +28,7 @@ export type LiveExamplePreset =
   | 'timePicker'
   | 'transfer'
   | 'tree'
+  | 'virtualTree'
   | 'treeSelect'
   | 'form'
   | 'inputNumber'
@@ -362,6 +363,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/tooltip', preset: 'tooltip' },
   { docs: '/components/transfer', preset: 'transfer' },
   { docs: '/components/tree', preset: 'tree' },
+  { docs: '/components/virtual-tree', preset: 'virtualTree' },
   { docs: '/components/tree-select', preset: 'treeSelect' },
   { docs: '/components/upload', preset: 'upload' },
   { docs: '/components/virtual-list', preset: 'virtualList' },
@@ -401,6 +403,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'virtualTable',
   'transfer',
   'tree',
+  'virtualTree',
   'treeSelect',
   'card',
   'tagBadge',
@@ -592,6 +595,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'timeSelect',
   'transfer',
   'tree',
+  'virtualTree',
   'treeSelect',
   'upload',
   'virtualList',
@@ -5461,6 +5465,57 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: '验证方向键、Home、End、Enter 和 Space 在可见树节点之间的移动与激活路径。'
+    }
+  ],
+  virtualTree: [
+    {
+      key: 'large-tree-window',
+      label: '大型树窗口',
+      kind: 'basic',
+      controlValue: 'virtualized',
+      description: '覆盖 height、item-height、overscan 和大量节点的固定行高虚拟窗口。'
+    },
+    {
+      key: 'checkable-window',
+      label: '虚拟勾选',
+      kind: 'multi',
+      controlValue: 'permissions',
+      description: '覆盖 checkable、checked-keys、default-checked-keys 和虚拟窗口内的勾选状态。'
+    },
+    {
+      key: 'draggable-window',
+      label: '虚拟拖拽分类',
+      kind: 'composition',
+      controlValue: 'taxonomy',
+      description: '覆盖 draggable 与 allow-drop / allowDrop 约束，展示大量分类节点中的拖拽调整。'
+    },
+    {
+      key: 'lazy-window',
+      label: '懒加载窗口',
+      kind: 'remote',
+      controlValue: 'lazy',
+      description: '覆盖 lazy、load、reloadNode、loadError 和远程节点刷新。'
+    },
+    {
+      key: 'empty-window',
+      label: '空树窗口',
+      kind: 'empty',
+      controlValue: 'empty',
+      description: '过滤或无权限时展示空树状态，并保留明确的 status 文案。'
+    },
+    {
+      key: 'mobile-window',
+      label: '移动窗口',
+      kind: 'responsive',
+      controlValue: 'mobile',
+      description: '缩小高度与节点行高，验证窄屏下树形缩进和滚动容器可用。'
+    },
+    {
+      key: 'keyboard-window',
+      label: '键盘窗口',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: '验证方向键、Home、End、Enter 和 Space 在虚拟节点窗口中的路径。'
     }
   ],
   treeSelect: [

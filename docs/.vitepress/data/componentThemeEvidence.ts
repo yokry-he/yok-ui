@@ -74,6 +74,7 @@ const sourcePathOverrides: Record<string, string> = {
   YCheckTag: 'packages/core/src/components/tag/YCheckTag.vue',
   YBadge: 'packages/core/src/components/tag/YBadge.vue',
   YVirtualTable: 'packages/core/src/components/table/YVirtualTable.vue',
+  YVirtualTree: 'packages/core/src/components/tree/YVirtualTree.vue',
   YSavedViewManager: 'packages/admin/src/components/saved-views/YSavedViewManager.vue'
 }
 

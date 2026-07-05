@@ -891,6 +891,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'documented'
   },
   {
+    name: 'YVirtualTree',
+    title: 'Virtual Tree',
+    packageName: '@yok-ui/core',
+    family: 'data',
+    status: 'Beta',
+    docs: '/components/virtual-tree',
+    description: '固定行高虚拟树，面向大量节点的资源目录、权限结构和组件分类浏览。',
+    since: '0.17.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YCollapse',
     title: 'Collapse',
     packageName: '@yok-ui/core',
@@ -7419,6 +7430,138 @@ export const componentApis: Record<string, ComponentApi> = {
         type: '{ getNodeByKey: (key: string) => YTreeNode | null; reloadNode: (key: string) => Promise<boolean> }',
         description: 'Tree 组件 ref 暴露的命令式方法。'
       }
+    ]
+  },
+  YVirtualTree: {
+    props: [
+      {
+        name: 'nodes',
+        type: 'YTreeNode[]',
+        description: '树节点数据。',
+        required: true
+      },
+      {
+        name: 'selectedKey',
+        type: 'string',
+        defaultValue: "''",
+        description: '当前选中节点 key。'
+      },
+      {
+        name: 'expandedKeys',
+        type: 'string[]',
+        description: '受控展开节点 key。'
+      },
+      {
+        name: 'defaultExpandedKeys',
+        type: 'string[]',
+        defaultValue: '[]',
+        description: '非受控初始展开节点 key。'
+      },
+      {
+        name: 'checkedKeys',
+        type: 'string[]',
+        description: '受控勾选节点 key。'
+      },
+      {
+        name: 'defaultCheckedKeys',
+        type: 'string[]',
+        defaultValue: '[]',
+        description: '非受控初始勾选节点 key。'
+      },
+      {
+        name: 'checkable',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否显示节点勾选框。'
+      },
+      {
+        name: 'checkStrictly',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否取消父子级联勾选。'
+      },
+      {
+        name: 'draggable',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否允许节点拖拽。'
+      },
+      {
+        name: 'allowDrop',
+        type: 'YTreeAllowDrop',
+        description: '自定义拖拽放置规则。'
+      },
+      {
+        name: 'lazy',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否启用异步节点加载；无 children 且未标记 isLeaf 的节点会在展开时调用 load。'
+      },
+      {
+        name: 'load',
+        type: 'YTreeLoadChildren',
+        description: '异步加载节点 children 的函数，返回 YTreeNode[] 或 Promise<YTreeNode[]>。'
+      },
+      {
+        name: 'height',
+        type: 'number',
+        defaultValue: '280',
+        description: '虚拟树的可视高度，单位为 px。'
+      },
+      {
+        name: 'itemHeight',
+        type: 'number',
+        defaultValue: '36',
+        description: '虚拟树节点的固定行高，单位为 px；应接近实际节点高度。'
+      },
+      {
+        name: 'overscan',
+        type: 'number',
+        defaultValue: '4',
+        description: '视口上下额外渲染的节点数量，用于降低快速滚动时的空白感。'
+      },
+      {
+        name: 'ariaLabel',
+        type: 'string',
+        defaultValue: "'Virtual tree'",
+        description: '树区域的可访问名称。'
+      },
+      {
+        name: 'emptyText',
+        type: 'string',
+        defaultValue: "'No tree data yet'",
+        description: '空状态文案。'
+      }
+    ],
+    events: [
+      { name: 'update:selectedKey', type: 'string', description: '选中节点变化。' },
+      { name: 'update:expandedKeys', type: 'string[]', description: '展开节点变化。' },
+      { name: 'update:checkedKeys', type: 'string[]', description: '勾选节点变化。' },
+      { name: 'select', type: 'YTreeSelectPayload', description: '点击或键盘选择节点。' },
+      { name: 'toggle', type: 'YTreeTogglePayload', description: '展开或折叠节点。' },
+      { name: 'check', type: 'YTreeCheckPayload', description: '勾选或取消勾选节点。' },
+      { name: 'dragStart', type: 'YTreeSelectPayload', description: '开始拖拽节点时触发。' },
+      { name: 'drop', type: 'YTreeDropPayload', description: '节点放置到目标节点前、内部或后方时触发。' },
+      { name: 'dragEnd', type: 'YTreeSelectPayload', description: '拖拽结束时触发。' },
+      { name: 'load', type: 'YTreeLoadPayload', description: '异步节点加载成功后触发，包含目标节点和返回的 children。' },
+      { name: 'loadError', type: 'YTreeLoadErrorPayload', description: '异步节点加载失败后触发；节点保持可再次展开以便重试。' }
+    ],
+    slots: [
+      { name: 'node', type: '{ node, flatNode }', description: '自定义节点内容。' },
+      { name: 'empty', type: 'VNode', description: '自定义空状态。' }
+    ],
+    methods: [
+      { name: 'getNodeByKey', type: '(key: string) => YTreeNode | null', description: '按 key 获取当前树中的节点，包含已合并的异步 children。' },
+      { name: 'reloadNode', type: '(key: string) => Promise<boolean>', description: '重新加载指定 lazy 节点；成功时替换该节点 children。' }
+    ],
+    types: [
+      { name: 'YTreeNode', type: '{ key: string; label: string; disabled?: boolean; isLeaf?: boolean; children?: YTreeNode[] }', description: '树节点数据；lazy 模式下 isLeaf=true 会关闭未加载节点的展开入口。' },
+      { name: 'YTreeFlatNode', type: '{ node: YTreeNode; key: string; label: string; level: number; expanded: boolean; selected: boolean; disabled: boolean; hasChildren: boolean }', description: '渲染时的扁平节点。' },
+      { name: 'YTreeSelectPayload', type: '{ node: YTreeNode; key: string }', description: '选择事件载荷。' },
+      { name: 'YTreeTogglePayload', type: '{ node: YTreeNode; key: string; expanded: boolean }', description: '展开折叠事件载荷。' },
+      { name: 'YTreeCheckPayload', type: '{ node: YTreeNode; key: string; checked: boolean; checkedKeys: string[]; halfCheckedKeys: string[] }', description: '勾选事件载荷。' },
+      { name: 'YTreeLoadChildren', type: '(node: YTreeNode) => YTreeNode[] | Promise<YTreeNode[]>', description: '异步加载节点 children 的函数。' },
+      { name: 'YTreeExpose', type: '{ getNodeByKey: (key: string) => YTreeNode | null; reloadNode: (key: string) => Promise<boolean> }', description: 'Virtual Tree 组件 ref 暴露的命令式方法。' }
     ]
   },
   YThemeProvider: {

@@ -1351,6 +1351,19 @@ export const interactionContracts: InteractionContract[] = [
       docs: ['docs/guide/accessibility.md', 'docs/components/tree.md'],
       tests: ['packages/core/src/components/tree/tree.test.ts']
     }
+  },
+  {
+    componentName: 'YVirtualTree',
+    pattern: 'Virtualized tree view',
+    keyboard: ['Arrow keys navigate rendered tree items', 'Home / End jumps to edge node', 'Enter / Space selects or checks within the virtual window'],
+    focus: 'The virtual tree keeps the active treeitem semantics stable while scrolling swaps the rendered window.',
+    semantics: ['role="tree"', 'role="treeitem"', 'aria-level', 'aria-expanded', 'aria-selected', 'aria-checked', 'aria-setsize', 'aria-posinset'],
+    status: 'Large trees use a fixed-height virtual viewport while preserving the same selection, checking and async loading contract as YTree.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/guide/accessibility.md', 'docs/components/virtual-tree.md'],
+      tests: ['packages/core/src/components/tree/virtual-tree.test.ts']
+    }
   }
 ]
 

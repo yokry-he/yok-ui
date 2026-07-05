@@ -261,6 +261,8 @@ const treeSelectedKey = ref('button')
 const treeExpandedKeys = ref(['core', 'form'])
 const treeCheckedKeys = ref(['button'])
 const treeSelectValue = ref('button')
+const virtualTreeSelectedKey = ref('node-4')
+const virtualTreeCheckedKeys = ref(['node-2'])
 const treeNodes = [
   {
     key: 'core',
@@ -286,6 +288,10 @@ const treeNodes = [
     ]
   }
 ]
+const virtualTreeNodes = Array.from({ length: 300 }, (_, index) => ({
+  key: `node-${index + 1}`,
+  label: `Component node ${index + 1}`
+}))
 const watermarkContent = 'Yok UI Draft'
 const breadcrumbItems = [
   { label: 'Components', href: '/components/' },
@@ -906,6 +912,7 @@ const componentImports = computed(() => {
     descriptions: 'YDescriptions',
     virtualList: 'YVirtualList',
     tree: 'YTree',
+    virtualTree: 'YVirtualTree',
     watermark: 'YWatermark',
     qrCode: 'YQRCode',
     floatButton: 'YFloatButtonGroup',
@@ -1591,6 +1598,10 @@ const generatedMarkup = computed(() => {
     return '<YTree v-model:selected-key="treeSelectedKey" v-model:expanded-keys="treeExpandedKeys" v-model:checked-keys="treeCheckedKeys" :nodes="treeNodes" checkable aria-label="Component taxonomy" />'
   }
 
+  if (activeComponent.value === 'virtualTree') {
+    return '<YVirtualTree v-model:selected-key="virtualTreeSelectedKey" v-model:checked-keys="virtualTreeCheckedKeys" :nodes="virtualTreeNodes" checkable :height="280" :item-height="36" :overscan="4" aria-label="Large component taxonomy" />'
+  }
+
   if (activeComponent.value === 'watermark') {
     return [
       '<YWatermark :content="watermarkContent" :gap="132" :font-size="16">',
@@ -2099,6 +2110,10 @@ const generatedScript = computed(() => {
 
   if (activeComponent.value === 'tree') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst treeSelectedKey = ref('${treeSelectedKey.value}')\nconst treeExpandedKeys = ref(${JSON.stringify(treeExpandedKeys.value, null, 2)})\nconst treeCheckedKeys = ref(${JSON.stringify(treeCheckedKeys.value, null, 2)})\nconst treeNodes = ${JSON.stringify(treeNodes, null, 2)}`
+  }
+
+  if (activeComponent.value === 'virtualTree') {
+    return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst virtualTreeSelectedKey = ref('${virtualTreeSelectedKey.value}')\nconst virtualTreeCheckedKeys = ref(${JSON.stringify(virtualTreeCheckedKeys.value, null, 2)})\nconst virtualTreeNodes = ${JSON.stringify(virtualTreeNodes, null, 2)}`
   }
 
   if (activeComponent.value === 'treeSelect') {
@@ -4134,6 +4149,17 @@ onMounted(() => {
             :nodes="treeNodes"
             checkable
             aria-label="Component taxonomy"
+          />
+          <YVirtualTree
+            v-else-if="activeComponent === 'virtualTree'"
+            v-model:selected-key="virtualTreeSelectedKey"
+            v-model:checked-keys="virtualTreeCheckedKeys"
+            :nodes="virtualTreeNodes"
+            checkable
+            :height="280"
+            :item-height="36"
+            :overscan="4"
+            aria-label="Large component taxonomy"
           />
           <YTreeSelect
             v-else-if="activeComponent === 'treeSelect'"

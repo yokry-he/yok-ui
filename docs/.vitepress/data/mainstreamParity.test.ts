@@ -14,6 +14,7 @@ describe('mainstreamParity', () => {
     const elementPlusGrid = items.find((item) => item.key === 'element-plus-grid-layout')
     const elementPlusTable = items.find((item) => item.key === 'element-plus-table')
     const elementPlusVirtualTable = items.find((item) => item.key === 'element-plus-virtualized-table')
+    const elementPlusVirtualTree = items.find((item) => item.key === 'element-plus-virtualized-tree')
     const elementPlusCascader = items.find((item) => item.key === 'element-plus-cascader')
     const elementPlusCascaderLazy = items.find((item) => item.key === 'element-plus-cascader-lazy-load')
     const elementPlusDatePicker = items.find((item) => item.key === 'element-plus-date-picker')
@@ -108,6 +109,14 @@ describe('mainstreamParity', () => {
     expect(elementPlusVirtualTable?.matchedComponents.map((component) => component.name)).toContain('YVirtualTable')
     expect(elementPlusVirtualTable?.evidence.docs).toContain('/components/virtual-table')
     expect(elementPlusVirtualTable?.evidence.liveExamples).toContain('/components/virtual-table#live-example')
+
+    expect(elementPlusVirtualTree).toMatchObject({
+      label: 'Virtualized tree performance',
+      status: 'covered'
+    })
+    expect(elementPlusVirtualTree?.matchedComponents.map((component) => component.name)).toContain('YVirtualTree')
+    expect(elementPlusVirtualTree?.evidence.docs).toContain('/components/virtual-tree')
+    expect(elementPlusVirtualTree?.evidence.liveExamples).toContain('/components/virtual-tree#live-example')
 
     expect(elementPlusGrid).toMatchObject({
       label: '24-column Row and Col layout',

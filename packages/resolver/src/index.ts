@@ -117,6 +117,7 @@ export const yokUiComponentPackages = {
   YTooltip: '@yok-ui/core',
   YTransfer: '@yok-ui/core',
   YTree: '@yok-ui/core',
+  YVirtualTree: '@yok-ui/core',
   YTreeSelect: '@yok-ui/core',
   YUpload: '@yok-ui/core',
   YVirtualList: '@yok-ui/core',

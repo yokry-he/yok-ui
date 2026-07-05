@@ -1,4 +1,5 @@
 export { default as YTree } from './YTree.vue'
+export { default as YVirtualTree } from './YVirtualTree.vue'
 export {
   canDropTreeNode,
   findNode,

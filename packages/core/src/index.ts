@@ -227,7 +227,7 @@ export { YTooltip } from './components/tooltip'
 export type { YTooltipPlacement, YTooltipTheme, YTooltipTrigger } from './components/tooltip'
 export { YTransfer } from './components/transfer'
 export type { YTransferChangePayload, YTransferCheckPayload, YTransferDirection, YTransferOption } from './components/transfer'
-export { YTree } from './components/tree'
+export { YTree, YVirtualTree } from './components/tree'
 export type {
   YTreeAllowDrop,
   YTreeCheckPayload,

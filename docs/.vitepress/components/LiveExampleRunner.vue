@@ -87,6 +87,7 @@ import {
   YTooltip,
   YTransfer,
   YTree,
+  YVirtualTree,
   YTreeSelect,
   YUpload,
   YVirtualizedSelect,
@@ -697,6 +698,10 @@ const fallbackTreeNodes = [
     ]
   }
 ]
+const fallbackLargeTreeNodes = Array.from({ length: 300 }, (_, index) => ({
+  key: `node-${index + 1}`,
+  label: `Component node ${index + 1}`
+}))
 const fallbackUploadFiles = [
   { id: 'one', name: 'yok-ui-core.zip', size: 2480000, status: 'success', message: 'Ready' },
   { id: 'two', name: 'docs-preview.png', size: 820000, status: 'uploading', progress: 68 },
@@ -1926,6 +1931,18 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '  </div>',
     '</template>'
   ].join('\n'),
+  virtualTree: [
+    '<script setup lang="ts">',
+    "import { YVirtualTree, YTag } from '@yok-ui/core'",
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <div class="demo-stack">',
+    '    <YVirtualTree selected-key="node-4" :height="260" :item-height="36" :overscan="4" />',
+    '    <YTag tone="info">Large tree data is provided by the docs runner.</YTag>',
+    '  </div>',
+    '</template>'
+  ].join('\n'),
   treeSelect: [
     '<script setup lang="ts">',
     "import { YTreeSelect, YTag } from '@yok-ui/core'",
@@ -2615,6 +2632,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   timeSelect: 'Time Select',
   transfer: 'Transfer',
   tree: 'Tree',
+  virtualTree: 'Virtual Tree',
   form: 'Form',
   formItem: 'Form Item',
   formSummary: 'Form Summary',
@@ -5589,6 +5607,95 @@ async function reloadRemoteCore() {
       `  <YTag tone="${isPermissionScenario || isKeyboardScenario ? 'warning' : isEmptyScenario ? 'danger' : 'success'}">${treeHint}</YTag>`,
       '</div>'
     ])
+    }
+  },
+  virtualTree: {
+    title: 'Virtual Tree scenario',
+    description: '用大量节点、勾选、懒加载、空态、移动视口和键盘路径调试虚拟树。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'virtualized', options: [
+        { label: '大型窗口', value: 'virtualized' },
+        { label: '权限勾选', value: 'permissions' },
+        { label: '拖拽分类', value: 'taxonomy' },
+        { label: '懒加载', value: 'lazy' },
+        { label: '空树', value: 'empty' },
+        { label: '移动窗口', value: 'mobile' },
+        { label: '键盘窗口', value: 'keyboard' }
+      ] },
+      { key: 'height', label: '高度', type: 'range', defaultValue: 280, min: 180, max: 520, step: 20 },
+      { key: 'itemHeight', label: '行高', type: 'range', defaultValue: 36, min: 32, max: 56, step: 4 },
+      { key: 'overscan', label: '预渲染', type: 'range', defaultValue: 4, min: 0, max: 12, step: 1 },
+      { key: 'checkable', label: '可勾选', type: 'boolean', defaultValue: false }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const isPermissionScenario = scenario === 'permissions'
+      const isDragScenario = scenario === 'taxonomy'
+      const isLazyScenario = scenario === 'lazy'
+      const isEmptyScenario = scenario === 'empty'
+      const isMobileScenario = scenario === 'mobile'
+      const isKeyboardScenario = scenario === 'keyboard'
+      const height = isMobileScenario ? 220 : Number(state.height)
+      const itemHeight = isMobileScenario ? 32 : Number(state.itemHeight)
+      const hint = isPermissionScenario
+        ? 'Checked keys stay stable while the tree window only renders visible nodes.'
+        : isDragScenario
+          ? 'Draggable nodes keep allowDrop rules while only visible rows are mounted.'
+        : isLazyScenario
+          ? 'Remote children can load and refresh inside the virtual tree wrapper.'
+          : isEmptyScenario
+            ? 'Empty virtual trees still expose a clear status region.'
+            : isMobileScenario
+              ? 'Compact item height keeps the taxonomy usable on narrow screens.'
+              : isKeyboardScenario
+                ? 'Arrow keys, Home, End, Enter and Space stay available in a virtual viewport.'
+                : '300 nodes are injected by the runner and rendered through a fixed-height window.'
+
+      if (isLazyScenario) {
+        return sfc(`import { ref } from 'vue'
+import { YButton, YTag, YVirtualTree, type YTreeExpose, type YTreeLoadPayload, type YTreeNode } from '@yok-ui/core'
+
+const treeRef = ref<YTreeExpose>()
+const lastLoad = ref('Expand remote-core, then refresh it.')
+const loadVersions = new Map<string, number>()
+const lazyTreeNodes: YTreeNode[] = [
+  { key: 'remote-core', label: 'Remote core package' },
+  { key: 'remote-admin', label: 'Remote admin package' }
+]
+
+async function loadRemoteNode(node: YTreeNode) {
+  await new Promise((resolve) => setTimeout(resolve, 240))
+  const version = (loadVersions.get(node.key) ?? 0) + 1
+  loadVersions.set(node.key, version)
+
+  return [
+    { key: \`\${node.key}-workflow-\${version}\`, label: \`Workflow v\${version}\`, isLeaf: true },
+    { key: \`\${node.key}-settings-\${version}\`, label: \`Settings v\${version}\`, isLeaf: true }
+  ]
+}
+
+function handleLoad(payload: YTreeLoadPayload) {
+  lastLoad.value = \`\${payload.key}: \${payload.children.length} children loaded\`
+}
+
+async function reloadRemoteCore() {
+  const refreshed = await treeRef.value?.reloadNode('remote-core')
+  lastLoad.value = refreshed ? 'remote-core refreshed' : 'remote-core is not ready to refresh'
+}`, [
+          '<div class="demo-stack">',
+          '  <YButton size="small" @click="reloadRemoteCore">Reload remote-core</YButton>',
+          `  <YVirtualTree ref="treeRef" :nodes="lazyTreeNodes" lazy :load="loadRemoteNode"${numericBinding('height', height)}${numericBinding('item-height', itemHeight)} aria-label="Async virtual package tree" @load="handleLoad" />`,
+          '  <YTag tone="info">{{ lastLoad }}</YTag>',
+          '</div>'
+        ])
+      }
+
+      return sfc("import { YTag, YVirtualTree } from '@yok-ui/core'", [
+        '<div class="demo-stack">',
+        `  <YVirtualTree${isEmptyScenario ? ' :nodes="[]"' : ''}${textAttribute('selected-key', isKeyboardScenario ? 'node-12' : 'node-4')}${textAttribute('checked-keys', isPermissionScenario ? 'node-2,node-4' : '')}${booleanAttribute('checkable', Boolean(state.checkable) || isPermissionScenario)}${booleanAttribute('draggable', isDragScenario)}${isDragScenario ? ' allow-drop="sibling"' : ''}${numericBinding('height', height)}${numericBinding('item-height', itemHeight)}${numericBinding('overscan', Number(state.overscan))}${isEmptyScenario ? ' empty-text="No matching virtual nodes"' : ''} aria-label="${isEmptyScenario ? 'Empty virtual tree' : isMobileScenario ? 'Mobile virtual tree' : isKeyboardScenario ? 'Keyboard virtual tree' : isDragScenario ? 'Draggable virtual tree' : 'Large virtual tree'}" />`,
+        `  <YTag tone="${isPermissionScenario || isKeyboardScenario ? 'warning' : isEmptyScenario ? 'danger' : 'info'}">${hint}</YTag>`,
+        '</div>'
+      ])
     }
   },
   treeSelect: {
@@ -11399,6 +11506,7 @@ const allowedTags = new Set([
   'ytooltip',
   'ytransfer',
   'ytree',
+  'yvirtualtree',
   'ytreeselect',
   'yupload',
   'yvirtuallist',
@@ -13224,6 +13332,7 @@ const componentMap = {
   ytooltip: YTooltip,
   ytransfer: YTransfer,
   ytree: YTree,
+  yvirtualtree: YVirtualTree,
   yupload: YUpload,
   yvirtuallist: YVirtualList,
   yvirtualizedselect: YVirtualizedSelect,
@@ -13696,7 +13805,7 @@ function getNodeProps(element: Element) {
     }
 
     if (attribute.name === ':nodes') {
-      props.nodes = fallbackTreeNodes
+      props.nodes = tagName === 'yvirtualtree' ? fallbackLargeTreeNodes : fallbackTreeNodes
       continue
     }
 
@@ -14765,9 +14874,9 @@ function getNodeProps(element: Element) {
     props.options = fallbackTransferOptions
   }
 
-  if (tagName === 'ytree') {
+  if (tagName === 'ytree' || tagName === 'yvirtualtree') {
     if (!('nodes' in props)) {
-      props.nodes = fallbackTreeNodes
+      props.nodes = tagName === 'yvirtualtree' ? fallbackLargeTreeNodes : fallbackTreeNodes
     }
 
     if (!('defaultExpandedKeys' in props) && !('expandedKeys' in props)) {

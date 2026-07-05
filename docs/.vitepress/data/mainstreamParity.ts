@@ -201,9 +201,9 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
       url: 'https://element-plus.org/en-US/component/tree-v2',
       note: 'Element Plus exposes a virtualized Tree V2 for large trees that need fast scrolling with tree-node interaction.'
     },
-    componentNames: ['YTree'],
-    docs: ['/components/tree'],
-    capabilities: ['virtualized-tree', 'structured-api', 'workflow-live-example', 'keyboard-scenario']
+    componentNames: ['YVirtualTree', 'YTree'],
+    docs: ['/components/virtual-tree', '/components/tree'],
+    capabilities: ['virtualized-tree', 'structured-api', 'workflow-live-example', 'keyboard-scenario', 'playground-handoff']
   },
   {
     key: 'element-plus-tree-lazy-load',

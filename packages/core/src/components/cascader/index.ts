@@ -1,4 +1,5 @@
 export { default as YCascader } from './YCascader.vue'
+export { default as YCascaderPanel } from './YCascaderPanel.vue'
 export {
   createCascaderColumns,
   findOptionPath,

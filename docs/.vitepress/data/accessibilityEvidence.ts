@@ -82,6 +82,7 @@ const componentTestEvidenceOverrides: Record<string, string[]> = {
   YDateRangePicker: ['packages/core/src/components/date-picker/date-range-picker.test.ts'],
   YDateTimePicker: ['packages/core/src/components/date-time-picker/date-time-picker.test.ts'],
   YTimeSelect: ['packages/core/src/components/time-select/time-select.test.ts'],
+  YCascaderPanel: ['packages/core/src/components/cascader/cascader-panel.test.ts'],
   YVirtualizedSelect: ['packages/core/src/components/virtualized-select/virtualized-select.test.ts'],
   YColorPickerPanel: ['packages/core/src/components/color-picker/color-picker-panel.test.ts'],
   YAvatarGroup: ['packages/core/src/components/avatar/avatar.test.ts'],

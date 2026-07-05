@@ -14,6 +14,7 @@ import {
   YCarousel,
   YCard,
   YCascader,
+  YCascaderPanel,
   YCheckTag,
   YCheckbox,
   YCheckboxGroup,
@@ -1537,6 +1538,20 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '  </div>',
     '</template>'
   ].join('\n'),
+  cascaderPanel: [
+    '<script setup lang="ts">',
+    "import { YCascaderPanel, YTag } from '@yok-ui/core'",
+    '',
+    "const options = [{ value: 'core', label: 'Core', children: [{ value: 'form', label: 'Form', children: [{ value: 'cascader-panel', label: 'Cascader Panel' }] }] }]",
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <div class="demo-stack">',
+    '    <YCascaderPanel :options="options" model-value="core,form,cascader-panel" aria-label="Component taxonomy panel" />',
+    '    <YTag tone="info">Embedded hierarchy panel</YTag>',
+    '  </div>',
+    '</template>'
+  ].join('\n'),
   carousel: [
     '<script setup lang="ts">',
     "import { YCarousel } from '@yok-ui/core'",
@@ -2568,6 +2583,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   dropdown: 'Dropdown',
   popover: 'Popover',
   cascader: 'Cascader',
+  cascaderPanel: 'Cascader Panel',
   calendar: 'Calendar',
   carousel: 'Carousel',
   card: 'Card',
@@ -4177,6 +4193,69 @@ const largePackageOptions = Array.from({ length: 1000 }, (_, index) => ({
         '<div class="demo-stack">',
         `  <YCascader${textAttribute('label', label)}${textAttribute('model-value', modelValue)} :options="${optionsExpression}"${textAttribute('placeholder', placeholder)}${booleanAttribute('multiple', multiple)}${textAttribute('separator', separator)}${clearable ? '' : ' :clearable="false"'}${booleanAttribute('disabled', isLockedScenario)}${isLockedScenario ? ' error="Current role cannot change this path."' : ''}${booleanAttribute('lazy', isLazyScenario)}${isLazyScenario ? ' :load="loadRemoteCascaderOptions"' : ''} />`,
         `  <YTag tone="${isLockedScenario ? 'warning' : isKeyboardScenario ? 'warning' : isLazyScenario ? 'success' : 'info'}">${helperText}</YTag>`,
+        '</div>'
+      ])
+    }
+  },
+  cascaderPanel: {
+    title: 'Cascader Panel scenario',
+    description: '调试常驻级联面板的单选、多选、远程加载、空态、移动端和键盘路径。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'taxonomy', options: [
+        { label: '常驻分类', value: 'taxonomy' },
+        { label: '权限多选', value: 'permissions' },
+        { label: '远程加载', value: 'lazy' },
+        { label: '空面板', value: 'empty' },
+        { label: '移动面板', value: 'mobile' },
+        { label: '键盘面板', value: 'keyboard' }
+      ] },
+      { key: 'multiple', label: '多选', type: 'boolean', defaultValue: false },
+      { key: 'separator', label: '分隔符', type: 'text', defaultValue: ' / ' },
+      { key: 'emptyText', label: '空态', type: 'text', defaultValue: 'No categories' }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const isPermissionScenario = scenario === 'permissions'
+      const isLazyScenario = scenario === 'lazy'
+      const isEmptyScenario = scenario === 'empty'
+      const isMobileScenario = scenario === 'mobile'
+      const isKeyboardScenario = scenario === 'keyboard'
+      const multiple = Boolean(state.multiple) || isPermissionScenario
+      const modelValue = multiple
+        ? 'core,form,cascader|admin,data,data-table'
+        : isLazyScenario || isEmptyScenario
+          ? ''
+          : isKeyboardScenario
+            ? 'core,form,cascader'
+            : 'core,form,cascader-panel'
+      const optionsExpression = isLazyScenario ? 'remoteCascaderOptions' : isEmptyScenario ? '[]' : 'cascaderOptions'
+      const helperText = isPermissionScenario
+        ? '常驻多选面板适合权限范围配置。'
+        : isLazyScenario
+          ? '远程节点会在点击后加载子级。'
+          : isEmptyScenario
+            ? '空态仍然保留明确的 status 语义。'
+            : isMobileScenario
+              ? '窄屏下列布局会转为纵向堆叠。'
+              : isKeyboardScenario
+                ? '方向键在层级中移动，Enter 或 Space 选择叶子节点。'
+                : '常驻级联面板可以直接嵌入配置页面。'
+      const setupSource = isLazyScenario
+        ? [
+            "import { YCascaderPanel, YTag, type YCascaderLoadChildren, type YCascaderOption } from '@yok-ui/core'",
+            `const remoteCascaderOptions: YCascaderOption[] = ${JSON.stringify(fallbackRemoteCascaderOptions, null, 2)}`,
+            `const remoteCascaderChildren: Record<string, YCascaderOption[]> = ${JSON.stringify(fallbackRemoteCascaderChildren, null, 2)}`,
+            'const loadRemoteCascaderOptions: YCascaderLoadChildren = (_option, path) => {',
+            "  const pathKey = path.map((item) => item.value).join('.')",
+            '  return Promise.resolve(remoteCascaderChildren[pathKey] ?? [])',
+            '}'
+          ].join('\n')
+        : "import { YCascaderPanel, YTag } from '@yok-ui/core'\nconst cascaderOptions = [{ value: 'core', label: 'Core', children: [{ value: 'form', label: 'Form', children: [{ value: 'cascader-panel', label: 'Cascader Panel' }, { value: 'cascader', label: 'Cascader' }] }, { value: 'feedback', label: 'Feedback', children: [{ value: 'tooltip', label: 'Tooltip' }] }] }, { value: 'admin', label: 'Admin', children: [{ value: 'data', label: 'Data', children: [{ value: 'data-table', label: 'Data Table' }] }] }]"
+
+      return sfc(setupSource, [
+        '<div class="demo-stack">',
+        `  <YCascaderPanel${textAttribute('model-value', modelValue)} :options="${optionsExpression}"${booleanAttribute('multiple', multiple)}${textAttribute('separator', isMobileScenario ? ' > ' : state.separator)}${booleanAttribute('lazy', isLazyScenario)}${isLazyScenario ? ' :load="loadRemoteCascaderOptions"' : ''}${textAttribute('empty-text', isEmptyScenario ? state.emptyText : '')} aria-label="${isPermissionScenario ? 'Access scope panel' : isLazyScenario ? 'Remote package panel' : isEmptyScenario ? 'Empty cascader panel' : 'Component taxonomy panel'}" />`,
+        `  <YTag tone="${isPermissionScenario || isKeyboardScenario ? 'warning' : isLazyScenario ? 'success' : 'info'}">${helperText}</YTag>`,
         '</div>'
       ])
     }
@@ -11437,6 +11516,7 @@ const allowedTags = new Set([
   'ycalendar',
   'ycarousel',
   'ycascader',
+  'ycascaderpanel',
   'ycheckbox',
   'ycheckboxgroup',
   'ycollapse',
@@ -13248,6 +13328,7 @@ const componentMap = {
   ybutton: YButton,
   ycard: YCard,
   ycascader: YCascader,
+  ycascaderpanel: YCascaderPanel,
   ycalendar: YCalendar,
   ycarousel: YCarousel,
   ychecktag: YCheckTag,
@@ -13675,7 +13756,7 @@ function getNodeProps(element: Element) {
     if (attribute.name === 'model-value') {
       if (['ycheckbox', 'yswitch'].includes(tagName)) {
         props.modelValue = attribute.value !== 'false'
-      } else if (tagName === 'ycascader') {
+      } else if (tagName === 'ycascader' || tagName === 'ycascaderpanel') {
         props.modelValue = element.hasAttribute('multiple')
           ? attribute.value.split('|').map((path) => path.split(',').map((segment) => segment.trim()).filter(Boolean))
           : attribute.value.split(',').map((segment) => segment.trim()).filter(Boolean)
@@ -13826,7 +13907,7 @@ function getNodeProps(element: Element) {
         props.options = element.getAttribute('label') === 'Release checklist'
           ? fallbackReleaseChecklistOptions
           : fallbackCheckboxGroupOptions
-      } else if (tagName === 'ycascader') {
+      } else if (tagName === 'ycascader' || tagName === 'ycascaderpanel') {
         props.options = attribute.value === 'remoteCascaderOptions' || element.hasAttribute('lazy')
           ? fallbackRemoteCascaderOptions
           : fallbackCascaderOptions
@@ -14858,7 +14939,7 @@ function getNodeProps(element: Element) {
     props.errors = fallbackFormSummaryErrors
   }
 
-  if (tagName === 'ycascader' && !('options' in props)) {
+  if ((tagName === 'ycascader' || tagName === 'ycascaderpanel') && !('options' in props)) {
     props.options = element.hasAttribute('lazy') ? fallbackRemoteCascaderOptions : fallbackCascaderOptions
   }
 
@@ -16749,29 +16830,37 @@ function simulatePopoverDismiss() {
 
 function simulateCascaderTooltipPath() {
   const nextValue = ['core', 'feedback', 'tooltip']
-  const component = getActiveEventComponentLabel('ycascader')
+  const isPanelExample = checkedSource.value.includes('<YCascaderPanel')
+  const component = getActiveEventComponentLabel(isPanelExample ? 'ycascaderpanel' : 'ycascader')
   const payload = { value: nextValue, labels: ['Core', 'Feedback', 'Tooltip'] }
 
   previewCascaderModel.value = [...nextValue]
 
-  logComponentEvent(component, 'visibleChange', [true])
+  if (!isPanelExample) {
+    logComponentEvent(component, 'visibleChange', [true])
+  }
   logComponentEvent(component, 'update:modelValue', [nextValue])
   logComponentEvent(component, 'change', [payload])
-  logComponentEvent(component, 'visibleChange', [false])
+  if (!isPanelExample) {
+    logComponentEvent(component, 'visibleChange', [false])
+  }
 
-  draftStatus.value = '已模拟 Cascader 选择 Core / Feedback / Tooltip，并同步路径、状态快照和事件日志。'
+  draftStatus.value = `已模拟 ${component} 选择 Core / Feedback / Tooltip，并同步路径、状态快照和事件日志。`
 }
 
 function simulateCascaderClear() {
-  const component = getActiveEventComponentLabel('ycascader')
+  const isPanelExample = checkedSource.value.includes('<YCascaderPanel')
+  const component = getActiveEventComponentLabel(isPanelExample ? 'ycascaderpanel' : 'ycascader')
 
   previewCascaderModel.value = []
 
   logComponentEvent(component, 'update:modelValue', [[]])
   logComponentEvent(component, 'change', [{ value: [] }])
-  logComponentEvent(component, 'clear', [])
+  if (!isPanelExample) {
+    logComponentEvent(component, 'clear', [])
+  }
 
-  draftStatus.value = '已模拟清空 Cascader 路径，状态快照和 clear 事件已同步。'
+  draftStatus.value = `已模拟清空 ${component} 路径，状态快照和事件日志已同步。`
 }
 
 function cloneTableFilterState(value: unknown): YTableFilterState {
@@ -17049,7 +17138,7 @@ function createInteractiveProps(tagName: string, props: Record<string, unknown>)
     }
   }
 
-  if (tagName === 'ycascader') {
+  if (tagName === 'ycascader' || tagName === 'ycascaderpanel') {
     if (previewCascaderSource.value !== checkedSource.value) {
       previewCascaderSource.value = checkedSource.value
       previewCascaderModel.value = cloneCascaderPreviewModel(props.modelValue, Boolean(props.multiple))
@@ -18093,7 +18182,7 @@ function renderNode(node: ChildNode): VNodeChild {
               }
             }
           : {}),
-        ...(tagName === 'ycascader'
+        ...(tagName === 'ycascader' || tagName === 'ycascaderpanel'
           ? {
               'onUpdate:modelValue': (value: PreviewCascaderModel) => {
                 previewCascaderModel.value = Array.isArray(value[0])
@@ -19077,6 +19166,7 @@ const sourcePanelSfcCode = computed(() => {
   }
 })
 const componentSourceDirectoryOverrides: Record<string, string> = {
+  YCascaderPanel: 'cascader',
   YDateRangePicker: 'date-picker',
   YDateTimePicker: 'date-time-picker',
   YFloatButton: 'float-button',

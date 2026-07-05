@@ -882,6 +882,7 @@ const componentImports = computed(() => {
     timeSelect: 'YTimeSelect',
     transfer: 'YTransfer',
     cascader: 'YCascader',
+    cascaderPanel: 'YCascaderPanel',
     treeSelect: 'YTreeSelect',
     colorPicker: 'YColorPicker',
     colorPickerPanel: 'YColorPickerPanel',
@@ -1198,6 +1199,10 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'cascader') {
     return `<YCascader v-model="componentPath" label="Component path" :options="cascaderOptions"${disabled.value ? ' disabled' : ''} />`
+  }
+
+  if (activeComponent.value === 'cascaderPanel') {
+    return `<YCascaderPanel v-model="componentPath" :options="cascaderOptions"${disabled.value ? ' disabled' : ''} aria-label="Component taxonomy panel" />`
   }
 
   if (activeComponent.value === 'colorPicker') {
@@ -1864,7 +1869,7 @@ const generatedScript = computed(() => {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst startTime = ref('09:00')`
   }
 
-  if (activeComponent.value === 'cascader') {
+  if (activeComponent.value === 'cascader' || activeComponent.value === 'cascaderPanel') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst componentPath = ref(['core', 'form', 'cascader'])\nconst cascaderOptions = ${JSON.stringify(cascaderOptions, null, 2)}`
   }
 
@@ -3542,6 +3547,13 @@ onMounted(() => {
             label="Component path"
             :options="cascaderOptions"
             :disabled="disabled"
+          />
+          <YCascaderPanel
+            v-else-if="activeComponent === 'cascaderPanel'"
+            v-model="cascaderValue"
+            :options="cascaderOptions"
+            :disabled="disabled"
+            aria-label="Component taxonomy panel"
           />
           <YColorPicker
             v-else-if="activeComponent === 'colorPicker'"

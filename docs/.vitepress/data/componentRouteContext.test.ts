@@ -381,6 +381,22 @@ describe('componentRouteContext', () => {
     expect(context?.scenarios.at(-1)?.key).toBe('keyboard-cascader')
   })
 
+  it('exposes cascader panel workflow scenarios for embedded route navigation', () => {
+    const context = getComponentRouteContext('/components/cascader-panel')
+
+    expect(context?.component.name).toBe('YCascaderPanel')
+    expect(context?.qualityItems.find((item) => item.key === 'live')?.value).toBe('Workflow')
+    expect(context?.scenarios.map((scenario) => scenario.label)).toEqual([
+      '常驻分类面板',
+      '多选权限面板',
+      '远程加载面板',
+      '空面板',
+      '移动面板',
+      '键盘面板'
+    ])
+    expect(context?.scenarios.at(-1)?.key).toBe('keyboard-panel')
+  })
+
   it('exposes date range shortcut, responsive and keyboard workflow scenarios', () => {
     const context = getComponentRouteContext('/components/date-range-picker')
 

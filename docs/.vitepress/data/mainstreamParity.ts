@@ -227,9 +227,9 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
       url: 'https://element-plus.org/en-US/component/cascader',
       note: 'Element Plus Cascader and CascaderPanel cover single selection, multiple selection and dynamic loading depth.'
     },
-    componentNames: ['YCascader'],
-    docs: ['/components/cascader'],
-    capabilities: ['structured-api', 'workflow-live-example', 'keyboard-scenario', 'lazy-cascader-loading']
+    componentNames: ['YCascader', 'YCascaderPanel'],
+    docs: ['/components/cascader', '/components/cascader-panel'],
+    capabilities: ['structured-api', 'workflow-live-example', 'keyboard-scenario', 'lazy-cascader-loading', 'playground-handoff']
   },
   {
     key: 'element-plus-cascader-lazy-load',

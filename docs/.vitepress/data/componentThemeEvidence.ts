@@ -62,6 +62,7 @@ const sourcePathOverrides: Record<string, string> = {
   YDateRangePicker: 'packages/core/src/components/date-picker/YDateRangePicker.vue',
   YDateTimePicker: 'packages/core/src/components/date-time-picker/YDateTimePicker.vue',
   YTimeSelect: 'packages/core/src/components/time-select/YTimeSelect.vue',
+  YCascaderPanel: 'packages/core/src/components/cascader/YCascaderPanel.vue',
   YVirtualizedSelect: 'packages/core/src/components/virtualized-select/YVirtualizedSelect.vue',
   YRow: 'packages/core/src/components/grid/YRow.vue',
   YCol: 'packages/core/src/components/grid/YCol.vue',

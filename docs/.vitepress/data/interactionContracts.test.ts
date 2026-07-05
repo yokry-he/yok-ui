@@ -39,6 +39,7 @@ describe('interactionContracts', () => {
       'YBreadcrumb',
       'YBulkActionBar',
       'YCascader',
+      'YCascaderPanel',
       'YCommandPalette',
       'YCheckbox',
       'YCollapse',

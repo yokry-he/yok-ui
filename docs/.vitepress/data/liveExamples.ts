@@ -9,6 +9,7 @@ export type LiveExamplePreset =
   | 'select'
   | 'virtualizedSelect'
   | 'cascader'
+  | 'cascaderPanel'
   | 'calendar'
   | 'carousel'
   | 'datePicker'
@@ -273,6 +274,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/calendar', preset: 'calendar' },
   { docs: '/components/carousel', preset: 'carousel' },
   { docs: '/components/cascader', preset: 'cascader' },
+  { docs: '/components/cascader-panel', preset: 'cascaderPanel' },
   { docs: '/components/card', preset: 'card' },
   { docs: '/components/checkbox', preset: 'checkbox' },
   { docs: '/components/code-block', preset: 'codeBlock' },
@@ -384,6 +386,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'select',
   'virtualizedSelect',
   'cascader',
+  'cascaderPanel',
   'calendar',
   'carousel',
   'datePicker',
@@ -505,6 +508,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'calendar',
   'carousel',
   'cascader',
+  'cascaderPanel',
   'card',
   'checkbox',
   'codeBlock',
@@ -3157,6 +3161,50 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: '验证 Enter / Space 打开级联面板，方向键在层级路径中移动，Escape 关闭。'
+    }
+  ],
+  cascaderPanel: [
+    {
+      key: 'embedded-panel',
+      label: '常驻分类面板',
+      kind: 'basic',
+      controlValue: 'taxonomy',
+      description: '展示常驻级联面板在配置页中的默认嵌入路径。'
+    },
+    {
+      key: 'multi-scope-panel',
+      label: '多选权限面板',
+      kind: 'multi',
+      controlValue: 'permissions',
+      description: '覆盖 multiple、多路径回显和权限范围配置。'
+    },
+    {
+      key: 'lazy-panel',
+      label: '远程加载面板',
+      kind: 'remote',
+      controlValue: 'lazy',
+      description: '覆盖 lazy、load、loadError 和远程层级数据。'
+    },
+    {
+      key: 'empty-panel',
+      label: '空面板',
+      kind: 'empty',
+      controlValue: 'empty',
+      description: '无可用分类或权限过滤后展示稳定空态。'
+    },
+    {
+      key: 'mobile-panel',
+      label: '移动面板',
+      kind: 'responsive',
+      controlValue: 'mobile',
+      description: '窄屏下列布局转为纵向堆叠，保证层级文本可读。'
+    },
+    {
+      key: 'keyboard-panel',
+      label: '键盘面板',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: '验证方向键、Enter 和 Space 在常驻面板中的选择路径。'
     }
   ],
   datePicker: [

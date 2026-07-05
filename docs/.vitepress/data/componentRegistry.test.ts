@@ -23,7 +23,7 @@ describe('componentRegistry', () => {
     const names = components.map((component) => component.name)
 
     expect(new Set(names).size).toBe(names.length)
-    expect(components).toHaveLength(120)
+    expect(components).toHaveLength(121)
 
     components.forEach((component) => {
       expect(component.docs).toMatch(/^\/(components|guide)\//)
@@ -473,6 +473,24 @@ describe('componentRegistry', () => {
       'lazy',
       'load'
     ]))
+    expect(components.find((component) => component.name === 'YCascaderPanel')?.docs).toBe('/components/cascader-panel')
+    expect(componentApis.YCascaderPanel.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'modelValue',
+      'options',
+      'multiple',
+      'lazy',
+      'load',
+      'ariaLabel',
+      'emptyText'
+    ]))
+    expect(componentApis.YCascaderPanel.events?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'update:modelValue',
+      'change',
+      'load',
+      'loadError'
+    ]))
+    expect(componentApis.YCascaderPanel.slots?.map((row) => row.name)).toContain('option')
+    expect(componentApis.YCascaderPanel.types?.map((row) => row.name)).toContain('YCascaderOption')
     expect(componentApis.YTable.props?.map((row) => row.name)).toEqual(expect.arrayContaining(['virtualized', 'virtualHeight', 'virtualRowHeight', 'virtualOverscan', 'resizable', 'minColumnWidth', 'columnWidths', 'defaultColumnWidths', 'expandable', 'expandedRowKeys', 'defaultExpandedRowKeys']))
     expect(componentApis.YTable.slots?.map((row) => row.name)).toContain('expand')
     expect(componentApis.YTable.events?.map((row) => row.name)).toContain('update:expandedRowKeys')

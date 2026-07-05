@@ -130,7 +130,10 @@ describe('mainstreamParity', () => {
       status: 'covered'
     })
     expect(elementPlusCascader?.matchedComponents.map((component) => component.name)).toContain('YCascader')
+    expect(elementPlusCascader?.matchedComponents.map((component) => component.name)).toContain('YCascaderPanel')
+    expect(elementPlusCascader?.evidence.docs).toContain('/components/cascader-panel')
     expect(elementPlusCascader?.evidence.liveExamples).toContain('/components/cascader#live-example')
+    expect(elementPlusCascader?.evidence.liveExamples).toContain('/components/cascader-panel#live-example')
     expect(elementPlusCascaderLazy).toMatchObject({
       label: 'Cascader dynamic loading and retry state',
       status: 'covered'

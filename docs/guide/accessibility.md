@@ -89,6 +89,7 @@ DOCS_A11Y_BASE_URL=http://127.0.0.1:5179 pnpm docs:a11y:runtime
 | `YTimePicker` | 输入框触发 Floating UI 时间面板，面板使用 `role="dialog"` 和双 `listbox`，支持方向键、Enter / Space 和 Escape |
 | `YTimeSelect` | 固定时间列表复用 `YSelect` 的 `combobox` / `listbox` 语义，范围禁用项同步设置 disabled 和 `aria-disabled` |
 | `YCascader` | 输入框触发 Floating UI 级联面板，列使用 `role="listbox"`，multiple 时同步 `aria-multiselectable`，选项使用 `role="option"` 和 `aria-selected`，支持方向键、Enter / Space 和 Escape；懒加载节点同步 `aria-busy` / `role="status"`，失败节点使用 `role="alert"` 并保持可重试 |
+| `YCascaderPanel` | 常驻级联面板使用 `role="group"` 包裹多列 `role="listbox"`，选项使用 `role="option"` 和 `aria-selected`；方向键在列内和列间移动，Enter / Space 选择叶子节点；懒加载状态同步 `aria-busy`、`role="status"` 和 `role="alert"` |
 | `YUpload` | 使用原生 `input type="file"`，拖拽模式仍保留可点击按钮，文件数量摘要使用 `aria-live`，空状态使用 `role="status"` |
 | `YTransfer` | 使用原生 checkbox 勾选项，左右列表使用 `role="listbox"` 和 `aria-multiselectable`，移动按钮提供明确 `aria-label` |
 | `YForm` / `YFormItem` / `YFormSummary` | `YForm` 使用原生 form 和 fieldset，单字段错误使用 `role="alert"`，字段 slot 暴露 `labelFor` 和 `messageId` 用于关联输入控件，表单摘要使用 assertive alert 并支持跳转字段，长表单可启用 `scroll-to-error` 定位首个错误 |

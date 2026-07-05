@@ -4,7 +4,7 @@ const corePreviewSetup = [
   '',
   'const coverageItems = [',
   "  { key: 'button', label: 'Actions', value: 'YButton, YIconButton' },",
-  "  { key: 'form', label: 'Forms', value: 'Input, Select, VirtualizedSelect, DatePickerPanel, Form' },",
+  "  { key: 'form', label: 'Forms', value: 'Input, Select, VirtualizedSelect, DatePickerPanel, CascaderPanel, Form' },",
   "  { key: 'data', label: 'Data', value: 'Table, Virtual Table, Virtual Tree, List, Descriptions, Statistic, Timeline, Tree' },",
   "  { key: 'feedback', label: 'Feedback', value: 'Alert, Message, Result, Empty' }",
   ']'
@@ -12,7 +12,7 @@ const corePreviewSetup = [
 
 const corePreviewCode = [
   '<div class="core-preview-metrics">',
-  '  <YStatistic title="Core components" :value="54" suffix="ready" tone="success" />',
+  '  <YStatistic title="Core components" :value="55" suffix="ready" tone="success" />',
   '  <YStatistic title="Data display" :value="8" suffix="patterns" tone="info" />',
   '</div>',
   '<YDescriptions',
@@ -78,7 +78,7 @@ import { YButton, YCol, YDateTimePicker, YDescriptions, YFlex, YInput, YInputOtp
   :usage="['package preview', 'descriptions', 'statistics']"
 >
   <div class="core-preview-metrics">
-    <YStatistic title="Core components" :value="54" suffix="ready" tone="success" />
+    <YStatistic title="Core components" :value="55" suffix="ready" tone="success" />
     <YStatistic title="Data display" :value="8" suffix="patterns" tone="info" />
   </div>
   <YDescriptions
@@ -88,7 +88,7 @@ import { YButton, YCol, YDateTimePicker, YDescriptions, YFlex, YInput, YInputOtp
     :column="2"
     :items="[
       { key: 'button', label: 'Actions', value: 'YButton, YIconButton' },
-      { key: 'form', label: 'Forms', value: 'Input, Select, VirtualizedSelect, TimeSelect, Form, Upload' },
+      { key: 'form', label: 'Forms', value: 'Input, Select, VirtualizedSelect, CascaderPanel, TimeSelect, Form, Upload' },
       { key: 'data', label: 'Data', value: 'Table, Virtual Table, Virtual Tree, List, Descriptions, Statistic, Timeline, Tree' },
       { key: 'feedback', label: 'Feedback', value: 'Alert, Message, Result, Empty' }
     ]"

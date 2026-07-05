@@ -9,7 +9,7 @@ import { YBreadcrumb } from './components/breadcrumb'
 import { YButton, YIconButton } from './components/button'
 import { YCalendar } from './components/calendar'
 import { YCarousel } from './components/carousel'
-import { YCascader } from './components/cascader'
+import { YCascader, YCascaderPanel } from './components/cascader'
 import { YCard } from './components/card'
 import { YCheckbox, YCheckboxGroup } from './components/checkbox'
 import { YCollapse } from './components/collapse'
@@ -109,6 +109,7 @@ export const coreComponents: Component[] = [
   YCalendar,
   YCarousel,
   YCascader,
+  YCascaderPanel,
   YCard,
   YCheckbox,
   YCheckboxGroup,

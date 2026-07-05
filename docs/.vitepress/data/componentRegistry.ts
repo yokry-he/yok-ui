@@ -407,6 +407,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'documented'
   },
   {
+    name: 'YCascaderPanel',
+    title: 'Cascader Panel',
+    packageName: '@yok-ui/core',
+    family: 'form',
+    status: 'Beta',
+    docs: '/components/cascader-panel',
+    description: '常驻级联选择面板，用于嵌入表单、抽屉和配置页。',
+    since: '0.18.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YTextarea',
     title: 'Textarea',
     packageName: '@yok-ui/core',
@@ -6957,6 +6968,139 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'loadError',
         type: 'YCascaderLoadErrorPayload',
         description: '懒加载子级失败后触发；节点保持可重试。'
+      }
+    ],
+    slots: [
+      {
+        name: 'option',
+        type: '{ option, level }',
+        description: '自定义选项内容。'
+      }
+    ],
+    types: [
+      {
+        name: 'YCascaderOption',
+        type: '{ value: string; label: string; disabled?: boolean; isLeaf?: boolean; children?: YCascaderOption[] }',
+        description: '级联选项数据；懒加载时可用 isLeaf 显式声明远程叶子节点。'
+      },
+      {
+        name: 'YCascaderColumn',
+        type: '{ level: number; options: YCascaderOption[] }',
+        description: '级联面板列数据。'
+      },
+      {
+        name: 'YCascaderValue',
+        type: 'string[]',
+        description: '单选路径值。'
+      },
+      {
+        name: 'YCascaderMultipleValue',
+        type: 'string[][]',
+        description: '多选路径值。'
+      },
+      {
+        name: 'YCascaderSelectPayload',
+        type: '{ value: string[]; labels: string[]; option: YCascaderOption }',
+        description: '单选选择事件载荷。'
+      },
+      {
+        name: 'YCascaderMultipleSelectPayload',
+        type: '{ value: string[][]; labels: string[][]; option: YCascaderOption; checked: boolean; checkedValue: string[] }',
+        description: '多选切换事件载荷。'
+      },
+      {
+        name: 'YCascaderLoadChildren',
+        type: '(option: YCascaderOption, path: YCascaderOption[]) => YCascaderOption[] | Promise<YCascaderOption[]>',
+        description: '懒加载函数签名。'
+      },
+      {
+        name: 'YCascaderLoadPayload',
+        type: '{ option: YCascaderOption; path: YCascaderOption[]; children: YCascaderOption[] }',
+        description: '懒加载成功事件载荷。'
+      },
+      {
+        name: 'YCascaderLoadErrorPayload',
+        type: '{ option: YCascaderOption; path: YCascaderOption[]; error: unknown }',
+        description: '懒加载失败事件载荷。'
+      }
+    ]
+  },
+  YCascaderPanel: {
+    props: [
+      {
+        name: 'modelValue',
+        type: 'string[] | string[][]',
+        defaultValue: '[]',
+        description: '当前选中路径值；multiple 时为路径数组。'
+      },
+      {
+        name: 'options',
+        type: 'YCascaderOption[]',
+        description: '常驻面板的层级选项数据。',
+        required: true
+      },
+      {
+        name: 'multiple',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否启用多选叶子路径。'
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '禁用整个级联面板。'
+      },
+      {
+        name: 'lazy',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否启用远程懒加载分支。'
+      },
+      {
+        name: 'load',
+        type: 'YCascaderLoadChildren',
+        description: '懒加载子级选项的函数，接收当前 option 和完整 path。'
+      },
+      {
+        name: 'separator',
+        type: 'string',
+        defaultValue: "' / '",
+        description: '底部已选路径摘要的分隔符。'
+      },
+      {
+        name: 'ariaLabel',
+        type: 'string',
+        defaultValue: "'Cascader panel'",
+        description: '常驻面板的可访问名称。'
+      },
+      {
+        name: 'emptyText',
+        type: 'string',
+        defaultValue: "'No options'",
+        description: '无选项时展示的空态文案。'
+      }
+    ],
+    events: [
+      {
+        name: 'update:modelValue',
+        type: 'string[] | string[][]',
+        description: '选中路径值变化，multiple 时返回路径数组。'
+      },
+      {
+        name: 'change',
+        type: 'YCascaderSelectPayload | YCascaderMultipleSelectPayload',
+        description: '选择叶子节点或切换多选项后触发。'
+      },
+      {
+        name: 'load',
+        type: 'YCascaderLoadPayload',
+        description: '懒加载子级成功后触发。'
+      },
+      {
+        name: 'loadError',
+        type: 'YCascaderLoadErrorPayload',
+        description: '懒加载子级失败后触发。'
       }
     ],
     slots: [

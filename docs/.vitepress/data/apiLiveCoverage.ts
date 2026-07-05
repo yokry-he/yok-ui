@@ -239,6 +239,7 @@ const guidedPropCoverageHints = new Set([
   'running',
   'secondary-text',
   'selected-suggestions',
+  'separator',
   'span',
   'search-placeholder',
   'shape',

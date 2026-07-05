@@ -31,7 +31,7 @@ export type {
   YCarouselIndicatorPosition,
   YCarouselItem
 } from './components/carousel'
-export { YCascader } from './components/cascader'
+export { YCascader, YCascaderPanel } from './components/cascader'
 export type {
   YCascaderColumn,
   YCascaderLoadChildren,

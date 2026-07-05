@@ -197,6 +197,19 @@ export const interactionContracts: InteractionContract[] = [
     }
   },
   {
+    componentName: 'YCascaderPanel',
+    pattern: 'Embedded cascading listbox panel',
+    keyboard: ['ArrowDown / ArrowUp moves within the current level', 'ArrowRight enters the next level', 'ArrowLeft returns to the parent level', 'Enter / Space selects the active leaf option'],
+    focus: 'The active option owns focus inside the embedded panel; selection changes update the live summary without closing a popup.',
+    semantics: ['role="group"', 'role="listbox"', 'role="option"', 'aria-selected', 'aria-multiselectable', 'aria-busy', 'role="status"', 'role="alert"'],
+    status: 'Panel keeps the same data and lazy-loading contract as YCascader without adding combobox or dialog semantics.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/guide/accessibility.md', 'docs/components/cascader-panel.md'],
+      tests: ['packages/core/src/components/cascader/cascader-panel.test.ts']
+    }
+  },
+  {
     componentName: 'YRate',
     pattern: 'Radiogroup rating',
     keyboard: ['Arrow keys changes rating', 'Home / End jumps to min and max rating'],

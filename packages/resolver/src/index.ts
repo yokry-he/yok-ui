@@ -39,6 +39,7 @@ export const yokUiComponentPackages = {
   YCalendar: '@yok-ui/core',
   YCarousel: '@yok-ui/core',
   YCascader: '@yok-ui/core',
+  YCascaderPanel: '@yok-ui/core',
   YCard: '@yok-ui/core',
   YCheckTag: '@yok-ui/core',
   YCheckbox: '@yok-ui/core',

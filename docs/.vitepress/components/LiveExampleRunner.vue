@@ -85,6 +85,7 @@ import {
   YTree,
   YTreeSelect,
   YUpload,
+  YVirtualizedSelect,
   type YTableFilterPayload,
   type YTableFilterState,
   type YTableSelectionPayload,
@@ -1439,6 +1440,25 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '  </div>',
     '</template>'
   ].join('\n'),
+  virtualizedSelect: [
+    '<script setup lang="ts">',
+    "import { ref } from 'vue'",
+    "import { YTag, YVirtualizedSelect } from '@yok-ui/core'",
+    '',
+    "const packageName = ref('pkg-42')",
+    'const largePackageOptions = Array.from({ length: 1000 }, (_, index) => ({',
+    '  label: `Package ${index + 1}`,',
+    '  value: `pkg-${index + 1}`',
+    '}))',
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <div class="demo-stack">',
+    '    <YVirtualizedSelect v-model="packageName" label="Package" :options="largePackageOptions" filterable clearable />',
+    '    <YTag tone="success">The list renders only the visible virtual window.</YTag>',
+    '  </div>',
+    '</template>'
+  ].join('\n'),
   dropdown: [
     '<script setup lang="ts">',
     "import { YDropdown, YTag } from '@yok-ui/core'",
@@ -2471,6 +2491,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   textarea: 'Textarea',
   radioGroup: 'Radio Group',
   select: 'Select',
+  virtualizedSelect: 'Virtualized Select',
   dropdown: 'Dropdown',
   popover: 'Popover',
   cascader: 'Cascader',
@@ -3729,6 +3750,86 @@ const largePackageOptions = Array.from({ length: 1000 }, (_, index) => ({
       `  <YTag tone="${tagTone}">${helperText}</YTag>`,
       '</div>'
     ])
+    }
+  },
+  virtualizedSelect: {
+    title: 'Virtualized Select scenario',
+    description: '调试千级选项、搜索、多选、紧凑窗口、键盘路径和禁用态；默认使用独立 YVirtualizedSelect 组件。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'large', options: [
+        { label: '千级选项', value: 'large' },
+        { label: '搜索长列表', value: 'filterable' },
+        { label: '多选长列表', value: 'multiple' },
+        { label: '紧凑窗口', value: 'dense' },
+        { label: '远程加载', value: 'loading' },
+        { label: '移动长列表', value: 'mobile' },
+        { label: '键盘长列表', value: 'keyboard' },
+        { label: '禁用长列表', value: 'disabled' }
+      ] },
+      { key: 'label', label: '标签', type: 'text', defaultValue: 'Package' },
+      { key: 'height', label: '窗口高度', type: 'range', defaultValue: 220, min: 160, max: 320, step: 20 },
+      { key: 'itemHeight', label: '行高', type: 'range', defaultValue: 36, min: 28, max: 48, step: 4 },
+      { key: 'overscan', label: '缓冲行', type: 'range', defaultValue: 3, min: 0, max: 8, step: 1 },
+      { key: 'disabled', label: '禁用', type: 'boolean', defaultValue: false }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const isFilterableScenario = scenario === 'filterable'
+      const isMultipleScenario = scenario === 'multiple'
+      const isDenseScenario = scenario === 'dense'
+      const isLoadingScenario = scenario === 'loading'
+      const isMobileScenario = scenario === 'mobile'
+      const isKeyboardScenario = scenario === 'keyboard'
+      const isDisabledScenario = scenario === 'disabled'
+      const height = isDenseScenario ? 176 : isMobileScenario ? 188 : Number(state.height)
+      const itemHeight = isDenseScenario || isMobileScenario ? 32 : Number(state.itemHeight)
+      const overscan = isDenseScenario ? 2 : Number(state.overscan)
+      const label = isKeyboardScenario
+        ? 'Keyboard package picker'
+        : isMobileScenario
+          ? 'Pkg'
+        : isDenseScenario
+          ? 'Dense package picker'
+          : state.label
+      const modelValue = isMultipleScenario
+        ? "['pkg-12', 'pkg-128', 'pkg-512']"
+        : isDisabledScenario
+          ? 'pkg-88'
+          : isLoadingScenario
+            ? 'pkg-42'
+          : isKeyboardScenario
+            ? 'pkg-42'
+            : 'pkg-12'
+      const helperTone = isDisabledScenario || isKeyboardScenario ? 'warning' : isLoadingScenario ? 'info' : 'success'
+      const helperText = isMultipleScenario
+        ? 'Multiple values stay compact while the popup keeps a fixed virtual viewport.'
+        : isFilterableScenario
+          ? 'Filterable long lists keep search, empty state and listbox semantics together.'
+          : isDenseScenario
+            ? 'Height, item-height and overscan tune the virtual window for dense admin filters.'
+            : isLoadingScenario
+              ? 'Loading state keeps the selected value and trigger stable while remote options refresh.'
+            : isMobileScenario
+              ? 'Compact labels and a bounded virtual viewport keep long lists usable on narrow screens.'
+            : isKeyboardScenario
+              ? 'Enter or Space opens the virtualized listbox; Arrow keys move options; Escape restores focus.'
+              : isDisabledScenario
+                ? 'Disabled review keeps the current value readable and prevents popup interaction.'
+                : 'The component defaults to virtualized rendering for large option sets.'
+
+      return sfc(`import { ref } from 'vue'
+import { YTag, YVirtualizedSelect } from '@yok-ui/core'
+
+const packageName = ref(${isMultipleScenario ? modelValue : `'${modelValue}'`})
+const largePackageOptions = Array.from({ length: 1000 }, (_, index) => ({
+  label: \`Package \${index + 1}\`,
+  value: \`pkg-\${index + 1}\`
+}))`, [
+        '<div class="demo-stack">',
+        `  <YVirtualizedSelect v-model="packageName"${textAttribute('label', label)} :options="largePackageOptions" placeholder="Search 1,000 packages"${booleanAttribute('multiple', isMultipleScenario)}${booleanAttribute('collapse-tags', isMultipleScenario)}${isMultipleScenario ? ' max-collapse-tags="2"' : ''}${booleanAttribute('filterable', isFilterableScenario || isKeyboardScenario || isMobileScenario)}${isFilterableScenario || isKeyboardScenario || isMobileScenario ? ' search-placeholder="Search packages"' : ''}${numericBinding('height', height)}${numericBinding('item-height', itemHeight)}${numericBinding('overscan', overscan)}${booleanAttribute('loading', isLoadingScenario)}${isLoadingScenario ? ' loading-text="Loading package options..."' : ''}${booleanAttribute('disabled', Boolean(state.disabled) || isDisabledScenario)} clearable />`,
+        `  <YTag tone="${helperTone}">${helperText}</YTag>`,
+        '</div>'
+      ])
     }
   },
   cascader: {
@@ -11004,6 +11105,7 @@ const allowedTags = new Set([
   'ytreeselect',
   'yupload',
   'yvirtuallist',
+  'yvirtualizedselect',
   'ywatermark',
   'ycommandpalette',
   'ycodeblock',
@@ -12797,6 +12899,7 @@ const componentMap = {
   ytree: YTree,
   yupload: YUpload,
   yvirtuallist: YVirtualList,
+  yvirtualizedselect: YVirtualizedSelect,
   ywatermark: YWatermark,
   ybrandhero: YBrandHero,
   yfeaturegrid: YFeatureGrid,
@@ -13176,7 +13279,7 @@ function getNodeProps(element: Element) {
     if (attribute.name === ':model-value') {
       if (tagName === 'ycarousel') {
         props.modelValue = Number(attribute.value)
-      } else if (tagName === 'yselect' || tagName === 'ytreeselect') {
+      } else if (tagName === 'yselect' || tagName === 'ytreeselect' || tagName === 'yvirtualizedselect') {
         props.modelValue = attribute.value
           .replace(/^\[/, '')
           .replace(/\]$/, '')
@@ -13271,7 +13374,7 @@ function getNodeProps(element: Element) {
     }
 
     if (attribute.name === ':options') {
-      if (tagName === 'yselect') {
+      if (tagName === 'yselect' || tagName === 'yvirtualizedselect') {
         props.options = attribute.value === 'groupedPackageOptions'
           ? fallbackGroupedSelectOptions
           : attribute.value === 'disabledPackageOptions'
@@ -14238,7 +14341,7 @@ function getNodeProps(element: Element) {
     props[attribute.name] = attribute.value
   }
 
-  if (tagName === 'yselect' && !('options' in props)) {
+  if ((tagName === 'yselect' || tagName === 'yvirtualizedselect') && !('options' in props)) {
     props.options = fallbackSelectOptions
   }
 
@@ -16395,7 +16498,7 @@ function createInteractiveProps(tagName: string, props: Record<string, unknown>)
     }
   }
 
-  if (tagName === 'yselect' || tagName === 'ytreeselect') {
+  if (tagName === 'yselect' || tagName === 'ytreeselect' || tagName === 'yvirtualizedselect') {
     if (previewSelectSource.value !== checkedSource.value) {
       previewSelectSource.value = checkedSource.value
       previewSelectRemoteResolved.value = false
@@ -17537,7 +17640,7 @@ function renderNode(node: ChildNode): VNodeChild {
               }
             }
           : {}),
-        ...(tagName === 'yselect' || tagName === 'ytreeselect'
+        ...(tagName === 'yselect' || tagName === 'ytreeselect' || tagName === 'yvirtualizedselect'
           ? {
               'onUpdate:modelValue': (value: PreviewSelectModel) => {
                 previewSelectModel.value = Array.isArray(value) ? [...value] : value

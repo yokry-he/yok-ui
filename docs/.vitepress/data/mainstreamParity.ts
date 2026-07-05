@@ -11,6 +11,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-overview'
   | 'element-plus-source-actions'
   | 'element-plus-playground-flow'
+  | 'element-plus-virtualized-select'
   | 'element-plus-table'
   | 'element-plus-virtualized-tree'
   | 'element-plus-tree-lazy-load'
@@ -122,6 +123,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     },
     resources: ['/playground/'],
     capabilities: ['editable-source', 'playground-handoff', 'edited-source-share', 'source-panel-handoff']
+  },
+  {
+    key: 'element-plus-virtualized-select',
+    label: 'Virtualized select for large option sets',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus Virtualized Select',
+      url: 'https://element-plus.org/en-US/component/select-v2',
+      note: 'Element Plus exposes Select V2 for high-volume option lists where a regular select popup becomes too expensive to render.'
+    },
+    componentNames: ['YVirtualizedSelect'],
+    docs: ['/components/virtualized-select'],
+    capabilities: ['virtualized-select', 'structured-api', 'workflow-live-example', 'keyboard-scenario', 'playground-handoff']
   },
   {
     key: 'element-plus-table',

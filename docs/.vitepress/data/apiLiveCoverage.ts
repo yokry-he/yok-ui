@@ -156,6 +156,7 @@ const guidedPropCoverageHints = new Set([
   'id',
   'inline',
   'items',
+  'item-height',
   'italic',
   'justify',
   'label',
@@ -197,6 +198,7 @@ const guidedPropCoverageHints = new Set([
   'open-change',
   'options',
   'orientation',
+  'overscan',
   'overlay',
   'panels',
   'pagination',
@@ -326,7 +328,8 @@ const docDemoCoverageHints: Record<string, string[]> = {
   '/components/input-otp': ['length', 'mask', 'type'],
   '/components/upload': ['downloadable', 'sortable'],
   '/components/table': ['striped'],
-  '/components/select': ['label']
+  '/components/select': ['label'],
+  '/components/virtualized-select': ['height', 'item-height', 'overscan', 'filterable', 'multiple']
 }
 
 function normalizeToken(value: string) {

@@ -429,6 +429,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'native'
   },
   {
+    name: 'YVirtualizedSelect',
+    title: 'Virtualized Select',
+    packageName: '@yok-ui/core',
+    family: 'form',
+    status: 'Beta',
+    docs: '/components/virtualized-select',
+    description: '面向千级以上选项的虚拟化选择器，默认启用虚拟滚动并保留 Select 的 combobox 语义。',
+    since: '0.15.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YTreeSelect',
     title: 'Tree Select',
     packageName: '@yok-ui/core',
@@ -2146,6 +2157,46 @@ export const componentApis: Record<string, ComponentApi> = {
     ],
     types: [
       { name: 'YSelectOption', type: '{ label: string; value: string; group?: string; disabled?: boolean }', description: '选择项配置；group 相同的选项会在下拉面板中合并为同一组选项。' },
+      { name: 'YSelectSize', type: "'small' | 'medium' | 'large'", description: '选择器尺寸。' },
+      { name: 'YSelectValue', type: 'string | string[]', description: '单选或多选 v-model 值。' }
+    ]
+  },
+  YVirtualizedSelect: {
+    props: [
+      { name: 'id', type: 'string', defaultValue: "''", description: '传给底层 combobox 触发器的 id，常用于和 FormItem label 关联。' },
+      { name: 'modelValue', type: 'YSelectValue', defaultValue: "''", description: '当前值，支持 v-model；多选模式下使用 string[]。' },
+      { name: 'options', type: 'YSelectOption[]', description: '选项列表，适合千级以上数据。', required: true },
+      { name: 'label', type: 'string', defaultValue: "''", description: '标签文本。' },
+      { name: 'ariaLabel', type: 'string', defaultValue: "''", description: '无可见 label 时传给 combobox 的可访问名称。' },
+      { name: 'placeholder', type: 'string', defaultValue: "'Select an option'", description: '占位项文本。' },
+      { name: 'error', type: 'string', defaultValue: "''", description: '错误提示。' },
+      { name: 'invalid', type: 'boolean', defaultValue: 'false', description: '外部表单校验传入的无效状态，会同步到 aria-invalid。' },
+      { name: 'ariaDescribedby', type: 'string', defaultValue: "''", description: '传给 combobox 的 aria-describedby，通常来自 YFormItem 的 messageId。' },
+      { name: 'disabled', type: 'boolean', defaultValue: 'false', description: '禁用状态。' },
+      { name: 'clearable', type: 'boolean', defaultValue: 'false', description: '是否展示清空按钮。' },
+      { name: 'multiple', type: 'boolean', defaultValue: 'false', description: '是否启用多选；选中项以紧凑标签展示。' },
+      { name: 'collapseTags', type: 'boolean', defaultValue: 'false', description: '多选时是否折叠超出数量的标签，避免触发器被长列表撑开。' },
+      { name: 'maxCollapseTags', type: 'number', defaultValue: '1', description: '开启 collapseTags 后保留展示的标签数量。' },
+      { name: 'filterable', type: 'boolean', defaultValue: 'false', description: '是否在下拉面板内展示搜索框并按 label 过滤选项。' },
+      { name: 'loading', type: 'boolean', defaultValue: 'false', description: '是否展示异步加载状态；开启时暂停渲染可选项。' },
+      { name: 'loadingText', type: 'string', defaultValue: "'Loading options'", description: '异步加载状态文案。' },
+      { name: 'searchPlaceholder', type: 'string', defaultValue: "'Search options'", description: '可搜索模式下搜索框的占位和可访问名称。' },
+      { name: 'emptyText', type: 'string', defaultValue: "'No matching options'", description: '过滤后没有匹配项时的空状态文案。' },
+      { name: 'size', type: 'YSelectSize', defaultValue: 'ConfigProvider size', description: '选择器尺寸。' },
+      { name: 'height', type: 'number', defaultValue: '240', description: '虚拟滚动 listbox 的可视高度，单位为 px。' },
+      { name: 'itemHeight', type: 'number', defaultValue: '36', description: '虚拟滚动计算使用的单个选项高度。' },
+      { name: 'overscan', type: 'number', defaultValue: '4', description: '虚拟滚动视口外额外渲染的选项数量。' }
+    ],
+    events: [
+      { name: 'update:modelValue', type: 'YSelectValue', description: '选中值变化，支持 v-model。' },
+      { name: 'change', type: 'YSelectValue', description: '选中、移除或清空后提交当前值。' },
+      { name: 'clear', type: 'void', description: '点击清空按钮时触发。' },
+      { name: 'remove', type: 'string', description: '多选模式移除某个选项时触发。' },
+      { name: 'visibleChange', type: 'boolean', description: '下拉面板打开或关闭时触发。' },
+      { name: 'search', type: 'string', description: '搜索词变化时触发。' }
+    ],
+    types: [
+      { name: 'YSelectOption', type: '{ label: string; value: string; group?: string; disabled?: boolean }', description: '选择项配置。' },
       { name: 'YSelectSize', type: "'small' | 'medium' | 'large'", description: '选择器尺寸。' },
       { name: 'YSelectValue', type: 'string | string[]', description: '单选或多选 v-model 值。' }
     ]

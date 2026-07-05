@@ -74,6 +74,7 @@ DOCS_A11Y_BASE_URL=http://127.0.0.1:5179 pnpm docs:a11y:runtime
 | `YAutocomplete` | 使用 editable `combobox` / `listbox` / `option` 语义，保留自由文本输入，支持方向键、Enter、Escape、loading 与 empty 状态宣告 |
 | `YMention` | 使用 textarea + editable `combobox` / `listbox` / `option` 语义，支持 @/# 前缀提及、方向键、Enter 插入、Escape 关闭和状态宣告 |
 | `YSelect` | 使用 `combobox` / `listbox` / `option` 语义，面板通过 Floating UI 定位，支持方向键、Home / End、Enter / Space 和 Escape |
+| `YVirtualizedSelect` | 复用 `YSelect` 的 combobox / listbox / option 语义，虚拟化 listbox 使用 `aria-setsize` 暴露完整数量，渲染项使用 `aria-posinset` 暴露完整列表位置 |
 | `YTreeSelect` | 使用 `combobox` + `tree` 弹层语义，支持过滤、多选、任意层级选择、方向键移动、ArrowRight / ArrowLeft 展开折叠、Enter / Space 选择和 Escape 返回触发器 |
 | `YMessageBox` | 使用 `dialog` / `alertdialog` 和焦点陷阱，支持 Escape、Tab 循环、确认/取消 Promise action、prompt 错误宣告和异步确认 loading |
 | `YInputNumber` | 使用原生 `input type="number"`，同步 `min`、`max`、`step` 和 `aria-valuenow`，加减按钮提供明确 `aria-label` |

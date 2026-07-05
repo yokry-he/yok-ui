@@ -76,6 +76,7 @@ import { YTree } from './components/tree'
 import { YTreeSelect } from './components/tree-select'
 import { YUpload } from './components/upload'
 import { YVirtualList } from './components/virtual-list'
+import { YVirtualizedSelect } from './components/virtualized-select'
 import { YWatermark } from './components/watermark'
 
 export function createYokInstaller(components: Component[]) {
@@ -184,6 +185,7 @@ export const coreComponents: Component[] = [
   YTreeSelect,
   YUpload,
   YVirtualList,
+  YVirtualizedSelect,
   YWatermark
 ]
 

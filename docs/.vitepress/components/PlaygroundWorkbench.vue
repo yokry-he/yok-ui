@@ -131,6 +131,7 @@ const inputTagValue = ref(['Vue', 'TypeScript'])
 const autocompleteValue = ref('auto')
 const mentionValue = ref('Please review @ad')
 const selectValue = ref('core')
+const virtualizedSelectValue = ref('pkg-42')
 const numberValue = ref(6)
 const sliderValue = ref(64)
 const rateValue = ref(4)
@@ -390,6 +391,12 @@ const selectOptions = [
   { label: 'Product tools', value: 'product' },
   { label: 'Admin workflow', value: 'admin' }
 ]
+
+const virtualizedSelectOptions = Array.from({ length: 1000 }, (_, index) => ({
+  label: `Package ${index + 1}`,
+  value: `pkg-${index + 1}`,
+  description: index % 3 === 0 ? 'Stable docs coverage' : 'Large option set'
+}))
 
 const autocompleteOptions = [
   { label: 'Button', value: 'button', description: 'Basic action component.' },
@@ -847,6 +854,7 @@ const componentImports = computed(() => {
     autocomplete: 'YAutocomplete',
     mention: 'YMention',
     select: 'YSelect',
+    virtualizedSelect: 'YVirtualizedSelect',
     inputNumber: 'YInputNumber',
     slider: 'YSlider',
     rate: 'YRate',
@@ -1092,6 +1100,10 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'select') {
     return `<YSelect v-model="packageName" label="Package" :options="packageOptions"${disabled.value ? ' disabled' : ''} />`
+  }
+
+  if (activeComponent.value === 'virtualizedSelect') {
+    return `<YVirtualizedSelect v-model="packageName" label="Package" :options="packageOptions" filterable clearable :height="220" :item-height="36" :overscan="3"${disabled.value ? ' disabled' : ''} />`
   }
 
   if (activeComponent.value === 'treeSelect') {
@@ -1746,6 +1758,10 @@ const generatedScript = computed(() => {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst packageName = ref('core')\nconst packageOptions = ${JSON.stringify(selectOptions, null, 2)}`
   }
 
+  if (activeComponent.value === 'virtualizedSelect') {
+    return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst packageName = ref('pkg-42')\nconst packageOptions = Array.from({ length: 1000 }, (_, index) => ({\n  label: \`Package \${index + 1}\`,\n  value: \`pkg-\${index + 1}\`,\n  description: index % 3 === 0 ? 'Stable docs coverage' : 'Large option set'\n}))`
+  }
+
   if (activeComponent.value === 'inputNumber') {
     return `import { ref } from 'vue'\nimport { ${componentImports.value} } from '@yok-ui/core'\n\nconst quantity = ref(6)`
   }
@@ -2354,6 +2370,7 @@ const playgroundShareUrl = computed(() => {
       activeComponent.value === 'autocomplete' ||
       activeComponent.value === 'mention' ||
       activeComponent.value === 'select' ||
+      activeComponent.value === 'virtualizedSelect' ||
       activeComponent.value === 'inputNumber' ||
       activeComponent.value === 'slider' ||
       activeComponent.value === 'rate' ||
@@ -3103,6 +3120,7 @@ onMounted(() => {
             activeComponent === 'autocomplete' ||
             activeComponent === 'mention' ||
             activeComponent === 'select' ||
+            activeComponent === 'virtualizedSelect' ||
             activeComponent === 'inputNumber' ||
             activeComponent === 'slider' ||
             activeComponent === 'rate' ||
@@ -3332,6 +3350,18 @@ onMounted(() => {
             v-model="selectValue"
             label="Package"
             :options="selectOptions"
+            :disabled="disabled"
+          />
+          <YVirtualizedSelect
+            v-else-if="activeComponent === 'virtualizedSelect'"
+            v-model="virtualizedSelectValue"
+            label="Package"
+            :options="virtualizedSelectOptions"
+            filterable
+            clearable
+            :height="220"
+            :item-height="36"
+            :overscan="3"
             :disabled="disabled"
           />
           <YInputNumber

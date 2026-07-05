@@ -116,6 +116,7 @@ export const yokUiComponentPackages = {
   YTreeSelect: '@yok-ui/core',
   YUpload: '@yok-ui/core',
   YVirtualList: '@yok-ui/core',
+  YVirtualizedSelect: '@yok-ui/core',
   YWatermark: '@yok-ui/core',
 
   YCodeBlock: '@yok-ui/product',

@@ -16,6 +16,7 @@ const componentStubs = {
   YAutocomplete: { props: ['modelValue', 'label', 'options', 'disabled'], template: '<input />' },
   YMention: { props: ['modelValue', 'label', 'options', 'disabled', 'prefix', 'clearable'], template: '<textarea />' },
   YSelect: { props: ['modelValue', 'label', 'options', 'disabled'], template: '<div />' },
+  YVirtualizedSelect: { props: ['modelValue', 'label', 'options', 'disabled'], template: '<div />' },
   YInputNumber: { template: '<input />' },
   YSlider: { template: '<input />' },
   YRate: { template: '<div />' },

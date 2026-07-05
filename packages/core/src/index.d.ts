@@ -10,6 +10,7 @@ export { YDateTimePicker } from './components/date-time-picker';
 export type { YDateTimePickerDisabledDate, YDateTimePickerDisabledTime, YDateTimeShortcut, YDateTimeShortcutValue, YDateTimeValue, YResolvedDateTimeShortcut } from './components/date-time-picker';
 export { YTimeSelect } from './components/time-select';
 export type { YTimeSelectFormat, YTimeSelectOption, YTimeSelectOptionsConfig } from './components/time-select';
+export { YVirtualizedSelect } from './components/virtualized-select';
 export type { YCheckTagTone } from './components/tag';
 export { YThemeProvider } from './components/theme-provider';
 export { YTour } from './components/tour';

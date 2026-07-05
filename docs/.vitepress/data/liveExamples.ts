@@ -7,6 +7,7 @@ export type LiveExamplePreset =
   | 'autocomplete'
   | 'mention'
   | 'select'
+  | 'virtualizedSelect'
   | 'cascader'
   | 'calendar'
   | 'carousel'
@@ -333,6 +334,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/search-form', preset: 'searchForm' },
   { docs: '/components/search-panel', preset: 'searchPanel' },
   { docs: '/components/select', preset: 'select' },
+  { docs: '/components/virtualized-select', preset: 'virtualizedSelect' },
   { docs: '/components/skeleton', preset: 'skeleton' },
   { docs: '/components/slider', preset: 'slider' },
   { docs: '/components/space', preset: 'space' },
@@ -372,6 +374,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'autocomplete',
   'mention',
   'select',
+  'virtualizedSelect',
   'cascader',
   'calendar',
   'carousel',
@@ -554,6 +557,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'searchPanel',
   'searchForm',
   'select',
+  'virtualizedSelect',
   'skeleton',
   'slider',
   'space',
@@ -2947,6 +2951,64 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: '验证 Enter / Space 打开 listbox，方向键移动选项，Escape 关闭。'
+    }
+  ],
+  virtualizedSelect: [
+    {
+      key: 'large-dataset',
+      label: '千级选项',
+      kind: 'basic',
+      controlValue: 'large',
+      description: '默认启用虚拟滚动，只渲染视口附近选项，适合千级组件、用户或资源列表。'
+    },
+    {
+      key: 'filterable-large-dataset',
+      label: '搜索长列表',
+      kind: 'search',
+      controlValue: 'filterable',
+      description: '长列表内继续保留搜索输入、空结果文案和 listbox 语义。'
+    },
+    {
+      key: 'multiple-large-dataset',
+      label: '多选长列表',
+      kind: 'multi',
+      controlValue: 'multiple',
+      description: '多选值以紧凑标签回显，弹层仍然使用固定高度虚拟列表。'
+    },
+    {
+      key: 'dense-virtual-window',
+      label: '紧凑窗口',
+      kind: 'layout',
+      controlValue: 'dense',
+      description: '通过 height、item-height 和 overscan 调整虚拟窗口密度，适配管理台筛选栏。'
+    },
+    {
+      key: 'loading-virtualized-select',
+      label: '远程加载',
+      kind: 'loading',
+      controlValue: 'loading',
+      description: '长列表远程刷新期间保持触发器、加载文案和已选值稳定。'
+    },
+    {
+      key: 'mobile-virtualized-select',
+      label: '移动长列表',
+      kind: 'responsive',
+      controlValue: 'mobile',
+      description: '窄屏下使用更短标签和固定高度虚拟窗口，避免长列表撑破表单。'
+    },
+    {
+      key: 'keyboard-virtualized-select',
+      label: '键盘长列表',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: '验证 Enter / Space 打开，方向键在虚拟列表中移动，Escape 关闭并恢复焦点。'
+    },
+    {
+      key: 'disabled-virtualized-select',
+      label: '禁用长列表',
+      kind: 'disabled',
+      controlValue: 'disabled',
+      description: '审核态展示已选值但不允许重新打开弹层。'
     }
   ],
   cascader: [

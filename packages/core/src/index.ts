@@ -255,4 +255,5 @@ export type {
   YVirtualListRange,
   YVirtualListScrollPayload
 } from './components/virtual-list'
+export { YVirtualizedSelect } from './components/virtualized-select'
 export { YWatermark } from './components/watermark'

@@ -1,0 +1,64 @@
+import type { YSelectOption, YSelectSize, YSelectValue } from '../select';
+interface YVirtualizedSelectProps {
+    id?: string;
+    modelValue?: YSelectValue;
+    options: YSelectOption[];
+    label?: string;
+    ariaLabel?: string;
+    placeholder?: string;
+    error?: string;
+    invalid?: boolean;
+    ariaDescribedby?: string;
+    disabled?: boolean;
+    clearable?: boolean;
+    multiple?: boolean;
+    collapseTags?: boolean;
+    maxCollapseTags?: number;
+    filterable?: boolean;
+    loading?: boolean;
+    loadingText?: string;
+    searchPlaceholder?: string;
+    emptyText?: string;
+    size?: YSelectSize;
+    height?: number;
+    itemHeight?: number;
+    overscan?: number;
+}
+declare const _default: import("vue").DefineComponent<YVirtualizedSelectProps, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    "update:modelValue": (value: YSelectValue) => any;
+    change: (value: YSelectValue) => any;
+    clear: () => any;
+    remove: (value: string) => any;
+    visibleChange: (open: boolean) => any;
+    search: (query: string) => any;
+}, string, import("vue").PublicProps, Readonly<YVirtualizedSelectProps> & Readonly<{
+    "onUpdate:modelValue"?: ((value: YSelectValue) => any) | undefined;
+    onChange?: ((value: YSelectValue) => any) | undefined;
+    onClear?: (() => any) | undefined;
+    onRemove?: ((value: string) => any) | undefined;
+    onVisibleChange?: ((open: boolean) => any) | undefined;
+    onSearch?: ((query: string) => any) | undefined;
+}>, {
+    id: string;
+    modelValue: YSelectValue;
+    label: string;
+    ariaLabel: string;
+    placeholder: string;
+    error: string;
+    invalid: boolean;
+    ariaDescribedby: string;
+    disabled: boolean;
+    clearable: boolean;
+    multiple: boolean;
+    collapseTags: boolean;
+    maxCollapseTags: number;
+    filterable: boolean;
+    loading: boolean;
+    loadingText: string;
+    searchPlaceholder: string;
+    emptyText: string;
+    height: number;
+    itemHeight: number;
+    overscan: number;
+}, {}, {}, {}, string, import("vue").ComponentProvideOptions, false, {}, any>;
+export default _default;

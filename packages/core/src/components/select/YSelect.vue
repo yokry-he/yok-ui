@@ -658,6 +658,7 @@ watch(query, (value) => {
                   :style="virtualOptionStyle"
                   type="button"
                   role="option"
+                  :aria-setsize="filteredOptions.length"
                   :aria-posinset="index + 1"
                   :aria-selected="isOptionSelected(option) ? 'true' : 'false'"
                   :aria-disabled="option.disabled ? 'true' : undefined"

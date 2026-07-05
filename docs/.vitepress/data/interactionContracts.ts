@@ -58,6 +58,19 @@ export const interactionContracts: InteractionContract[] = [
     }
   },
   {
+    componentName: 'YVirtualizedSelect',
+    pattern: 'Virtualized combobox with listbox popup',
+    keyboard: ['Enter / Space opens the virtualized listbox', 'ArrowDown / ArrowUp moves enabled options through the virtual window', 'Home / End jumps to the edge option', 'Escape closes and restores trigger focus'],
+    focus: 'Opening delegates focus management to the underlying combobox while the virtual list keeps active option identity stable across scroll windows.',
+    semantics: ['role="combobox"', 'role="listbox"', 'role="option"', 'aria-expanded', 'aria-activedescendant', 'aria-setsize', 'aria-posinset'],
+    status: 'Large option sets use a fixed-height virtual viewport while exposing full list size and item position metadata.',
+    maturity: 'verified',
+    evidence: {
+      docs: ['docs/guide/accessibility.md', 'docs/components/virtualized-select.md'],
+      tests: ['packages/core/src/components/virtualized-select/virtualized-select.test.ts']
+    }
+  },
+  {
     componentName: 'YTreeSelect',
     pattern: 'Combobox with tree popup',
     keyboard: ['Enter / Space opens the tree popup', 'Arrow keys move visible tree items or expand branches', 'Enter / Space selects selectable nodes', 'Escape closes and restores trigger focus'],

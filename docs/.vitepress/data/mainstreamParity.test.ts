@@ -13,6 +13,7 @@ describe('mainstreamParity', () => {
     const elementPlusOverview = items.find((item) => item.key === 'element-plus-overview')
     const elementPlusGrid = items.find((item) => item.key === 'element-plus-grid-layout')
     const elementPlusTable = items.find((item) => item.key === 'element-plus-table')
+    const elementPlusVirtualTable = items.find((item) => item.key === 'element-plus-virtualized-table')
     const elementPlusCascader = items.find((item) => item.key === 'element-plus-cascader')
     const elementPlusCascaderLazy = items.find((item) => item.key === 'element-plus-cascader-lazy-load')
     const elementPlusDatePicker = items.find((item) => item.key === 'element-plus-date-picker')
@@ -33,6 +34,7 @@ describe('mainstreamParity', () => {
       'element-plus-overview',
       'element-plus-grid-layout',
       'element-plus-table',
+      'element-plus-virtualized-table',
       'element-plus-cascader',
       'element-plus-cascader-lazy-load',
       'element-plus-date-picker',
@@ -66,6 +68,7 @@ describe('mainstreamParity', () => {
       'Element Plus Overview',
       'Element Plus Layout',
       'Element Plus Table',
+      'Element Plus Virtualized Table',
       'Element Plus Cascader',
       'Element Plus Cascader Dynamic Loading',
       'Element Plus DatePicker',
@@ -97,6 +100,14 @@ describe('mainstreamParity', () => {
     })
     expect(elementPlusTable?.matchedComponents.map((component) => component.name)).toContain('YTable')
     expect(elementPlusTable?.evidence.liveExamples).toContain('/components/table#live-example')
+
+    expect(elementPlusVirtualTable).toMatchObject({
+      label: 'Virtualized table for large datasets',
+      status: 'covered'
+    })
+    expect(elementPlusVirtualTable?.matchedComponents.map((component) => component.name)).toContain('YVirtualTable')
+    expect(elementPlusVirtualTable?.evidence.docs).toContain('/components/virtual-table')
+    expect(elementPlusVirtualTable?.evidence.liveExamples).toContain('/components/virtual-table#live-example')
 
     expect(elementPlusGrid).toMatchObject({
       label: '24-column Row and Col layout',

@@ -74,6 +74,7 @@ import {
   YSteps,
   YSwitch,
   YTable,
+  YVirtualTable,
   YTabs,
   YTextarea,
   YText,
@@ -1757,6 +1758,25 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '  </div>',
     '</template>'
   ].join('\n'),
+  virtualTable: [
+    '<script setup lang="ts">',
+    "import { YTag, YVirtualTable } from '@yok-ui/core'",
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <div class="demo-stack">',
+    '    <YTag tone="info">1000-row virtual table preview</YTag>',
+    '    <YVirtualTable',
+    '      caption="Component readiness matrix"',
+    '      summary="Virtual window · 320px viewport"',
+    '      :height="320"',
+    '      :row-height="48"',
+    '      :overscan="6"',
+    '      striped',
+    '    />',
+    '  </div>',
+    '</template>'
+  ].join('\n'),
   list: [
     '<script setup lang="ts">',
     "import { YList } from '@yok-ui/core'",
@@ -2546,6 +2566,7 @@ const presetLabels: Partial<Record<LiveExamplePreset, string>> = {
   floatButton: 'Float Button',
   notification: 'Notification',
   virtualList: 'Virtual List',
+  virtualTable: 'Virtual Table',
   watermark: 'Watermark',
   commandPalette: 'Command Palette',
   codeBlock: 'Code Block',
@@ -5336,6 +5357,57 @@ const disableWeekends = (date: Date) => [0, 6].includes(date.getDay())`
       `  <YTag tone="${isLoadingScenario || isRemoteScenario || isVirtualScenario ? 'info' : isKeyboardScenario || isColumnScenario || isExpandScenario ? 'warning' : isEmptyScenario ? 'danger' : 'success'}">${isScrollScenario ? 'Max-height preview documents sticky table regions.' : isSelectionScenario ? 'Selection state mirrors batch operations.' : isExpandScenario ? 'Expandable rows reveal details without leaving table context.' : isVirtualScenario ? 'Virtualized rows keep large component matrices responsive.' : isColumnScenario ? 'Column width defaults document saved table preferences.' : isKeyboardScenario ? 'Use Tab to reach selection controls, Space to toggle rows, and Enter to activate sortable headers.' : isEmptyScenario ? 'No rows matched current filters.' : isRemoteScenario ? 'Remote mode emits sort and filter state without mutating rows.' : 'Columns and rows are injected by the runner.'}</YTag>`,
       '</div>'
     ])
+    }
+  },
+  virtualTable: {
+    title: 'Virtual Table scenario',
+    description: '用千行数据、排序、行选择、列宽调整、移动视口和键盘路径调试虚拟表格。',
+    controls: [
+      { key: 'scenario', label: '场景', type: 'select', defaultValue: 'virtual', options: [
+        { label: '千行矩阵', value: 'virtual' },
+        { label: '排序列', value: 'sort' },
+        { label: '窗口选择', value: 'selection' },
+        { label: '列宽调整', value: 'resize' },
+        { label: '加载窗口', value: 'loading' },
+        { label: '移动视口', value: 'mobile' },
+        { label: '键盘巡航', value: 'keyboard' }
+      ] },
+      { key: 'height', label: '高度', type: 'range', defaultValue: 320, min: 180, max: 520, step: 20 },
+      { key: 'rowHeight', label: '行高', type: 'range', defaultValue: 48, min: 36, max: 68, step: 4 },
+      { key: 'overscan', label: '预渲染', type: 'range', defaultValue: 6, min: 0, max: 12, step: 1 },
+      { key: 'striped', label: '斑马纹', type: 'boolean', defaultValue: true },
+      { key: 'selectable', label: '可选择', type: 'boolean', defaultValue: false }
+    ],
+    build: (state) => {
+      const scenario = String(state.scenario)
+      const isSortScenario = scenario === 'sort'
+      const isSelectionScenario = scenario === 'selection'
+      const isResizeScenario = scenario === 'resize'
+      const isLoadingScenario = scenario === 'loading'
+      const isMobileScenario = scenario === 'mobile'
+      const isKeyboardScenario = scenario === 'keyboard'
+      const height = isMobileScenario ? 220 : Number(state.height)
+      const rowHeight = isMobileScenario ? 40 : Number(state.rowHeight)
+      const summary = isSortScenario
+        ? 'Sort by score and owner without rendering all rows.'
+        : isSelectionScenario
+          ? 'Visible row selection stays responsive in a virtual viewport.'
+          : isResizeScenario
+            ? 'Column widths can be resized while rows stay virtualized.'
+            : isLoadingScenario
+              ? 'Loading state keeps the virtual viewport and table semantics stable.'
+              : isMobileScenario
+                ? 'Narrow viewport keeps horizontal scroll inside the table.'
+                : isKeyboardScenario
+                  ? 'Tab reaches selection controls and sortable headers.'
+                  : '1000 rows · virtual viewport'
+
+      return sfc("import { YTag, YVirtualTable } from '@yok-ui/core'", [
+        '<div class="demo-stack">',
+        `  <YTag tone="${isResizeScenario || isKeyboardScenario ? 'warning' : isLoadingScenario ? 'success' : 'info'}">${summary}</YTag>`,
+        `  <YVirtualTable caption="Component readiness matrix" summary="${summary}"${numericBinding('height', height)}${numericBinding('row-height', rowHeight)}${numericBinding('overscan', Number(state.overscan))}${booleanAttribute('striped', Boolean(state.striped))}${booleanAttribute('selectable', Boolean(state.selectable) || isSelectionScenario || isKeyboardScenario)}${isSortScenario ? ' filter-mode="local" :default-filters="{ status: [\'Stable\'] }" default-sort-key="score" default-sort-order="desc"' : ''}${isResizeScenario ? ' resizable :min-column-width="112" :default-column-widths="{ name: 184, status: 132 }"' : ''}${isLoadingScenario ? ' loading loading-text="Loading virtualized rows..."' : ''}${isKeyboardScenario ? ' selected-row-keys="table"' : ''} />`,
+        '</div>'
+      ])
     }
   },
   transfer: {
@@ -11316,6 +11388,7 @@ const allowedTags = new Set([
   'ysteps',
   'yswitch',
   'ytable',
+  'yvirtualtable',
   'ytabs',
   'ytextarea',
   'ytext',
@@ -11703,6 +11776,8 @@ const allowedAttributes = new Set([
   ':texts',
   'item-height',
   ':item-height',
+  'row-height',
+  ':row-height',
   'count',
   ':count',
   'overscan',
@@ -13135,6 +13210,7 @@ const componentMap = {
   ysteps: RunnerStepsPreview,
   yswitch: YSwitch,
   ytable: YTable,
+  yvirtualtable: YVirtualTable,
   ytabs: YTabs,
   ytextarea: YTextarea,
   ytext: YText,
@@ -13469,14 +13545,14 @@ function getNodeProps(element: Element) {
     }
 
     if (attribute.name === 'v-model:selected-row-keys') {
-      if (tagName === 'ytable') {
+      if (tagName === 'ytable' || tagName === 'yvirtualtable') {
         props.selectedRowKeys = attribute.value === 'selectedRowKeys' ? ['table'] : []
       }
       continue
     }
 
     if (attribute.name === 'v-model:filters') {
-      if (tagName === 'ytable') {
+      if (tagName === 'ytable' || tagName === 'yvirtualtable') {
         props.filters = attribute.value === 'filters' ? { status: ['Stable'] } : {}
       }
       continue
@@ -14072,7 +14148,7 @@ function getNodeProps(element: Element) {
     if (attribute.name === ':columns') {
       if (['ydatatable', 'ydataview', 'yresourcepage'].includes(tagName)) {
         props.columns = fallbackAdminColumns
-      } else if (tagName === 'ytable') {
+      } else if (tagName === 'ytable' || tagName === 'yvirtualtable') {
         props.columns = attribute.value === 'columns' ? fallbackInteractiveTableColumns : fallbackColumns
       } else {
         props.columns = Number(attribute.value)
@@ -14163,7 +14239,7 @@ function getNodeProps(element: Element) {
       continue
     }
 
-    if ([':min', ':max', ':length', ':step', ':precision', ':page', ':page-size', ':minute-step', ':max-files', ':max-size', ':max-collapse-tags', ':virtual-height', ':virtual-item-height', ':virtual-row-height', ':virtual-overscan', ':total', ':sibling-count', ':show-delay', ':hide-delay', ':rows', ':current', ':column', ':columns', ':visibility-height', ':right', ':bottom', ':height', ':max-height', ':item-height', ':overscan', ':opacity', ':gap', ':rotate', ':font-size', ':collapsed-count', ':count', ':maxlength', ':offset', ':z-index', ':bound', ':duration'].includes(attribute.name)) {
+    if ([':min', ':max', ':length', ':step', ':precision', ':page', ':page-size', ':minute-step', ':max-files', ':max-size', ':max-collapse-tags', ':virtual-height', ':virtual-item-height', ':virtual-row-height', ':virtual-overscan', ':total', ':sibling-count', ':show-delay', ':hide-delay', ':rows', ':current', ':column', ':columns', ':visibility-height', ':right', ':bottom', ':height', ':max-height', ':item-height', ':row-height', ':overscan', ':opacity', ':gap', ':rotate', ':font-size', ':collapsed-count', ':count', ':maxlength', ':offset', ':z-index', ':bound', ':duration'].includes(attribute.name)) {
       const propName = {
         ':min': 'min',
         ':max': 'max',
@@ -14194,6 +14270,7 @@ function getNodeProps(element: Element) {
         ':height': 'height',
         ':max-height': 'maxHeight',
         ':item-height': 'itemHeight',
+        ':row-height': 'rowHeight',
         ':overscan': 'overscan',
         ':opacity': 'opacity',
         ':gap': 'gap',
@@ -14706,7 +14783,7 @@ function getNodeProps(element: Element) {
     props.items = fallbackCarouselItems
   }
 
-  if (tagName === 'ytable') {
+  if (tagName === 'ytable' || tagName === 'yvirtualtable') {
     if (!('columns' in props)) {
       props.columns = fallbackColumns
     }
@@ -18091,7 +18168,7 @@ function renderNode(node: ChildNode): VNodeChild {
               }
             }
           : {}),
-        ...(tagName === 'ytable'
+        ...(tagName === 'ytable' || tagName === 'yvirtualtable'
           ? {
               'onUpdate:selectedRowKeys': (keys: string[]) => {
                 previewTableSelectedRowKeys.value = [...keys]

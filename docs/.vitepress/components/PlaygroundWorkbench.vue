@@ -510,6 +510,13 @@ const tableRows = [
   { id: 'data-table', name: 'Data Table', status: 'Beta', owner: 'Admin' }
 ]
 
+const virtualTableRows = Array.from({ length: 240 }, (_, index) => ({
+  id: `component-${index + 1}`,
+  name: `Component ${index + 1}`,
+  status: index % 4 === 0 ? 'Beta' : 'Stable',
+  owner: index % 3 === 0 ? 'Admin' : index % 3 === 1 ? 'Core' : 'Docs'
+}))
+
 const releaseTasks = [
   { key: 'api', title: 'API coverage', description: 'Props, events and slots stay generated from structured data.', meta: 'Docs' },
   { key: 'a11y', title: 'Accessibility evidence', description: 'Keyboard and semantic notes are visible on component pages.', meta: 'Quality' },
@@ -875,6 +882,7 @@ const componentImports = computed(() => {
     carousel: 'YCarousel',
     configProvider: 'YConfigProvider',
     table: 'YTable',
+    virtualTable: 'YVirtualTable',
     dataTable: 'YDataTable',
     dataView: 'YDataView',
     resourcePage: 'YResourcePage',
@@ -1199,6 +1207,10 @@ const generatedMarkup = computed(() => {
 
   if (activeComponent.value === 'table') {
     return '<YTable caption="Component release queue" summary="3 rows · sortable status review" :columns="tableColumns" :data="tableRows" striped selectable />'
+  }
+
+  if (activeComponent.value === 'virtualTable') {
+    return '<YVirtualTable caption="Component readiness matrix" summary="240 rows · virtual viewport" :columns="tableColumns" :data="virtualTableRows" :height="260" :row-height="44" striped />'
   }
 
   if (activeComponent.value === 'dataTable') {
@@ -1859,6 +1871,10 @@ const generatedScript = computed(() => {
 
   if (activeComponent.value === 'table') {
     return `import { ${componentImports.value} } from '@yok-ui/core'\n\nconst tableColumns = ${JSON.stringify(tableColumns, null, 2)}\nconst tableRows = ${JSON.stringify(tableRows, null, 2)}`
+  }
+
+  if (activeComponent.value === 'virtualTable') {
+    return `import { ${componentImports.value} } from '@yok-ui/core'\n\nconst tableColumns = ${JSON.stringify(tableColumns, null, 2)}\nconst virtualTableRows = Array.from({ length: 240 }, (_, index) => ({\n  id: \`component-\${index + 1}\`,\n  name: \`Component \${index + 1}\`,\n  status: index % 4 === 0 ? 'Beta' : 'Stable',\n  owner: index % 3 === 0 ? 'Admin' : index % 3 === 1 ? 'Core' : 'Docs'\n}))`
   }
 
   if (activeComponent.value === 'dataTable') {
@@ -3541,6 +3557,16 @@ onMounted(() => {
             :data="tableRows"
             striped
             selectable
+          />
+          <YVirtualTable
+            v-else-if="activeComponent === 'virtualTable'"
+            caption="Component readiness matrix"
+            summary="240 rows · virtual viewport"
+            :columns="tableColumns"
+            :data="virtualTableRows"
+            :height="260"
+            :row-height="44"
+            striped
           />
           <YDataTable
             v-else-if="activeComponent === 'dataTable'"

@@ -189,7 +189,7 @@ export type {
   YTabsSize,
   YTabsVariant
 } from './components/tabs'
-export { YTable } from './components/table'
+export { YTable, YVirtualTable } from './components/table'
 export type {
   YTableColumn,
   YTableColumnResizePayload,

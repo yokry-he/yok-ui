@@ -234,6 +234,8 @@ const guidedPropCoverageHints = new Set([
   'role',
   'rotate',
   'rows',
+  'row-height',
+  'row-key',
   'running',
   'secondary-text',
   'selected-suggestions',

@@ -23,7 +23,7 @@ describe('componentRegistry', () => {
     const names = components.map((component) => component.name)
 
     expect(new Set(names).size).toBe(names.length)
-    expect(components).toHaveLength(118)
+    expect(components).toHaveLength(119)
 
     components.forEach((component) => {
       expect(component.docs).toMatch(/^\/(components|guide)\//)
@@ -786,6 +786,11 @@ describe('componentRegistry', () => {
     expect(componentApis.YTable.types?.map((row) => row.name)).toContain('YTableFilterState')
     expect(componentApis.YTable.types?.map((row) => row.name)).toContain('YTableFilterPayload')
     expect(componentApis.YTable.types?.map((row) => row.name)).toContain('YTableSortPayload')
+    expect(components.find((component) => component.name === 'YVirtualTable')?.docs).toBe('/components/virtual-table')
+    expect(componentApis.YVirtualTable.props?.map((row) => row.name)).toEqual(expect.arrayContaining(['columns', 'data', 'height', 'rowHeight', 'overscan', 'selectable', 'filters', 'resizable']))
+    expect(componentApis.YVirtualTable.slots?.map((row) => row.name)).toEqual(expect.arrayContaining(['empty', 'cell-{key}']))
+    expect(componentApis.YVirtualTable.events?.map((row) => row.name)).toEqual(expect.arrayContaining(['sortChange', 'selectionChange', 'filterChange', 'columnResize']))
+    expect(componentApis.YVirtualTable.types?.map((row) => row.name)).toContain('YTableColumn')
     expect(componentApis.YList.props?.map((row) => row.name)).toContain('columns')
     expect(componentApis.YList.slots?.map((row) => row.name)).toContain('actions')
     expect(componentApis.YList.types?.map((row) => row.name)).toContain('YListItem')

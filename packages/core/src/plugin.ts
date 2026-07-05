@@ -62,7 +62,7 @@ import { YSlider } from './components/slider'
 import { YCountdown, YStatistic } from './components/statistic'
 import { YSteps } from './components/steps'
 import { YSwitch } from './components/switch'
-import { YTable } from './components/table'
+import { YTable, YVirtualTable } from './components/table'
 import { YBadge, YCheckTag, YTag } from './components/tag'
 import { YTabs } from './components/tabs'
 import { YTextarea } from './components/textarea'
@@ -173,6 +173,7 @@ export const coreComponents: Component[] = [
   YSteps,
   YSwitch,
   YTable,
+  YVirtualTable,
   YBadge,
   YCheckTag,
   YTag,

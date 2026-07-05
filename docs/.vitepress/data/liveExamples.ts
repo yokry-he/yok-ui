@@ -24,6 +24,7 @@ export type LiveExamplePreset =
   | 'tabs'
   | 'tour'
   | 'table'
+  | 'virtualTable'
   | 'timePicker'
   | 'transfer'
   | 'tree'
@@ -348,6 +349,7 @@ export const liveExampleCoverage: LiveExampleCoverage[] = [
   { docs: '/components/steps', preset: 'steps' },
   { docs: '/components/switch', preset: 'switch' },
   { docs: '/components/table', preset: 'table' },
+  { docs: '/components/virtual-table', preset: 'virtualTable' },
   { docs: '/components/tabs', preset: 'tabs' },
   { docs: '/components/tag-badge', preset: 'tagBadge' },
   { docs: '/components/text', preset: 'text' },
@@ -396,6 +398,7 @@ export const visualControlPresets: LiveExamplePreset[] = [
   'drawer',
   'form',
   'table',
+  'virtualTable',
   'transfer',
   'tree',
   'treeSelect',
@@ -575,6 +578,7 @@ export const scenarioRichPresets: LiveExamplePreset[] = [
   'statusTimeline',
   'switch',
   'table',
+  'virtualTable',
   'tabs',
   'tagBadge',
   'text',
@@ -5253,6 +5257,57 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       kind: 'keyboard',
       controlValue: 'keyboard',
       description: '验证 Tab 进入表格选择控件，Space 切换行选择，Enter 激活排序表头。'
+    }
+  ],
+  virtualTable: [
+    {
+      key: 'large-matrix',
+      label: '千行矩阵',
+      kind: 'virtual',
+      controlValue: 'virtual',
+      description: '覆盖 caption、height、row-height、overscan 和千行数据的固定行高虚拟窗口。'
+    },
+    {
+      key: 'sortable-columns',
+      label: '排序列',
+      kind: 'basic',
+      controlValue: 'sort',
+      description: '覆盖 sortable 表头、default-filters、filter-mode、sortChange 和底部 summary 状态更新。'
+    },
+    {
+      key: 'selection-window',
+      label: '窗口选择',
+      kind: 'multi',
+      controlValue: 'selection',
+      description: '覆盖 selectable、selected-row-keys 和虚拟窗口内选择状态。'
+    },
+    {
+      key: 'column-resize',
+      label: '列宽调整',
+      kind: 'layout',
+      controlValue: 'resize',
+      description: '覆盖 resizable、min-column-width 和 columnResize。'
+    },
+    {
+      key: 'loading-window',
+      label: '加载窗口',
+      kind: 'loading',
+      controlValue: 'loading',
+      description: '覆盖 loading、loading-text 和虚拟窗口占位下的 aria-busy 状态。'
+    },
+    {
+      key: 'mobile-viewport',
+      label: '移动视口',
+      kind: 'responsive',
+      controlValue: 'mobile',
+      description: '缩小高度与列宽，验证窄屏下横向滚动仍由表格容器承载。'
+    },
+    {
+      key: 'keyboard-window',
+      label: '键盘巡航',
+      kind: 'keyboard',
+      controlValue: 'keyboard',
+      description: '验证键盘用户可进入表格选择控件和排序按钮。'
     }
   ],
   tooltip: [

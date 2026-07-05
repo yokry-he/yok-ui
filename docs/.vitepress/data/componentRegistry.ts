@@ -770,6 +770,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'documented'
   },
   {
+    name: 'YVirtualTable',
+    title: 'Virtual Table',
+    packageName: '@yok-ui/core',
+    family: 'data',
+    status: 'Beta',
+    docs: '/components/virtual-table',
+    description: '固定行高虚拟表格，面向千行级数据浏览、审查队列和日志矩阵。',
+    since: '0.16.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YList',
     title: 'List',
     packageName: '@yok-ui/core',
@@ -4736,6 +4747,57 @@ export const componentApis: Record<string, ComponentApi> = {
         type: '{ selectedRowKeys: string[]; selectedRows: YTableRow[] }',
         description: '选择事件载荷。'
       }
+    ]
+  },
+  YVirtualTable: {
+    props: [
+      { name: 'columns', type: 'YTableColumn[]', description: '列定义，沿用 YTableColumn。', required: true },
+      { name: 'data', type: 'YTableRow[]', description: '完整数据源，组件只渲染当前视口附近的行。', required: true },
+      { name: 'rowKey', type: 'string', defaultValue: "'id'", description: '行唯一键字段。' },
+      { name: 'height', type: 'number', defaultValue: '360', description: '虚拟滚动视口高度，单位 px。' },
+      { name: 'rowHeight', type: 'number', defaultValue: '48', description: '固定行高，单位 px；虚拟滚动计算依赖它保持稳定。' },
+      { name: 'overscan', type: 'number', defaultValue: '6', description: '视口上下额外渲染行数，降低快速滚动空白感。' },
+      { name: 'emptyText', type: 'string', defaultValue: "'No data yet'", description: '空状态文案。' },
+      { name: 'loading', type: 'boolean', defaultValue: 'false', description: '是否显示加载状态。' },
+      { name: 'loadingText', type: 'string', defaultValue: "'Loading data...'", description: '加载状态提示。' },
+      { name: 'caption', type: 'string', defaultValue: "''", description: '原生 caption 文案。' },
+      { name: 'summary', type: 'string', defaultValue: "''", description: '底部状态摘要；未传入时展示行数。' },
+      { name: 'striped', type: 'boolean', defaultValue: 'false', description: '是否显示条纹行。' },
+      { name: 'compact', type: 'boolean', defaultValue: 'false', description: '是否使用紧凑表格密度。' },
+      { name: 'selectable', type: 'boolean', defaultValue: 'false', description: '是否显示行选择列。' },
+      { name: 'selectedRowKeys', type: 'string[]', description: '受控选中行 key。' },
+      { name: 'defaultSelectedRowKeys', type: 'string[]', defaultValue: '[]', description: '非受控初始选中行 key。' },
+      { name: 'sortKey', type: 'string', description: '受控排序列 key。' },
+      { name: 'sortOrder', type: 'YTableSortOrder', description: '受控排序方向。' },
+      { name: 'defaultSortKey', type: 'string', defaultValue: "''", description: '非受控初始排序列 key。' },
+      { name: 'defaultSortOrder', type: 'YTableSortOrder', defaultValue: 'null', description: '非受控初始排序方向。' },
+      { name: 'filters', type: 'YTableFilterState', description: '受控列筛选状态。' },
+      { name: 'defaultFilters', type: 'YTableFilterState', defaultValue: '{}', description: '非受控初始列筛选状态。' },
+      { name: 'filterMode', type: "'local' | 'manual'", defaultValue: "'local'", description: '筛选模式；manual 仅维护筛选状态和事件。' },
+      { name: 'resizable', type: 'boolean', defaultValue: 'false', description: '是否允许拖拽列宽。' },
+      { name: 'minColumnWidth', type: 'number', defaultValue: '96', description: '拖拽列宽时的全局最小列宽。' },
+      { name: 'columnWidths', type: 'Record<string, number>', description: '受控列宽状态。' },
+      { name: 'defaultColumnWidths', type: 'Record<string, number>', defaultValue: '{}', description: '非受控初始列宽状态。' }
+    ],
+    slots: [
+      { name: 'empty', type: '{ loading: boolean; emptyText: string; loadingText: string; columns: YTableColumn[] }', description: '自定义空状态或加载空状态。' },
+      { name: 'cell-{key}', type: '{ row, column, value }', description: '自定义指定列的单元格内容。' }
+    ],
+    events: [
+      { name: 'update:selectedRowKeys', type: 'string[]', description: '行选择变化。' },
+      { name: 'selectionChange', type: 'YTableSelectionPayload', description: '行选择变化后的完整载荷。' },
+      { name: 'update:sortKey', type: 'string', description: '排序列变化。' },
+      { name: 'update:sortOrder', type: 'YTableSortOrder', description: '排序方向变化。' },
+      { name: 'sortChange', type: 'YTableSortPayload', description: '排序变化后的完整载荷。' },
+      { name: 'update:filters', type: 'YTableFilterState', description: '列筛选状态变化。' },
+      { name: 'filterChange', type: 'YTableFilterPayload', description: '列筛选变化后的完整载荷。' },
+      { name: 'update:columnWidths', type: 'Record<string, number>', description: '列宽拖拽结束后的受控更新事件。' },
+      { name: 'columnResize', type: 'YTableColumnResizePayload', description: '列宽拖拽结束后触发。' }
+    ],
+    types: [
+      { name: 'YTableColumn', type: "{ key: string; label: string; width?: string | number; align?: 'left' | 'center' | 'right'; sortable?: boolean | compareFn; filters?: YTableFilterOption[] }", description: '虚拟表格列配置。' },
+      { name: 'YTableRow', type: 'Record<string, unknown>', description: '虚拟表格行数据。' },
+      { name: 'YTableSortOrder', type: "'asc' | 'desc' | null", description: '排序方向。' }
     ]
   },
   YList: {

@@ -104,6 +104,7 @@ export const yokUiComponentPackages = {
   YSteps: '@yok-ui/core',
   YSwitch: '@yok-ui/core',
   YTable: '@yok-ui/core',
+  YVirtualTable: '@yok-ui/core',
   YTabs: '@yok-ui/core',
   YTag: '@yok-ui/core',
   YTextarea: '@yok-ui/core',

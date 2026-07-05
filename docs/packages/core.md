@@ -5,15 +5,15 @@ const corePreviewSetup = [
   'const coverageItems = [',
   "  { key: 'button', label: 'Actions', value: 'YButton, YIconButton' },",
   "  { key: 'form', label: 'Forms', value: 'Input, Select, VirtualizedSelect, DatePickerPanel, Form' },",
-  "  { key: 'data', label: 'Data', value: 'Table, List, Descriptions, Statistic, Timeline, Tree' },",
+  "  { key: 'data', label: 'Data', value: 'Table, Virtual Table, List, Descriptions, Statistic, Timeline, Tree' },",
   "  { key: 'feedback', label: 'Feedback', value: 'Alert, Message, Result, Empty' }",
   ']'
 ].join('\n')
 
 const corePreviewCode = [
   '<div class="core-preview-metrics">',
-  '  <YStatistic title="Core components" :value="52" suffix="ready" tone="success" />',
-  '  <YStatistic title="Data display" :value="6" suffix="patterns" tone="info" />',
+  '  <YStatistic title="Core components" :value="53" suffix="ready" tone="success" />',
+  '  <YStatistic title="Data display" :value="7" suffix="patterns" tone="info" />',
   '</div>',
   '<YDescriptions',
   '  bordered',
@@ -26,7 +26,7 @@ const corePreviewCode = [
   '    <YButton size="sm" variant="primary">Create</YButton>',
   '  </template>',
   '  <template #item-data>',
-  '    <YTag tone="success">Table, List, Descriptions, Statistic, Timeline, Tree</YTag>',
+  '    <YTag tone="success">Table, Virtual Table, List, Descriptions, Statistic, Timeline, Tree</YTag>',
   '  </template>',
   '</YDescriptions>'
 ].join('\n')
@@ -78,8 +78,8 @@ import { YButton, YCol, YDateTimePicker, YDescriptions, YFlex, YInput, YInputOtp
   :usage="['package preview', 'descriptions', 'statistics']"
 >
   <div class="core-preview-metrics">
-    <YStatistic title="Core components" :value="52" suffix="ready" tone="success" />
-    <YStatistic title="Data display" :value="6" suffix="patterns" tone="info" />
+    <YStatistic title="Core components" :value="53" suffix="ready" tone="success" />
+    <YStatistic title="Data display" :value="7" suffix="patterns" tone="info" />
   </div>
   <YDescriptions
     bordered
@@ -89,7 +89,7 @@ import { YButton, YCol, YDateTimePicker, YDescriptions, YFlex, YInput, YInputOtp
     :items="[
       { key: 'button', label: 'Actions', value: 'YButton, YIconButton' },
       { key: 'form', label: 'Forms', value: 'Input, Select, VirtualizedSelect, TimeSelect, Form, Upload' },
-      { key: 'data', label: 'Data', value: 'Table, List, Descriptions, Statistic, Timeline, Tree' },
+      { key: 'data', label: 'Data', value: 'Table, Virtual Table, List, Descriptions, Statistic, Timeline, Tree' },
       { key: 'feedback', label: 'Feedback', value: 'Alert, Message, Result, Empty' }
     ]"
   >
@@ -97,7 +97,7 @@ import { YButton, YCol, YDateTimePicker, YDescriptions, YFlex, YInput, YInputOtp
       <YButton size="sm" variant="primary">Create</YButton>
     </template>
     <template #item-data>
-      <YTag tone="success">Table, List, Descriptions, Statistic, Timeline, Tree</YTag>
+      <YTag tone="success">Table, Virtual Table, List, Descriptions, Statistic, Timeline, Tree</YTag>
     </template>
   </YDescriptions>
 </DocDemo>

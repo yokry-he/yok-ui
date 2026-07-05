@@ -14,6 +14,7 @@ export type MainstreamBenchmarkKey =
   | 'element-plus-grid-layout'
   | 'element-plus-virtualized-select'
   | 'element-plus-table'
+  | 'element-plus-virtualized-table'
   | 'element-plus-virtualized-tree'
   | 'element-plus-tree-lazy-load'
   | 'element-plus-cascader'
@@ -177,6 +178,19 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     componentNames: ['YTable', 'YDataTable'],
     docs: ['/components/table', '/components/data-table'],
     capabilities: ['structured-api', 'workflow-live-example', 'api-live-coverage']
+  },
+  {
+    key: 'element-plus-virtualized-table',
+    label: 'Virtualized table for large datasets',
+    source: {
+      library: 'Element Plus',
+      label: 'Element Plus Virtualized Table',
+      url: 'https://element-plus.org/en-US/component/table-v2',
+      note: 'Element Plus exposes Table V2 as a dedicated virtualized table for large row sets where normal table rendering becomes expensive.'
+    },
+    componentNames: ['YVirtualTable', 'YTable', 'YDataTable'],
+    docs: ['/components/virtual-table', '/components/table', '/components/data-table'],
+    capabilities: ['virtualized-table', 'structured-api', 'workflow-live-example', 'api-live-coverage', 'playground-handoff']
   },
   {
     key: 'element-plus-virtualized-tree',

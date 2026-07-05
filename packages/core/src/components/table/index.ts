@@ -1,4 +1,5 @@
 export { default as YTable } from './YTable.vue'
+export { default as YVirtualTable } from './YVirtualTable.vue'
 export type {
   YTableColumn,
   YTableColumnResizePayload,

@@ -4,6 +4,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   rmSync,
   symlinkSync,
   writeFileSync
@@ -140,17 +141,21 @@ function createSmokeTarballs(rootDirectory: string) {
 
     writeFileSync(tarballPath, packageName)
 
-    return { packageName, tarballPath }
+    return { packageName, tarballPath, version: '0.1.0' }
   })
 }
 
-function createInstalledSmokePackages(consumerDirectory: string, { broken = '' } = {}) {
+function createInstalledSmokePackages(
+  consumerDirectory: string,
+  { broken = '', version = '0.1.0' } = {}
+) {
   for (const packageName of releasePackageNames) {
     const packageDirectory = resolve(consumerDirectory, 'node_modules', ...packageName.split('/'))
     const hasStyle = ['@yok-ui/themes', '@yok-ui/core', '@yok-ui/product', '@yok-ui/admin', '@yok-ui/brand']
       .includes(packageName)
     const manifest = {
       name: packageName,
+      version,
       type: 'module',
       types: './dist/index.d.ts',
       exports: {
@@ -599,6 +604,68 @@ describe('portable command runner', () => {
     expect((caughtError as Error).message).not.toContain(secret)
   })
 
+  it('redacts child-process context and output secrets with exact stable placeholders', async () => {
+    const runCommand = (
+      packageArtifactModule as typeof packageArtifactModule & {
+        runCommand: (options: Record<string, unknown>) => Promise<unknown>
+      }
+    ).runCommand
+    const npmToken = 'npm_abcdefghijklmnopqrstuvwxyz0123456789'
+    let caughtError: unknown
+
+    try {
+      await runCommand({
+        command: process.execPath,
+        args: [
+          '--eval',
+          `process.stderr.write(${JSON.stringify(
+            'Authorization: Bearer bearer-secret-value\n' +
+            '//registry.npmjs.org/:_authToken=npm_assignment_secret\n' +
+            'registry=https://alice:password@example.com/npm/\n' +
+            `token=${npmToken}\n` +
+            'ordinary npm_package_name and bearer documentation\n'
+          )}); process.exit(7)`
+        ],
+        context: 'publish https://context-user:context-pass@example.com/package',
+        cwd: workspaceRoot,
+        timeoutMs: 5_000
+      })
+    } catch (error) {
+      caughtError = error
+    }
+
+    expect(caughtError).toBeInstanceOf(Error)
+    expect((caughtError as Error).message).toBe(
+      'publish https://[REDACTED]@example.com/package failed (exit code 7):\n' +
+      'Authorization: Bearer [REDACTED]\n' +
+      '//registry.npmjs.org/:_authToken=[REDACTED]\n' +
+      'registry=https://[REDACTED]@example.com/npm/\n' +
+      'token=[REDACTED]\n' +
+      'ordinary npm_package_name and bearer documentation'
+    )
+  })
+
+  it('redacts secrets from spawn errors without over-redacting ordinary npm text', async () => {
+    const runCommand = (
+      packageArtifactModule as typeof packageArtifactModule & {
+        runCommand: (options: Record<string, unknown>) => Promise<unknown>
+      }
+    ).runCommand
+
+    await expect(
+      runCommand({
+        command: 'not-started',
+        args: [],
+        context: 'npm package metadata',
+        spawnImpl: () => {
+          throw new Error('Authorization: Bearer spawn-secret for npm package metadata')
+        }
+      })
+    ).rejects.toThrow(
+      'npm package metadata failed to start: Authorization: Bearer [REDACTED] for npm package metadata'
+    )
+  })
+
   it('terminates a command after the configured timeout with context', async () => {
     const runCommand = (
       packageArtifactModule as typeof packageArtifactModule & {
@@ -756,8 +823,13 @@ describe('smokeTestTarballs', () => {
         cwd: consumerDirectory,
         context: expect.stringContaining(consumerDirectory)
       })
-      expect(commands[0].args.slice(0, 3)).toEqual(['add', '--ignore-workspace', 'vue@^3.5.0'])
-      expect(commands[0].args.slice(3)).toEqual(tarballs.map(({ tarballPath }) => tarballPath))
+      expect(commands[0].args.slice(0, 4)).toEqual([
+        'add',
+        '--ignore-workspace',
+        '--ignore-scripts',
+        'vue@^3.5.0'
+      ])
+      expect(commands[0].args.slice(4)).toEqual(tarballs.map(({ tarballPath }) => tarballPath))
       expect(commands[1]).toMatchObject({ command: process.execPath, cwd: consumerDirectory })
       expect(consumerManifest.pnpm.overrides).toEqual(
         Object.fromEntries(
@@ -833,6 +905,38 @@ describe('smokeTestTarballs', () => {
     }
   })
 
+  it('rejects a temporary directory whose real path resolves inside the workspace', async () => {
+    const tarballDirectory = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-realpath-tarballs-'))
+    const tarballs = createSmokeTarballs(tarballDirectory)
+    const workspaceTempRoot = createPublishDirectory('smoke-realpath-target-')
+    const symlinkContainer = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-realpath-link-'))
+    const symlinkRoot = resolve(symlinkContainer, 'tmp-link')
+    let commandCount = 0
+
+    symlinkSync(workspaceTempRoot, symlinkRoot, 'dir')
+
+    try {
+      await expect(
+        smokeTestTarballs({
+          tarballs,
+          adapters: {
+            temporaryRoot: symlinkRoot,
+            commandRunner: async () => {
+              commandCount += 1
+              return { stdout: '', stderr: '' }
+            }
+          }
+        })
+      ).rejects.toThrow('temporary directory true path must be outside the workspace')
+      expect(commandCount).toBe(0)
+      expect(readdirSync(workspaceTempRoot)).toEqual([])
+    } finally {
+      rmSync(tarballDirectory, { recursive: true, force: true })
+      rmSync(symlinkContainer, { recursive: true, force: true })
+      rmSync(workspaceTempRoot, { recursive: true, force: true })
+    }
+  })
+
   it.each([
     ['@yok-ui/core:types', 'declared types entry'],
     ['@yok-ui/core:style', 'declared CSS export']
@@ -857,6 +961,48 @@ describe('smokeTestTarballs', () => {
       ).rejects.toThrow(expectedMessage)
     } finally {
       rmSync(tarballDirectory, { recursive: true, force: true })
+    }
+  })
+
+  it.each(['types', 'style'])('rejects an installed %s entry symlink that escapes its package root', async (entry) => {
+    const tarballDirectory = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-entry-symlink-'))
+    const outsideDirectory = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-entry-outside-'))
+    const tarballs = createSmokeTarballs(tarballDirectory)
+    const outsideFile = resolve(outsideDirectory, entry === 'types' ? 'outside.d.ts' : 'outside.css')
+
+    writeFileSync(outsideFile, entry === 'types' ? 'export {}\n' : ':root {}\n')
+
+    try {
+      await expect(
+        smokeTestTarballs({
+          tarballs,
+          adapters: {
+            commandRunner: async (options: Record<string, any>) => {
+              if (options.command.includes('pnpm')) {
+                createInstalledSmokePackages(options.cwd)
+                const packageDirectory = resolve(
+                  options.cwd,
+                  'node_modules',
+                  '@yok-ui',
+                  'core'
+                )
+                const entryPath = resolve(
+                  packageDirectory,
+                  entry === 'types' ? 'dist/index.d.ts' : 'dist/index.css'
+                )
+
+                rmSync(entryPath)
+                symlinkSync(outsideFile, entryPath)
+              }
+
+              return { stdout: '', stderr: '' }
+            }
+          }
+        })
+      ).rejects.toThrow('resolves outside installed package root')
+    } finally {
+      rmSync(tarballDirectory, { recursive: true, force: true })
+      rmSync(outsideDirectory, { recursive: true, force: true })
     }
   })
 
@@ -1083,7 +1229,7 @@ describe('smokeTestTarballs', () => {
           commands.push(options)
 
           if (options.command.includes('pnpm')) {
-            createInstalledSmokePackages(options.cwd)
+            createInstalledSmokePackages(options.cwd, { version: '0.1.0-next.1' })
           }
 
           return { stdout: '', stderr: '' }
@@ -1094,6 +1240,7 @@ describe('smokeTestTarballs', () => {
     expect(commands[0].args).toEqual([
       'add',
       '--ignore-workspace',
+      '--ignore-scripts',
       '--registry',
       'https://registry.npmjs.org/',
       'vue@^3.5.0',
@@ -1106,8 +1253,83 @@ describe('smokeTestTarballs', () => {
     })
   })
 
+  it('rejects a registry package whose installed version differs from the requested version', async () => {
+    await expect(
+      smokeTestTarballs({
+        registry: 'https://registry.npmjs.org/',
+        version: '0.1.0',
+        adapters: {
+          commandRunner: async (options: Record<string, any>) => {
+            if (options.command.includes('pnpm')) {
+              createInstalledSmokePackages(options.cwd, { version: '0.1.1' })
+            }
+
+            return { stdout: '', stderr: '' }
+          }
+        }
+      })
+    ).rejects.toThrow('@yok-ui/themes installed version 0.1.1 does not match expected 0.1.0')
+  })
+
+  it('rejects a tarball package whose installed version differs from its artifact record', async () => {
+    const tarballDirectory = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-version-mismatch-'))
+    const tarballs = createSmokeTarballs(tarballDirectory)
+
+    try {
+      await expect(
+        smokeTestTarballs({
+          tarballs,
+          adapters: {
+            commandRunner: async (options: Record<string, any>) => {
+              if (options.command.includes('pnpm')) {
+                createInstalledSmokePackages(options.cwd)
+                updateInstalledManifest(options.cwd, '@yok-ui/core', (manifest) => {
+                  manifest.version = '0.1.1'
+                })
+              }
+
+              return { stdout: '', stderr: '' }
+            }
+          }
+        })
+      ).rejects.toThrow('@yok-ui/core installed version 0.1.1 does not match expected 0.1.0')
+    } finally {
+      rmSync(tarballDirectory, { recursive: true, force: true })
+    }
+  })
+
+  it.each([
+    'http://localhost:4873/',
+    'http://127.0.0.1:4873/',
+    'http://[::1]:4873/'
+  ])('allows an explicit HTTP loopback registry %s', async (registry) => {
+    const commands: Array<Record<string, any>> = []
+
+    await smokeTestTarballs({
+      registry,
+      version: '0.1.0',
+      adapters: {
+        commandRunner: async (options: Record<string, any>) => {
+          commands.push(options)
+
+          if (options.command.includes('pnpm')) {
+            createInstalledSmokePackages(options.cwd)
+          }
+
+          return { stdout: '', stderr: '' }
+        }
+      }
+    })
+
+    expect(commands[0].args).toContain(registry)
+  })
+
   it.each([
     [{ registry: 'not-a-url', version: '0.1.0' }, 'valid HTTP(S) URL'],
+    [{ registry: 'https:registry.npmjs.org', version: '0.1.0' }, 'explicit HTTP(S) URL'],
+    [{ registry: 'https://registry', version: '0.1.0' }, 'fully-qualified'],
+    [{ registry: 'http://registry.npmjs.org', version: '0.1.0' }, 'HTTPS except for loopback'],
+    [{ registry: 'http://localhost.evil', version: '0.1.0' }, 'HTTPS except for loopback'],
     [{ registry: 'https://token@example.com', version: '0.1.0' }, 'must not contain credentials'],
     [{ registry: 'https://registry.npmjs.org/?token=secret', version: '0.1.0' }, 'must not contain query'],
     [{ registry: 'https://registry.npmjs.org', version: 'latest' }, 'semver-like'],

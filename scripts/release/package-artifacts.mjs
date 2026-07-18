@@ -7,6 +7,7 @@ import {
   mkdtemp,
   readFile,
   readdir,
+  realpath,
   rm,
   stat,
   writeFile
@@ -33,6 +34,19 @@ const windowsCmdMetaCharacters = /([()\][%!^"`<>&|;, *?])/g
 const semverLikePattern = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/
 const declarationFilePattern = /\.d\.(?:ts|mts|cts)$/i
 const stylesheetFilePattern = /\.(?:css|scss|sass|less|styl|stylus)$/i
+
+export function redactSensitiveText(value) {
+  return String(value)
+    .replace(/(Authorization\s*:\s*Bearer\s+)[^\s]+/gi, '$1[REDACTED]')
+    .replace(/(_authToken\s*=\s*)(?:"[^"\r\n]*"|'[^'\r\n]*'|[^\s\r\n]+)/gi, '$1[REDACTED]')
+    .replace(/(\bNPM_TOKEN\s*=\s*)(?:"[^"\r\n]*"|'[^'\r\n]*'|[^\s\r\n]+)/gi, '$1[REDACTED]')
+    .replace(/\bnpm_[A-Za-z0-9]{20,}\b/g, '[REDACTED]')
+    .replace(/\b(https?:\/\/)[^/\s@]+@/gi, '$1[REDACTED]@')
+}
+
+function createRedactedError(message) {
+  return new Error(redactSensitiveText(message))
+}
 
 function isPlainObject(value) {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
@@ -349,7 +363,7 @@ export async function runCommand({
   spawnImpl = spawn
 }) {
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
-    throw new Error(`${context} timeoutMs must be a positive finite number`)
+    throw createRedactedError(`${context} timeoutMs must be a positive finite number`)
   }
 
   const invocation = createCommandInvocation(command, args, { platform, env })
@@ -368,7 +382,7 @@ export async function runCommand({
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error)
 
-      reject(new Error(`${context} failed to start: ${reason}`))
+      reject(createRedactedError(`${context} failed to start: ${reason}`))
       return
     }
 
@@ -407,7 +421,7 @@ export async function runCommand({
 
       settled = true
       clearTimeout(timeout)
-      reject(new Error(`${context} failed to start: ${error.message}`))
+      reject(createRedactedError(`${context} failed to start: ${error.message}`))
     })
 
     child.on('close', (code, signal) => {
@@ -419,12 +433,12 @@ export async function runCommand({
       clearTimeout(timeout)
 
       if (timedOut) {
-        reject(new Error(`${context} timed out after ${timeoutMs}ms`))
+        reject(createRedactedError(`${context} timed out after ${timeoutMs}ms`))
         return
       }
 
       if (exceededBuffer) {
-        reject(new Error(`${context} exceeded output limit of ${maxBufferBytes} bytes`))
+        reject(createRedactedError(`${context} exceeded output limit of ${maxBufferBytes} bytes`))
         return
       }
 
@@ -435,7 +449,9 @@ export async function runCommand({
         const output = [stderr.trim(), stdout.trim()].filter(Boolean).join('\n')
         const exitDetail = signal ? `signal ${signal}` : `exit code ${String(code)}`
 
-        reject(new Error(`${context} failed (${exitDetail})${output ? `:\n${output}` : ''}`))
+        reject(createRedactedError(
+          `${context} failed (${exitDetail})${output ? `:\n${output}` : ''}`
+        ))
         return
       }
 
@@ -720,6 +736,18 @@ function isPathInside(parentPath, candidatePath) {
 function validateRegistry(registry) {
   let registryUrl
 
+  if (typeof registry !== 'string') {
+    throw new Error('Smoke test registry must be a valid HTTP(S) URL')
+  }
+
+  if (!/^https?:\/\//i.test(registry)) {
+    if (/^https?:/i.test(registry)) {
+      throw new Error('Smoke test registry must be an explicit HTTP(S) URL with //')
+    }
+
+    throw new Error('Smoke test registry must be a valid HTTP(S) URL')
+  }
+
   try {
     registryUrl = new URL(registry)
   } catch {
@@ -740,6 +768,21 @@ function validateRegistry(registry) {
 
   if (registryUrl.hash) {
     throw new Error('Smoke test registry URL must not contain a fragment')
+  }
+
+  const hostname = registryUrl.hostname.toLowerCase()
+  const unwrappedHostname = hostname.replace(/^\[|\]$/g, '')
+  const isLoopback = ['localhost', '127.0.0.1', '::1'].includes(unwrappedHostname)
+
+  if (
+    registryUrl.protocol === 'http:' &&
+    (!isLoopback || !/^http:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?(?:\/|$)/i.test(registry))
+  ) {
+    throw new Error('Smoke test registry must use HTTPS except for loopback localhost, 127.0.0.1, or ::1')
+  }
+
+  if (!isLoopback && !hostname.includes('.')) {
+    throw new Error('Smoke test registry hostname must be fully-qualified, not an ambiguous single-label name')
   }
 
   return registryUrl.href
@@ -805,7 +848,20 @@ async function validateSmokeTarballs(tarballs) {
       throw new Error(`${packageName} tarball ${tarballPath} must be a .tgz file`)
     }
 
-    normalizedRecords.push({ packageName, tarballPath })
+    if (
+      record.version !== undefined &&
+      (typeof record.version !== 'string' || !semverLikePattern.test(record.version))
+    ) {
+      throw new Error(
+        `${packageName} tarball record version ${String(record.version)} must be semver-like`
+      )
+    }
+
+    normalizedRecords.push({
+      packageName,
+      tarballPath,
+      ...(record.version === undefined ? {} : { version: record.version })
+    })
   }
 
   return normalizedRecords
@@ -848,19 +904,27 @@ function collectPublicEntryTargets(
   return { typeTargets, styleTargets }
 }
 
-async function assertInstalledFile(packageName, packageDirectory, field, target) {
+async function assertInstalledFile(packageName, packageRealRoot, field, target) {
   const relativeTarget = packedEntryForTarget(packageName, field, target)
     .slice(packageEntryPrefix.length)
-  const targetPath = resolve(packageDirectory, relativeTarget)
+  const targetPath = resolve(packageRealRoot, relativeTarget)
+  let targetRealPath
   let targetStat
 
   try {
-    targetStat = await stat(targetPath)
+    targetRealPath = await realpath(targetPath)
+    targetStat = await stat(targetRealPath)
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error)
 
     throw new Error(
       `${packageName} declared ${field} ${target} does not resolve in the clean consumer: ${reason}`
+    )
+  }
+
+  if (!isPathInside(packageRealRoot, targetRealPath)) {
+    throw new Error(
+      `${packageName} declared ${field} ${target} resolves outside installed package root ${packageRealRoot}`
     )
   }
 
@@ -873,13 +937,23 @@ async function assertInstalledFile(packageName, packageDirectory, field, target)
   return targetPath
 }
 
-async function inspectInstalledPackageEntries(consumerDirectory) {
+async function inspectInstalledPackageEntries(consumerDirectory, expectedVersions) {
   const typeEntries = new Set()
   const cssEntries = new Set()
 
   for (const packageName of releasePackageNames) {
     const packageDirectory = resolve(consumerDirectory, 'node_modules', ...packageName.split('/'))
-    const manifestPath = resolve(packageDirectory, 'package.json')
+    let packageRealRoot
+
+    try {
+      packageRealRoot = await realpath(packageDirectory)
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error)
+
+      throw new Error(`${packageName} installed package root cannot be resolved: ${reason}`)
+    }
+
+    const manifestPath = resolve(packageRealRoot, 'package.json')
     let manifest
 
     try {
@@ -894,11 +968,19 @@ async function inspectInstalledPackageEntries(consumerDirectory) {
       throw new Error(`${packageName} installed manifest has an unexpected package identity`)
     }
 
+    const expectedVersion = expectedVersions.get(packageName)
+
+    if (expectedVersion !== undefined && manifest.version !== expectedVersion) {
+      throw new Error(
+        `${packageName} installed version ${String(manifest.version)} does not match expected ${expectedVersion}`
+      )
+    }
+
     if (typeof manifest.types !== 'string') {
       throw new Error(`${packageName} installed manifest is missing its declared types entry`)
     }
 
-    await assertInstalledFile(packageName, packageDirectory, 'types entry', manifest.types)
+    await assertInstalledFile(packageName, packageRealRoot, 'types entry', manifest.types)
     typeEntries.add(`${packageName}:${manifest.types}`)
 
     if (
@@ -920,7 +1002,7 @@ async function inspectInstalledPackageEntries(consumerDirectory) {
       for (const typeTarget of typeTargets) {
         await assertInstalledFile(
           packageName,
-          packageDirectory,
+          packageRealRoot,
           `export ${exportPath} types target`,
           typeTarget
         )
@@ -930,7 +1012,7 @@ async function inspectInstalledPackageEntries(consumerDirectory) {
       for (const styleTarget of styleTargets) {
         await assertInstalledFile(
           packageName,
-          packageDirectory,
+          packageRealRoot,
           `CSS export ${exportPath} target`,
           styleTarget
         )
@@ -950,10 +1032,10 @@ async function inspectInstalledPackageEntries(consumerDirectory) {
 
 function smokeCommandSummary(source) {
   if (source.kind === 'registry') {
-    return `pnpm add --ignore-workspace --registry ${source.registry} vue@^3.5.0 @yok-ui/*@${source.version}`
+    return `pnpm add --ignore-workspace --ignore-scripts --registry ${source.registry} vue@^3.5.0 @yok-ui/*@${source.version}`
   }
 
-  return 'pnpm add --ignore-workspace vue@^3.5.0 <eight verified Yok UI tarballs>'
+  return 'pnpm add --ignore-workspace --ignore-scripts vue@^3.5.0 <eight verified Yok UI tarballs>'
 }
 
 export async function smokeTestTarballs({
@@ -984,8 +1066,10 @@ export async function smokeTestTarballs({
   }
 
   const commandRunner = adapters.commandRunner ?? runCommand
+  const temporaryRoot = adapters.temporaryRoot ?? tmpdir()
   let source
   let installSpecs
+  const expectedVersions = new Map()
 
   if (hasRegistry) {
     const normalizedRegistry = validateRegistry(registry)
@@ -993,6 +1077,9 @@ export async function smokeTestTarballs({
 
     source = { kind: 'registry', registry: normalizedRegistry, version: normalizedVersion }
     installSpecs = releasePackageNames.map((packageName) => `${packageName}@${normalizedVersion}`)
+    releasePackageNames.forEach((packageName) => {
+      expectedVersions.set(packageName, normalizedVersion)
+    })
   } else {
     if (version !== undefined) {
       throw new Error('Tarball smoke test does not accept registry version')
@@ -1002,14 +1089,32 @@ export async function smokeTestTarballs({
 
     source = { kind: 'tarballs', tarballs: records }
     installSpecs = records.map(({ tarballPath }) => tarballPath)
+    records.forEach(({ packageName, version: artifactVersion }) => {
+      if (artifactVersion !== undefined) {
+        expectedVersions.set(packageName, artifactVersion)
+      }
+    })
   }
 
-  const consumerDirectory = await mkdtemp(resolve(tmpdir(), 'yok-ui-clean-consumer-'))
+  const [workspaceRealRoot, temporaryRealRoot] = await Promise.all([
+    realpath(workspaceRoot),
+    realpath(temporaryRoot)
+  ])
 
-  if (isPathInside(workspaceRoot, consumerDirectory) || consumerDirectory === workspaceRoot) {
-    await rm(consumerDirectory, { recursive: true, force: true })
-    throw new Error(`Smoke test temporary directory ${consumerDirectory} must be outside ${workspaceRoot}`)
+  if (
+    temporaryRealRoot === workspaceRealRoot ||
+    isPathInside(workspaceRealRoot, temporaryRealRoot)
+  ) {
+    throw new Error(
+      `Smoke test temporary directory true path must be outside the workspace: ${temporaryRealRoot}`
+    )
   }
+
+  const createdConsumerDirectory = await mkdtemp(
+    resolve(temporaryRealRoot, 'yok-ui-clean-consumer-')
+  )
+  const consumerDirectory = await realpath(createdConsumerDirectory)
+  let isolationAccepted = false
 
   const registryArgs = source.kind === 'registry'
     ? ['--registry', source.registry]
@@ -1017,12 +1122,24 @@ export async function smokeTestTarballs({
   const installArgs = [
     'add',
     '--ignore-workspace',
+    '--ignore-scripts',
     ...registryArgs,
     'vue@^3.5.0',
     ...installSpecs
   ]
 
   try {
+    if (
+      consumerDirectory === workspaceRealRoot ||
+      isPathInside(workspaceRealRoot, consumerDirectory)
+    ) {
+      throw new Error(
+        `Smoke test temporary directory true path must be outside the workspace: ${consumerDirectory}`
+      )
+    }
+
+    isolationAccepted = true
+
     const consumerManifest = {
       private: true,
       type: 'module',
@@ -1054,7 +1171,10 @@ export async function smokeTestTarballs({
       timeoutMs: commandTimeoutMs
     })
 
-    const { typeEntries, cssEntries } = await inspectInstalledPackageEntries(consumerDirectory)
+    const { typeEntries, cssEntries } = await inspectInstalledPackageEntries(
+      consumerDirectory,
+      expectedVersions
+    )
     const probePath = resolve(consumerDirectory, 'import-probe.mjs')
 
     await writeFile(
@@ -1082,14 +1202,16 @@ export async function smokeTestTarballs({
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error)
 
-    throw new Error(
+    throw createRedactedError(
       `Clean consumer smoke test failed in ${consumerDirectory}: ${reason}\n` +
-      `Action: rerun ${smokeCommandSummary(source)}`,
-      { cause: error }
+      `Action: rerun ${smokeCommandSummary(source)}`
     )
   } finally {
-    if (!keepTemp) {
-      await rm(consumerDirectory, { recursive: true, force: true })
+    if (!keepTemp || !isolationAccepted) {
+      // Remove the directory entry created beneath the trusted temp root. Never
+      // recursively remove the resolved target if that entry is swapped for a
+      // symlink between creation and containment validation.
+      await rm(createdConsumerDirectory, { recursive: true, force: true })
     }
   }
 }

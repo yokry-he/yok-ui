@@ -149,7 +149,16 @@ import {
   builtinThemes,
   yokCandy,
   yokClean,
+  yokForest,
+  yokInk,
+  yokLavender,
   yokLight,
+  yokMint,
+  yokOcean,
+  yokPeach,
+  yokSakura,
+  yokSlate,
+  yokSunrise,
   type YokThemeName,
   type YokThemeTokens
 } from '@yok-ui/themes'
@@ -166,7 +175,6 @@ import {
   interactionContracts,
   type InteractionContract
 } from '../data/interactionContracts'
-import { getPlaygroundComponentForPreset } from '../data/playgroundExamples'
 
 interface Props {
   preset?: LiveExamplePreset
@@ -380,7 +388,7 @@ const fallbackCarouselItems = [
   },
   {
     title: 'Live example',
-    description: 'Runnable examples connect props, events, source copy and Playground handoff.',
+    description: 'Runnable examples connect props, events, source copy and source handoff.',
     meta: 'Docs',
     tone: 'success'
   },
@@ -433,7 +441,7 @@ const fallbackColumns = [
 ]
 const fallbackTableData = [
   { id: '1', name: 'Button docs', status: 'Stable', owner: 'Core', detail: 'Button docs include variants, icon buttons, loading and keyboard states.' },
-  { id: '2', name: 'Live runner', status: 'Beta', owner: 'Docs', detail: 'Live runner links scenario controls, source copy, API evidence and Playground handoff.' },
+  { id: '2', name: 'Live runner', status: 'Beta', owner: 'Docs', detail: 'Live runner links scenario controls, source copy, API evidence and source handoff.' },
   { id: '3', name: 'Theme lab', status: 'Stable', owner: 'Resources', detail: 'Theme lab audits tokens, semantic colors and density previews.' }
 ]
 const fallbackInteractiveTableColumns = [
@@ -677,7 +685,7 @@ const fallbackStepItems = [
 ]
 const fallbackTourSteps = [
   { title: 'Search docs', description: 'Use search to jump to components, guides and examples.', target: '#tour-search' },
-  { title: 'Open Playground', description: 'Edit examples and export a reproduction bundle.', target: '#tour-playground' },
+  { title: 'Open source', description: 'Edit examples and export a reproduction bundle.', target: '#tour-source' },
   { title: 'Ship evidence', description: 'Copy source, verify API coverage and publish docs.', target: '#tour-ship' }
 ]
 const fallbackTreeNodes = [
@@ -1754,14 +1762,14 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '',
     'const tourSteps = [',
     "  { title: 'Search docs', description: 'Find components, guides and examples.', target: '#tour-search' },",
-    "  { title: 'Open Playground', description: 'Edit the current example with real props.', target: '#tour-playground' }",
+    "  { title: 'Open source', description: 'Edit the current example with real props.', target: '#tour-source' }",
     ']',
     '</' + 'script>',
     '',
     '<template>',
     '  <div class="demo-stack">',
     '    <YButton id="tour-search" variant="secondary">Search docs</YButton>',
-    '    <YButton id="tour-playground" variant="primary">Open Playground</YButton>',
+    '    <YButton id="tour-source" variant="primary">Open source</YButton>',
     '    <YTour open :steps="tourSteps" :current="0" skip-text="Skip guide" />',
     '  </div>',
     '</template>'
@@ -2503,12 +2511,15 @@ const presetExamples: Record<LiveExamplePreset, string> = {
   configProvider: [
     '<script setup lang="ts">',
     "import { YCascader, YButton, YColorPicker, YConfigProvider, YDatePicker, YDateRangePicker, YInput, YInputNumber, YSelect, YTag, YTextarea, YTimePicker } from '@yok-ui/core'",
+    "import { yokLight } from '@yok-ui/themes'",
     "const packageOptions = [{ label: 'Core', value: 'core' }, { label: 'Product', value: 'product' }, { label: 'Admin', value: 'admin' }]",
     "const cascaderOptions = [{ value: 'core', label: 'Core', children: [{ value: 'form', label: 'Form' }, { value: 'overlay', label: 'Overlay' }] }, { value: 'product', label: 'Product', children: [{ value: 'docs', label: 'Docs' }] }]",
+    "const buttonDefaults = { variant: 'primary', round: true, autoInsertSpace: true }",
+    "const tokenOverrides = { ...yokLight, color: { ...yokLight.color, primary: '#16856f' } }",
     '</' + 'script>',
     '',
     '<template>',
-    '  <YConfigProvider size="lg" density="compact" locale="zh-CN">',
+    '  <YConfigProvider size="lg" density="compact" locale="zh-CN" direction="auto" theme="yok-light" font="system" :z-index="2000" :tokens="tokenOverrides" :button="buttonDefaults">',
     '    <div class="demo-stack">',
     '      <YInput label="Library name" model-value="Yok UI" />',
     '      <YTextarea label="Release note" model-value="Config applies here too." />',
@@ -2531,7 +2542,7 @@ const presetExamples: Record<LiveExamplePreset, string> = {
     '</' + 'script>',
     '',
     '<template>',
-    '  <YThemeProvider theme="yok-candy" density="comfortable">',
+    '  <YThemeProvider theme="yok-candy" density="comfortable" font="system">',
     '    <YCard title="Local theme" description="ThemeProvider scopes Yok UI variables to this region.">',
     '      <YButton variant="primary">Create themed action</YButton>',
     '    </YCard>',
@@ -7868,11 +7879,11 @@ const tabItems = ${tabItems}`, [
       const skipText = isKeyboardScenario ? 'Close guide' : String(state.skipText)
       const buttonSize = isMobileScenario ? 'sm' : 'md'
       const targetAttribute = isTargetScenario || isControlledScenario || isMobileScenario
-        ? "target: '#tour-playground'"
+        ? "target: '#tour-source'"
         : "target: '#tour-search'"
       const steps = [
         "  { title: 'Search docs', description: 'Use search to jump to components, guides and examples.', target: '#tour-search' },",
-        `  { title: '${isMobileScenario ? 'Review compact controls' : 'Open Playground'}', description: '${isControlledScenario ? 'The current step can sync with route or analytics state.' : 'Edit examples and export a reproduction bundle.'}', ${targetAttribute} },`,
+        `  { title: '${isMobileScenario ? 'Review compact controls' : 'Open source'}', description: '${isControlledScenario ? 'The current step can sync with route or analytics state.' : 'Edit examples and export a reproduction bundle.'}', ${targetAttribute} },`,
         `  { title: '${isFinishScenario ? 'Finish setup' : 'Ship evidence'}', description: '${isKeyboardScenario ? 'Escape requests close and focus remains trapped while open.' : 'Copy source, verify API coverage and publish docs.'}', target: '#tour-ship' }`
       ]
 
@@ -7880,7 +7891,7 @@ const tabItems = ${tabItems}`, [
         '<div class="demo-stack">',
         '  <div class="demo-row">',
         `    <YButton id="tour-search" variant="secondary" size="${buttonSize}">Search docs</YButton>`,
-        `    <YButton id="tour-playground" variant="primary" size="${buttonSize}">Open Playground</YButton>`,
+        `    <YButton id="tour-source" variant="primary" size="${buttonSize}">Open source</YButton>`,
         `    <YButton id="tour-ship" variant="secondary" size="${buttonSize}">Ship evidence</YButton>`,
         '  </div>',
         `  <YTour${booleanAttribute('open', open)} :steps="${isEmptyScenario ? 'emptyTourSteps' : 'tourSteps'}"${numericBinding('current', current)}${booleanAttribute('close-on-escape', closeOnEscape)} next-text="Next" prev-text="Back" finish-text="Finish"${textAttribute('skip-text', skipText)} />`,
@@ -10873,6 +10884,11 @@ const menuItems = [
         { label: 'Comfortable', value: 'comfortable' },
         { label: 'Compact', value: 'compact' }
       ] },
+      { key: 'font', label: '字体', type: 'select', defaultValue: 'system', options: [
+        { label: 'System', value: 'system' },
+        { label: 'Rounded', value: 'rounded' },
+        { label: 'Mono', value: 'mono' }
+      ] },
       { key: 'buttonText', label: '按钮文案', type: 'text', defaultValue: 'Create themed action' }
     ],
     build: (state) => {
@@ -10881,6 +10897,7 @@ const menuItems = [
       const isKeyboardScenario = scenario === 'keyboard'
       const theme = scenario === 'clean' || isReviewScenario ? 'yok-clean' : scenario === 'mobile' ? 'yok-light' : state.theme
       const density = scenario === 'mobile' ? 'compact' : state.density
+      const font = state.font
       const title = isKeyboardScenario ? 'Keyboard themed region' : isReviewScenario ? 'Theme review' : 'Local theme'
       const description = isKeyboardScenario
         ? 'Focus rings stay visible inside the local theme scope.'
@@ -10889,7 +10906,7 @@ const menuItems = [
           : 'ThemeProvider scopes Yok UI variables to this region.'
 
       return sfc("import { YButton, YCard, YTag, YThemeProvider } from '@yok-ui/core'", [
-        `<YThemeProvider${textAttribute('theme', theme)}${textAttribute('density', density)}>`,
+        `<YThemeProvider${textAttribute('theme', theme)}${textAttribute('density', density)}${textAttribute('font', font)}>`,
         `  <YCard title="${title}" description="${description}">`,
         `    <YButton variant="primary">${escapeAttribute(isKeyboardScenario ? 'Focus themed action' : state.buttonText)}</YButton>`,
         isReviewScenario ? '    <YTag tone="danger">Local theme contrast needs review.</YTag>' : '',
@@ -10922,8 +10939,26 @@ const menuItems = [
       ] },
       { key: 'locale', label: '语言', type: 'select', defaultValue: 'zh-CN', options: [
         { label: '中文', value: 'zh-CN' },
-        { label: 'English', value: 'en-US' }
+        { label: 'English', value: 'en-US' },
+        { label: '日本語', value: 'ja-JP' }
       ] },
+      { key: 'direction', label: '方向', type: 'select', defaultValue: 'auto', options: [
+        { label: 'Auto', value: 'auto' },
+        { label: 'LTR', value: 'ltr' },
+        { label: 'RTL', value: 'rtl' }
+      ] },
+      { key: 'theme', label: '主题', type: 'select', defaultValue: 'yok-light', options: [
+        { label: 'Light', value: 'yok-light' },
+        { label: 'Mint', value: 'yok-mint' },
+        { label: 'Ink', value: 'yok-ink' }
+      ] },
+      { key: 'font', label: '字体', type: 'select', defaultValue: 'system', options: [
+        { label: 'System', value: 'system' },
+        { label: 'Rounded', value: 'rounded' },
+        { label: 'Mono', value: 'mono' }
+      ] },
+      { key: 'zIndex', label: '浮层基线', type: 'number', defaultValue: 2000, min: 1000, max: 5000, step: 100 },
+      { key: 'buttonRound', label: '圆角按钮', type: 'boolean', defaultValue: true },
       { key: 'namespace', label: '命名空间', type: 'text', defaultValue: 'yok' }
     ],
     build: (state) => {
@@ -10936,6 +10971,11 @@ const menuItems = [
       const size = isMobileScenario ? 'sm' : state.size
       const density = isDensityScenario || isMobileScenario ? 'compact' : state.density
       const locale = isLocaleScenario ? 'zh-CN' : state.locale
+      const direction = state.direction
+      const theme = state.theme
+      const font = state.font
+      const zIndex = Number(state.zIndex)
+      const buttonDefaults = `{ variant: 'primary', round: ${Boolean(state.buttonRound)}, autoInsertSpace: true }`
       const hint = isKeyboardScenario
         ? 'Provider does not enter the tab order; focus moves to input and button.'
         : isMobileScenario
@@ -10948,8 +10988,8 @@ const menuItems = [
               ? 'Density is scoped to this subtree for theme-aware layouts.'
               : 'Button, Input, Select, Date, Time, Cascader and Color inherit the configured size.'
 
-      return sfc("import { YCascader, YButton, YColorPicker, YConfigProvider, YDatePicker, YDateRangePicker, YInput, YInputNumber, YSelect, YTag, YTextarea, YTimePicker } from '@yok-ui/core'\nconst packageOptions = [{ label: 'Core', value: 'core' }, { label: 'Product', value: 'product' }, { label: 'Admin', value: 'admin' }]\nconst cascaderOptions = [{ value: 'core', label: 'Core', children: [{ value: 'form', label: 'Form' }, { value: 'overlay', label: 'Overlay' }] }, { value: 'product', label: 'Product', children: [{ value: 'docs', label: 'Docs' }] }]", [
-        `<YConfigProvider${textAttribute('size', size)}${textAttribute('density', density)}${textAttribute('locale', locale)}${textAttribute('namespace', state.namespace)}>`,
+      return sfc("import { YCascader, YButton, YColorPicker, YConfigProvider, YDatePicker, YDateRangePicker, YInput, YInputNumber, YSelect, YTag, YTextarea, YTimePicker } from '@yok-ui/core'\nimport { yokLight } from '@yok-ui/themes'\nconst packageOptions = [{ label: 'Core', value: 'core' }, { label: 'Product', value: 'product' }, { label: 'Admin', value: 'admin' }]\nconst cascaderOptions = [{ value: 'core', label: 'Core', children: [{ value: 'form', label: 'Form' }, { value: 'overlay', label: 'Overlay' }] }, { value: 'product', label: 'Product', children: [{ value: 'docs', label: 'Docs' }] }]\nconst buttonDefaults = " + buttonDefaults + "\nconst tokenOverrides = { ...yokLight, color: { ...yokLight.color, primary: '#16856f' } }", [
+        `<YConfigProvider${textAttribute('size', size)}${textAttribute('density', density)}${textAttribute('locale', locale)}${textAttribute('direction', direction)}${textAttribute('namespace', state.namespace)}${textAttribute('theme', theme)}${textAttribute('font', font)} :z-index="${zIndex}" :tokens="tokenOverrides" :button="buttonDefaults">`,
         '  <div class="demo-stack">',
         `    <YInput label="${isLocaleScenario ? '组件名称' : 'Component name'}" model-value="Yok UI"${isDisabledScenario ? ' disabled' : ''} />`,
         `    <YTextarea label="${isLocaleScenario ? '发布说明' : 'Release note'}" model-value="Provider settings cascade into form controls."${isDisabledScenario ? ' disabled' : ''} />`,
@@ -11244,7 +11284,6 @@ const eventLogs = ref<EventLogItem[]>([])
 const eventLogId = ref(0)
 const eventPayloadPreviewLimit = 180
 const draftStoragePrefix = 'yok-ui:live-example-draft'
-const playgroundHandoffStoragePrefix = 'yok-ui:playground-handoff'
 const externalScenarioEventName = 'yok-ui:live-example-scenario'
 const liveExampleHashId = 'live-example'
 const draftHydrated = ref(false)
@@ -11254,7 +11293,16 @@ const skipNextDraftPersist = ref(false)
 const liveExampleThemeTokens: Record<YokThemeName, YokThemeTokens> = {
   'yok-light': yokLight,
   'yok-clean': yokClean,
-  'yok-candy': yokCandy
+  'yok-candy': yokCandy,
+  'yok-mint': yokMint,
+  'yok-ocean': yokOcean,
+  'yok-sakura': yokSakura,
+  'yok-lavender': yokLavender,
+  'yok-sunrise': yokSunrise,
+  'yok-forest': yokForest,
+  'yok-ink': yokInk,
+  'yok-peach': yokPeach,
+  'yok-slate': yokSlate
 }
 
 const runnerTitle = computed(() => props.title || '编辑模板，立即预览 Yok UI 组件')
@@ -11463,19 +11511,14 @@ const activeStateShareUrl = computed(() => {
 
   return getLiveExampleShareUrl(`#${liveExampleHashId}?${params.toString()}`)
 })
-const playgroundImportUrl = computed(() => {
+const liveExampleSourceUrl = computed(() => {
   const params = new URLSearchParams()
-  const playgroundComponent = getPlaygroundComponentForPreset(selectedPreset.value)
-
-  if (playgroundComponent) {
-    params.set('component', playgroundComponent)
-  }
 
   params.set('theme', selectedTheme.value)
-  params.set('source', playgroundSfcSource.value)
+  params.set('source', liveExampleSfcSource.value)
   params.set('from', 'live-example')
   params.set('language', sourceLanguageMode.value)
-  params.set('docsHash', playgroundDocsHash.value)
+  params.set('docsHash', liveExampleDocsHash.value)
 
   if (activeScenario.value) {
     params.set('scenario', activeScenario.value.key)
@@ -11489,7 +11532,7 @@ const playgroundImportUrl = computed(() => {
     params.set('controls', JSON.stringify(controlState.value))
   }
 
-  return `/playground/?${params.toString()}`
+  return `#${liveExampleHashId}?${params.toString()}`
 })
 
 const allowedTags = new Set([
@@ -12138,8 +12181,6 @@ const copiedSyncSnapshot = ref(false)
 const copiedCoverageManifest = ref(false)
 const copiedApiMap = ref(false)
 const copiedDiagnostic = ref(false)
-const copiedPlaygroundLink = ref(false)
-let copiedPlaygroundLinkResetTimer = 0
 const editorPanel = ref<InstanceType<typeof LiveExampleEditorPanel> | null>(null)
 const editorScrollTop = ref(0)
 const validationError = ref('')
@@ -18580,8 +18621,8 @@ const scenarioCoverageManifest = computed(() => [
   `- Label: ${activeScenario.value?.label ?? (hasScenarioSwitcher.value ? 'No scenario selected' : 'Props only')}`,
   `- Link: ${activeScenarioShareUrl.value || 'n/a'}`,
   '',
-  '## Playground handoff',
-  `- ${playgroundImportUrl.value}`
+  '## source handoff',
+  `- ${liveExampleSourceUrl.value}`
 ].join('\n'))
 const activeScenarioDebugItems = computed(() => {
   const scenario = activeScenario.value
@@ -18761,8 +18802,8 @@ const apiMapManifest = computed(() => [
     `- ${item.label}: ${item.used}/${item.total} ${item.samples.length ? `(${item.samples.map((sample) => sample.name).join(', ')})` : '(no rows)'}`
   ),
   '',
-  '## Playground',
-  `- ${playgroundImportUrl.value}`
+  '## Source link',
+  `- ${liveExampleSourceUrl.value}`
 ].join('\n'))
 const hasInteractionContract = computed(() => activeInteractionContracts.value.length > 0)
 const interactionContractSummary = computed(() => {
@@ -18914,7 +18955,7 @@ const syncSnapshotSummaryItems = computed(() => [
   {
     label: 'Export',
     value: 'Repro ready',
-    detail: activeScenarioShareUrl.value ? 'Scenario link, state link and Playground import are aligned.' : 'State and Playground import are aligned.'
+    detail: activeScenarioShareUrl.value ? 'Scenario link, state link and source link are aligned.' : 'State and source link are aligned.'
   }
 ])
 const runEvidenceItems = computed<RunEvidenceItem[]>(() => [
@@ -18959,8 +19000,8 @@ const runEvidenceItems = computed<RunEvidenceItem[]>(() => [
     key: 'export',
     label: 'Export',
     value: 'Repro ready',
-    detail: activeScenarioShareUrl.value ? 'Report, scenario link, state link, Playground and bundle aligned.' : 'Report, state link, Playground and bundle aligned.',
-    passed: Boolean(playgroundImportUrl.value)
+    detail: activeScenarioShareUrl.value ? 'Report, scenario link, state link, source link and bundle aligned.' : 'Report, state link, source link and bundle aligned.',
+    passed: Boolean(liveExampleSourceUrl.value)
   }
 ])
 const advancedToolsMetaItems = computed(() => [
@@ -19064,7 +19105,7 @@ const scenarioTestPlan = computed<ScenarioTestStep[]>(() => {
     },
     {
       title: '6. 导出复现材料',
-      detail: '复制运行报告、Repro bundle、场景链接或 Playground 链接，确保维护者可以复现当前示例。'
+      detail: '复制运行报告、Repro bundle、场景链接或 source link，确保维护者可以复现当前示例。'
     }
   ]
 })
@@ -19155,57 +19196,16 @@ const copyableSource = computed(() => {
 })
 const showSourcePanel = ref(false)
 const showSourceLanguageSwitch = computed(() => sourcePanelMode.value === 'sfc')
-const playgroundSfcSource = computed(() =>
+const liveExampleSfcSource = computed(() =>
   sourceLanguageMode.value === 'js' ? stripTypeScriptFromExample(source.value) : source.value
 )
 const sourcePanelSfcCode = computed(() => {
   try {
-    return formatExampleSource(playgroundSfcSource.value)
+    return formatExampleSource(liveExampleSfcSource.value)
   } catch {
-    return playgroundSfcSource.value
+    return liveExampleSfcSource.value
   }
 })
-const componentSourceDirectoryOverrides: Record<string, string> = {
-  YCascaderPanel: 'cascader',
-  YDateRangePicker: 'date-picker',
-  YDateTimePicker: 'date-time-picker',
-  YFloatButton: 'float-button',
-  YFloatButtonGroup: 'float-button',
-  YRadioGroup: 'radio',
-  YBadge: 'tag',
-  YCheckTag: 'tag',
-  YIconButton: 'button',
-  YCountdown: 'statistic'
-}
-
-function getComponentSourceDirectory(componentName: string, docsRoute: string) {
-  if (componentSourceDirectoryOverrides[componentName]) {
-    return componentSourceDirectoryOverrides[componentName]
-  }
-
-  const docsMatch = docsRoute.match(/^\/components\/([^/#?]+)/)
-
-  if (docsMatch) {
-    return docsMatch[1]
-  }
-
-  return normalizeApiToken(componentName.replace(/^Y/, ''))
-}
-
-const sourceFilePath = computed(() => {
-  const meta = activeComponentMeta.value
-
-  if (!meta) {
-    return 'docs/.vitepress/components/LiveExampleRunner.vue'
-  }
-
-  const packageDir = meta.packageName.replace('@yok-ui/', '')
-  const componentName = meta.componentName
-  const componentDir = getComponentSourceDirectory(componentName, meta.docs)
-
-  return `packages/${packageDir}/src/components/${componentDir}/${componentName}.vue`
-})
-const sourceFileUrl = computed(() => `/source/?file=${sourceFilePath.value}`)
 const activeInstallPackages = computed(() => {
   const packageSet = new Set<string>()
 
@@ -19334,14 +19334,14 @@ const sourceDiffSummary = computed(() => {
 
   return { added, removed, unchanged, changed: added + removed }
 })
-const playgroundImportShareUrl = computed(() => {
+const liveExampleSourceShareUrl = computed(() => {
   if (typeof window === 'undefined') {
-    return playgroundHandoffUrl.value
+    return liveExampleSourceUrl.value
   }
 
-  return `${window.location.origin}${playgroundHandoffUrl.value}`
+  return `${window.location.origin}${liveExampleSourceUrl.value}`
 })
-const playgroundDocsHash = computed(() => {
+const liveExampleDocsHash = computed(() => {
   if (!activeScenario.value) {
     return '#live-example'
   }
@@ -19351,24 +19351,6 @@ const playgroundDocsHash = computed(() => {
 
   return `#live-example?${params.toString()}`
 })
-const playgroundHandoffItems = computed(() => [
-  {
-    label: 'Component',
-    value: activeComponentMeta.value?.componentName ?? getPlaygroundComponentForPreset(selectedPreset.value) ?? 'Custom source'
-  },
-  {
-    label: 'Theme',
-    value: selectedThemeMeta.value?.label ?? selectedTheme.value
-  },
-  {
-    label: 'Scenario',
-    value: activeScenario.value?.label ?? (hasScenarioSwitcher.value ? 'Not selected' : 'Props only')
-  },
-  {
-    label: 'Diff',
-    value: sourceDiffSummary.value.changed ? `+${sourceDiffSummary.value.added} / -${sourceDiffSummary.value.removed}` : 'Clean'
-  }
-])
 const sourceDiffCode = computed(() => {
   if (sourceDiffSummary.value.changed === 0) {
     return [
@@ -19452,7 +19434,7 @@ function createLiveExampleSyncSnapshot() {
     eventsCaptured: eventLogs.value.length,
     links: {
       state: activeStateShareUrl.value || null,
-      playground: playgroundImportUrl.value
+      source: liveExampleSourceUrl.value
     }
   }
 }
@@ -19473,7 +19455,7 @@ const reproductionBundle = computed(() => {
     `- Scenario: ${scenarioLabel}`,
     `- Theme: ${selectedThemeMeta.value?.label ?? selectedTheme.value}`,
     `- Viewport: ${previewViewportLabel.value}`,
-    `- Playground: ${playgroundImportUrl.value}`,
+    `- Source link: ${liveExampleSourceUrl.value}`,
     '',
     '## Setup',
     '',
@@ -19527,8 +19509,8 @@ const interactionReplaySteps = computed<InteractionReplayStep[]>(() => [
     label: '1. Restore context',
     detail: activeStateShareUrl.value || activeScenarioShareUrl.value
       ? 'Open the shared state or scenario link to restore theme, viewport and controls.'
-      : 'Open the Playground handoff link and paste the bundled source.',
-    passed: Boolean(activeStateShareUrl.value || activeScenarioShareUrl.value || playgroundImportUrl.value)
+      : 'Open the source link and paste the bundled source.',
+    passed: Boolean(activeStateShareUrl.value || activeScenarioShareUrl.value || liveExampleSourceUrl.value)
   },
   {
     key: 'scenario',
@@ -19645,76 +19627,21 @@ const interactionReplayManifest = computed(() => ({
   links: {
     state: activeStateShareUrl.value || null,
     scenario: activeScenarioShareUrl.value || null,
-    playground: playgroundImportUrl.value
+    source: liveExampleSourceUrl.value
   }
 }))
-const playgroundHandoffPayload = computed(() => ({
-  version: 1,
-  component: getPlaygroundComponentForPreset(selectedPreset.value),
-  theme: selectedTheme.value,
-  source: playgroundSfcSource.value,
-  origin: 'live-example',
-  language: sourceLanguageMode.value,
-  sourcePanel: {
-    mode: sourcePanelMode.value,
-    label: sourcePanelModeLabel.value,
-    language: sourceLanguageMode.value,
-    installPackageManager: installPackageManager.value
-  },
-  docsHash: playgroundDocsHash.value,
-  scenario: activeScenario.value?.key ?? '',
-  viewport: previewViewport.value !== 'auto' ? previewViewport.value : '',
-  controls: hasPropControls.value ? getSerializableControlState() : {},
-  replay: eventLogs.value.length ? interactionReplayManifest.value : null,
-  createdAt: new Date().toISOString()
-}))
-const playgroundHandoffPayloadText = computed(() =>
-  JSON.stringify(playgroundHandoffPayload.value)
-)
-function getStableHandoffHash(value: string) {
-  let hash = 5381
-
-  for (let index = 0; index < value.length; index += 1) {
-    hash = ((hash << 5) + hash) ^ value.charCodeAt(index)
-  }
-
-  return (hash >>> 0).toString(36)
-}
-const playgroundHandoffKey = computed(() =>
-  `${selectedPreset.value}-${getStableHandoffHash(playgroundHandoffPayloadText.value)}`
-)
-const compactPlaygroundHandoffUrl = computed(() => {
-  const params = new URLSearchParams()
-  const playgroundComponent = getPlaygroundComponentForPreset(selectedPreset.value)
-
-  if (playgroundComponent) {
-    params.set('component', playgroundComponent)
-  }
-
-  params.set('theme', selectedTheme.value)
-  params.set('handoff', playgroundHandoffKey.value)
-  params.set('from', 'live-example')
-  params.set('language', sourceLanguageMode.value)
-  params.set('docsHash', playgroundDocsHash.value)
-
-  return `/playground/?${params.toString()}`
-})
-const playgroundReplayImportUrl = computed(() => {
+const liveExampleReplayImportUrl = computed(() => {
   if (!eventLogs.value.length) {
-    return playgroundImportUrl.value
+    return liveExampleSourceUrl.value
   }
 
-  const [pathname, query = ''] = playgroundImportUrl.value.split('?')
+  const [pathname, query = ''] = liveExampleSourceUrl.value.split('?')
   const params = new URLSearchParams(query)
 
   params.set('replay', JSON.stringify(interactionReplayManifest.value))
 
   return `${pathname}?${params.toString()}`
 })
-const canUsePlaygroundHandoff = computed(() => Boolean(getDraftStorage()))
-const playgroundHandoffUrl = computed(() =>
-  canUsePlaygroundHandoff.value ? compactPlaygroundHandoffUrl.value : playgroundImportUrl.value
-)
 const sourcePanelCode = computed(() => {
   if (sourcePanelMode.value === 'template') {
     return templateOnlySource.value
@@ -19789,7 +19716,7 @@ const interactionReproReport = computed(() => {
     `- Scenario: ${scenarioLabel}`,
     `- Theme: ${selectedThemeMeta.value?.label ?? selectedTheme.value}`,
     `- Viewport: ${previewViewportLabel.value}`,
-    `- Playground: ${playgroundImportUrl.value}`,
+    `- Source link: ${liveExampleSourceUrl.value}`,
     '',
     '## Replay steps',
     ...interactionReplaySteps.value.map((step) =>
@@ -19980,25 +19907,6 @@ function readDraft(preset = selectedPreset.value) {
 
 function refreshDraftState() {
   hasStoredDraft.value = Boolean(readDraft())
-}
-
-function persistPlaygroundHandoff() {
-  const storage = getDraftStorage()
-
-  if (!storage) {
-    return
-  }
-
-  const persisted = setStorageItemSafely(
-    storage,
-    `${playgroundHandoffStoragePrefix}:${playgroundHandoffKey.value}`,
-    playgroundHandoffPayloadText.value,
-    playgroundHandoffStoragePrefix
-  )
-
-  if (!persisted) {
-    draftStatus.value = 'Playground handoff 本地存储空间不足，示例仍可编辑、查看和复制源码。'
-  }
 }
 
 function getDefaultControlState(preset = selectedPreset.value) {
@@ -20369,13 +20277,6 @@ if (typeof window !== 'undefined') {
       setPresetSource(preset)
     }
   )
-  watch(
-    playgroundHandoffPayloadText,
-    () => {
-      persistPlaygroundHandoff()
-    },
-    { immediate: true }
-  )
 }
 
 onMounted(() => {
@@ -20570,18 +20471,6 @@ async function hideSourcePanelFromSourcePanel() {
   sourceToggle?.focus({ preventScroll: true })
 }
 
-async function copyPlaygroundImportLink() {
-  persistPlaygroundHandoff()
-  void writeClipboardText(playgroundImportShareUrl.value)
-
-  window.clearTimeout(copiedPlaygroundLinkResetTimer)
-  copiedPlaygroundLink.value = true
-  draftStatus.value = '已复制当前示例的 Playground 导入链接。'
-  copiedPlaygroundLinkResetTimer = window.setTimeout(() => {
-    copiedPlaygroundLink.value = false
-  }, 1200)
-}
-
 async function copyPreviewState() {
   if (!previewStateSnapshot.value) {
     return
@@ -20722,64 +20611,8 @@ async function copyStateLink() {
       </div>
     </div>
 
-    <LiveExampleToolbar
-      v-model:selected-preset="selectedPreset"
-      v-model:copy-mode="copyMode"
-      v-model:source-language-mode="sourceLanguageMode"
-      v-model:selected-theme="selectedTheme"
-      v-model:preview-viewport="previewViewport"
-      :starter-options="starterOptions"
-      :copy-mode-options="copyModeOptions"
-      :source-language-options="sourceLanguageOptions"
-      :theme-options="themeOptions"
-      :preview-viewport-options="previewViewportOptions"
-      :auto-run="autoRun"
-      :has-pending-changes="hasPendingChanges"
-      :can-reset-code="canResetCode"
-      :validation-error="validationError"
-      :show-source-panel="showSourcePanel"
-      :has-stored-draft="hasStoredDraft"
-      :copied="copied"
-      :copied-label="copiedLabel"
-      :copied-run-report="copiedRunReport"
-      :copied-playground-link="copiedPlaygroundLink"
-      :playground-handoff-url="playgroundHandoffUrl"
-      :source-file-url="sourceFileUrl"
-      @apply-starter="applyStarter"
-      @apply-preview-theme="applyPreviewTheme"
-      @toggle-auto-run="toggleAutoRun"
-      @build-preview="buildPreview"
-      @format-code="formatCode"
-      @toggle-source-panel="toggleSourcePanelFromToolbar"
-      @clear-draft="clearDraft"
-      @reset-code="resetCode"
-      @copy-code="copyCode"
-      @copy-run-report="copyRunReport"
-      @persist-playground-handoff="persistPlaygroundHandoff"
-      @copy-playground-link="copyPlaygroundImportLink"
-    />
-
     <section class="live-example-runner__example-card" data-live-example-card="element-plus">
       <div class="live-example-runner__grid">
-        <details class="live-example-runner__editor-disclosure">
-          <summary class="live-example-runner__editor-disclosure-summary">
-            <span>在线调试</span>
-            <strong>编辑当前 SFC</strong>
-          </summary>
-          <LiveExampleEditorPanel
-            ref="editorPanel"
-            v-model="source"
-            :line-numbers="sourceLineNumbers"
-            :editor-scroll-top="editorScrollTop"
-            :live-stats="liveStats"
-            :validation-issue="validationIssue"
-            :copied-diagnostic="copiedDiagnostic"
-            @editor-scroll="syncEditorScroll"
-            @focus-validation-line="focusValidationLine"
-            @copy-diagnostic-snippet="copyDiagnosticSnippet"
-          />
-        </details>
-
         <LiveExamplePreviewPanel
           :preview-viewport="previewViewport"
           :preview-viewport-label="previewViewportLabel"
@@ -20797,6 +20630,38 @@ async function copyStateLink() {
         </LiveExamplePreviewPanel>
       </div>
 
+      <LiveExampleToolbar
+        v-model:selected-preset="selectedPreset"
+        v-model:copy-mode="copyMode"
+        v-model:source-language-mode="sourceLanguageMode"
+        v-model:selected-theme="selectedTheme"
+        v-model:preview-viewport="previewViewport"
+        :starter-options="starterOptions"
+        :copy-mode-options="copyModeOptions"
+        :source-language-options="sourceLanguageOptions"
+        :theme-options="themeOptions"
+        :preview-viewport-options="previewViewportOptions"
+        :auto-run="autoRun"
+        :has-pending-changes="hasPendingChanges"
+        :can-reset-code="canResetCode"
+        :validation-error="validationError"
+        :show-source-panel="showSourcePanel"
+        :has-stored-draft="hasStoredDraft"
+        :copied="copied"
+        :copied-label="copiedLabel"
+        :copied-run-report="copiedRunReport"
+        @apply-starter="applyStarter"
+        @apply-preview-theme="applyPreviewTheme"
+        @toggle-auto-run="toggleAutoRun"
+        @build-preview="buildPreview"
+        @format-code="formatCode"
+        @toggle-source-panel="toggleSourcePanelFromToolbar"
+        @clear-draft="clearDraft"
+        @reset-code="resetCode"
+        @copy-code="copyCode"
+        @copy-run-report="copyRunReport"
+      />
+
       <LiveExampleSourcePanel
         v-if="showSourcePanel"
         v-model:source-panel-mode="sourcePanelMode"
@@ -20807,18 +20672,31 @@ async function copyStateLink() {
         :show-source-language-switch="showSourceLanguageSwitch"
         :source-language-options="sourceLanguageOptions"
         :copied-source-panel="copiedSourcePanel"
-        :playground-handoff-url="playgroundHandoffUrl"
-        :source-file-url="sourceFileUrl"
-        :playground-handoff-items="playgroundHandoffItems"
-        :copied-playground-link="copiedPlaygroundLink"
         :source-diff-summary="sourceDiffSummary"
         :install-package-manager-options="installPackageManagerOptions"
         :source-panel-code="sourcePanelCode"
         @copy-source="copySourcePanelCode"
-        @copy-playground-link="copyPlaygroundImportLink"
-        @persist-playground-handoff="persistPlaygroundHandoff"
         @hide-source="hideSourcePanelFromSourcePanel"
       />
+
+      <details class="live-example-runner__editor-disclosure">
+        <summary class="live-example-runner__editor-disclosure-summary">
+          <span>在线调试</span>
+          <strong>编辑当前 SFC</strong>
+        </summary>
+        <LiveExampleEditorPanel
+          ref="editorPanel"
+          v-model="source"
+          :line-numbers="sourceLineNumbers"
+          :editor-scroll-top="editorScrollTop"
+          :live-stats="liveStats"
+          :validation-issue="validationIssue"
+          :copied-diagnostic="copiedDiagnostic"
+          @editor-scroll="syncEditorScroll"
+          @focus-validation-line="focusValidationLine"
+          @copy-diagnostic-snippet="copyDiagnosticSnippet"
+        />
+      </details>
     </section>
 
     <LiveExampleScenarioStrip

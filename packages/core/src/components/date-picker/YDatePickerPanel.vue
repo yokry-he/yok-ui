@@ -14,6 +14,7 @@ import {
   type YDatePickerDisabledDate,
   type YDateShortcut
 } from './date'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YDatePickerPanel'
@@ -295,7 +296,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
           :disabled="disabled"
           @click="movePanel(-1)"
         >
-          ‹
+          <YInternalIcon name="chevronLeft" />
         </button>
         <button
           class="yok-date-picker-panel__nav yok-focus-ring"
@@ -304,7 +305,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
           :disabled="disabled"
           @click="movePanel(1)"
         >
-          ›
+          <YInternalIcon name="chevronRight" />
         </button>
       </div>
     </header>
@@ -429,9 +430,11 @@ function handleCalendarKeydown(event: KeyboardEvent) {
 }
 
 .yok-date-picker-panel__nav {
-  display: grid;
+  display: inline-flex;
   width: 34px;
   height: 34px;
+  align-items: center;
+  justify-content: center;
   place-items: center;
   border: 1px solid var(--yok-color-border);
   border-radius: var(--yok-radius-md);
@@ -439,7 +442,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
   color: var(--yok-color-text);
   cursor: pointer;
   font: inherit;
-  font-size: 22px;
+  font-size: 16px;
   line-height: 1;
 }
 

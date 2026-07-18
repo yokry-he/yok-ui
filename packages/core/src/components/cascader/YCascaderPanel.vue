@@ -21,6 +21,7 @@ import type {
   YCascaderSelectPayload,
   YCascaderValue
 } from './types'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YCascaderPanel'
@@ -421,7 +422,7 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
           @click="selectOption(option, columnIndex, optionIndex)"
         >
           <span v-if="multiple" class="yok-cascader-panel__check" aria-hidden="true">
-            {{ isOptionChecked(option, columnIndex) ? '✓' : '' }}
+            <YInternalIcon v-if="isOptionChecked(option, columnIndex)" name="check" />
           </span>
           <span class="yok-cascader-panel__option-label">
             <slot name="option" :option="option" :level="column.level">
@@ -448,7 +449,7 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
             class="yok-cascader-panel__option-arrow"
             aria-hidden="true"
           >
-            ›
+            <YInternalIcon name="chevronRight" />
           </span>
         </button>
       </div>
@@ -547,15 +548,28 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
 }
 
 .yok-cascader-panel__check {
-  display: grid;
+  display: inline-flex;
   width: 16px;
   height: 16px;
+  align-items: center;
+  justify-content: center;
   place-items: center;
   border: 1px solid color-mix(in srgb, var(--yok-color-primary) 34%, var(--yok-color-border));
   border-radius: var(--yok-radius-sm);
   color: var(--yok-color-primary);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
+  line-height: 1;
+}
+
+.yok-cascader-panel__option-arrow {
+  display: inline-flex;
+  flex: 0 0 16px;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
   line-height: 1;
 }
 

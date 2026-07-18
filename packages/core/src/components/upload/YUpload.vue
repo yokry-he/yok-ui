@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, useId, watch } from 'vue'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YUpload'
@@ -746,7 +747,7 @@ defineExpose({
             :aria-label="`Remove ${file.name}`"
             @click="removeFile(file)"
           >
-            ×
+            <YInternalIcon name="close" />
           </button>
         </span>
       </li>
@@ -776,7 +777,7 @@ defineExpose({
           :aria-label="`Dismiss ${file.name}`"
           @click="dismissRejectedFile(file)"
         >
-          ×
+          <YInternalIcon name="close" />
         </button>
       </li>
     </ul>

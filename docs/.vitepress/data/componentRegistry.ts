@@ -132,6 +132,17 @@ export const components: ComponentMeta[] = [
     accessibility: 'native'
   },
   {
+    name: 'YButtonGroup',
+    title: 'Button Group',
+    packageName: '@yok-ui/core',
+    family: 'basic',
+    status: 'Stable',
+    docs: '/components/button',
+    description: '将一组相关按钮合并为连续操作区。',
+    since: '0.14.0',
+    accessibility: 'documented'
+  },
+  {
     name: 'YIconButton',
     title: 'Icon Button',
     packageName: '@yok-ui/core',
@@ -1435,10 +1446,16 @@ export const componentApis: Record<string, ComponentApi> = {
   YButton: {
     props: [
       {
+        name: 'type',
+        type: "'default' | 'primary' | 'success' | 'info' | 'warning' | 'danger' | 'button' | 'submit' | 'reset'",
+        defaultValue: "'default'",
+        description: '按钮视觉类型；为兼容早期版本，也接受 button / submit / reset 作为原生类型。'
+      },
+      {
         name: 'variant',
         type: "'primary' | 'secondary' | 'ghost'",
-        defaultValue: "'secondary'",
-        description: '按钮视觉等级。'
+        defaultValue: 'undefined',
+        description: '早期视觉等级别名，保留兼容；新示例推荐使用 type、plain、text 和 link。'
       },
       {
         name: 'size',
@@ -1447,10 +1464,64 @@ export const componentApis: Record<string, ComponentApi> = {
         description: '按钮尺寸。'
       },
       {
+        name: 'nativeType',
+        type: "'button' | 'submit' | 'reset'",
+        defaultValue: "'button'",
+        description: '原生 button type，新代码推荐使用该字段声明表单行为。'
+      },
+      {
+        name: 'plain',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否使用朴素按钮样式。'
+      },
+      {
+        name: 'text',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否使用文字按钮样式。'
+      },
+      {
+        name: 'bg',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '文字按钮是否展示轻量背景。'
+      },
+      {
+        name: 'link',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否使用链接按钮样式。'
+      },
+      {
+        name: 'round',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否使用胶囊圆角。'
+      },
+      {
+        name: 'circle',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否使用圆形图标按钮尺寸。'
+      },
+      {
+        name: 'dashed',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否使用虚线边框。'
+      },
+      {
         name: 'loading',
         type: 'boolean',
         defaultValue: 'false',
         description: '加载中状态，会禁用点击并暴露 aria-busy。'
+      },
+      {
+        name: 'loadingIcon',
+        type: 'Component | string',
+        defaultValue: 'undefined',
+        description: '自定义加载图标组件。'
       },
       {
         name: 'disabled',
@@ -1459,16 +1530,40 @@ export const componentApis: Record<string, ComponentApi> = {
         description: '禁用状态。'
       },
       {
+        name: 'icon',
+        type: 'Component | string',
+        defaultValue: 'undefined',
+        description: '按钮前置图标组件。'
+      },
+      {
         name: 'block',
         type: 'boolean',
         defaultValue: 'false',
         description: '是否撑满父容器宽度，适合移动端底部动作和表单主按钮。'
       },
       {
-        name: 'type',
-        type: "'button' | 'submit' | 'reset'",
-        defaultValue: "'button'",
-        description: '原生 button type。'
+        name: 'autofocus',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '是否自动聚焦按钮。'
+      },
+      {
+        name: 'autoInsertSpace',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '按钮内容为两个中文字符时，是否自动插入空格。'
+      },
+      {
+        name: 'color',
+        type: 'string',
+        defaultValue: 'undefined',
+        description: '自定义按钮主色，适合局部品牌动作。'
+      },
+      {
+        name: 'dark',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '配合 color 使用，声明自定义色为深色背景以提升文字对比度。'
       }
     ],
     slots: [
@@ -1476,6 +1571,81 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'default',
         type: 'VNode',
         description: '按钮内容。'
+      },
+      {
+        name: 'icon',
+        type: 'VNode',
+        description: '自定义按钮前置图标，优先级高于 icon prop。'
+      },
+      {
+        name: 'loading',
+        type: 'VNode',
+        description: '自定义加载中图标，优先级高于 loadingIcon prop。'
+      }
+    ],
+    types: [
+      {
+        name: 'YButtonType',
+        type: "'default' | 'primary' | 'success' | 'info' | 'warning' | 'danger'",
+        description: '按钮视觉语义类型。'
+      },
+      {
+        name: 'YButtonNativeType',
+        type: "'button' | 'submit' | 'reset'",
+        description: '原生按钮类型。'
+      },
+      {
+        name: 'YButtonSize',
+        type: "'sm' | 'md' | 'lg'",
+        description: '按钮尺寸。'
+      }
+    ]
+  },
+  YButtonGroup: {
+    props: [
+      {
+        name: 'label',
+        type: 'string',
+        defaultValue: "''",
+        description: '按钮组的可访问名称，会映射到 aria-label。'
+      },
+      {
+        name: 'direction',
+        type: "'horizontal' | 'vertical'",
+        defaultValue: "'horizontal'",
+        description: '按钮组排列方向。'
+      },
+      {
+        name: 'size',
+        type: "'sm' | 'md' | 'lg'",
+        defaultValue: 'undefined',
+        description: '为组内 YButton 提供默认尺寸。'
+      },
+      {
+        name: 'type',
+        type: "'default' | 'primary' | 'success' | 'info' | 'warning' | 'danger'",
+        defaultValue: 'undefined',
+        description: '为组内 YButton 提供默认视觉类型。'
+      },
+      {
+        name: 'vertical',
+        type: 'boolean',
+        defaultValue: 'false',
+        description: '纵向排列的兼容写法，新代码推荐 direction="vertical"。'
+      }
+    ],
+    slots: [
+      {
+        name: 'default',
+        type: 'VNode',
+        description: '按钮组内容，通常放置多个 YButton。'
+      }
+    ],
+    types: [
+      {
+        name: 'YButtonGroupDirection',
+        type: "'horizontal' | 'vertical'",
+        description: '按钮组排列方向。'
       }
     ]
   },
@@ -1793,6 +1963,8 @@ export const componentApis: Record<string, ComponentApi> = {
       { name: 'clearable', type: 'boolean', defaultValue: 'false', description: '有值且未禁用时显示清空按钮。' },
       { name: 'loading', type: 'boolean', defaultValue: 'false', description: '展示异步建议加载状态；适合远程搜索场景。' },
       { name: 'loadingText', type: 'string', defaultValue: "'Loading suggestions'", description: '加载状态文案。' },
+      { name: 'remoteMethod', type: 'YAutocompleteRemoteMethod', description: '远程建议方法；输入变化后调用，可同步或异步返回建议项。' },
+      { name: 'remoteErrorText', type: 'string', defaultValue: "'Failed to load suggestions'", description: '远程建议加载失败时展示的状态文案。' },
       { name: 'emptyText', type: 'string', defaultValue: "'No suggestions'", description: '没有匹配建议时的空状态文案。' },
       { name: 'size', type: 'YAutocompleteSize', defaultValue: 'ConfigProvider size', description: '输入框尺寸；未传入时把 ConfigProvider 的 sm/md/lg 映射为 small/medium/large。' }
     ],
@@ -1808,6 +1980,7 @@ export const componentApis: Record<string, ComponentApi> = {
     ],
     types: [
       { name: 'YAutocompleteOption', type: '{ label: string; value: string; description?: string; disabled?: boolean }', description: '建议项配置；disabled 选项可展示但不能选择。' },
+      { name: 'YAutocompleteRemoteMethod', type: '(query: string) => YAutocompleteOption[] | Promise<YAutocompleteOption[]>', description: '远程建议加载函数类型。' },
       { name: 'YAutocompleteSize', type: "'small' | 'medium' | 'large'", description: 'Autocomplete 尺寸类型。' }
     ]
   },
@@ -1827,6 +2000,8 @@ export const componentApis: Record<string, ComponentApi> = {
       { name: 'clearable', type: 'boolean', defaultValue: 'false', description: '有值且未禁用时显示清空按钮。' },
       { name: 'loading', type: 'boolean', defaultValue: 'false', description: '展示异步建议加载状态；适合远程成员搜索。' },
       { name: 'loadingText', type: 'string', defaultValue: "'Loading mentions'", description: '加载状态文案。' },
+      { name: 'remoteMethod', type: 'YMentionRemoteMethod', description: '远程提及建议方法；参数包含当前 token 和触发前缀，可同步或异步返回建议项。' },
+      { name: 'remoteErrorText', type: 'string', defaultValue: "'Failed to load mentions'", description: '远程提及加载失败时展示的状态文案。' },
       { name: 'emptyText', type: 'string', defaultValue: "'No mentions'", description: '没有匹配建议时的空状态文案。' },
       { name: 'size', type: 'YMentionSize', defaultValue: 'ConfigProvider size', description: '输入框尺寸；未传入时把 ConfigProvider 的 sm/md/lg 映射为 small/medium/large。' }
     ],
@@ -1842,6 +2017,7 @@ export const componentApis: Record<string, ComponentApi> = {
     ],
     types: [
       { name: 'YMentionOption', type: '{ label: string; value: string; description?: string; disabled?: boolean }', description: '提及建议项配置；disabled 项可展示但不能选择。' },
+      { name: 'YMentionRemoteMethod', type: '(query: string, prefix: string) => YMentionOption[] | Promise<YMentionOption[]>', description: '远程提及建议加载函数类型。' },
       { name: 'YMentionSelectPayload', type: '{ option: YMentionOption; prefix: string; value: string }', description: '提及选择结果结构，适合外部记录选中的对象、前缀和最终文本。' },
       { name: 'YMentionSize', type: "'small' | 'medium' | 'large'", description: 'Mention 尺寸类型。' }
     ]
@@ -2209,6 +2385,8 @@ export const componentApis: Record<string, ComponentApi> = {
       { name: 'virtualOverscan', type: 'number', defaultValue: '4', description: '虚拟滚动视口外额外渲染的选项数量，用于降低快速滚动时的空白感。' },
       { name: 'loading', type: 'boolean', defaultValue: 'false', description: '是否展示异步加载状态；开启时暂停渲染可选项。' },
       { name: 'loadingText', type: 'string', defaultValue: "'Loading options'", description: '异步加载状态下展示给用户和辅助技术的状态文案。' },
+      { name: 'remoteMethod', type: 'YSelectRemoteMethod', description: '远程搜索方法；输入搜索词后调用，可同步或异步返回选项。' },
+      { name: 'remoteErrorText', type: 'string', defaultValue: "'Failed to load options'", description: '远程搜索失败时展示的状态文案。' },
       { name: 'searchPlaceholder', type: 'string', defaultValue: "'Search options'", description: '可搜索模式下搜索框的占位和可访问名称。' },
       { name: 'emptyText', type: 'string', defaultValue: "'No matching options'", description: '过滤后没有匹配项时的空状态文案。' },
       { name: 'size', type: 'YSelectSize', defaultValue: 'ConfigProvider size', description: '选择器尺寸；未传入时把 ConfigProvider 的 sm/md/lg 映射为 small/medium/large。' }
@@ -2223,6 +2401,7 @@ export const componentApis: Record<string, ComponentApi> = {
     ],
     types: [
       { name: 'YSelectOption', type: '{ label: string; value: string; group?: string; disabled?: boolean }', description: '选择项配置；group 相同的选项会在下拉面板中合并为同一组选项。' },
+      { name: 'YSelectRemoteMethod', type: '(query: string) => YSelectOption[] | Promise<YSelectOption[]>', description: '远程搜索方法类型，组件会处理 loading、错误状态和过期请求。' },
       { name: 'YSelectSize', type: "'small' | 'medium' | 'large'", description: '选择器尺寸。' },
       { name: 'YSelectValue', type: 'string | string[]', description: '单选或多选 v-model 值。' }
     ]
@@ -2246,6 +2425,8 @@ export const componentApis: Record<string, ComponentApi> = {
       { name: 'filterable', type: 'boolean', defaultValue: 'false', description: '是否在下拉面板内展示搜索框并按 label 过滤选项。' },
       { name: 'loading', type: 'boolean', defaultValue: 'false', description: '是否展示异步加载状态；开启时暂停渲染可选项。' },
       { name: 'loadingText', type: 'string', defaultValue: "'Loading options'", description: '异步加载状态文案。' },
+      { name: 'remoteMethod', type: 'YSelectRemoteMethod', description: '远程搜索方法；输入搜索词后调用，可同步或异步返回选项。' },
+      { name: 'remoteErrorText', type: 'string', defaultValue: "'Failed to load options'", description: '远程搜索失败时展示的状态文案。' },
       { name: 'searchPlaceholder', type: 'string', defaultValue: "'Search options'", description: '可搜索模式下搜索框的占位和可访问名称。' },
       { name: 'emptyText', type: 'string', defaultValue: "'No matching options'", description: '过滤后没有匹配项时的空状态文案。' },
       { name: 'size', type: 'YSelectSize', defaultValue: 'ConfigProvider size', description: '选择器尺寸。' },
@@ -2263,6 +2444,7 @@ export const componentApis: Record<string, ComponentApi> = {
     ],
     types: [
       { name: 'YSelectOption', type: '{ label: string; value: string; group?: string; disabled?: boolean }', description: '选择项配置。' },
+      { name: 'YSelectRemoteMethod', type: '(query: string) => YSelectOption[] | Promise<YSelectOption[]>', description: '远程搜索方法类型，透传到底层 YSelect。' },
       { name: 'YSelectSize', type: "'small' | 'medium' | 'large'", description: '选择器尺寸。' },
       { name: 'YSelectValue', type: 'string | string[]', description: '单选或多选 v-model 值。' }
     ]
@@ -7723,6 +7905,12 @@ export const componentApis: Record<string, ComponentApi> = {
         description: '局部区域的密度模式。'
       },
       {
+        name: 'font',
+        type: 'YokFontInput',
+        defaultValue: "'system'",
+        description: '局部区域使用的内置字体预设或自定义 font-family。'
+      },
+      {
         name: 'tokens',
         type: 'YokThemeTokens',
         defaultValue: '-',
@@ -7765,15 +7953,51 @@ export const componentApis: Record<string, ComponentApi> = {
       },
       {
         name: 'locale',
-        type: 'string',
+        type: 'YokLocaleInput',
         defaultValue: "'en-US'",
-        description: '子树 locale 标识，会写入 lang 属性。'
+        description: '内置 locale 名称或自定义语言包；同时写入子树 lang 属性。'
+      },
+      {
+        name: 'direction',
+        type: 'YokConfigDirection',
+        defaultValue: "'auto'",
+        description: '文本方向；auto 会优先读取语言包方向。'
       },
       {
         name: 'namespace',
         type: 'string',
         defaultValue: "'yok'",
         description: '组件库命名空间，供未来 class、变量和多实例隔离扩展使用。'
+      },
+      {
+        name: 'theme',
+        type: 'YokThemeName',
+        defaultValue: "'yok-light'",
+        description: '子树主题名称，会写入 data-yok-theme 并应用对应主题变量。'
+      },
+      {
+        name: 'font',
+        type: 'YokFontInput',
+        defaultValue: "'system'",
+        description: '内置字体预设名称、自定义字体预设对象或 font-family 字符串。'
+      },
+      {
+        name: 'zIndex',
+        type: 'number',
+        defaultValue: '2000',
+        description: '当前配置域的浮层层级基线，供 Overlay 基础设施统一读取。'
+      },
+      {
+        name: 'tokens',
+        type: 'YokThemeTokens',
+        defaultValue: '-',
+        description: '覆盖当前主题的 token 分组；嵌套 Provider 会继承未覆盖的 token。'
+      },
+      {
+        name: 'button',
+        type: 'YokButtonConfig',
+        defaultValue: '{}',
+        description: 'Button 的域级默认值；组件显式 props 始终具有更高优先级。'
       }
     ],
     slots: [
@@ -7786,7 +8010,7 @@ export const componentApis: Record<string, ComponentApi> = {
     types: [
       {
         name: 'YokConfigContext',
-        type: '{ size: ComputedRef<YokConfigSize>; density: ComputedRef<YokConfigDensity>; locale: ComputedRef<string>; namespace: ComputedRef<string> }',
+        type: '{ size; density; locale; localePack; direction; namespace; theme; font; fontFamily; zIndex; tokens; button; t }',
         description: '通过 useYokConfig 暴露给组件内部消费的响应式配置上下文。'
       },
       {
@@ -7798,6 +8022,26 @@ export const componentApis: Record<string, ComponentApi> = {
         name: 'YokConfigDensity',
         type: "'comfortable' | 'compact'",
         description: '全局密度类型。'
+      },
+      {
+        name: 'YokConfigDirection',
+        type: "'auto' | 'ltr' | 'rtl'",
+        description: '配置域的文本方向策略。'
+      },
+      {
+        name: 'YokLocale',
+        type: '{ name: string; label: string; direction: \'ltr\' | \'rtl\'; messages: YokLocaleMessages }',
+        description: '可扩展语言包结构；内置 en-US、zh-CN 与 ja-JP。'
+      },
+      {
+        name: 'YokFontPresetName',
+        type: "'system' | 'humanist' | 'rounded' | 'serif' | 'mono'",
+        description: '无需网络字体即可使用的五种内置字体栈。'
+      },
+      {
+        name: 'YokButtonConfig',
+        type: 'Partial<Pick<YButtonProps, \'variant\' | \'plain\' | \'text\' | \'round\' | \'dashed\' | \'autoInsertSpace\' | \'nativeType\'>>',
+        description: 'Config Provider 可提供的 Button 域级默认值。'
       }
     ]
   },

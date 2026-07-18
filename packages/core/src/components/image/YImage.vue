@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YImage'
@@ -210,7 +211,7 @@ onBeforeUnmount(() => {
           aria-label="Close image preview"
           @click.stop.prevent="closePreview"
         >
-          ×
+          <YInternalIcon name="close" />
         </button>
       </div>
     </div>

@@ -15,12 +15,11 @@ import {
 import { getComponentThemeEvidence } from './componentThemeEvidence'
 import { getInteractionContract, type InteractionContract } from './interactionContracts'
 import { liveExampleProfileByDocs, type LiveExampleProfile } from './liveExamples'
-import { getPlaygroundComponentForPreset } from './playgroundExamples'
 
 export type ComponentMaturityTone = 'success' | 'warning' | 'info'
 
 export interface ComponentMaturityItem {
-  key: 'api' | 'live' | 'a11y' | 'playground' | 'theme' | 'route'
+  key: 'api' | 'live' | 'a11y' | 'source' | 'theme' | 'route'
   label: string
   value: string
   detail: string
@@ -83,7 +82,7 @@ export interface ComponentMaturitySummary {
   apiCoverageRate: number
   liveCoverageRate: number
   a11yContractRate: number
-  playgroundHandoffRate: number
+  sourceReproRate: number
   themeCoverageRate: number
   nextQueue: ComponentMaturityQueueItem[]
   coverageQueue: ComponentCoverageQueueItem[]
@@ -177,10 +176,10 @@ function getCoverageAction(labels: string[]) {
     }
   }
 
-  if (labels.some((label) => label === 'Source' || label === 'Repro' || label === 'Playground Handoff')) {
+  if (labels.some((label) => label === 'Source' || label === 'Repro' || label === 'Source Repro')) {
     return {
       actionLabel: '补齐源码复现链路',
-      actionDetail: joined || '源码复制、复现包、场景状态和 Playground handoff 需要形成闭环。'
+      actionDetail: joined || '源码复制、复现包和场景状态需要形成闭环。'
     }
   }
 
@@ -209,15 +208,6 @@ function getCoverageAction(labels: string[]) {
     actionLabel: '复查文档证据',
     actionDetail: joined || '复查组件页成熟度、证据矩阵和发布门禁。'
   }
-}
-
-function getPlaygroundHandoffHref(context: NonNullable<ReturnType<typeof getComponentRouteContext>>) {
-  const preset = context.liveProfile?.preset
-  const playgroundComponent = preset ? getPlaygroundComponentForPreset(preset) : undefined
-
-  return playgroundComponent
-    ? `/playground/?component=${playgroundComponent}`
-    : `${context.component.docs}#component-maturity-playground`
 }
 
 function getCoverageLabelHref(
@@ -254,8 +244,8 @@ function getCoverageLabelHref(
     return `${docs}#live-example-interaction-contract`
   }
 
-  if (label === 'Playground Handoff') {
-    return getPlaygroundHandoffHref(context)
+  if (label === 'Source Repro') {
+    return `${docs}#live-example-source-panel`
   }
 
   if (label === 'Theme' || label === 'Theme & Package') {
@@ -290,7 +280,7 @@ function getCoverageChecklistItem(
   if (label === 'Source') {
     return {
       label: '补源码质量证据',
-      detail: '补齐源码复制、安装命令、API map、场景链接和 Playground 交接检查。',
+      detail: '补齐源码复制、安装命令、API map、场景链接和复现检查。',
       href
     }
   }
@@ -327,10 +317,10 @@ function getCoverageChecklistItem(
     }
   }
 
-  if (label === 'Playground Handoff') {
+  if (label === 'Source Repro') {
     return {
-      label: '补 Playground 交接',
-      detail: '登记 Playground allowlist，并让 live example 携带源码、主题、场景和控件状态进入 Playground。',
+      label: '补源码复现链路',
+      detail: '让 live example 可复制源码、复现包、场景和属性状态。',
       href
     }
   }
@@ -364,7 +354,7 @@ function getCoverageTarget(
     'Live',
     'Live Example',
     'Repro',
-    'Playground Handoff',
+    'Source Repro',
     'Theme',
     'Theme & Package'
   ]
@@ -411,7 +401,7 @@ function getCoveragePriorityRank(priority: ComponentCoveragePriority) {
 }
 
 function getActionableInfoItems(items: ComponentMaturityItem[]) {
-  return items.filter((item) => item.tone === 'info' && item.key === 'playground')
+  return items.filter((item) => item.tone === 'info' && item.key === 'source')
 }
 
 function buildComponentCoverageQueueItem(
@@ -549,15 +539,15 @@ function getComponentEvidenceMatrix(
       key: 'live',
       label: 'Live',
       qualityItems: getQualityItems(['live', 'repro']),
-      maturityItems: getMaturityItems(['live', 'playground']),
+      maturityItems: getMaturityItems(['live', 'source']),
       fallbackValue: 'Needed',
-      fallbackDetail: '需要在线示例、复现包和 Playground handoff。'
+      fallbackDetail: '需要在线示例、复现包和源码复现链路。'
     }),
     buildEvidenceItem({
       key: 'source',
       label: 'Source',
       qualityItems: getQualityItems(['source']),
-      maturityItems: getMaturityItems(['playground']),
+      maturityItems: getMaturityItems(['source']),
       fallbackValue: 'Needed',
       fallbackDetail: '需要源码复制、安装命令、API map、场景链接和可复现工程证据。'
     }),
@@ -615,7 +605,7 @@ export function getComponentMaturitySummary(): ComponentMaturitySummary {
     apiCoverageRate: Math.round((countWithPassedItem('api') / Math.max(contexts.length, 1)) * 100),
     liveCoverageRate: Math.round((countWithPassedItem('live') / Math.max(contexts.length, 1)) * 100),
     a11yContractRate: Math.round((countWithPassedItem('a11y') / Math.max(contexts.length, 1)) * 100),
-    playgroundHandoffRate: Math.round((countWithPassedItem('playground') / Math.max(contexts.length, 1)) * 100),
+    sourceReproRate: Math.round((countWithPassedItem('source') / Math.max(contexts.length, 1)) * 100),
     themeCoverageRate: Math.round((countWithPassedItem('theme') / Math.max(contexts.length, 1)) * 100),
     nextQueue: queue
       .filter((item) => item.missingItems.length > 0)
@@ -656,11 +646,9 @@ function getComponentMaturityItems(options: {
 }): ComponentMaturityItem[] {
   const apiRows = countApiRows(options.api)
   const apiSections = getApiSections(options.api)
-  const playgroundComponent = options.liveProfile
-    ? getPlaygroundComponentForPreset(options.liveProfile.preset)
-    : undefined
   const scenarioCount = options.liveProfile?.scenarios.length ?? 0
   const capabilityCount = options.liveProfile?.capabilities.length ?? 0
+  const hasSourceRepro = Boolean(options.liveProfile?.capabilities.includes('source-copy') && options.liveProfile?.capabilities.includes('repro-bundle'))
   const themeEvidence = getComponentThemeEvidence(options.component.name)
   const themeCategories = themeEvidence?.categories.slice(0, 4).join(' / ')
 
@@ -693,13 +681,13 @@ function getComponentMaturityItems(options: {
       tone: options.interactionContract || options.component.accessibility !== 'needs-review' ? 'success' : 'warning'
     },
     {
-      key: 'playground',
-      label: 'Playground Handoff',
-      value: playgroundComponent ? 'Linked' : 'Manual',
-      detail: playgroundComponent
-        ? `Live example 可携带源码、主题、场景和控件状态进入 /playground/?component=${playgroundComponent}。`
-        : '当前组件尚未登记 Playground allowlist，只能停留在组件页内调试。',
-      tone: playgroundComponent ? 'success' : 'info'
+      key: 'source',
+      label: 'Source Repro',
+      value: hasSourceRepro ? 'Ready' : 'Manual',
+      detail: hasSourceRepro
+        ? 'Live example 可复制源码、主题、场景、控件状态和复现包。'
+        : '当前组件仍需补齐源码复制或 Repro bundle。',
+      tone: hasSourceRepro ? 'success' : 'info'
     },
     {
       key: 'theme',

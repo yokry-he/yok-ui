@@ -23,6 +23,7 @@ import type {
   YTreeSelectPayload,
   YTreeTogglePayload
 } from './types'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YTree'
@@ -678,7 +679,7 @@ defineExpose<YTreeExpose>({
               :aria-label="flatNode.expanded ? `Collapse ${flatNode.label}` : `Expand ${flatNode.label}`"
               @click.stop="toggleNode(flatNode)"
             >
-              <span aria-hidden="true">{{ flatNode.expanded ? '−' : '+' }}</span>
+              <YInternalIcon :name="flatNode.expanded ? 'minus' : 'chevronRight'" />
             </button>
             <span v-else class="yok-tree__spacer" aria-hidden="true" />
 
@@ -695,7 +696,10 @@ defineExpose<YTreeExpose>({
               :aria-checked="getCheckState(flatNode).indeterminate ? 'mixed' : (getCheckState(flatNode).checked ? 'true' : 'false')"
               @click.stop="toggleCheck(flatNode)"
             >
-              <span aria-hidden="true">{{ getCheckState(flatNode).indeterminate ? '−' : (getCheckState(flatNode).checked ? '✓' : '') }}</span>
+              <YInternalIcon
+                v-if="getCheckState(flatNode).indeterminate || getCheckState(flatNode).checked"
+                :name="getCheckState(flatNode).indeterminate ? 'minus' : 'check'"
+              />
             </button>
 
             <span class="yok-tree__label">

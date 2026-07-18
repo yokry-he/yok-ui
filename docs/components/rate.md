@@ -42,7 +42,11 @@ Rate 用于表达满意度、偏好、质量等级和轻量评价。它适合比
 
 当前版本支持整数评分、半星评分、等级文案、尺寸、自定义图标、再次点击清空、只读/禁用和错误状态。
 
-## Example
+::: tip TIP
+`YRate` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Basic rate {#rate-basic-rate}
 
 <DocDemo
   title="Basic rate"
@@ -55,6 +59,8 @@ Rate 用于表达满意度、偏好、质量等级和轻量评价。它适合比
   <p class="demo-note">{{ rateState }}</p>
 </DocDemo>
 
+## Half step {#rate-half-step}
+
 <DocDemo
   title="Half step"
   description="allowHalf 会把步进改为 0.5，适合更细粒度的评分场景。"
@@ -66,6 +72,8 @@ Rate 用于表达满意度、偏好、质量等级和轻量评价。它适合比
   <p class="demo-note">Taste: {{ taste }}</p>
 </DocDemo>
 
+## Custom icon {#rate-custom-icon}
+
 <DocDemo
   title="Custom icon"
   description="图标可以表达更轻松的情绪反馈，但仍保留评分语义。"
@@ -75,6 +83,8 @@ Rate 用于表达满意度、偏好、质量等级和轻量评价。它适合比
 >
   <YRate v-model="mood" label="Mood" icon="❤" void-icon="♡" />
 </DocDemo>
+
+## Copywriting and size {#rate-copywriting-and-size}
 
 <DocDemo
   title="Copywriting and size"
@@ -87,6 +97,8 @@ Rate 用于表达满意度、偏好、质量等级和轻量评价。它适合比
   <p class="demo-note">Service: {{ service }}</p>
 </DocDemo>
 
+## Readonly score {#rate-readonly-score}
+
 <DocDemo
   title="Readonly score"
   description="只读评分适合展示聚合分、质量分或不可编辑的历史评价。"
@@ -97,15 +109,7 @@ Rate 用于表达满意度、偏好、质量等级和轻量评价。它适合比
   <YRate v-model="quality" label="Quality score" readonly />
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="rate"
-  title="在线编辑 Rate 示例"
-  description="切换基础评分、半星、评分文案、清空、只读、移动端和键盘场景，快速验证轻量评价工作流。"
-/>
-
-## Usage notes
+## Usage notes {#rate-usage-notes}
 
 - 评分组件适合表达偏好，不适合精确数值配置；精确数值优先使用 Input Number 或 Slider。
 - `allowHalf` 会改变键盘步进和点击区域，辅助技术仍通过 radio 语义理解当前值。
@@ -114,11 +118,11 @@ Rate 用于表达满意度、偏好、质量等级和轻量评价。它适合比
 - `readonly` 用于展示历史或聚合评分；`disabled` 用于不可操作且语义上被禁用的表单项。
 - 自定义图标应保持视觉宽度稳定，避免评分切换时布局抖动。
 
-## API
+## Rate API {#rate-api}
 
 <ComponentApiSection name="YRate" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 使用 `radiogroup` / `radio` 语义表达评分组和每个分值。
 - 每个评分按钮提供明确的 `aria-label`，例如 `3.5 of 5`。

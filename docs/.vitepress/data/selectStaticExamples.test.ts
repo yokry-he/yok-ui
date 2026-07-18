@@ -31,13 +31,24 @@ describe('select static examples', () => {
     const titles = getDocDemoTitles(source)
 
     expect(titles).toEqual([
-      'Basic usage',
-      'Clearable',
-      'Multiple selection',
-      'Filterable and creatable',
-      'Remote loading',
-      'Grouped and virtualized',
-      'Form validation'
+      '基础用法',
+      'Options 属性',
+      '有禁用选项',
+      '禁用状态',
+      '可清空',
+      '尺寸',
+      '基础多选',
+      '自定义模板',
+      '将选项进行分组',
+      '筛选选项',
+      '远程搜索',
+      '创建新的选项',
+      '使用值键 value-key 属性',
+      '自定义标签',
+      '自定义加载',
+      '空值配置',
+      '大数据列表',
+      '表单校验'
     ])
 
     titles.forEach((title) => {

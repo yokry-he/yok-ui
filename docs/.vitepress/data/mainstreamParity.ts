@@ -1,6 +1,5 @@
 import { componentApis, components, type ComponentMeta } from './componentRegistry'
 import { getApiLiveCoverageSummary } from './apiLiveCoverage'
-import { getLiveExampleSourceQualitySummary } from './liveExampleSourceQuality'
 import { liveExampleDocs } from './liveExamples'
 import { getSourcePanelExperienceSummary } from './sourcePanelExperienceQuality'
 import { getSupportMatrixSummary } from './supportMatrix'
@@ -10,7 +9,6 @@ export type MainstreamParityStatus = 'covered' | 'partial' | 'missing'
 export type MainstreamBenchmarkKey =
   | 'element-plus-overview'
   | 'element-plus-source-actions'
-  | 'element-plus-playground-flow'
   | 'element-plus-grid-layout'
   | 'element-plus-virtualized-select'
   | 'element-plus-table'
@@ -110,22 +108,10 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
       library: 'Element Plus',
       label: 'Element Plus Component demos',
       url: 'https://element-plus.org/en-US/component/select',
-      note: 'Element Plus examples expose TS / JS, Playground editing, copy and source-reading actions around each demo.'
+      note: 'Element Plus examples expose TS / JS, copy and source-reading actions around each demo.'
     },
     resources: ['/resources/maturity'],
     capabilities: ['source-panel', 'top-right-toolbar', 'bottom-collapse', 'copy-source']
-  },
-  {
-    key: 'element-plus-playground-flow',
-    label: 'Docs example to Playground handoff',
-    source: {
-      library: 'Element Plus',
-      label: 'Element Plus Playground',
-      url: 'https://element-plus.org/en-US/component/select',
-      note: 'Mainstream docs let examples move into an editable playground while preserving runnable source context.'
-    },
-    resources: ['/playground/'],
-    capabilities: ['editable-source', 'playground-handoff', 'edited-source-share', 'source-panel-handoff']
   },
   {
     key: 'element-plus-virtualized-select',
@@ -138,7 +124,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     },
     componentNames: ['YVirtualizedSelect'],
     docs: ['/components/virtualized-select'],
-    capabilities: ['virtualized-select', 'structured-api', 'workflow-live-example', 'keyboard-scenario', 'playground-handoff']
+    capabilities: ['virtualized-select', 'structured-api', 'workflow-live-example', 'keyboard-scenario']
   },
   {
     key: 'element-plus-grid-layout',
@@ -151,7 +137,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     },
     componentNames: ['YRow', 'YCol'],
     docs: ['/components/grid'],
-    capabilities: ['structured-api', 'workflow-live-example', 'playground-handoff', 'responsive-grid', 'gutter']
+    capabilities: ['structured-api', 'workflow-live-example', 'responsive-grid', 'gutter']
   },
   {
     key: 'ant-design-vue-flex-layout',
@@ -164,7 +150,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     },
     componentNames: ['YFlex'],
     docs: ['/components/flex'],
-    capabilities: ['structured-api', 'workflow-live-example', 'playground-handoff', 'responsive-wrap', 'semantic-root']
+    capabilities: ['structured-api', 'workflow-live-example', 'responsive-wrap', 'semantic-root']
   },
   {
     key: 'element-plus-table',
@@ -190,7 +176,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     },
     componentNames: ['YVirtualTable', 'YTable', 'YDataTable'],
     docs: ['/components/virtual-table', '/components/table', '/components/data-table'],
-    capabilities: ['virtualized-table', 'structured-api', 'workflow-live-example', 'api-live-coverage', 'playground-handoff']
+    capabilities: ['virtualized-table', 'structured-api', 'workflow-live-example', 'api-live-coverage']
   },
   {
     key: 'element-plus-virtualized-tree',
@@ -203,7 +189,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     },
     componentNames: ['YVirtualTree', 'YTree'],
     docs: ['/components/virtual-tree', '/components/tree'],
-    capabilities: ['virtualized-tree', 'structured-api', 'workflow-live-example', 'keyboard-scenario', 'playground-handoff']
+    capabilities: ['virtualized-tree', 'structured-api', 'workflow-live-example', 'keyboard-scenario']
   },
   {
     key: 'element-plus-tree-lazy-load',
@@ -229,7 +215,7 @@ export const mainstreamBenchmarks: MainstreamBenchmark[] = [
     },
     componentNames: ['YCascader', 'YCascaderPanel'],
     docs: ['/components/cascader', '/components/cascader-panel'],
-    capabilities: ['structured-api', 'workflow-live-example', 'keyboard-scenario', 'lazy-cascader-loading', 'playground-handoff']
+    capabilities: ['structured-api', 'workflow-live-example', 'keyboard-scenario', 'lazy-cascader-loading']
   },
   {
     key: 'element-plus-cascader-lazy-load',
@@ -514,7 +500,6 @@ function getBenchmarkDocs(benchmark: MainstreamBenchmark, matchedComponents: Com
 
 function createChecks(benchmark: MainstreamBenchmark, matchedComponents: ComponentMeta[]) {
   const sourcePanel = getSourcePanelExperienceSummary()
-  const sourceQuality = getLiveExampleSourceQualitySummary()
   const apiLiveCoverage = getApiLiveCoverageSummary()
   const supportMatrix = getSupportMatrixSummary()
   const docs = getBenchmarkDocs(benchmark, matchedComponents)
@@ -556,14 +541,6 @@ function createChecks(benchmark: MainstreamBenchmark, matchedComponents: Compone
     checks.push({
       label: 'Element Plus style source panel',
       passed: sourcePanel.averageScore === 100
-    })
-  }
-
-  if (benchmark.key === 'element-plus-playground-flow') {
-    checks.push({
-      label: 'edited source share and source panel handoff',
-      passed: sourceQuality.playgroundEditShareReady === sourceQuality.total &&
-        sourceQuality.sourcePanelHandoffReady === sourceQuality.total
     })
   }
 

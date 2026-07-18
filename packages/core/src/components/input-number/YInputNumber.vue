@@ -7,6 +7,7 @@ import {
   stepInputNumberValue,
   type YInputNumberValue
 } from './input-number'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 import { useYokConfig, type YokConfigSize } from '../config-provider'
 
 defineOptions({
@@ -152,7 +153,7 @@ function handleKeydown(event: KeyboardEvent) {
           aria-label="Increase value"
           @click="stepValue(1)"
         >
-          <span aria-hidden="true">+</span>
+          <YInternalIcon name="plus" />
         </button>
         <button
           class="yok-input-number__button yok-focus-ring"
@@ -161,7 +162,7 @@ function handleKeydown(event: KeyboardEvent) {
           aria-label="Decrease value"
           @click="stepValue(-1)"
         >
-          <span aria-hidden="true">−</span>
+          <YInternalIcon name="minus" />
         </button>
       </span>
     </span>

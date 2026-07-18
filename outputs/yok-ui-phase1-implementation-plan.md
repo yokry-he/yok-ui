@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the first working `yok-ui` Vue 3 component-library kernel with packages for themes, core components, product components, docs, and playground.
+**Goal:** Build the first working `yok-ui` Vue 3 component-library kernel with packages for themes, core components, product components, docs, and docs-lab.
 
-**Architecture:** Use a pnpm monorepo with independently buildable packages. `@yok-ui/themes` owns design tokens and CSS variables, `@yok-ui/core` owns reusable base components, `@yok-ui/product` owns personal-product components, and `docs` plus `playground` prove the components in real Vue pages.
+**Architecture:** Use a pnpm monorepo with independently buildable packages. `@yok-ui/themes` owns design tokens and CSS variables, `@yok-ui/core` owns reusable base components, `@yok-ui/product` owns personal-product components, and `docs` plus `docs-lab` prove the components in real Vue pages.
 
 **Tech Stack:** Vue 3, TypeScript, Vite, pnpm workspace, Vitest, Vue Test Utils, VitePress, CSS variables.
 
@@ -15,7 +15,7 @@
 - Blueprint: `outputs/yok-ui-design-blueprint.md`
 - Root directory: `/Users/yokry/Documents/Codex/2026-06-13/vue3`
 - User-facing style: 清爽可爱
-- Package strategy: `core / product / admin / brand` long-term, with phase one implementing `themes / core / product / docs / playground`
+- Package strategy: `core / product / admin / brand` long-term, with phase one implementing `themes / core / product / docs / docs-lab`
 
 ## Phase-One Scope
 
@@ -29,7 +29,7 @@ Included:
 - `@yok-ui/core` starter components: `YButton`, `YIconButton`, `YInput`, `YSwitch`, `YTag`, `YBadge`, `YEmpty`, `YThemeProvider`.
 - `@yok-ui/product` starter components: `YCopyButton`, `YThemeSwitcher`, `YCodeBlock`, `YCommandPalette`.
 - VitePress docs with package/category browsing.
-- Playground app that imports packages through workspace aliases.
+- Docs Lab app that imports packages through workspace aliases.
 - Build, typecheck, and unit-test scripts.
 
 Excluded from phase one:
@@ -142,7 +142,7 @@ Create this structure:
     blocks/
       command-center.md
       product-settings.md
-  playground/
+  docs-lab/
     package.json
     index.html
     src/
@@ -203,8 +203,8 @@ Create `package.json`:
     "test:watch": "vitest",
     "docs:dev": "pnpm --filter @yok-ui/docs dev",
     "docs:build": "pnpm --filter @yok-ui/docs build",
-    "playground:dev": "pnpm --filter @yok-ui/playground dev",
-    "playground:build": "pnpm --filter @yok-ui/playground build"
+    "docs-lab:dev": "pnpm --filter @yok-ui/docs-lab dev",
+    "docs-lab:build": "pnpm --filter @yok-ui/docs-lab build"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.4",
@@ -228,7 +228,7 @@ Create `pnpm-workspace.yaml`:
 packages:
   - "packages/*"
   - "docs"
-  - "playground"
+  - "docs-lab"
 ```
 
 - [ ] **Step 3: Create TypeScript base config**
@@ -2215,7 +2215,7 @@ Create `docs/guide/introduction.md`:
 
 Yok UI 是一个清爽可爱的 Vue 3 组件系统。它不是单一大包，而是由 `core`、`product`、`admin` 和 `brand` 组成的多场景组件库。
 
-Phase one 先交付 `@yok-ui/themes`、`@yok-ui/core`、`@yok-ui/product`、文档站和 playground。
+Phase one 先交付 `@yok-ui/themes`、`@yok-ui/core`、`@yok-ui/product`、文档站和 docs-lab。
 ```
 
 Create `docs/guide/installation.md`:
@@ -2414,23 +2414,23 @@ vitepress v
 build complete
 ```
 
-## Task 8: Build Playground App
+## Task 8: Build Docs Lab App
 
 **Files:**
 
-- Create: `playground/package.json`
-- Create: `playground/index.html`
-- Create: `playground/src/main.ts`
-- Create: `playground/src/App.vue`
-- Create: `playground/src/style.css`
+- Create: `docs-lab/package.json`
+- Create: `docs-lab/index.html`
+- Create: `docs-lab/src/main.ts`
+- Create: `docs-lab/src/App.vue`
+- Create: `docs-lab/src/style.css`
 
-- [ ] **Step 1: Create playground package manifest**
+- [ ] **Step 1: Create docs-lab package manifest**
 
-Create `playground/package.json`:
+Create `docs-lab/package.json`:
 
 ```json
 {
-  "name": "@yok-ui/playground",
+  "name": "@yok-ui/docs-lab",
   "private": true,
   "type": "module",
   "scripts": {
@@ -2452,7 +2452,7 @@ Create `playground/package.json`:
 
 - [ ] **Step 2: Create app entry**
 
-Create `playground/index.html`:
+Create `docs-lab/index.html`:
 
 ```html
 <!doctype html>
@@ -2460,7 +2460,7 @@ Create `playground/index.html`:
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Yok UI Playground</title>
+    <title>Yok UI Docs Lab</title>
   </head>
   <body>
     <div id="app"></div>
@@ -2469,7 +2469,7 @@ Create `playground/index.html`:
 </html>
 ```
 
-Create `playground/src/main.ts`:
+Create `docs-lab/src/main.ts`:
 
 ```ts
 import { createApp } from 'vue'
@@ -2482,9 +2482,9 @@ import App from './App.vue'
 createApp(App).mount('#app')
 ```
 
-- [ ] **Step 3: Create playground screen**
+- [ ] **Step 3: Create docs-lab screen**
 
-Create `playground/src/App.vue`:
+Create `docs-lab/src/App.vue`:
 
 ```vue
 <script setup lang="ts">
@@ -2505,8 +2505,8 @@ const commands = [
 </script>
 
 <template>
-  <YThemeProvider :theme="theme" class="playground-shell">
-    <header class="playground-hero">
+  <YThemeProvider :theme="theme" class="docs-lab-shell">
+    <header class="docs-lab-hero">
       <div>
         <p class="eyebrow">yok-ui phase one</p>
         <h1>清爽可爱的 Vue 3 组件系统</h1>
@@ -2515,7 +2515,7 @@ const commands = [
       <YThemeSwitcher v-model="theme" />
     </header>
 
-    <main class="playground-grid">
+    <main class="docs-lab-grid">
       <section class="panel">
         <h2>Core</h2>
         <YInput v-model="name" label="Library name" />
@@ -2555,7 +2555,7 @@ const commands = [
 </template>
 ```
 
-Create `playground/src/style.css`:
+Create `docs-lab/src/style.css`:
 
 ```css
 body {
@@ -2563,12 +2563,12 @@ body {
   background: var(--yok-color-surface);
 }
 
-.playground-shell {
+.docs-lab-shell {
   min-height: 100vh;
   padding: 32px;
 }
 
-.playground-hero {
+.docs-lab-hero {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -2577,7 +2577,7 @@ body {
   margin: 0 auto 24px;
 }
 
-.playground-hero h1 {
+.docs-lab-hero h1 {
   margin: 0;
   font-size: 40px;
   letter-spacing: 0;
@@ -2589,7 +2589,7 @@ body {
   font-weight: 750;
 }
 
-.playground-grid {
+.docs-lab-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
@@ -2623,26 +2623,26 @@ body {
 }
 
 @media (max-width: 760px) {
-  .playground-shell {
+  .docs-lab-shell {
     padding: 20px;
   }
 
-  .playground-hero {
+  .docs-lab-hero {
     display: grid;
   }
 
-  .playground-grid {
+  .docs-lab-grid {
     grid-template-columns: 1fr;
   }
 }
 ```
 
-- [ ] **Step 4: Build playground**
+- [ ] **Step 4: Build docs-lab**
 
 Run:
 
 ```bash
-pnpm playground:build
+pnpm docs-lab:build
 ```
 
 Expected:
@@ -2704,13 +2704,13 @@ Expected:
 @yok-ui/product build
 ```
 
-- [ ] **Step 4: Run docs and playground builds**
+- [ ] **Step 4: Run docs and docs-lab builds**
 
 Run:
 
 ```bash
 pnpm docs:build
-pnpm playground:build
+pnpm docs-lab:build
 ```
 
 Expected:
@@ -2720,12 +2720,12 @@ build complete
 ✓ built in
 ```
 
-- [ ] **Step 5: Start playground for visual review**
+- [ ] **Step 5: Start docs-lab for visual review**
 
 Run with external permission if local port binding fails with `listen EPERM`:
 
 ```bash
-pnpm playground:dev
+pnpm docs-lab:dev
 ```
 
 Expected:
@@ -2751,7 +2751,7 @@ Spec coverage:
 - Core starter components are covered by Tasks 3 through 5.
 - Product starter components are covered by Task 6.
 - Docs package/category browsing is covered by Task 7.
-- Playground verification is covered by Task 8 and Task 9.
+- Docs Lab verification is covered by Task 8 and Task 9.
 - Admin and brand packages are intentionally scoped out of phase one and documented as future package pages.
 
 Placeholder scan:

@@ -53,7 +53,11 @@ function handleClose(value: string) {
 
 Tabs 用于在同一上下文中切换内容，是主流组件库文档和产品设置页的常用组件。当前版本补齐了 WAI-ARIA Tabs 模式要求的 roving tabindex、方向键导航、自动/手动激活、tab 与 panel 关联，以及接近 Element Plus / Ant Design 的 line、card、segment 三种视觉形态。
 
-## Example
+::: tip TIP
+`YTabs` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Context switch {#tabs-context-switch}
 
 <DocDemo
   title="Context switch"
@@ -80,19 +84,11 @@ Tabs 用于在同一上下文中切换内容，是主流组件库文档和产品
   <p v-if="closedTab" class="docs-muted">Close requested: {{ closedTab }}</p>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="tabs"
-  title="在线编辑 Tabs 示例"
-  description="Tabs 运行器内置一组文档场景 tabs，可快速调整默认选中项和面板内容。"
-/>
-
-## API
+## Tabs API {#tabs-api}
 
 <ComponentApiSection name="YTabs" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - Tabs 使用 tablist / tab / tabpanel 语义表达平级内容切换。
 - Horizontal 模式使用 Left / Right，Vertical 模式使用 Up / Down；Home / End 跳到首尾可用 tab。

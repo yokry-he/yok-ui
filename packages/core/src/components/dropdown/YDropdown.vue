@@ -2,6 +2,7 @@
 import { computed, nextTick, ref, useId, watch } from 'vue'
 import { useDismissableLayer } from '../../composables/useDismissableLayer'
 import { useFloatingLayer } from '../../composables/useFloatingLayer'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YDropdown'
@@ -295,7 +296,9 @@ watch(
       @keydown="handleTriggerKeydown"
     >
       <slot name="trigger">{{ label }}</slot>
-      <span class="yok-dropdown__chevron" aria-hidden="true">⌄</span>
+      <span class="yok-dropdown__chevron" aria-hidden="true">
+        <YInternalIcon name="chevronDown" />
+      </span>
     </button>
     <Transition name="yok-floating-layer">
       <div
@@ -345,7 +348,15 @@ watch(
 }
 
 .yok-dropdown__chevron {
+  display: inline-flex;
+  flex: 0 0 16px;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   color: var(--yok-color-textMuted);
+  font-size: 16px;
+  line-height: 1;
 }
 
 .yok-dropdown__menu {

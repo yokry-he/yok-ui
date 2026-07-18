@@ -42,7 +42,7 @@ const emit = defineEmits<{
         <strong>{{ summary.used }}/{{ summary.total }} API rows referenced</strong>
         <p>
           当前示例关联 {{ summary.componentCount }} 个组件、{{ summary.sections }} 个 API 分区；
-          源码、场景和 Playground 交接会共用这份结构化证据。
+          源码、场景和可复现证据会共用这份结构化数据。
         </p>
       </div>
       <button type="button" class="live-example-runner__api-map-copy" @click="emit('copy')">

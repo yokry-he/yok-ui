@@ -107,7 +107,7 @@ function getChecks(demoCount: number, codeDemoCount: number, missingHandoffTitle
       passed: demoCount > 0,
       detail: demoCount > 0
         ? `${demoCount} 个 DocDemo 示例。`
-        : '需要把静态示例迁移到 DocDemo，统一源码、复制和 Playground 交接。'
+        : '需要把静态示例迁移到 DocDemo，统一源码展开和复制。'
     },
     {
       key: 'code-bound',
@@ -122,7 +122,7 @@ function getChecks(demoCount: number, codeDemoCount: number, missingHandoffTitle
       label: '完整 SFC handoff',
       passed: missingHandoffTitles.length === 0,
       detail: missingHandoffTitles.length === 0
-        ? '所有源码示例都能携带 setup 或完整 SFC 进入 Playground。'
+        ? '所有源码示例都能提供 setup 或完整 SFC。'
         : `缺少 setup handoff：${missingHandoffTitles.join(' / ')}。`
     }
   ]

@@ -10,7 +10,7 @@ export interface ExampleSourceActionItem {
   tooltip: string
   label: string
   glyph: string
-  icon?: 'playground' | 'source' | 'copy' | 'external' | 'code' | 'reset'
+  icon?: 'source' | 'copy' | 'external' | 'code' | 'reset'
   text: string
   className?: string
   glyphClassName?: string

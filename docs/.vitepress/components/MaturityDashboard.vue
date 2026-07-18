@@ -224,6 +224,7 @@ const docsA11yCheckLabels: Record<DocsA11yAuditCheck, string> = {
   contrast: '对比度',
   motion: '动效降级',
   responsive: '响应式',
+  demo: '组件示例',
   'live-example': '在线示例'
 }
 const docsA11yCheckCards = computed(() =>
@@ -275,17 +276,17 @@ const qualityMetrics = computed(() => [
   {
     label: 'Source quality',
     value: `${sourceQualitySummary.value.averageScore}%`,
-    detail: `${sourceQualitySummary.value.complete}/${sourceQualitySummary.value.total} 示例通过源码、安装、API map、场景链接和 Playground 交接门禁`
+    detail: `${sourceQualitySummary.value.complete}/${sourceQualitySummary.value.total} 示例通过源码、安装、API map、场景链接和源码复现门禁`
   },
   {
     label: 'Edited source share',
-    value: sourceQualitySummary.value.playgroundEditShareReady,
-    detail: 'Playground 中编辑后的源码会进入分享链接，不会继续复用旧 handoff payload'
+    value: sourceQualitySummary.value.editedSourceShareReady,
+    detail: '编辑后的源码会进入复制结果或复现材料'
   },
   {
-    label: 'Source panel handoff',
+    label: 'Source panel context',
     value: sourceQualitySummary.value.sourcePanelHandoffReady,
-    detail: 'Live Example 进入 Playground 时保留 SFC、Install、Diff 或 Repro bundle 的源码面板来源'
+    detail: 'Live Example 保留 SFC、Install、Diff 或 Repro bundle 的源码面板来源'
   },
   {
     label: 'Interaction contracts',
@@ -300,7 +301,7 @@ const qualityMetrics = computed(() => [
   {
     label: 'Audit targets',
     value: docsA11yAuditSummary.value.total,
-    detail: `${docsA11yAuditSummary.value.mobileCoverageRate}% 审计目标覆盖移动端，${docsA11yAuditSummary.value.liveExampleTargets} 个目标覆盖在线示例`
+    detail: `${docsA11yAuditSummary.value.mobileCoverageRate}% 审计目标覆盖移动端，${docsA11yAuditSummary.value.demoTargets} 个目标覆盖组件示例`
   },
   {
     label: 'Stable components',
@@ -332,9 +333,9 @@ const componentMaturityCards = computed(() => [
     detail: '组件具备原生、文档化或 interaction contract 可访问性证据'
   },
   {
-    label: 'Playground handoff',
-    value: `${componentMaturitySummary.value.playgroundHandoffRate}%`,
-    detail: '组件 live example 可携带源码、主题和状态进入 Playground'
+    label: 'Source repro',
+    value: `${componentMaturitySummary.value.sourceReproRate}%`,
+    detail: '组件 live example 可复制源码、主题、状态和复现包'
   },
   {
     label: 'Theme evidence',
@@ -472,7 +473,7 @@ const docDemoSourceQualityCards = computed(() => [
   {
     label: 'code demos',
     value: docDemoSourceQualitySummary.value.totalCodeDemos,
-    detail: '可展开源码、复制代码并进入 Playground 的静态示例数量。'
+    detail: '可展开源码并复制代码的静态示例数量。'
   },
   {
     label: 'handoff queue',
@@ -490,7 +491,7 @@ const sourcePanelExperienceCards = computed(() => [
   {
     label: 'Element Plus source panel',
     value: sourcePanelExperienceSummary.value.elementPlusPanels,
-    detail: 'DocDemo、Live Example 和 Playground 都显式暴露 data-source-panel="element-plus"。'
+    detail: 'DocDemo 和 Live Example 都显式暴露 data-source-panel="element-plus"。'
   },
   {
     label: 'Top-right toolbar',
@@ -505,12 +506,7 @@ const sourcePanelExperienceCards = computed(() => [
   {
     label: 'Shared action model',
     value: sourcePanelExperienceSummary.value.sharedActionModels,
-    detail: 'DocDemo、Live Example 和 Playground 统一复用 ExampleSourceActions。'
-  },
-  {
-    label: 'Playground edit',
-    value: sourcePanelExperienceSummary.value.playgroundEditActions,
-    detail: '每个源码入口都能把当前示例带入 Playground 编辑。'
+    detail: 'DocDemo 和 Live Example 统一复用 ExampleSourceActions。'
   },
   {
     label: 'Copy source',
@@ -845,7 +841,7 @@ const nextPriorities = computed(() =>
         <p class="docs-eyebrow">component maturity evidence</p>
         <h3>把单组件成熟度清单汇总成全局发布视图</h3>
         <p>
-          每个组件页底部的 API、Live、A11y、Playground、Theme 和 Route IA 证据会同步汇总到这里。
+          每个组件页底部的 API、Live、A11y、源码复现、Theme 和 Route IA 证据会同步汇总到这里。
           这让组件库不只看“有多少组件”，还能持续追踪每个组件离可发布、可维护、可复现还有多远。
         </p>
       </div>
@@ -930,7 +926,7 @@ const nextPriorities = computed(() =>
         <h3>把“接近主流组件库”改成外部基准驱动</h3>
         <p>
           内部成熟度达标后，Yok UI 继续用 Element Plus、Ant Design Vue、Arco Design Vue、Naive UI 和 TDesign Vue Next
-          的组件总览、示例源码操作、Playground 交接、主题 token、企业表单、后台模板和资源体系作为外部对标项。
+          的组件总览、示例源码操作、源码复现、主题 token、企业表单、后台模板和资源体系作为外部对标项。
           每个基准都必须能回到当前组件、文档路由、Live Example、API evidence 或资源页证据。
         </p>
       </div>
@@ -988,7 +984,7 @@ const nextPriorities = computed(() =>
         <p class="docs-eyebrow">component coverage queue</p>
         <h3>把文档证据缺口排成可执行维护队列</h3>
         <p>
-          这条队列会合并组件页的 API Live、Source、A11y、Theme、Replay 和 Playground handoff 证据，
+          这条队列会合并组件页的 API Live、Source、A11y、Theme、Replay 和源码复现证据，
           按 critical、high、medium 自动排序，避免每次补文档都靠人工翻页面。
         </p>
       </div>
@@ -1034,7 +1030,7 @@ const nextPriorities = computed(() =>
         </article>
         <div v-if="componentMaturitySummary.coverageQueue.length === 0" class="maturity-dashboard__complete">
           <strong>Component coverage complete</strong>
-          <span>当前组件页的 API Live、Source、A11y、Theme 和 Playground 证据都已达标。</span>
+          <span>当前组件页的 API Live、Source、A11y、Theme 和源码复现证据都已达标。</span>
         </div>
       </div>
     </div>
@@ -1174,9 +1170,9 @@ const nextPriorities = computed(() =>
     <div class="maturity-dashboard__doc-demo">
       <div class="maturity-dashboard__doc-demo-copy">
         <p class="docs-eyebrow">static demo handoff</p>
-        <h3>把静态示例也纳入 Playground 交接质量门禁</h3>
+        <h3>把静态示例也纳入源码质量门禁</h3>
         <p>
-          除了 Live Example，组件页里的静态示例也需要统一到 DocDemo：能展开源码、复制代码、查看源文件，并携带完整 SFC 进入 Playground。
+          除了 Live Example，组件页里的静态示例也需要统一到 DocDemo：能展开源码、复制代码、查看源文件，并提供完整 SFC 复现内容。
           这组指标会扫描组件 markdown，先找出仍在使用 demo-box 的页面，再找出已迁移 DocDemo 但缺 setup handoff 的静态示例。
         </p>
       </div>
@@ -1230,8 +1226,8 @@ const nextPriorities = computed(() =>
         <p class="docs-eyebrow">source panel experience</p>
         <h3>把示例源码区统一成 Element Plus 式阅读体验</h3>
         <p>
-          DocDemo、Live Example 和 Playground 都是用户查看、复制、编辑示例代码的入口。
-          这组门禁会扫描源码结构，确保三者都保持浅色源码面板、右上角工具栏、底部收起条、语言切换、复制和 Playground 编辑动作。
+          DocDemo 和 Live Example 是用户查看、复制示例代码的主要入口。
+          这组门禁会扫描源码结构，确保两者都保持浅色源码面板、右上角工具栏、底部收起条、语言切换和复制动作。
         </p>
       </div>
 
@@ -1267,7 +1263,7 @@ const nextPriorities = computed(() =>
           </a>
           <div v-if="sourcePanelExperienceSummary.nextQueue.length === 0" class="maturity-dashboard__complete">
             <strong>Source panel experience complete</strong>
-            <span>当前 DocDemo、Live Example 和 Playground 的源码阅读结构保持一致。</span>
+            <span>当前 DocDemo 和 Live Example 的源码阅读结构保持一致。</span>
           </div>
         </div>
       </div>

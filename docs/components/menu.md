@@ -108,7 +108,11 @@ function handleClose(_: string, keyPath: string[]) {
 
 Menu 用于应用主导航、后台侧边栏、组件目录和资源分组入口。Yok UI 的实现参考 Element Plus Menu 的水平/垂直模式、子菜单、禁用项和展开事件，也参考 Ant Design Menu 的数据驱动 items、选中 key 与展开 key 思路，优先提供可测试、可复制、可接入路由状态的基础版本。
 
-## Example
+::: tip TIP
+`YMenu` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Side navigation {#menu-side-navigation}
 
 <DocDemo
   id="demo-side-navigation"
@@ -131,6 +135,8 @@ Menu 用于应用主导航、后台侧边栏、组件目录和资源分组入口
   </div>
 </DocDemo>
 
+## Horizontal navigation {#menu-horizontal-navigation}
+
 <DocDemo
   id="demo-horizontal-menu"
   title="Horizontal navigation"
@@ -146,6 +152,8 @@ Menu 用于应用主导航、后台侧边栏、组件目录和资源分组入口
     aria-label="Top navigation"
   />
 </DocDemo>
+
+## Collapsed navigation {#menu-collapsed-navigation}
 
 <DocDemo
   id="demo-collapsed-menu"
@@ -163,15 +171,7 @@ Menu 用于应用主导航、后台侧边栏、组件目录和资源分组入口
   />
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="menu"
-  title="在线编辑 Menu 示例"
-  description="调试侧边导航、顶部导航、折叠侧栏、手风琴展开、禁用项、移动导航和键盘路径。"
-/>
-
-## Usage Notes
+## Usage Notes {#menu-usage-notes}
 
 - `modelValue` 应与真实路由或页面状态同步；点击叶子项后再由业务侧决定是否跳转。
 - `defaultOpenKeys` 只控制初始展开，适合从当前路由推导默认展开分组。
@@ -179,13 +179,13 @@ Menu 用于应用主导航、后台侧边栏、组件目录和资源分组入口
 - `collapsed` 模式要求菜单项提供 `icon`，否则只会保留文本的 `title` 提示。
 - 移动端不要直接把完整桌面侧边栏堆叠到首屏内容上方，应放入抽屉、弹层或紧凑顶部菜单。
 
-## Accessibility
+## Menu API {#menu-api}
+
+<ComponentApiSection name="YMenu" />
+
+## Accessibility {#accessibility}
 
 - 根节点使用 `role="navigation"` 和 `ariaLabel` 标明导航区域。
 - 菜单项使用原生 `button`，禁用项使用原生 `disabled`。
 - 当前叶子项使用 `aria-current="page"`；子菜单使用 `aria-expanded`。
 - 方向键移动焦点，Enter 或 Space 选择叶子项或展开子菜单。
-
-## API
-
-<ComponentApiSection name="YMenu" />

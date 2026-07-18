@@ -85,7 +85,7 @@ function countMatches(html: string, pattern: RegExp) {
 }
 
 function hasNavigation(html: string) {
-  return /<nav\b/i.test(html) && /href="\/(?:guide|components|resources|playground)\/?"/i.test(html)
+  return /<nav\b/i.test(html) && /href="\/(?:guide|components|resources)\/?"/i.test(html)
 }
 
 function hasLiveExampleAnchor(html: string) {

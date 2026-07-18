@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YTable'
@@ -850,7 +851,7 @@ defineExpose({
                   :aria-controls="getExpandedRowId(row, virtualRange.start + localRowIndex)"
                   @click="toggleExpandedRow(row, virtualRange.start + localRowIndex)"
                 >
-                  <span aria-hidden="true">{{ isRowExpanded(row, virtualRange.start + localRowIndex) ? '⌄' : '›' }}</span>
+                  <YInternalIcon :name="isRowExpanded(row, virtualRange.start + localRowIndex) ? 'chevronDown' : 'chevronRight'" />
                 </button>
               </td>
               <td

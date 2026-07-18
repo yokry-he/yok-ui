@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import YVirtualizedSelect from './YVirtualizedSelect.vue'
 
@@ -59,6 +60,45 @@ describe('YVirtualizedSelect', () => {
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['pkg-42'])
     expect(wrapper.emitted('change')?.[0]).toEqual(['pkg-42'])
+
+    wrapper.unmount()
+  })
+
+  it('passes remoteMethod through to the base select contract', async () => {
+    let resolveRemoteSearch: (options: Array<{ label: string; value: string }>) => void = () => {}
+    const remoteMethod = (query: string) =>
+      new Promise<Array<{ label: string; value: string }>>((resolve) => {
+        if (query === 'remote') {
+          resolveRemoteSearch = resolve
+          return
+        }
+
+        resolve([])
+      })
+
+    const wrapper = mount(YVirtualizedSelect, {
+      props: {
+        modelValue: '',
+        label: 'Package',
+        options: largeOptions.slice(0, 2),
+        filterable: true,
+        loadingText: 'Loading remote packages...',
+        remoteMethod
+      },
+      attachTo: document.body
+    })
+
+    await wrapper.get('[role="combobox"]').trigger('click')
+    await wrapper.get('[role="searchbox"]').setValue('remote')
+    await nextTick()
+
+    expect(wrapper.get('[role="status"]').text()).toBe('Loading remote packages...')
+
+    resolveRemoteSearch([{ label: 'Remote package', value: 'remote' }])
+    await nextTick()
+    await nextTick()
+
+    expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['Remote package'])
 
     wrapper.unmount()
   })

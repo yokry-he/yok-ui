@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YTabs'
@@ -238,7 +239,7 @@ function handleClose(event: MouseEvent, tab: YTabItem) {
           :aria-label="`Close ${tab.label}`"
           @click="handleClose($event, tab)"
         >
-          ×
+          <YInternalIcon name="close" />
         </span>
       </button>
     </div>

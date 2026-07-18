@@ -11,7 +11,11 @@ const code = `<YSpace wrap>
 
 Link 用于主题化文本链接，适合文档入口、设置项辅助导航、空状态补充操作和轻量外链。
 
-## Example
+::: tip TIP
+`YLink` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Inline navigation {#link-inline-navigation}
 
 <DocDemo
   title="Inline navigation"
@@ -27,19 +31,11 @@ Link 用于主题化文本链接，适合文档入口、设置项辅助导航、
   </YSpace>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="link"
-  title="在线编辑 Link 示例"
-  description="调整语义色、下划线策略、外链和禁用态，验证链接在文档和产品页面中的真实使用方式。"
-/>
-
-## API
+## Link API {#link-api}
 
 <ComponentApiSection name="YLink" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - Link 保持原生 anchor 语义，非禁用状态下可通过 Tab 聚焦并用 Enter 访问。
 - `external` 会默认使用 `_blank` 和 `noopener noreferrer`，降低外链安全风险。

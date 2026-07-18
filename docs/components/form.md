@@ -26,7 +26,6 @@ const formRules: Record<string, YFormRule | YFormRule[]> = {
   }
 }
 
-
 const packageOptions = [
   { label: 'Core', value: 'core' },
   { label: 'Product', value: 'product' },
@@ -104,7 +103,11 @@ function focusDescription() {
 
 Form 负责管理表单数据、校验规则和字段错误。它参考主流组件库的 `rules`、`validate`、`validateField`、`resetFields` 模式，适合配置页、创建流程和后台筛选表单。
 
-## Example
+::: tip TIP
+`YForm` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Validation flow {#form-validation-flow}
 
 <DocDemo
   title="Validation flow"
@@ -152,19 +155,11 @@ Form 负责管理表单数据、校验规则和字段错误。它参考主流组
   </YForm>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="form"
-  title="在线编辑 Form 示例"
-  description="运行器覆盖保存、错误复核、只读审核、移动布局和键盘提交场景，可直接验证源码、预览和可访问性提示。"
-/>
-
-## API
+## Form API {#form-api}
 
 <ComponentApiSection name="YForm" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - `YForm` 使用原生 `form` 与 `fieldset`，提交时会阻止浏览器默认刷新并触发校验。
 - `YFormItem` 的 slot 会提供 `labelFor`、`messageId`、`error`、`invalid`、`validate` 和 `clearValidate`，建议把 id 与状态传给输入控件，并在 change / blur 后调用对应触发器校验。

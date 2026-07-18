@@ -95,7 +95,11 @@ Date Picker Panel 是可直接嵌入页面、抽屉、Popover 内容区或筛选
 
 它参考主流组件库独立 panel 的组织方式，把月份导航、日期网格、禁用规则、快捷项和可访问性状态放在一个稳定受控组件里。需要常规表单触发器时使用 <a href="/components/date-picker">Date Picker</a>；需要始终展示日历时使用 Date Picker Panel。
 
-## Examples
+::: tip TIP
+`YDatePickerPanel` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Embedded calendar {#date-picker-panel-embedded-calendar}
 
 <DocDemo
   title="Embedded calendar"
@@ -108,6 +112,8 @@ Date Picker Panel 是可直接嵌入页面、抽屉、Popover 内容区或筛选
   <p class="demo-note">Selected: {{ releaseDate }} · {{ panelState }}</p>
 </DocDemo>
 
+## Shortcuts {#date-picker-panel-shortcuts}
+
 <DocDemo
   title="Shortcuts"
   description="快捷日期适合评审日、上线日和带业务时间说明的高频选择。"
@@ -118,6 +124,8 @@ Date Picker Panel 是可直接嵌入页面、抽屉、Popover 内容区或筛选
   <YDatePickerPanel v-model="shortcutDate" label="Release shortcuts" :shortcuts="dateShortcuts" />
   <p class="demo-note">Selected: {{ shortcutDate }}</p>
 </DocDemo>
+
+## Disabled dates {#date-picker-panel-disabled-dates}
 
 <DocDemo
   title="Disabled dates"
@@ -134,6 +142,8 @@ Date Picker Panel 是可直接嵌入页面、抽屉、Popover 内容区或筛选
   <p class="demo-note">Weekends are disabled.</p>
 </DocDemo>
 
+## Borderless panel {#date-picker-panel-borderless-panel}
+
 <DocDemo
   title="Borderless panel"
   description="嵌入卡片、抽屉或 Popover 内容区时，可以移除外框和阴影，让容器负责视觉边界。"
@@ -143,6 +153,8 @@ Date Picker Panel 是可直接嵌入页面、抽屉、Popover 内容区或筛选
 >
   <YDatePickerPanel v-model="inlineDate" label="Inline calendar" :border="false" />
 </DocDemo>
+
+## Panel validation {#date-picker-panel-panel-validation}
 
 <DocDemo
   title="Panel validation"
@@ -163,15 +175,7 @@ Date Picker Panel 是可直接嵌入页面、抽屉、Popover 内容区或筛选
   <p id="release-date-panel-help" class="demo-note">Choose a release date before publishing.</p>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="datePickerPanel"
-  title="在线编辑 Date Picker Panel 示例"
-  description="切换嵌入面板、快捷日期、禁用日期、无边框、错误、移动端和键盘场景，验证独立日期面板。"
-/>
-
-## Usage notes
+## Usage notes {#date-picker-panel-usage-notes}
 
 - 常规表单输入优先使用 `YDatePicker`；始终展示日历、嵌入配置面板或筛选侧栏时使用 `YDatePickerPanel`。
 - `modelValue` 使用 `YYYY-MM-DD` 字符串，便于 URL 查询参数、表单提交和后端接口保存。
@@ -180,11 +184,11 @@ Date Picker Panel 是可直接嵌入页面、抽屉、Popover 内容区或筛选
 - `shortcuts` 可以携带 `time` 和 `description`，用于表达评审窗口、上线窗口等业务 preset。
 - 面板使用 `role="group"`，日期区域使用 `role="grid"`；有可见 `label` 时通过 `aria-labelledby` 命名，无可见标题时应传 `ariaLabel`。
 
-## API
+## Date Picker Panel API {#date-picker-panel-api}
 
 <ComponentApiSection name="YDatePickerPanel" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 面板根节点使用 `role="group"` 表达一组日期选择控件。
 - 日历区域使用 `role="grid"`、星期使用 `role="columnheader"`、日期按钮使用 `role="gridcell"` 和 `aria-selected`。

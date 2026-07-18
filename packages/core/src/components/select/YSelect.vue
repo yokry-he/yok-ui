@@ -2,6 +2,7 @@
 import { computed, nextTick, ref, useId, watch } from 'vue'
 import { useDismissableLayer } from '../../composables/useDismissableLayer'
 import { useFloatingLayer } from '../../composables/useFloatingLayer'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 import { useYokConfig, type YokConfigSize } from '../config-provider'
 
 defineOptions({
@@ -17,6 +18,7 @@ export interface YSelectOption {
 
 export type YSelectSize = 'small' | 'medium' | 'large'
 export type YSelectValue = string | string[]
+export type YSelectRemoteMethod = (query: string) => YSelectOption[] | Promise<YSelectOption[]>
 
 const selectSizeByConfig: Record<YokConfigSize, YSelectSize> = {
   sm: 'small',
@@ -47,6 +49,8 @@ interface Props {
   virtualOverscan?: number
   loading?: boolean
   loadingText?: string
+  remoteMethod?: YSelectRemoteMethod
+  remoteErrorText?: string
   searchPlaceholder?: string
   emptyText?: string
   size?: YSelectSize
@@ -74,6 +78,7 @@ const props = withDefaults(defineProps<Props>(), {
   virtualOverscan: 4,
   loading: false,
   loadingText: 'Loading options',
+  remoteErrorText: 'Failed to load options',
   searchPlaceholder: 'Search options',
   emptyText: 'No matching options'
 })
@@ -98,6 +103,10 @@ const optionRefs = ref<HTMLButtonElement[]>([])
 const pendingFocus = ref<'selected' | 'first' | 'last' | null>(null)
 const query = ref('')
 const listboxScrollTop = ref(0)
+const remoteOptions = ref<YSelectOption[]>([])
+const remoteLoading = ref(false)
+const remoteError = ref('')
+let remoteRequestId = 0
 const createOptionIndex = -1
 
 const fieldId = computed(() => props.id || `yok-select-${generatedId}`)
@@ -114,17 +123,22 @@ const selectedValues = computed(() =>
         : []
     : []
 )
+const hasActiveRemoteQuery = computed(() => Boolean(props.remoteMethod && query.value.trim()))
+const sourceOptions = computed(() => hasActiveRemoteQuery.value ? remoteOptions.value : props.options)
+const lookupOptions = computed(() => [...props.options, ...remoteOptions.value])
+const isLoading = computed(() => props.loading || remoteLoading.value)
+const emptyStatusText = computed(() => remoteError.value || props.emptyText)
 const selectedOption = computed(() =>
   props.multiple
-    ? props.options.find((option) => selectedValues.value.includes(option.value))
-    : props.options.find((option) => option.value === props.modelValue) ||
+    ? lookupOptions.value.find((option) => selectedValues.value.includes(option.value))
+    : lookupOptions.value.find((option) => option.value === props.modelValue) ||
       (props.allowCreate && typeof props.modelValue === 'string' && props.modelValue
         ? { label: props.modelValue, value: props.modelValue }
         : undefined)
 )
 const selectedOptions = computed(() =>
   selectedValues.value.map((value) =>
-    props.options.find((option) => option.value === value) ||
+    lookupOptions.value.find((option) => option.value === value) ||
     (props.allowCreate ? { label: value, value } : undefined)
   ).filter((option): option is YSelectOption => Boolean(option))
 )
@@ -143,23 +157,23 @@ const collapsedSelectedCount = computed(() =>
 const filteredOptions = computed(() => {
   const normalizedQuery = query.value.trim().toLowerCase()
 
-  if (!props.filterable || !normalizedQuery) {
-    return props.options.map((option, index) => ({ option, index }))
+  if (!props.filterable || !normalizedQuery || hasActiveRemoteQuery.value) {
+    return sourceOptions.value.map((option, index) => ({ option, index }))
   }
 
-  return props.options
+  return sourceOptions.value
     .map((option, index) => ({ option, index }))
     .filter(({ option }) => option.label.toLowerCase().includes(normalizedQuery))
 })
 const createOption = computed<YSelectOption | null>(() => {
   const normalizedQuery = query.value.trim()
 
-  if (!props.filterable || !props.allowCreate || !normalizedQuery) {
+  if (!props.filterable || !props.allowCreate || !normalizedQuery || isLoading.value || remoteError.value) {
     return null
   }
 
   const normalizedLower = normalizedQuery.toLowerCase()
-  const hasExistingOption = props.options.some((option) =>
+  const hasExistingOption = sourceOptions.value.some((option) =>
     option.label.toLowerCase() === normalizedLower ||
     option.value.toLowerCase() === normalizedLower
   )
@@ -193,7 +207,7 @@ const filteredOptionGroups = computed(() => {
 const hasGroupedOptions = computed(() => filteredOptions.value.some(({ option }) => Boolean(option.group)))
 const canVirtualizeOptions = computed(() =>
   props.virtualized &&
-  !props.loading &&
+  !isLoading.value &&
   !hasGroupedOptions.value &&
   !createOption.value
 )
@@ -241,7 +255,7 @@ const displayText = computed(() => selectedOption.value?.label || props.placehol
 const hasInvalidState = computed(() => Boolean(props.error) || props.invalid)
 const describedBy = computed(() => props.ariaDescribedby || undefined)
 const enabledOptions = computed(() =>
-  props.loading
+  isLoading.value
     ? []
     : [
         ...filteredOptions.value.filter(({ option }) => !option.disabled),
@@ -284,7 +298,7 @@ function focusSelectedOrFirst() {
     return
   }
 
-  const selectedIndex = props.options.findIndex((option) => option.value === props.modelValue && !option.disabled)
+  const selectedIndex = sourceOptions.value.findIndex((option) => option.value === props.modelValue && !option.disabled)
 
   if (selectedIndex >= 0) {
     focusOption(selectedIndex)
@@ -398,7 +412,7 @@ function selectOption(option: YSelectOption) {
       emit('remove', option.value)
     }
     query.value = ''
-    void nextTick(() => focusOption(props.options.findIndex((item) => item.value === option.value)))
+    void nextTick(() => focusOption(sourceOptions.value.findIndex((item) => item.value === option.value)))
     return
   }
 
@@ -508,6 +522,46 @@ function resetVirtualScroll() {
   }
 }
 
+async function loadRemoteOptions(value: string) {
+  const remoteMethod = props.remoteMethod
+
+  if (!remoteMethod) {
+    return
+  }
+
+  const requestId = ++remoteRequestId
+  remoteError.value = ''
+  remoteLoading.value = true
+
+  try {
+    const nextOptions = await remoteMethod(value)
+
+    if (requestId !== remoteRequestId) {
+      return
+    }
+
+    remoteOptions.value = Array.isArray(nextOptions) ? nextOptions : []
+  } catch {
+    if (requestId !== remoteRequestId) {
+      return
+    }
+
+    remoteOptions.value = []
+    remoteError.value = props.remoteErrorText
+  } finally {
+    if (requestId === remoteRequestId) {
+      remoteLoading.value = false
+    }
+  }
+}
+
+function resetRemoteOptions() {
+  remoteRequestId += 1
+  remoteLoading.value = false
+  remoteError.value = ''
+  remoteOptions.value = []
+}
+
 watch(open, (isOpen) => {
   emit('visibleChange', isOpen)
 
@@ -540,6 +594,17 @@ watch(query, (value) => {
   emit('search', value)
   optionRefs.value = []
   resetVirtualScroll()
+
+  if (!props.remoteMethod) {
+    return
+  }
+
+  if (!value.trim()) {
+    resetRemoteOptions()
+    return
+  }
+
+  void loadRemoteOptions(value)
 })
 </script>
 
@@ -582,7 +647,7 @@ watch(query, (value) => {
               :aria-label="`Remove ${option.label}`"
               @click="removeOption(option, $event)"
             >
-              ×
+              <YInternalIcon name="close" />
             </button>
           </span>
           <span
@@ -596,7 +661,9 @@ watch(query, (value) => {
         <span v-else class="yok-select__value" :class="{ 'yok-select__value--placeholder': !selectedOption }">
           {{ displayText }}
         </span>
-        <span class="yok-select__chevron" aria-hidden="true">⌄</span>
+        <span class="yok-select__chevron" aria-hidden="true">
+          <YInternalIcon name="chevronDown" />
+        </span>
       </div>
       <button
         v-if="clearable && hasSelection && !disabled"
@@ -605,7 +672,7 @@ watch(query, (value) => {
         aria-label="Clear selection"
         @click="clearSelection"
       >
-        ×
+        <YInternalIcon name="close" />
       </button>
     </div>
     <Transition name="yok-floating-layer">
@@ -635,7 +702,10 @@ watch(query, (value) => {
           :id="listboxId"
           ref="optionListboxRef"
           class="yok-select__listbox"
-          :class="{ 'yok-select__listbox--virtualized': canVirtualizeOptions }"
+          :class="{
+            'yok-select__listbox--with-search': filterable,
+            'yok-select__listbox--virtualized': canVirtualizeOptions
+          }"
           :style="listboxStyle"
           role="listbox"
           :data-virtualized="canVirtualizeOptions ? 'true' : undefined"
@@ -644,7 +714,7 @@ watch(query, (value) => {
           :aria-labelledby="label ? labelId : undefined"
           @scroll="handleListboxScroll"
         >
-          <span v-if="loading" class="yok-select__empty yok-select__loading" role="status">{{ loadingText }}</span>
+          <span v-if="isLoading" class="yok-select__empty yok-select__loading" role="status">{{ loadingText }}</span>
           <template v-else-if="canVirtualizeOptions">
             <div v-if="filteredOptions.length" class="yok-select__virtual-spacer" :style="virtualSpacerStyle">
               <div class="yok-select__virtual-track" :style="virtualTrackStyle">
@@ -666,11 +736,13 @@ watch(query, (value) => {
                   @click="selectOption(option)"
                 >
                   <span>{{ option.label }}</span>
-                  <span v-if="isOptionSelected(option)" class="yok-select__check" aria-hidden="true">✓</span>
+                  <span v-if="isOptionSelected(option)" class="yok-select__check" aria-hidden="true">
+                    <YInternalIcon name="check" />
+                  </span>
                 </button>
               </div>
             </div>
-            <span v-else class="yok-select__empty" role="status">{{ emptyText }}</span>
+            <span v-else class="yok-select__empty" role="status">{{ emptyStatusText }}</span>
           </template>
           <template v-else>
             <template v-for="group in filteredOptionGroups" :key="group.key">
@@ -696,7 +768,9 @@ watch(query, (value) => {
                   @click="selectOption(option)"
                 >
                   <span>{{ option.label }}</span>
-                  <span v-if="isOptionSelected(option)" class="yok-select__check" aria-hidden="true">✓</span>
+                  <span v-if="isOptionSelected(option)" class="yok-select__check" aria-hidden="true">
+                    <YInternalIcon name="check" />
+                  </span>
                 </button>
               </div>
               <template v-else>
@@ -715,7 +789,9 @@ watch(query, (value) => {
                   @click="selectOption(option)"
                 >
                   <span>{{ option.label }}</span>
-                  <span v-if="isOptionSelected(option)" class="yok-select__check" aria-hidden="true">✓</span>
+                  <span v-if="isOptionSelected(option)" class="yok-select__check" aria-hidden="true">
+                    <YInternalIcon name="check" />
+                  </span>
                 </button>
               </template>
             </template>
@@ -732,7 +808,7 @@ watch(query, (value) => {
             >
               <span>Create "{{ createOption.label }}"</span>
             </button>
-            <span v-if="filteredOptions.length === 0 && !createOption" class="yok-select__empty" role="status">{{ emptyText }}</span>
+            <span v-if="filteredOptions.length === 0 && !createOption" class="yok-select__empty" role="status">{{ emptyStatusText }}</span>
           </template>
         </div>
       </div>
@@ -890,7 +966,19 @@ watch(query, (value) => {
 }
 
 .yok-select__chevron {
-  flex: 0 0 auto;
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: var(--yok-select-control-padding-inline);
+  display: inline-flex;
+  flex: 0 0 16px;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  line-height: 1;
+  pointer-events: none;
+  transform: translateY(-50%);
 }
 
 .yok-select__clear {
@@ -921,22 +1009,21 @@ watch(query, (value) => {
 .yok-select__panel {
   z-index: var(--yok-zIndex-floating, 1000);
   display: grid;
-  gap: var(--yok-space-2);
   width: max(180px, var(--yok-floating-reference-width, 180px));
   min-width: 180px;
   max-width: min(320px, calc(100vw - 32px));
   max-height: min(280px, calc(100vh - 32px));
-  overflow: auto;
+  overflow: hidden;
   border: 1px solid var(--yok-color-border);
   border-radius: var(--yok-radius-lg);
   background: var(--yok-color-surface);
   box-shadow: var(--yok-shadow-pop);
-  padding: var(--yok-space-2);
 }
 
 .yok-select__search {
   display: grid;
   gap: 4px;
+  padding: var(--yok-space-3);
 }
 
 .yok-select__search-label {
@@ -950,7 +1037,7 @@ watch(query, (value) => {
   width: 100%;
   border: 1px solid var(--yok-color-border);
   border-radius: var(--yok-radius-md);
-  background: var(--yok-color-surfaceMuted);
+  background: var(--yok-color-surface);
   color: var(--yok-color-text);
   font: inherit;
   padding: 0 var(--yok-space-3);
@@ -959,13 +1046,19 @@ watch(query, (value) => {
 .yok-select__listbox {
   display: grid;
   gap: 2px;
+  max-height: 232px;
+  overflow: auto;
+  padding: var(--yok-space-2);
+  scrollbar-gutter: stable;
+}
+
+.yok-select__listbox--with-search {
+  border-top: 1px solid var(--yok-color-borderSoft, var(--yok-color-border));
 }
 
 .yok-select__listbox--virtualized {
   position: relative;
   display: block;
-  overflow: auto;
-  scrollbar-gutter: stable;
 }
 
 .yok-select__virtual-spacer {
@@ -1017,7 +1110,7 @@ watch(query, (value) => {
 }
 
 .yok-select__group + .yok-select__group {
-  border-top: 1px solid var(--yok-color-borderSoft);
+  border-top: 1px solid var(--yok-color-borderSoft, var(--yok-color-border));
 }
 
 .yok-select__group-label {
@@ -1030,8 +1123,14 @@ watch(query, (value) => {
 }
 
 .yok-select__check {
-  flex: 0 0 auto;
+  display: inline-flex;
+  flex: 0 0 16px;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   color: var(--yok-color-primary);
+  font-size: 16px;
   font-weight: 850;
 }
 

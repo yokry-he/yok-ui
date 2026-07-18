@@ -22,6 +22,18 @@ const options = [
   { label: 'Blocked User', value: 'blocked', description: 'No longer available', disabled: true }
 ]
 
+function searchRemoteMentions(query: string, prefix: string) {
+  return new Promise<typeof options>((resolve) => {
+    globalThis.setTimeout(() => {
+      const keyword = query.trim().toLowerCase()
+      const source = prefix === '#'
+        ? options.filter((option) => option.value === 'release-notes')
+        : options
+      resolve(source.filter((option) => `${option.label} ${option.value}`.toLowerCase().includes(keyword)))
+    }, 360)
+  })
+}
+
 const basicCode = [
   '<script setup lang="ts">',
   "import { ref } from 'vue'",
@@ -56,10 +68,22 @@ const stateSetup = [
   "  { label: 'Grace Hopper', value: 'grace', description: 'Compiler team' },",
   "  { label: 'Lin Design', value: 'lin-design', description: 'Design system owner' },",
   "  { label: 'Blocked User', value: 'blocked', description: 'No longer available', disabled: true }",
-  ']'
+  ']',
+  '',
+  'function searchRemoteMentions(query: string, prefix: string) {',
+  '  return new Promise<typeof options>((resolve) => {',
+  '    globalThis.setTimeout(() => {',
+  '      const keyword = query.trim().toLowerCase()',
+  "      const source = prefix === '#'",
+  "        ? options.filter((option) => option.value === 'release-notes')",
+  '        : options',
+  "      resolve(source.filter((option) => `${option.label} ${option.value}`.toLowerCase().includes(keyword)))",
+  '    }, 360)',
+  '  })',
+  '}'
 ].join('\n')
 
-const stateCode = `<YMention v-model="loadingValue" label="Remote teammate" loading loading-text="Searching teammates..." :options="options" />
+const stateCode = `<YMention v-model="loadingValue" label="Remote teammate" loading-text="Searching teammates..." remote-error-text="Failed to load remote mentions" :remote-method="searchRemoteMentions" :options="options" />
 <YMention v-model="emptyValue" label="Empty mention" empty-text="No teammate matched" clearable :options="options" />`
 
 const formSetup = [
@@ -107,7 +131,11 @@ const formCode = [
 
 Mention 用于在多行文本中快速提及成员、主题或对象。它适合评论、发布说明、协作审核和后台工单备注；如果用户只能从固定集合中选择一个值，应使用 `YSelect` 或 `YAutocomplete`。
 
-## Examples
+::: tip TIP
+`YMention` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Team mention {#mention-team-mention}
 
 <DocDemo
   title="Team mention"
@@ -125,19 +153,22 @@ Mention 用于在多行文本中快速提及成员、主题或对象。它适合
   <p class="demo-note">Current note: {{ value || 'empty' }}</p>
 </DocDemo>
 
+## Remote search and empty states {#mention-loading-and-empty-states}
+
 <DocDemo
-  title="Loading and empty states"
-  description="远程搜索成员时可以使用 loading；没有匹配项时保留原始文本并展示 emptyText。"
+  title="Remote search and empty states"
+  description="远程搜索成员时通过 remoteMethod 接收当前 token 和 prefix；组件会处理加载、失败和过期请求，空结果保留原始文本。"
   :code="stateCode"
   :setup="stateSetup"
-  :usage="['loading', 'loadingText', 'emptyText']"
+  :usage="['remoteMethod', 'prefix', 'loadingText', 'remoteErrorText', 'emptyText']"
 >
   <div class="docs-demo-grid">
     <YMention
       v-model="loadingValue"
       label="Remote teammate"
-      loading
       loading-text="Searching teammates..."
+      remote-error-text="Failed to load remote mentions"
+      :remote-method="searchRemoteMentions"
       :options="options"
     />
     <YMention
@@ -150,7 +181,7 @@ Mention 用于在多行文本中快速提及成员、主题或对象。它适合
   </div>
 </DocDemo>
 
-## Form Validation
+## Form Validation {#mention-form-validation}
 
 <DocDemo
   title="Form validation"
@@ -177,19 +208,11 @@ Mention 用于在多行文本中快速提及成员、主题或对象。它适合
   </YForm>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="mention"
-  title="在线编辑 Mention 示例"
-  description="运行器覆盖成员提及、主题标签、远程搜索、无匹配成员、禁用成员、移动评论和键盘提及路径，可直接验证 textarea + listbox 的交互语义。"
-/>
-
-## API
+## Mention API {#mention-api}
 
 <ComponentApiSection name="YMention" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - textarea 使用 `role="combobox"`、`aria-autocomplete="list"`、`aria-expanded`、`aria-controls` 和 `aria-activedescendant`。
 - 建议面板使用 `role="listbox"`，建议项使用 `role="option"` 和 `aria-selected`。

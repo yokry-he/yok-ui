@@ -27,7 +27,16 @@
     },
     "./yok-light.css": "./src/themes/yok-light.css",
     "./yok-clean.css": "./src/themes/yok-clean.css",
-    "./yok-candy.css": "./src/themes/yok-candy.css"
+    "./yok-candy.css": "./src/themes/yok-candy.css",
+    "./yok-mint.css": "./src/themes/yok-mint.css",
+    "./yok-ocean.css": "./src/themes/yok-ocean.css",
+    "./yok-sakura.css": "./src/themes/yok-sakura.css",
+    "./yok-lavender.css": "./src/themes/yok-lavender.css",
+    "./yok-sunrise.css": "./src/themes/yok-sunrise.css",
+    "./yok-forest.css": "./src/themes/yok-forest.css",
+    "./yok-ink.css": "./src/themes/yok-ink.css",
+    "./yok-peach.css": "./src/themes/yok-peach.css",
+    "./yok-slate.css": "./src/themes/yok-slate.css"
   },
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.build.json --declaration --emitDeclarationOnly --outDir dist --skipLibCheck",

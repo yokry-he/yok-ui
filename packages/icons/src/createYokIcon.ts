@@ -5,9 +5,13 @@ import {
 } from 'vue'
 
 export type YokIconSize = number | string
+export type YokIconStrokeWidth = number | string
 
 export interface CreateYokIconOptions {
   viewBox?: string
+  strokeWidth?: YokIconStrokeWidth
+  stroke?: string
+  fill?: string
 }
 
 export function createYokIcon(
@@ -26,12 +30,30 @@ export function createYokIcon(
         type: String,
         default: 'currentColor'
       },
+      strokeWidth: {
+        type: [Number, String] as PropType<YokIconStrokeWidth>,
+        default: options.strokeWidth ?? 2
+      },
+      stroke: {
+        type: String,
+        default: options.stroke ?? ''
+      },
+      fill: {
+        type: String,
+        default: options.fill ?? 'none'
+      },
       title: {
         type: String,
         default: ''
+      },
+      decorative: {
+        type: Boolean,
+        default: false
       }
     },
     setup(props) {
+      const isDecorative = () => props.decorative || !props.title
+
       return () => h(
         'svg',
         {
@@ -39,16 +61,17 @@ export function createYokIcon(
           viewBox: options.viewBox ?? '0 0 24 24',
           width: props.size,
           height: props.size,
-          fill: 'none',
-          stroke: props.color,
-          'stroke-width': 2,
+          fill: props.fill,
+          stroke: props.stroke || props.color,
+          'stroke-width': props.strokeWidth,
           'stroke-linecap': 'round',
           'stroke-linejoin': 'round',
-          role: props.title ? 'img' : undefined,
-          'aria-hidden': props.title ? undefined : 'true'
+          focusable: 'false',
+          role: isDecorative() ? undefined : 'img',
+          'aria-hidden': isDecorative() ? 'true' : undefined
         },
         [
-          props.title ? h('title', props.title) : null,
+          !isDecorative() ? h('title', props.title) : null,
           ...paths.map((path) => h('path', { d: path }))
         ]
       )

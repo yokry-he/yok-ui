@@ -49,7 +49,7 @@ describe('ApiReferenceExplorer', () => {
       .find((item) => item.text().includes('variant'))
 
     expect(evidenceLink, 'Missing variant live evidence link').toBeTruthy()
-    expect(evidenceLink?.attributes('href')).toBe('/components/button#demo-variants')
+    expect(evidenceLink?.attributes('href')).toBe('/components/button#button-basic-usage')
   })
 
   it('filters rows by live evidence status', async () => {

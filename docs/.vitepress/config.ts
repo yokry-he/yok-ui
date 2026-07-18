@@ -88,7 +88,7 @@ export const resourceSidebar = [
 
 export const componentSidebar = [
   {
-    text: 'Components',
+    text: '<span class="yok-sidebar-root-label">Components</span>',
     collapsed: false,
     items: [
       { text: 'Overview 组件总览', link: '/components/' },
@@ -109,33 +109,18 @@ export const blockSidebar = [
   }
 ]
 
-export const playgroundSidebar = [
-  {
-    text: 'Playground',
-    collapsed: false,
-    items: [
-      { text: 'Overview', link: '/playground/' },
-      { text: 'Component Routes', link: '/components/' },
-      { text: 'Command Center', link: '/blocks/command-center' },
-      { text: 'Product Settings', link: '/blocks/product-settings' }
-    ]
-  }
-]
-
 export const sectionSidebars = {
   '/guide/': guideSidebar,
   '/components/': componentSidebar,
   '/packages/': packageSidebar,
   '/resources/': resourceSidebar,
-  '/playground/': playgroundSidebar,
   '/blocks/': blockSidebar
 }
 
 export const topNavItems = [
   { text: '指南', link: '/guide/' },
   { text: '组件', link: '/components/' },
-  { text: '资源', link: '/resources/' },
-  { text: 'Playground', link: '/playground/' }
+  { text: '资源', link: '/resources/' }
 ]
 
 export function docsManualChunks(id: string) {
@@ -145,24 +130,20 @@ export function docsManualChunks(id: string) {
     return 'docs-source-contracts'
   }
 
-  if (moduleId.includes('/docs/.vitepress/components/LiveExampleRunner.vue')) {
-    return 'docs-live-example'
-  }
-
   if (moduleId.includes('/docs/.vitepress/data/liveExamples.ts')) {
     return 'docs-live-data'
   }
 
-  if (moduleId.includes('/docs/.vitepress/components/PlaygroundWorkbench.vue')) {
-    return 'docs-playground'
+  if (moduleId.includes('/docs/.vitepress/components/VerificationDashboard.vue')) {
+    return 'docs-verification'
   }
 
-  if (moduleId.includes('/docs/.vitepress/components/MaturityDashboard.vue')) {
-    return 'docs-maturity'
+  if (moduleId.includes('/docs/.vitepress/components/SourceFileReference.vue')) {
+    return 'docs-source'
   }
 
-  if (moduleId.includes('/docs/.vitepress/components/ReleaseDashboard.vue')) {
-    return 'docs-release'
+  if (moduleId.includes('/docs/.vitepress/components/ReleaseVerification.vue')) {
+    return 'docs-release-verification'
   }
 
   if (moduleId.includes('/docs/.vitepress/components/LiveExampleMatrix.vue')) {
@@ -179,6 +160,10 @@ export function docsManualChunks(id: string) {
 
   if (moduleId.includes('/docs/.vitepress/components/ComponentCatalog.vue')) {
     return 'docs-catalog'
+  }
+
+  if (moduleId.includes('/docs/.vitepress/components/IconGallery.vue')) {
+    return 'docs-icons'
   }
 
   if (moduleId.includes('/docs/.vitepress/components/PackageComponents.vue')) {
@@ -209,6 +194,42 @@ export default defineConfig({
         {
           find: '@yok-ui/themes/yok-candy.css',
           replacement: new URL('../../packages/themes/src/themes/yok-candy.css', import.meta.url).pathname
+        },
+        {
+          find: '@yok-ui/themes/yok-mint.css',
+          replacement: new URL('../../packages/themes/src/themes/yok-mint.css', import.meta.url).pathname
+        },
+        {
+          find: '@yok-ui/themes/yok-ocean.css',
+          replacement: new URL('../../packages/themes/src/themes/yok-ocean.css', import.meta.url).pathname
+        },
+        {
+          find: '@yok-ui/themes/yok-sakura.css',
+          replacement: new URL('../../packages/themes/src/themes/yok-sakura.css', import.meta.url).pathname
+        },
+        {
+          find: '@yok-ui/themes/yok-lavender.css',
+          replacement: new URL('../../packages/themes/src/themes/yok-lavender.css', import.meta.url).pathname
+        },
+        {
+          find: '@yok-ui/themes/yok-sunrise.css',
+          replacement: new URL('../../packages/themes/src/themes/yok-sunrise.css', import.meta.url).pathname
+        },
+        {
+          find: '@yok-ui/themes/yok-forest.css',
+          replacement: new URL('../../packages/themes/src/themes/yok-forest.css', import.meta.url).pathname
+        },
+        {
+          find: '@yok-ui/themes/yok-ink.css',
+          replacement: new URL('../../packages/themes/src/themes/yok-ink.css', import.meta.url).pathname
+        },
+        {
+          find: '@yok-ui/themes/yok-peach.css',
+          replacement: new URL('../../packages/themes/src/themes/yok-peach.css', import.meta.url).pathname
+        },
+        {
+          find: '@yok-ui/themes/yok-slate.css',
+          replacement: new URL('../../packages/themes/src/themes/yok-slate.css', import.meta.url).pathname
         },
         {
           find: '@yok-ui/themes',
@@ -262,9 +283,10 @@ export default defineConfig({
     search: {
       provider: 'local'
     },
-    outline: {
-      level: [2, 3]
-    },
+    // Yok UI renders its own Element Plus style component TOC through the theme
+    // aside slot, so the built-in VitePress "On this page" outline is disabled
+    // to avoid duplicate right-side navigation.
+    outline: false,
     footer: {
       message: 'Built as a fresh-cute Vue 3 component system.',
       copyright: 'Yok UI phase one'

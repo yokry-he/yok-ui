@@ -31,11 +31,18 @@ describe('button static examples', () => {
     const titles = getDocDemoTitles(source)
 
     expect(titles).toEqual([
-      'Variants',
-      'Sizes',
-      'Loading and disabled',
-      'Native type and block',
-      'Icon buttons'
+      '基础用法',
+      '朴素按钮',
+      '禁用状态',
+      '链接按钮',
+      '文字按钮',
+      '图标按钮',
+      '按钮组',
+      '加载状态按钮',
+      '调整尺寸',
+      '圆角和虚线按钮',
+      '原生类型和块级按钮',
+      '自定义颜色'
     ])
 
     titles.forEach((title) => {
@@ -47,7 +54,11 @@ describe('button static examples', () => {
     })
 
     expect(source).toContain('block')
-    expect(source).toContain('type="submit"')
-    expect(source).toContain('YIconButton')
+    expect(source).toContain('native-type="submit"')
+    expect(source).toContain('link')
+    expect(source).toContain('plain')
+    expect(source).toContain('loading-icon')
+    expect(source).toContain('YButtonGroup')
+    expect(source).toContain('YSearchIcon')
   })
 })

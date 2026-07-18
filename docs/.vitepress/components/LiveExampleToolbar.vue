@@ -32,9 +32,6 @@ interface Props {
   copied: boolean
   copiedLabel: string
   copiedRunReport: boolean
-  copiedPlaygroundLink: boolean
-  playgroundHandoffUrl: string
-  sourceFileUrl: string
 }
 
 const props = defineProps<Props>()
@@ -55,32 +52,10 @@ const emit = defineEmits<{
   'reset-code': []
   'copy-code': []
   'copy-run-report': []
-  'persist-playground-handoff': []
-  'copy-playground-link': []
 }>()
 
 const runDisabled = computed(() => !props.hasPendingChanges && !props.validationError)
 const toolbarSourceActions = computed(() => [
-  {
-    key: 'playground',
-    href: props.playgroundHandoffUrl,
-    tooltip: '打开 Playground',
-    label: '打开 Playground',
-    glyph: '',
-    icon: 'playground',
-    text: '打开 Playground',
-    className: 'live-example-runner__playground-link live-example-runner__playground-action'
-  },
-  {
-    key: 'source-file',
-    href: props.sourceFileUrl,
-    tooltip: '查看组件源码',
-    label: '查看组件源码',
-    glyph: '',
-    icon: 'source',
-    text: '查看组件源码',
-    className: 'live-example-runner__source-file-action'
-  },
   {
     key: 'copy-code',
     tooltip: props.copied ? `已复制 ${props.copiedLabel}` : '复制代码',
@@ -91,17 +66,6 @@ const toolbarSourceActions = computed(() => [
     feedback: props.copied,
     feedbackText: `已复制 ${props.copiedLabel}`,
     className: 'live-example-runner__copy-action'
-  },
-  {
-    key: 'copy-playground-link',
-    tooltip: props.copiedPlaygroundLink ? '已复制导入链接' : '复制导入链接',
-    label: props.copiedPlaygroundLink ? '已复制导入链接' : '复制导入链接',
-    glyph: '',
-    icon: 'external',
-    text: '复制导入链接',
-    feedback: props.copiedPlaygroundLink,
-    feedbackText: '已复制导入链接',
-    className: 'live-example-runner__playground-copy-action'
   },
   {
     key: 'reset-code',
@@ -159,16 +123,6 @@ function handleToolbarSourceAction(key: string) {
     return
   }
 
-  if (key === 'playground') {
-    emit('persist-playground-handoff')
-    return
-  }
-
-  if (key === 'copy-playground-link') {
-    emit('copy-playground-link')
-    return
-  }
-
   if (key === 'reset-code' && props.canResetCode) {
     emit('reset-code')
   }
@@ -178,28 +132,6 @@ function handleToolbarSourceAction(key: string) {
 <template>
   <div class="live-example-runner__toolbar" aria-label="Live example controls">
     <div class="live-example-runner__toolbar-primary">
-      <div class="live-example-runner__toolbar-actions live-example-runner__toolbar-main-actions">
-        <ExampleSourceActions
-          action-attribute="data-live-toolbar-action"
-          language-attribute="data-live-toolbar-action"
-          language-value-prefix="language-"
-          aria-label="Example source actions"
-          language-aria-label="Source language"
-          tools-aria-label="Example source tools"
-          root-class="live-example-runner__example-actions"
-          languages-class="live-example-runner__source-language-actions"
-          language-class="live-example-runner__source-language-action"
-          tools-class="live-example-runner__example-action-tools"
-          tool-class="live-example-runner__example-action"
-          glyph-class="live-example-runner__example-action-glyph"
-          text-class="live-example-runner__example-action-text"
-          :active-language="sourceLanguageMode"
-          :language-options="sourceLanguageOptions"
-          :actions="toolbarSourceActions"
-          @update:language="updateSourceLanguageMode"
-          @action="handleToolbarSourceAction"
-        />
-      </div>
       <details class="live-example-runner__toolbar-settings">
         <summary class="live-example-runner__toolbar-settings-summary">
           <span>示例设置</span>
@@ -254,6 +186,28 @@ function handleToolbarSourceAction(key: string) {
           </button>
         </div>
       </details>
+      <div class="live-example-runner__toolbar-actions live-example-runner__toolbar-main-actions">
+        <ExampleSourceActions
+          action-attribute="data-live-toolbar-action"
+          language-attribute="data-live-toolbar-action"
+          language-value-prefix="language-"
+          aria-label="Example source actions"
+          language-aria-label="Source language"
+          tools-aria-label="Example source tools"
+          root-class="live-example-runner__example-actions"
+          languages-class="live-example-runner__source-language-actions"
+          language-class="live-example-runner__source-language-action"
+          tools-class="live-example-runner__example-action-tools"
+          tool-class="live-example-runner__example-action"
+          glyph-class="live-example-runner__example-action-glyph"
+          text-class="live-example-runner__example-action-text"
+          :active-language="sourceLanguageMode"
+          :language-options="sourceLanguageOptions"
+          :actions="toolbarSourceActions"
+          @update:language="updateSourceLanguageMode"
+          @action="handleToolbarSourceAction"
+        />
+      </div>
     </div>
   </div>
 </template>

@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { componentApis, components } from './componentRegistry'
-import { liveExampleDocs } from './liveExamples'
 
 function docsPathFromRoute(route: string) {
   return `docs${route}.md`
@@ -19,7 +18,7 @@ function hasApiRows(componentName: string) {
 }
 
 describe('component docs integrity', () => {
-  it('keeps every component page aligned with live examples, API and accessibility docs', () => {
+  it('keeps every component page aligned with demos, API and accessibility docs', () => {
     const componentPages = components.filter((component) => component.docs.startsWith('/components/'))
     const uniquePageRoutes = [...new Set(componentPages.map((component) => component.docs))]
 
@@ -30,9 +29,9 @@ describe('component docs integrity', () => {
       const pageSource = readFileSync(docsPathFromRoute(route), 'utf8')
       const pageHasApiData = pageComponents.some((component) => hasApiRows(component.name))
 
-      expect(pageSource, `${route} should include a LiveExampleRunner`).toContain('<LiveExampleRunner')
-      expect(liveExampleDocs, `${route} should be registered in liveExampleCoverage`).toContain(route)
-      expect(pageSource, `${route} should include an API heading`).toMatch(/^## API/m)
+      expect(pageSource, `${route} should include an Element Plus-style DocDemo`).toContain('<DocDemo')
+      expect(pageSource, `${route} should not embed the old live runner section`).not.toMatch(/<LiveExampleRunner|## Live example/)
+      expect(pageSource, `${route} should include a component API heading`).toMatch(/^## .+ API \{#[^}]+\}/m)
       expect(pageSource, `${route} should include an Accessibility heading`).toMatch(/^## Accessibility/m)
 
       if (pageHasApiData) {

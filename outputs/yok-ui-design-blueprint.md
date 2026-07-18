@@ -140,7 +140,7 @@ yok-ui/
     icons/
     themes/
   docs/
-  playground/
+  docs-lab/
   examples/
   scripts/
 ```
@@ -490,7 +490,7 @@ useYokTheme
 - `@yok-ui/core`
 - `@yok-ui/product`
 - docs 文档站
-- playground 调试项目
+- docs-lab 调试项目
 
 一期组件：
 
@@ -505,7 +505,7 @@ useYokTheme
 
 一期验收标准：
 
-- 可以在 playground 中引入并使用组件。
+- 可以在 docs-lab 中引入并使用组件。
 - docs 可以按 Core/Product 分类浏览。
 - 主题 token 可切换 `yok-light` 和 `yok-clean`。
 - 每个一期组件有基础 demo、API、状态展示。
@@ -566,7 +566,7 @@ useYokTheme
 2. 设计 token 输出格式：CSS variables + TypeScript token object。
 3. 定义组件源码模板：组件目录、样式文件、类型文件、测试文件、文档示例。
 4. 创建一期组件开发顺序：ThemeProvider -> Button -> Input -> Modal -> Tabs -> CommandPalette。
-5. 搭建 docs 和 playground，确保每写一个组件都能立即展示。
+5. 搭建 docs 和 docs-lab，确保每写一个组件都能立即展示。
 
 ## 参考来源
 

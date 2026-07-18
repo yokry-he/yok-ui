@@ -36,6 +36,7 @@ export const yokUiComponentPackages = {
   YBadge: '@yok-ui/core',
   YBreadcrumb: '@yok-ui/core',
   YButton: '@yok-ui/core',
+  YButtonGroup: '@yok-ui/core',
   YCalendar: '@yok-ui/core',
   YCarousel: '@yok-ui/core',
   YCascader: '@yok-ui/core',

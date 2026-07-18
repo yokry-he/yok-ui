@@ -94,7 +94,11 @@ const formValidationCode = [
 
 输入框用于收集短文本。默认风格强调轻边框、清晰 label 和柔和 focus 状态，适合表单、筛选栏和设置页。
 
-## Examples
+::: tip TIP
+`YInput` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Basic input {#input-basic-input}
 
 <DocDemo
   title="Basic input"
@@ -106,6 +110,8 @@ const formValidationCode = [
   <YInput v-model="value" label="Library name" placeholder="Enter name" />
   <p class="demo-note">Current value: {{ value }}</p>
 </DocDemo>
+
+## Clearable search and count {#input-clearable-search-and-count}
 
 <DocDemo
   title="Clearable search and count"
@@ -127,6 +133,8 @@ const formValidationCode = [
   <p class="demo-note">Search value: {{ searchValue || 'empty' }}</p>
 </DocDemo>
 
+## Password {#input-password}
+
 <DocDemo
   title="Password"
   description="密码和令牌输入可以开启 show-password，让用户在受控场景下确认内容，同时保留原生 password 类型和 autocomplete。"
@@ -145,6 +153,8 @@ const formValidationCode = [
   <p class="demo-note">Length: {{ passwordValue.length }}</p>
 </DocDemo>
 
+## Validation and disabled state {#input-validation-and-disabled-state}
+
 <DocDemo
   title="Validation and disabled state"
   description="error 会同步错误文案和 aria-invalid；disabled 用于不可编辑但仍需展示的字段。"
@@ -158,7 +168,7 @@ const formValidationCode = [
   </div>
 </DocDemo>
 
-## Form Validation
+## Form Validation {#input-form-validation}
 
 <DocDemo
   title="Form validation"
@@ -185,19 +195,11 @@ const formValidationCode = [
   </YForm>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="input"
-  title="在线编辑 Input 示例"
-  description="运行器会渲染安全白名单内的 Input 模板，适合快速调整 label、placeholder、错误态和默认值。"
-/>
-
-## API
+## Input API {#input-api}
 
 <ComponentApiSection name="YInput" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 组件使用原生 `input`，并在有 label 时提供稳定的可读标签。
 - 错误状态会设置 `aria-invalid="true"`，错误文案使用 `role="alert"`。

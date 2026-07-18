@@ -18,7 +18,11 @@ const basicCode = [
 
 Brand Hero 用于个人主页、作品集或产品官网首屏，承载品牌名、主张、说明和主要操作。
 
-## Example
+::: tip TIP
+`YBrandHero` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Product hero {#brand-hero-product-hero}
 
 <DocDemo
   title="Product hero"
@@ -36,15 +40,11 @@ Brand Hero 用于个人主页、作品集或产品官网首屏，承载品牌名
   />
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner preset="brandHero" />
-
-## API
+## Brand Hero API {#brand-hero-api}
 
 <ComponentApiSection name="YBrandHero" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - `title` 通常应作为页面首屏主标题，页面中不要再重复另一个同级主标题。
 - 主要和次要动作使用真实 button 语义，并通过事件交给业务层处理跳转。

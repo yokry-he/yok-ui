@@ -7,11 +7,11 @@ import { yokComponentPackages } from './yokAsyncComponents'
 const heavyDocsComponents = [
   'ApiReferenceExplorer',
   'ComponentCatalog',
-  'LiveExampleRunner',
-  'MaturityDashboard',
+  'IconGallery',
   'PackageComponents',
-  'PlaygroundWorkbench',
-  'ThemeLab'
+  'SourceFileReference',
+  'ThemeLab',
+  'VerificationDashboard'
 ]
 
 describe('docs theme performance', () => {
@@ -52,28 +52,13 @@ describe('docs theme performance', () => {
     })
   })
 
-  it('registers every Yok UI component tag rendered by the playground workbench', () => {
-    const playgroundSource = readFileSync('docs/.vitepress/components/PlaygroundWorkbench.vue', 'utf8')
-    const playgroundTags = Array.from(
-      new Set(
-        Array.from(playgroundSource.matchAll(/<\s*(Y[A-Z][A-Za-z0-9]*)\b/g)).map((match) => match[1])
-      )
-    ).sort()
+  it('keeps development evidence panels out of final component docs', () => {
+    const themeEntry = readFileSync('docs/.vitepress/theme/index.ts', 'utf8')
+    const layout = readFileSync('docs/.vitepress/theme/Layout.vue', 'utf8')
 
-    expect(playgroundTags.length).toBeGreaterThan(80)
-
-    playgroundTags.forEach((componentName) => {
-      expect(yokComponentPackages[componentName], `${componentName} must be async registered for docs runtime`).toBeTruthy()
-    })
-  })
-
-  it('keeps component route evidence cards from overflowing narrow screens', () => {
-    const customCss = readFileSync('docs/.vitepress/theme/custom.css', 'utf8')
-
-    expect(customCss).toContain('.doc-route-navigator__evidence-item p,')
-    expect(customCss).toContain('.doc-route-navigator__maturity-item p')
-    expect(customCss).toContain('overflow-wrap: anywhere;')
-    expect(customCss).toContain('word-break: break-word;')
+    expect(themeEntry).not.toContain('ComponentAccessibilityEvidence')
+    expect(layout).not.toContain('DocRouteNavigator')
+    expect(layout).not.toContain('#doc-after')
   })
 
   it('splits heavy docs widgets into named build chunks without forcing package cycles', () => {
@@ -86,13 +71,15 @@ describe('docs theme performance', () => {
       throw new TypeError('manualChunks must be a function')
     }
 
-    expect(manualChunks('/repo/docs/.vitepress/components/LiveExampleRunner.vue')).toBe('docs-live-example')
+    expect(manualChunks('/repo/docs/.vitepress/components/LiveExampleRunner.vue')).toBeUndefined()
     expect(manualChunks('/repo/docs/.vitepress/data/liveExamples.ts')).toBe('docs-live-data')
-    expect(manualChunks('/repo/docs/.vitepress/components/PlaygroundWorkbench.vue')).toBe('docs-playground')
-    expect(manualChunks('/repo/docs/.vitepress/components/MaturityDashboard.vue')).toBe('docs-maturity')
-    expect(manualChunks('/repo/docs/.vitepress/components/PlaygroundWorkbench.vue?raw')).toBe('docs-source-contracts')
+    expect(manualChunks('/repo/docs/.vitepress/components/SourceFileReference.vue')).toBe('docs-source')
+    expect(manualChunks('/repo/docs/.vitepress/components/VerificationDashboard.vue')).toBe('docs-verification')
+    expect(manualChunks('/repo/docs/.vitepress/components/ReleaseVerification.vue')).toBe('docs-release-verification')
+    expect(manualChunks('/repo/docs/.vitepress/components/SourceFileReference.vue?raw')).toBe('docs-source-contracts')
     expect(manualChunks('/repo/docs/.vitepress/components/ApiReferenceExplorer.vue')).toBe('docs-api-reference')
     expect(manualChunks('/repo/docs/.vitepress/components/ComponentCatalog.vue')).toBe('docs-catalog')
+    expect(manualChunks('/repo/docs/.vitepress/components/IconGallery.vue')).toBe('docs-icons')
     expect(manualChunks('/repo/docs/.vitepress/components/PackageComponents.vue')).toBe('docs-packages')
     expect(manualChunks('/repo/docs/.vitepress/components/ThemeLab.vue')).toBe('docs-theme-lab')
     expect(manualChunks('/repo/packages/core/src/components/button/Button.vue')).toBeUndefined()

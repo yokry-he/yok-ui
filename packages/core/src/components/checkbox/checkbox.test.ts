@@ -34,7 +34,7 @@ describe('YCheckbox', () => {
 
     expect(input.element.indeterminate).toBe(true)
     expect(input.attributes('aria-checked')).toBe('mixed')
-    expect(wrapper.text()).toContain('−')
+    expect(wrapper.get('.yok-checkbox__check svg').exists()).toBe(true)
 
     await input.setValue(true)
 

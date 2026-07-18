@@ -19,7 +19,7 @@ export type ReleaseReadinessGateKey =
   | 'api-live'
   | 'workflow-live'
   | 'source-quality'
-  | 'playground-edit-share'
+  | 'edited-source-share'
   | 'theme'
   | 'component-maturity'
   | 'a11y'
@@ -102,8 +102,8 @@ function createReleaseReadinessItem(component: ComponentMeta): ReleaseReadinessI
   const apiLiveCoverage = apiLiveCoverageByName.get(component.name)
   const liveProfile = liveExampleProfileByDocs.get(component.docs)
   const sourceQuality = liveProfile ? getLiveExampleSourceQualityItem(liveProfile) : undefined
-  const hasPlaygroundEditShare = Boolean(
-    sourceQuality?.checks.some((check) => check.key === 'playground-edit-share' && check.passed)
+  const hasEditedSourceShare = Boolean(
+    sourceQuality?.checks.some((check) => check.key === 'edited-source-share' && check.passed)
   )
   const themeEvidence = getComponentThemeEvidence(component.name)
   const maturityScore = getMaturityScore(component)
@@ -138,16 +138,16 @@ function createReleaseReadinessItem(component: ComponentMeta): ReleaseReadinessI
       'Source',
       Boolean(sourceQuality && sourceQuality.status === 'complete'),
       sourceQuality
-        ? `${sourceQuality.score}% source, repro, API map and Playground handoff.`
-        : '需要源码复制、复现包、API map 和 Playground handoff。'
+        ? `${sourceQuality.score}% source, repro, API map and source panel context.`
+        : '需要源码复制、复现包、API map 和源码面板上下文。'
     ),
     createGate(
-      'playground-edit-share',
+      'edited-source-share',
       'Edited Source Share',
-      hasPlaygroundEditShare,
-      hasPlaygroundEditShare
-        ? 'Playground edited source can be shared without reusing a stale handoff payload.'
-        : '需要保证 Playground 编辑后的源码进入分享链接，而不是继续指向旧 handoff。'
+      hasEditedSourceShare,
+      hasEditedSourceShare
+        ? 'Edited source can be copied and reproduced without relying on stale generated code.'
+        : '需要保证编辑后的源码进入复制或复现材料。'
     ),
     createGate(
       'theme',

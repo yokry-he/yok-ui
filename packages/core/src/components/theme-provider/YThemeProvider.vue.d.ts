@@ -1,5 +1,6 @@
+import type { YokThemeName } from '@yok-ui/themes';
 interface Props {
-    theme?: 'yok-light' | 'yok-clean';
+    theme?: YokThemeName;
     density?: 'comfortable' | 'compact';
 }
 declare var __VLS_1: {};
@@ -7,7 +8,7 @@ type __VLS_Slots = {} & {
     default?: (props: typeof __VLS_1) => any;
 };
 declare const __VLS_component: import("vue").DefineComponent<Props, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<Props> & Readonly<{}>, {
-    theme: "yok-light" | "yok-clean";
+    theme: YokThemeName;
     density: "comfortable" | "compact";
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, false, {}, any>;
 declare const _default: __VLS_WithSlots<typeof __VLS_component, __VLS_Slots>;

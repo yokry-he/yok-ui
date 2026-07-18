@@ -41,6 +41,7 @@
   "dependencies": {
     "@floating-ui/vue": "^2.0.0",
     "@yok-ui/themes": "workspace:*",
+    "focus-trap": "^8.2.2",
     "qrcode": "^1.5.4"
   }
 }

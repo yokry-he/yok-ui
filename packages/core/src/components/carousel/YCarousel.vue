@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YCarousel'
@@ -263,7 +264,7 @@ defineExpose({
           :disabled="!loop && isAtStart"
           @click="previous"
         >
-          ‹
+          <YInternalIcon name="chevronLeft" />
         </button>
         <button
           class="yok-carousel__arrow yok-carousel__arrow--next yok-focus-ring"
@@ -273,7 +274,7 @@ defineExpose({
           :disabled="!loop && isAtEnd"
           @click="next"
         >
-          ›
+          <YInternalIcon name="chevronRight" />
         </button>
       </template>
     </div>

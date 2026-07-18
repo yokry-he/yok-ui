@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import YSelect from '../select/YSelect.vue'
-import type { YSelectOption, YSelectSize, YSelectValue } from '../select'
+import type { YSelectOption, YSelectRemoteMethod, YSelectSize, YSelectValue } from '../select'
 
 defineOptions({
   name: 'YVirtualizedSelect'
@@ -25,6 +25,8 @@ interface Props {
   filterable?: boolean
   loading?: boolean
   loadingText?: string
+  remoteMethod?: YSelectRemoteMethod
+  remoteErrorText?: string
   searchPlaceholder?: string
   emptyText?: string
   size?: YSelectSize
@@ -50,6 +52,7 @@ const props = withDefaults(defineProps<Props>(), {
   filterable: false,
   loading: false,
   loadingText: 'Loading options',
+  remoteErrorText: 'Failed to load options',
   searchPlaceholder: 'Search options',
   emptyText: 'No matching options',
   height: 240,
@@ -91,6 +94,8 @@ const normalizedOverscan = computed(() => Math.max(0, props.overscan))
       :filterable="filterable"
       :loading="loading"
       :loading-text="loadingText"
+      :remote-method="remoteMethod"
+      :remote-error-text="remoteErrorText"
       :search-placeholder="searchPlaceholder"
       :empty-text="emptyText"
       :size="size"

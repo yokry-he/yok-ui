@@ -223,7 +223,11 @@ Resource Page 是 Admin 包里的页面级组合组件。它把 `YCrudLayout`、
 
 它的目标不是替代业务层，而是把主流后台组件库里反复出现的资源列表工作流固定下来：搜索、筛选、保存视图、批量选择、详情查看和远程请求事件都从一个页面组件向外透出。
 
-## Example
+::: tip TIP
+`YResourcePage` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Resource management page {#resource-page-resource-management-page}
 
 <DocDemo
   title="Resource management page"
@@ -279,15 +283,11 @@ Resource Page 是 Admin 包里的页面级组合组件。它把 `YCrudLayout`、
   <p class="demo-note">{{ lastEvent }}</p>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner preset="resourcePage" />
-
-## API
+## Resource Page API {#resource-page-api}
 
 <ComponentApiSection name="YResourcePage" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 页面外层继承 `YCrudLayout` 的具名 `section`，标题层级可通过 `headingLevel` 调整。
 - 搜索表单使用原生 `form` 提交，重置和展开动作都是键盘可达按钮。

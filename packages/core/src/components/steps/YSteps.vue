@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import YInternalIcon from '../_internal/YInternalIcon.vue'
+
 defineOptions({
   name: 'YSteps'
 })
@@ -80,7 +82,7 @@ function handleSelect(item: YStepItem, index: number) {
           @click="handleSelect(item, index)"
         >
           <span class="yok-steps__marker" aria-hidden="true">
-            <span v-if="getStatus(item, index) === 'finish'">✓</span>
+            <YInternalIcon v-if="getStatus(item, index) === 'finish'" name="check" />
             <span v-else-if="getStatus(item, index) === 'error'">!</span>
             <span v-else>{{ index + 1 }}</span>
           </span>
@@ -96,7 +98,7 @@ function handleSelect(item: YStepItem, index: number) {
           :aria-disabled="item.disabled ? 'true' : undefined"
         >
           <span class="yok-steps__marker" aria-hidden="true">
-            <span v-if="getStatus(item, index) === 'finish'">✓</span>
+            <YInternalIcon v-if="getStatus(item, index) === 'finish'" name="check" />
             <span v-else-if="getStatus(item, index) === 'error'">!</span>
             <span v-else>{{ index + 1 }}</span>
           </span>

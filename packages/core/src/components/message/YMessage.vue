@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import YInternalIcon from '../_internal/YInternalIcon.vue'
+
 defineOptions({
   name: 'YMessage'
 })
@@ -32,7 +34,7 @@ defineEmits<{
       <span><slot /></span>
     </div>
     <button v-if="closable" class="yok-message__close yok-focus-ring" type="button" :aria-label="closeLabel" @click="$emit('close')">
-      ×
+      <YInternalIcon name="close" />
     </button>
   </div>
 </template>

@@ -12,9 +12,9 @@ const tourSteps = [
     target: '#tour-search'
   },
   {
-    title: 'Open playground',
-    description: 'Edit examples and export a reproduction bundle.',
-    target: '#tour-playground'
+    title: 'Open source',
+    description: 'Review examples and export a reproduction bundle.',
+    target: '#tour-source'
   }
 ]
 

@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { components, type ComponentPackage } from '../docs/.vitepress/data/componentRegistry'
@@ -32,7 +32,11 @@ function componentDirsForPackage(srcName: string) {
       const componentPath = resolve(componentsDir, dirName)
       const entryPath = resolve(componentPath, 'index.ts')
 
-      return statSync(componentPath).isDirectory() && statSync(entryPath).isFile()
+      if (dirName.startsWith('_')) {
+        return false
+      }
+
+      return statSync(componentPath).isDirectory() && existsSync(entryPath) && statSync(entryPath).isFile()
     })
     .sort()
 }

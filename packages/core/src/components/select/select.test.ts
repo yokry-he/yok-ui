@@ -51,6 +51,32 @@ describe('YSelect', () => {
     expect(wrapper.emitted('clear')).toHaveLength(1)
   })
 
+  it('renders stable svg icons for chrome controls and selected state', async () => {
+    const wrapper = mount(YSelect, {
+      props: {
+        modelValue: 'core',
+        label: 'Package',
+        clearable: true,
+        options: [
+          { label: 'Core', value: 'core' },
+          { label: 'Product', value: 'product' }
+        ]
+      },
+      attachTo: document.body
+    })
+
+    expect(wrapper.get('.yok-select__chevron svg').exists()).toBe(true)
+    expect(wrapper.get('.yok-select__clear svg').exists()).toBe(true)
+    expect(wrapper.get('.yok-select__chevron').text()).toBe('')
+    expect(wrapper.get('.yok-select__clear').text()).toBe('')
+
+    await wrapper.get('[role="combobox"]').trigger('click')
+
+    const selectedOption = wrapper.get('[role="option"][aria-selected="true"]')
+    expect(selectedOption.get('.yok-select__check svg').exists()).toBe(true)
+    expect(selectedOption.get('.yok-select__check').text()).toBe('')
+  })
+
   it('uses config provider size and density when no local size is provided', () => {
     const wrapper = mount(YConfigProvider, {
       props: {
@@ -240,6 +266,35 @@ describe('YSelect', () => {
 
     await disabledOption.trigger('click')
     expect(wrapper.emitted('update:modelValue')).toHaveLength(1)
+
+    wrapper.unmount()
+  })
+
+  it('keeps filter search and options as separated panel sections', async () => {
+    const wrapper = mount(YSelect, {
+      props: {
+        modelValue: '',
+        label: 'Package',
+        filterable: true,
+        options: [
+          { label: 'Core package', value: 'core' },
+          { label: 'Product suite', value: 'product' }
+        ]
+      },
+      attachTo: document.body
+    })
+
+    await wrapper.get('[role="combobox"]').trigger('click')
+
+    const panel = wrapper.get('.yok-select__panel')
+    const children = Array.from(panel.element.children).map((element) => element.className)
+
+    expect(children[0]).toContain('yok-select__search')
+    expect(children[1]).toContain('yok-select__listbox')
+    expect(wrapper.get('.yok-select__listbox').classes()).toContain('yok-select__listbox--with-search')
+    expect(wrapper.get('.yok-select__search-input').attributes('aria-controls')).toBe(
+      wrapper.get('.yok-select__listbox').attributes('id')
+    )
 
     wrapper.unmount()
   })
@@ -493,6 +548,66 @@ describe('YSelect', () => {
 
     await combobox.trigger('keydown', { key: 'ArrowDown' })
     expect(document.activeElement).toBe(combobox.element)
+
+    wrapper.unmount()
+  })
+
+  it('loads remote options from a remoteMethod and ignores stale responses', async () => {
+    let resolveCoreSearch: (options: Array<{ label: string; value: string }>) => void = () => {}
+    let resolveProductSearch: (options: Array<{ label: string; value: string }>) => void = () => {}
+    const remoteMethod = (query: string) =>
+      new Promise<Array<{ label: string; value: string }>>((resolve) => {
+        if (query === 'core') {
+          resolveCoreSearch = resolve
+          return
+        }
+
+        if (query === 'product') {
+          resolveProductSearch = resolve
+          return
+        }
+
+        resolve([])
+      })
+
+    const wrapper = mount(YSelect, {
+      props: {
+        modelValue: '',
+        label: 'Package',
+        filterable: true,
+        remoteMethod,
+        loadingText: 'Loading remote packages...',
+        options: [
+          { label: 'Local package', value: 'local' }
+        ]
+      },
+      attachTo: document.body
+    })
+
+    await wrapper.get('[role="combobox"]').trigger('click')
+    await wrapper.get('[role="searchbox"]').setValue('core')
+    await nextTick()
+
+    expect(wrapper.get('[role="status"]').text()).toBe('Loading remote packages...')
+    expect(wrapper.find('[role="option"]').exists()).toBe(false)
+
+    await wrapper.get('[role="searchbox"]').setValue('product')
+    await nextTick()
+
+    resolveProductSearch([{ label: 'Product package', value: 'product' }])
+    await nextTick()
+    await nextTick()
+
+    expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['Product package'])
+
+    resolveCoreSearch([{ label: 'Core package', value: 'core' }])
+    await nextTick()
+    await nextTick()
+
+    expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['Product package'])
+
+    await wrapper.get('[role="option"][id$="product"]').trigger('click')
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['product'])
 
     wrapper.unmount()
   })

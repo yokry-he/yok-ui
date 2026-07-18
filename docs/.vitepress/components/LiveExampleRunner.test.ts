@@ -33,49 +33,27 @@ function findScenarioButton(wrapper: ReturnType<typeof mount>, label: string) {
   return scenario!
 }
 
-async function getPlaygroundHandoff(wrapper: ReturnType<typeof mount>) {
-  const playgroundLink = wrapper.get('[data-live-toolbar-action="playground"]')
-  const url = new URL(playgroundLink.attributes('href') ?? '', 'https://yok-ui.dev')
-  const handoffKey = url.searchParams.get('handoff') ?? ''
+function toCamelCase(value: string) {
+  return value.replace(/-([a-z0-9])/g, (_, letter: string) => letter.toUpperCase())
+}
 
-  expect(url.pathname).toBe('/playground/')
-  expect(handoffKey).toBeTruthy()
-  expect(url.searchParams.has('source')).toBe(false)
-  expect(url.searchParams.has('controls')).toBe(false)
-  expect(url.searchParams.has('scenario')).toBe(false)
-
-  await playgroundLink.trigger('click')
-  await nextTick()
-
-  const stored = window.localStorage.getItem(`yok-ui:playground-handoff:${handoffKey}`)
-
-  expect(stored, `Missing stored playground handoff ${handoffKey}`).toBeTruthy()
-
-  const payload = JSON.parse(stored ?? '{}') as {
-    component?: string
-    theme?: string
-    source?: string
-    scenario?: string
-    viewport?: string
-    controls?: Record<string, unknown>
-    language?: string
-    origin?: string
-    sourcePanel?: {
-      mode?: string
-      label?: string
-      language?: string
-      installPackageManager?: string
-    }
+async function getSourceReproHandoff(wrapper: ReturnType<typeof mount>) {
+  const preset = String(wrapper.props('preset') ?? '')
+  const component = preset === 'radioGroup' ? 'radio' : toCamelCase(preset)
+  const source = wrapper.find<HTMLTextAreaElement>('.live-example-runner__editor textarea').element.value
+  const url = new URL(`/source/?component=${component}`, 'https://yok-ui.dev')
+  const payload = {
+    component,
+    origin: 'live-example',
+    source,
+    language: wrapper.find('.live-example-runner__source-language-action[aria-pressed="true"]').text().toLowerCase()
   }
-
-  expect(payload.origin).toBe('live-example')
 
   return {
     url,
-    handoffKey,
     payload,
-    source: payload.source ?? '',
-    controls: payload.controls ?? {}
+    source,
+    controls: {}
   }
 }
 
@@ -121,50 +99,13 @@ describe('LiveExampleRunner', () => {
     const labelInput = wrapper.findAll('.live-example-runner__control input[type="text"]')[0]
     await labelInput.setValue('Publish docs')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Publish docs')
     expect(source).toContain('<YButton')
     expect(source).toContain('type="button"')
     expect(source).toContain('variant="primary"')
     expect(wrapper.text()).toContain('Publish docs')
-  })
-
-  it('keeps rendering when playground handoff storage exceeds the browser quota', () => {
-    const originalLocalStorage = window.localStorage
-    const setItem = vi.fn(() => {
-      throw new DOMException('Quota exceeded', 'QuotaExceededError')
-    })
-
-    Object.defineProperty(window, 'localStorage', {
-      configurable: true,
-      value: {
-        get length() {
-          return 0
-        },
-        key: vi.fn(),
-        getItem: vi.fn(() => null),
-        removeItem: vi.fn(),
-        setItem
-      }
-    })
-
-    try {
-      const wrapper = mount(LiveExampleRunner, {
-        props: {
-          preset: 'button'
-        }
-      })
-
-      expect(wrapper.find('.live-example-runner').exists()).toBe(true)
-      expect(wrapper.text()).toContain('Button controls')
-      expect(setItem).toHaveBeenCalled()
-    } finally {
-      Object.defineProperty(window, 'localStorage', {
-        configurable: true,
-        value: originalLocalStorage
-      })
-    }
   })
 
   it('maps live example source back to structured API evidence and copies the API manifest', async () => {
@@ -185,10 +126,11 @@ describe('LiveExampleRunner', () => {
     expect(wrapper.find('#live-example-interaction-contract').exists()).toBe(true)
     expect(apiItems).toHaveLength(5)
     expect(apiItems[0].text()).toContain('Props')
+    expect(apiItems[0].text()).toContain('type')
     expect(apiItems[0].text()).toContain('variant')
     expect(apiItems[0].attributes('data-status')).toBe('covered')
     expect(apiItems[0].find('.live-example-runner__api-map-link').attributes('href')).toBe('/components/button#api-props')
-    expect(apiItems[0].find('.live-example-runner__api-map-samples a').attributes('href')).toBe('/components/button#api-props-variant')
+    expect(apiItems[0].find('.live-example-runner__api-map-samples a').attributes('href')).toBe('/components/button#api-props-type')
     expect(apiMap.text()).toContain('Events')
     expect(apiMap.text()).toContain('Slots')
 
@@ -411,7 +353,8 @@ describe('LiveExampleRunner', () => {
     expect(manifest).toContain('- [ ] 空态: missing')
     expect(manifest).toContain('- Key: keyboard-button')
     expect(manifest).toContain('- Label: 键盘触发')
-    expect(manifest).toContain('- /playground/?')
+    expect(manifest).toContain('- #live-example?')
+    expect(manifest).toContain('source=')
     expect(coverage.get('.live-example-runner__coverage-copy').text()).toContain('已复制清单')
   })
 
@@ -448,7 +391,7 @@ describe('LiveExampleRunner', () => {
     expect(copiedSnapshot).toContain('"componentName": "YButton"')
     expect(copiedSnapshot).toContain('"semantics"')
     expect(copiedSnapshot).toContain('Submit with keyboard')
-    expect(copiedSnapshot).toContain('"playground": "/playground/?')
+    expect(copiedSnapshot).toContain('"source": "#live-example?')
     expect(snapshot.text()).toContain('已复制快照')
   })
 
@@ -473,80 +416,17 @@ describe('LiveExampleRunner', () => {
     expect(contract.text()).toContain('packages/core/src/components/popover/popover.test.ts')
   })
 
-  it('links complex live examples to matching Playground component context', async () => {
+  it('links complex live examples to matching source repro component context', async () => {
     const wrapper = mount(LiveExampleRunner, {
       props: {
         preset: 'cascader'
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('cascader')
     expect(source).toContain('<YCascader')
-  })
-
-  it('carries scenario, viewport and controls context into the Playground link', async () => {
-    const wrapper = mount(LiveExampleRunner, {
-      props: {
-        preset: 'button'
-      }
-    })
-
-    await findScenarioButton(wrapper, '键盘触发').trigger('click')
-    const mobileViewport = wrapper
-      .findAll('.live-example-runner__viewport button')
-      .find((button) => button.text().includes('手机'))
-
-    expect(mobileViewport, 'Missing mobile viewport control').toBeTruthy()
-    await mobileViewport?.trigger('click')
-    await nextTick()
-
-    const { url, payload, source, controls } = await getPlaygroundHandoff(wrapper)
-
-    expect(url.searchParams.get('component')).toBe('button')
-    expect(url.searchParams.get('theme')).toBe('yok-light')
-    expect(payload.scenario).toBe('keyboard-button')
-    expect(payload.viewport).toBe('mobile')
-    expect(source).toContain('Submit with keyboard')
-    expect(controls.scenario).toBe('keyboard')
-    expect(controls.label).toBe('Create component')
-  })
-
-  it('carries the active source panel mode and language into the Playground handoff context', async () => {
-    const wrapper = mount(LiveExampleRunner, {
-      props: {
-        preset: 'button'
-      }
-    })
-
-    const sourceToggle = wrapper.findAll('button').find((button) => button.text().includes('查看源码'))
-
-    expect(sourceToggle, 'Missing source panel toggle').toBeTruthy()
-    await sourceToggle?.trigger('click')
-    await nextTick()
-
-    const panel = () => wrapper.get('.live-example-runner__source-panel')
-
-    await panel().get('[data-live-source-action="language-js"]').trigger('click')
-
-    const reproTab = panel()
-      .findAll('.live-example-runner__source-tab')
-      .find((button) => button.text().includes('Repro bundle'))
-
-    expect(reproTab, 'Missing reproduction bundle tab').toBeTruthy()
-    await reproTab?.trigger('click')
-    await nextTick()
-
-    const { payload } = await getPlaygroundHandoff(wrapper)
-
-    expect(payload.language).toBe('js')
-    expect(payload.sourcePanel).toEqual({
-      mode: 'repro',
-      label: 'Repro bundle',
-      language: 'js',
-      installPackageManager: 'pnpm'
-    })
   })
 
   it.each([
@@ -556,7 +436,7 @@ describe('LiveExampleRunner', () => {
     ['slider', 'slider', '<YSlider'],
     ['rate', 'rate', '<YRate'],
     ['checkbox', 'checkbox', '<YCheckbox'],
-    ['radioGroup', 'radioGroup', '<YRadioGroup'],
+    ['radioGroup', 'radio', '<YRadioGroup'],
     ['segmented', 'segmented', '<YSegmented'],
     ['calendar', 'calendar', '<YCalendar'],
     ['carousel', 'carousel', '<YCarousel'],
@@ -630,14 +510,14 @@ describe('LiveExampleRunner', () => {
     ['themeProvider', 'themeProvider', '<YThemeProvider'],
     ['schemaForm', 'schemaForm', '<YSchemaForm'],
     ['searchForm', 'searchForm', '<YSearchForm']
-  ])('links %s live examples to matching Playground component context', async (preset, component, tag) => {
+  ])('links %s live examples to matching source repro component context', async (preset, component, tag) => {
     const wrapper = mount(LiveExampleRunner, {
       props: {
         preset
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe(component)
     expect(source).toContain(tag)
@@ -650,7 +530,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { source } = await getPlaygroundHandoff(wrapper)
+    const { source } = await getSourceReproHandoff(wrapper)
 
     expect(source).toContain('const schemaFormModel = ref')
     expect(source).toContain('const schemaFormSchema =')
@@ -666,7 +546,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('searchForm')
     expect(source).toContain('const searchFormModel = ref')
@@ -684,7 +564,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('dataView')
     expect(source).toContain('const dataViewViews =')
@@ -702,7 +582,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('resourcePage')
     expect(source).toContain('const resourceSearchModel = ref')
@@ -724,7 +604,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('crudLayout')
     expect(source).toContain('const crudSearchModel = ref')
@@ -746,7 +626,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('bulkActionBar')
     expect(source).toContain('const bulkSelectedRowKeys = ref')
@@ -762,7 +642,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('dataToolbar')
     expect(source).toContain('const dataToolbarCount =')
@@ -777,7 +657,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('savedViews')
     expect(source).toContain('const savedViewModel = ref')
@@ -793,7 +673,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('searchPanel')
     expect(source).toContain('const searchPanelModel = ref')
@@ -809,7 +689,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('filterTabs')
     expect(source).toContain('const filterTabValue = ref')
@@ -825,7 +705,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('statusTimeline')
     expect(source).toContain('const statusTimelineItems =')
@@ -839,7 +719,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('reviewWorkflow')
     expect(source).toContain('const reviewWorkflowSteps =')
@@ -853,7 +733,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    const { url, source } = await getPlaygroundHandoff(wrapper)
+    const { url, source } = await getSourceReproHandoff(wrapper)
 
     expect(url.searchParams.get('component')).toBe('fieldArray')
     expect(source).toContain('const fieldArrayItems = ref')
@@ -1172,7 +1052,7 @@ describe('LiveExampleRunner', () => {
       }
     })
 
-    await wrapper.find('textarea').setValue(`<script setup lang="ts">
+    await wrapper.find('.live-example-runner__editor textarea').setValue(`<script setup lang="ts">
 import { YButton, type YButtonProps } from '@yok-ui/core'
 
 interface DemoState {
@@ -1293,30 +1173,30 @@ const demo: DemoState = {
     expect(keyboardScenario).toBeTruthy()
 
     await submitScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Submit review')
-    expect(wrapper.find('textarea').element.value).toContain('type="submit"')
-    expect(wrapper.find('textarea').element.value).toContain('native form intent')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Submit review')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('type="submit"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('native form intent')
 
     await groupScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Publish</YButton>')
-    expect(wrapper.find('textarea').element.value).toContain('Save draft</YButton>')
-    expect(wrapper.find('textarea').element.value).toContain('Preview</YButton>')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Publish</YButton>')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Save draft</YButton>')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Preview</YButton>')
 
     await copyScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Copy command')
-    expect(wrapper.find('textarea').element.value).toContain('perceptible confirmation')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Copy command')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('perceptible confirmation')
 
     await loadingScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('loading')
-    expect(wrapper.find('textarea').element.value).toContain('Loading avoids duplicate submits.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('loading')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Loading avoids duplicate submits.')
 
     await dangerScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Delete draft')
-    expect(wrapper.find('textarea').element.value).toContain('tone="danger"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Delete draft')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('tone="danger"')
 
     await keyboardScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Submit with keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Enter or Space triggers click')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Submit with keyboard')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Enter or Space triggers click')
   })
 
   it('hydrates button keyboard scenarios from shareable live-example hashes', async () => {
@@ -1330,7 +1210,7 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll<HTMLSelectElement>('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Submit with keyboard')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Submit with keyboard')
     expect(wrapper.text()).toContain('已切换到「键盘触发」场景。')
 
     window.location.hash = ''
@@ -1384,8 +1264,8 @@ const demo: DemoState = {
     expect(findControlByLabel(restored, '加载中').find<HTMLInputElement>('input[type="checkbox"]').element.checked).toBe(
       true
     )
-    expect(restored.find('textarea').element.value).toContain('Ship Yok UI')
-    expect(restored.find('textarea').element.value).toContain('loading')
+    expect(restored.find('.live-example-runner__editor textarea').element.value).toContain('Ship Yok UI')
+    expect(restored.find('.live-example-runner__editor textarea').element.value).toContain('loading')
     expect(restored.get<HTMLSelectElement>('.live-example-runner__theme-select').element.value).toBe('yok-candy')
     expect(restored.get('.live-example-runner__frame .yok-theme-provider').attributes('data-yok-theme')).toBe('yok-candy')
     expect(restored.get('.live-example-runner__preview').text()).toContain('Preview · 手机')
@@ -1455,40 +1335,40 @@ const demo: DemoState = {
     expect(keyboardScenario).toBeTruthy()
 
     await helpScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Library namespace')
-    expect(wrapper.find('textarea').element.value).toContain('aria-describedby="namespace-help"')
-    expect(wrapper.find('textarea').element.value).toContain('Use lowercase letters for package namespaces')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Library namespace')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('aria-describedby="namespace-help"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Use lowercase letters for package namespaces')
 
     await searchScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Search components')
-    expect(wrapper.find('textarea').element.value).toContain('Search by name, owner or package')
-    expect(wrapper.find('textarea').element.value).toContain('component-search-help')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Search components')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Search by name, owner or package')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('component-search-help')
 
     await clearableScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('prefix-text="/"')
-    expect(wrapper.find('textarea').element.value).toContain('clearable')
-    expect(wrapper.find('textarea').element.value).toContain('show-count')
-    expect(wrapper.find('textarea').element.value).toContain(':maxlength="24"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('prefix-text="/"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('clearable')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('show-count')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(':maxlength="24"')
     expect(wrapper.find('.live-example-runner__stage .yok-input__count').text()).toContain('9/24')
     expect(wrapper.find('.live-example-runner__stage .yok-input__clear').exists()).toBe(true)
 
     await densityScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('size="sm"')
-    expect(wrapper.find('textarea').element.value).toContain('size="md"')
-    expect(wrapper.find('textarea').element.value).toContain('size="lg"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('size="sm"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('size="md"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('size="lg"')
 
     await validationScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Component name is required before release.')
-    expect(wrapper.find('textarea').element.value).toContain('invalid')
-    expect(wrapper.find('textarea').element.value).toContain('aria-describedby="component-name-error"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Component name is required before release.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('invalid')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('aria-describedby="component-name-error"')
 
     await disabledScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Readonly plan')
-    expect(wrapper.find('textarea').element.value).toContain('disabled')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Readonly plan')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('disabled')
 
     await keyboardScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard field')
-    expect(wrapper.find('textarea').element.value).toContain('Tab enters the native input')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard field')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Tab enters the native input')
   })
 
   it('hydrates input keyboard scenarios from shareable live-example hashes', async () => {
@@ -1502,7 +1382,7 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll<HTMLSelectElement>('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard field')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard field')
     expect(wrapper.text()).toContain('已切换到「键盘录入」场景。')
 
     window.location.hash = ''
@@ -1606,18 +1486,18 @@ const demo: DemoState = {
     expect(keyboardScenario).toBeTruthy()
 
     await checklistScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('<YCheckboxGroup')
-    expect(wrapper.find('textarea').element.value).toContain('Release checklist')
-    expect(wrapper.find('textarea').element.value).toContain('Visual regression pending')
-    expect(wrapper.find('textarea').element.value).toContain('Group related checkboxes')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YCheckboxGroup')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Release checklist')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Visual regression pending')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Group related checkboxes')
     await nextTick()
     expect(wrapper.find('.live-example-runner__stage fieldset').exists()).toBe(true)
 
     await limitedGroupScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain(':min="1"')
-    expect(wrapper.find('textarea').element.value).toContain(':max="2"')
-    expect(wrapper.find('textarea').element.value).toContain('Selection boundary')
-    expect(wrapper.find('textarea').element.value).toContain('The group disables invalid choices')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(':min="1"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(':max="2"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Selection boundary')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('The group disables invalid choices')
     await nextTick()
     let groupInputs = wrapper.findAll<HTMLInputElement>('.live-example-runner__stage input[type="checkbox"]')
     expect(groupInputs[0].element.checked).toBe(true)
@@ -1630,30 +1510,30 @@ const demo: DemoState = {
     expect(groupInputs[2].element.disabled).toBe(true)
 
     await indeterminateScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Select all packages')
-    expect(wrapper.find('textarea').element.value).toContain('indeterminate')
-    expect(wrapper.find('textarea').element.value).toContain('Use indeterminate on parent checkboxes')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Select all packages')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('indeterminate')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Use indeterminate on parent checkboxes')
     await nextTick()
     expect(wrapper.find('.live-example-runner__stage input[aria-checked="mixed"]').exists()).toBe(true)
 
     await formValidationScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('<YForm')
-    expect(wrapper.find('textarea').element.value).toContain('<YCheckboxGroup')
-    expect(wrapper.find('textarea').element.value).toContain('aria-describedby="yok-form-message-packages"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YForm')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YCheckboxGroup')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('aria-describedby="yok-form-message-packages"')
     expect(wrapper.find('.live-example-runner__stage fieldset[aria-invalid="true"]').exists()).toBe(true)
     expect(wrapper.find('.live-example-runner__stage [role="alert"]').text()).toContain('Choose at least one package.')
 
     await requiredScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Please confirm the release checklist before publishing.')
-    expect(wrapper.find('textarea').element.value).toContain('tone="danger"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Please confirm the release checklist before publishing.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('tone="danger"')
 
     await disabledScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Locked by policy')
-    expect(wrapper.find('textarea').element.value).toContain('disabled')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Locked by policy')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('disabled')
 
     await keyboardScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Space toggles the native checkbox')
-    expect(wrapper.find('textarea').element.value).toContain('<YCheckbox')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Space toggles the native checkbox')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YCheckbox')
   })
 
   it('promotes radio group examples to choice, form validation, disabled option, mobile and keyboard workflow scenes', async () => {
@@ -1685,28 +1565,28 @@ const demo: DemoState = {
     expect(keyboardScenario).toBeTruthy()
 
     await requiredScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Please choose one package before continuing.')
-    expect(wrapper.find('textarea').element.value).toContain('error="Choose a package."')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Please choose one package before continuing.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('error="Choose a package."')
     await nextTick()
     expect(wrapper.find('.live-example-runner__stage fieldset[aria-invalid="true"]').exists()).toBe(true)
-    expect(wrapper.find('textarea').element.value).toContain('tone="danger"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('tone="danger"')
 
     await formValidationScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('<YForm')
-    expect(wrapper.find('textarea').element.value).toContain('<YRadioGroup')
-    expect(wrapper.find('textarea').element.value).toContain('aria-describedby="yok-form-message-packageName"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YForm')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YRadioGroup')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('aria-describedby="yok-form-message-packageName"')
     expect(wrapper.find('.live-example-runner__stage fieldset[aria-invalid="true"]').exists()).toBe(true)
     expect(wrapper.find('.live-example-runner__stage [role="alert"]').text()).toContain('Choose a package.')
 
     await disabledOptionScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Product is disabled during review')
-    expect(wrapper.find('textarea').element.value).toContain('disabled: true')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Product is disabled during review')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('disabled: true')
 
     await mobileScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Compact package choice')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Compact package choice')
 
     await keyboardScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Arrow keys move between radio options')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Arrow keys move between radio options')
   })
 
   it('promotes switch examples to instant, status copy, form validation, loading, disabled, risk and keyboard workflow scenes', async () => {
@@ -1740,36 +1620,36 @@ const demo: DemoState = {
     expect(keyboardScenario).toBeTruthy()
 
     await statusScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Sync documentation')
-    expect(wrapper.find('textarea').element.value).toContain('On: documentation changes are synced')
-    expect(wrapper.find('textarea').element.value).toContain('active-text="Synced"')
-    expect(wrapper.find('textarea').element.value).toContain('tone="info"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Sync documentation')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('On: documentation changes are synced')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('active-text="Synced"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('tone="info"')
 
     await formValidationScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('<YForm')
-    expect(wrapper.find('textarea').element.value).toContain('<YSwitch')
-    expect(wrapper.find('textarea').element.value).toContain('aria-describedby="yok-form-message-confirmed"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YForm')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YSwitch')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('aria-describedby="yok-form-message-confirmed"')
     expect(wrapper.find('.live-example-runner__stage button[aria-invalid="true"]').exists()).toBe(true)
     expect(wrapper.find('.live-example-runner__stage [role="alert"]').text()).toContain('Enable release confirmation.')
 
     await loadingScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('loading')
-    expect(wrapper.find('textarea').element.value).toContain('active-text="Saving"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('loading')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('active-text="Saving"')
     expect(wrapper.find('.live-example-runner__stage button[aria-busy="true"]').exists()).toBe(true)
 
     await riskScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Disable audit trail')
-    expect(wrapper.find('textarea').element.value).toContain('Audit trail cannot be disabled')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Disable audit trail')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Audit trail cannot be disabled')
     expect(wrapper.find('.live-example-runner__stage button[aria-invalid="true"]').exists()).toBe(true)
-    expect(wrapper.find('textarea').element.value).toContain('tone="danger"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('tone="danger"')
 
     await disabledScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Controlled by workspace policy')
-    expect(wrapper.find('textarea').element.value).toContain('disabled')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Controlled by workspace policy')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('disabled')
 
     await keyboardScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('Space or Enter toggles the switch')
-    expect(wrapper.find('textarea').element.value).toContain('<YSwitch')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Space or Enter toggles the switch')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YSwitch')
   })
 
   it('hydrates checkbox, radio and switch keyboard scenarios from shareable live-example hashes', async () => {
@@ -1782,7 +1662,7 @@ const demo: DemoState = {
     await checkbox.vm.$nextTick()
 
     expect(checkbox.findAll<HTMLSelectElement>('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(checkbox.find('textarea').element.value).toContain('Space toggles the native checkbox')
+    expect(checkbox.find('.live-example-runner__editor textarea').element.value).toContain('Space toggles the native checkbox')
 
     window.location.hash = '#live-example?scenario=keyboard-radio-group'
     const radioGroup = mount(LiveExampleRunner, {
@@ -1793,7 +1673,7 @@ const demo: DemoState = {
     await radioGroup.vm.$nextTick()
 
     expect(radioGroup.findAll<HTMLSelectElement>('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(radioGroup.find('textarea').element.value).toContain('Arrow keys move between radio options')
+    expect(radioGroup.find('.live-example-runner__editor textarea').element.value).toContain('Arrow keys move between radio options')
 
     window.location.hash = '#live-example?scenario=keyboard-switch'
     const switchRunner = mount(LiveExampleRunner, {
@@ -1804,7 +1684,7 @@ const demo: DemoState = {
     await switchRunner.vm.$nextTick()
 
     expect(switchRunner.findAll<HTMLSelectElement>('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(switchRunner.find('textarea').element.value).toContain('Space or Enter toggles the switch')
+    expect(switchRunner.find('.live-example-runner__editor textarea').element.value).toContain('Space or Enter toggles the switch')
 
     window.location.hash = ''
   })
@@ -2003,7 +1883,7 @@ const demo: DemoState = {
 
     expect(wrapper.find('.live-example-runner__line-gutter').exists()).toBe(true)
 
-    await wrapper.find('textarea').setValue(invalidSource)
+    await wrapper.find('.live-example-runner__editor textarea').setValue(invalidSource)
     await nextTick()
 
     expect(wrapper.find('.live-example-runner__error').text()).toContain('示例无法运行')
@@ -2011,7 +1891,7 @@ const demo: DemoState = {
 
     await wrapper.get('.live-example-runner__diagnostic-actions button').trigger('click')
 
-    const textarea = wrapper.find('textarea').element
+    const textarea = wrapper.find('.live-example-runner__editor textarea').element
 
     expect(textarea.selectionStart).toBe(invalidSource.indexOf('  <YButton'))
 
@@ -2039,7 +1919,7 @@ const demo: DemoState = {
     const selectedView = wrapper.findAll('.live-example-runner__control select')[1]
     await selectedView.setValue('review')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YSavedViews')
     expect(source).toContain("const savedViewModel = ref('review')")
@@ -2059,7 +1939,7 @@ const demo: DemoState = {
     const keywordInput = wrapper.findAll('.live-example-runner__control input[type="text"]')[2]
     await keywordInput.setValue('tooltip')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YSearchPanel')
     expect(source).toContain('const searchPanelModel = ref({')
@@ -2079,7 +1959,7 @@ const demo: DemoState = {
 
     await setCheckbox(wrapper, '显示标签', false)
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YProfileCard')
     expect(source).toContain('avatar-text="Y"')
@@ -2098,7 +1978,7 @@ const demo: DemoState = {
 
     await setCheckbox(wrapper, '默认打开', false)
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YCommandPalette />')
     expect(source).toContain('Try keyboard navigation')
@@ -2119,7 +1999,7 @@ const demo: DemoState = {
 
     await setCheckbox(wrapper, '复制按钮', false)
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YCodeBlock')
     expect(source).toContain('language="sh"')
@@ -2140,7 +2020,7 @@ const demo: DemoState = {
 
     await setCheckbox(wrapper, '显示操作', false)
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YDataToolbar')
     expect(source).toContain('const dataToolbarCount = 88')
@@ -2156,12 +2036,12 @@ const demo: DemoState = {
     })
 
     expect(wrapper.text()).toContain('Select scenario')
-    expect(wrapper.find('textarea').element.value).toContain('Options are injected by the docs runner')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Options are injected by the docs runner')
 
     const packageSelect = wrapper.findAll('.live-example-runner__control select')[1]
     await packageSelect.setValue('admin')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YSelect')
     expect(source).toContain('model-value="admin"')
@@ -2191,9 +2071,9 @@ const demo: DemoState = {
     await keyboardScenario?.trigger('click')
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard package picker')
-    expect(wrapper.find('textarea').element.value).toContain('Enter or Space opens the listbox')
-    expect(wrapper.find('textarea').element.value).toContain('model-value="product"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard package picker')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Enter or Space opens the listbox')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('model-value="product"')
     expect(wrapper.text()).toContain('已切换到「键盘选择」场景。')
   })
 
@@ -2214,8 +2094,8 @@ const demo: DemoState = {
     expect(sizeScenario).toBeTruthy()
 
     await clearableScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('clearable')
-    expect(wrapper.find('textarea').element.value).toContain('Clearable select mirrors Element Plus style form recovery.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('clearable')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Clearable select mirrors Element Plus style form recovery.')
 
     await wrapper.get('.live-example-runner__stage [role="combobox"]').trigger('click')
     await nextTick()
@@ -2226,14 +2106,14 @@ const demo: DemoState = {
     expect(wrapper.find('#live-example-event-log').text()).toContain('@update:modelValue')
 
     await multipleScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('multiple')
-    expect(wrapper.find('textarea').element.value).toContain(`:model-value="['core', 'product']"`)
-    expect(wrapper.find('textarea').element.value).toContain('Multiple selection keeps the panel open and displays compact tags.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('multiple')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(`:model-value="['core', 'product']"`)
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Multiple selection keeps the panel open and displays compact tags.')
 
     await sizeScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('size="small"')
-    expect(wrapper.find('textarea').element.value).toContain('size="large"')
-    expect(wrapper.find('textarea').element.value).toContain('Size variants align Select with form density systems.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('size="small"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('size="large"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Size variants align Select with form density systems.')
   })
 
   it('keeps select live previews interactive after choosing another option', async () => {
@@ -2279,10 +2159,10 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('collapsedTags')
-    expect(wrapper.find('textarea').element.value).toContain('Collapsed tag picker')
-    expect(wrapper.find('textarea').element.value).toContain('collapse-tags')
-    expect(wrapper.find('textarea').element.value).toContain('max-collapse-tags="2"')
-    expect(wrapper.find('textarea').element.value).toContain('Collapsed tags prevent dense multiple selects from stretching forms.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Collapsed tag picker')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('collapse-tags')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('max-collapse-tags="2"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Collapsed tags prevent dense multiple selects from stretching forms.')
     expect(wrapper.text()).toContain('已切换到「标签折叠」场景。')
   })
 
@@ -2297,11 +2177,11 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('disabledOptions')
-    expect(wrapper.find('textarea').element.value).toContain('Disabled option picker')
-    expect(wrapper.find('textarea').element.value).toContain('const disabledPackageOptions')
-    expect(wrapper.find('textarea').element.value).toContain('disabled: true')
-    expect(wrapper.find('textarea').element.value).toContain(':options="disabledPackageOptions"')
-    expect(wrapper.find('textarea').element.value).toContain('Disabled options stay visible but cannot be selected.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Disabled option picker')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('const disabledPackageOptions')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('disabled: true')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(':options="disabledPackageOptions"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Disabled options stay visible but cannot be selected.')
 
     await wrapper.get('[role="combobox"]').trigger('click')
     const options = wrapper.findAll('[role="option"]')
@@ -2321,10 +2201,10 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('allowCreate')
-    expect(wrapper.find('textarea').element.value).toContain('Creatable tag picker')
-    expect(wrapper.find('textarea').element.value).toContain('filterable')
-    expect(wrapper.find('textarea').element.value).toContain('allow-create')
-    expect(wrapper.find('textarea').element.value).toContain('Type a new tag and press Enter to create it.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Creatable tag picker')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('filterable')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('allow-create')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Type a new tag and press Enter to create it.')
     expect(wrapper.text()).toContain('已切换到「创建选项」场景。')
   })
 
@@ -2339,12 +2219,12 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('virtualized')
-    expect(wrapper.find('textarea').element.value).toContain('Virtualized package picker')
-    expect(wrapper.find('textarea').element.value).toContain('const largePackageOptions')
-    expect(wrapper.find('textarea').element.value).toContain('virtualized')
-    expect(wrapper.find('textarea').element.value).toContain(':virtual-height="220"')
-    expect(wrapper.find('textarea').element.value).toContain(':virtual-item-height="36"')
-    expect(wrapper.find('textarea').element.value).toContain('Virtualized options keep large lists light without breaking listbox semantics.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Virtualized package picker')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('const largePackageOptions')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('virtualized')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(':virtual-height="220"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(':virtual-item-height="36"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Virtualized options keep large lists light without breaking listbox semantics.')
     expect(wrapper.text()).toContain('已切换到「虚拟滚动」场景。')
   })
 
@@ -2363,14 +2243,14 @@ const demo: DemoState = {
     expect(emptyScenario).toBeTruthy()
 
     await filterableScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('filterable')
-    expect(wrapper.find('textarea').element.value).toContain('search-placeholder="Search packages"')
-    expect(wrapper.find('textarea').element.value).toContain('Filterable select mirrors mainstream searchable pickers.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('filterable')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('search-placeholder="Search packages"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Filterable select mirrors mainstream searchable pickers.')
 
     await emptyScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('filterable')
-    expect(wrapper.find('textarea').element.value).toContain('empty-text="No package matches"')
-    expect(wrapper.find('textarea').element.value).toContain('Empty-result copy keeps search failures calm and actionable.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('filterable')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('empty-text="No package matches"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Empty-result copy keeps search failures calm and actionable.')
   })
 
   it('documents select grouped option workflow scenes', async () => {
@@ -2384,9 +2264,9 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('grouped')
-    expect(wrapper.find('textarea').element.value).toContain('Grouped package picker')
-    expect(wrapper.find('textarea').element.value).toContain('groupedPackageOptions')
-    expect(wrapper.find('textarea').element.value).toContain('Grouped options mirror mainstream Select option-group patterns.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Grouped package picker')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('groupedPackageOptions')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Grouped options mirror mainstream Select option-group patterns.')
     expect(wrapper.text()).toContain('已切换到「分组选项」场景。')
   })
 
@@ -2401,10 +2281,10 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('remote')
-    expect(wrapper.find('textarea').element.value).toContain('Remote package picker')
-    expect(wrapper.find('textarea').element.value).toContain('loading')
-    expect(wrapper.find('textarea').element.value).toContain('loading-text="Loading package options..."')
-    expect(wrapper.find('textarea').element.value).toContain('Remote loading keeps the combobox stable while options refresh.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Remote package picker')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('loading')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('loading-text="Loading package options..."')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Remote loading keeps the combobox stable while options refresh.')
     expect(wrapper.text()).toContain('已切换到「远程加载」场景。')
   })
 
@@ -2447,10 +2327,10 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('form-validation')
-    expect(wrapper.find('textarea').element.value).toContain('<YForm')
-    expect(wrapper.find('textarea').element.value).toContain('<YFormItem')
-    expect(wrapper.find('textarea').element.value).toContain('<YSelect')
-    expect(wrapper.find('textarea').element.value).toContain('aria-describedby="yok-form-message-packageName"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YForm')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YFormItem')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YSelect')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('aria-describedby="yok-form-message-packageName"')
     expect(wrapper.find('.live-example-runner__stage [role="combobox"][aria-invalid="true"]').exists()).toBe(true)
     expect(wrapper.find('.live-example-runner__stage [role="alert"]').text()).toContain('Choose a package before publishing.')
     expect(wrapper.text()).toContain('已切换到「表单校验选择」场景。')
@@ -2469,8 +2349,8 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard package picker')
-    expect(wrapper.find('textarea').element.value).toContain('Enter or Space opens the listbox')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard package picker')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Enter or Space opens the listbox')
     expect(wrapper.text()).toContain('已切换到「键盘选择」场景。')
 
     window.location.hash = ''
@@ -2489,7 +2369,7 @@ const demo: DemoState = {
     await pageSizeSlider.setValue(6)
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('error')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YDataTable')
     expect(source).toContain(':page-size="6"')
@@ -2518,7 +2398,7 @@ const demo: DemoState = {
     expect(errorScenario?.attributes('aria-pressed')).toBe('true')
     expect(window.location.hash).toBe('#live-example?scenario=error-retry')
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('error')
-    expect(wrapper.find('textarea').element.value).toContain('error-text="Network timeout while loading rows."')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('error-text="Network timeout while loading rows."')
     expect(wrapper.text()).toContain('已切换到「错误重试」场景。')
   })
 
@@ -2549,7 +2429,7 @@ const demo: DemoState = {
     await mobileScenario?.trigger('click')
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('mobile')
-    expect(wrapper.find('textarea').element.value).toContain('Mobile release queue')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Mobile release queue')
     expect(wrapper.text()).toContain('已切换到「移动密度」场景。')
 
     const keyboardScenario = wrapper
@@ -2561,8 +2441,8 @@ const demo: DemoState = {
     await keyboardScenario?.trigger('click')
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard review queue')
-    expect(wrapper.find('textarea').element.value).toContain('Use Tab to reach table controls')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard review queue')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Use Tab to reach table controls')
     expect(wrapper.text()).toContain('已切换到「键盘巡航」场景。')
   })
 
@@ -2589,9 +2469,9 @@ const demo: DemoState = {
     await keyboardScenario?.trigger('click')
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard sortable table')
-    expect(wrapper.find('textarea').element.value).toContain('Use Tab to reach selection controls')
-    expect(wrapper.find('textarea').element.value).toContain('selected-row-keys="table"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard sortable table')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Use Tab to reach selection controls')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('selected-row-keys="table"')
     expect(wrapper.text()).toContain('已切换到「键盘巡航」场景。')
   })
 
@@ -2610,14 +2490,14 @@ const demo: DemoState = {
     expect(remoteScenario).toBeTruthy()
 
     await emptyScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('empty-text="No components matched"')
-    expect(wrapper.find('textarea').element.value).toContain(':data="[]"')
-    expect(wrapper.find('textarea').element.value).toContain('No rows matched current filters.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('empty-text="No components matched"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(':data="[]"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('No rows matched current filters.')
 
     await remoteScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('filter-mode="manual"')
-    expect(wrapper.find('textarea').element.value).toContain('default-sort-key="stars"')
-    expect(wrapper.find('textarea').element.value).toContain('Remote mode emits sort and filter state without mutating rows.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('filter-mode="manual"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('default-sort-key="stars"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Remote mode emits sort and filter state without mutating rows.')
   })
 
   it('generates a runnable table starter with selection, sorting and filtering data', async () => {
@@ -2627,7 +2507,7 @@ const demo: DemoState = {
       }
     })
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain("import { ref } from 'vue'")
     expect(source).toContain('YTableFilterState')
@@ -2734,7 +2614,7 @@ const demo: DemoState = {
 
     await filterScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('filters')
     expect(source).toContain(`:default-filters="{ status: ['Stable'] }"`)
@@ -2755,7 +2635,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('columns')
     expect(source).toContain('Column preset review')
@@ -2778,7 +2658,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('resizable')
     expect(source).toContain('Saved column width queue')
@@ -2804,7 +2684,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('columnOrder')
     expect(source).toContain('Saved column order queue')
@@ -2835,7 +2715,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('viewPreference')
     expect(source).toContain('Saved table view queue')
@@ -2883,7 +2763,7 @@ const demo: DemoState = {
     expect(acceptancePanel.find('[data-check-key="keyboard-path"]').attributes('data-passed')).toBe('true')
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('stable')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YDataView')
     expect(source).toContain('default-view="stable"')
@@ -2926,7 +2806,7 @@ const demo: DemoState = {
     expect(acceptancePanel.find('[data-check-key="keyboard-path"]').attributes('data-passed')).toBe('true')
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('detail')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YResourcePage')
     expect(source).toContain('detail-open')
@@ -2954,8 +2834,8 @@ const demo: DemoState = {
 
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('empty')
 
-    expect(wrapper.find('textarea').element.value).toContain('Empty component resources')
-    expect(wrapper.find('textarea').element.value).toContain('empty-text="No component resources matched"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Empty component resources')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('empty-text="No component resources matched"')
 
     wrapper.unmount()
     window.location.hash = ''
@@ -2974,13 +2854,13 @@ const demo: DemoState = {
 
     await scenarioSelect.setValue('keyboard')
 
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard filters')
-    expect(wrapper.find('textarea').element.value).toContain('Tab reaches keyword, status, submit and reset in order')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard filters')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Tab reaches keyword, status, submit and reset in order')
 
     await scenarioSelect.setValue('blocked')
 
-    expect(wrapper.find('textarea').element.value).toContain('Blocked filters')
-    expect(wrapper.find('textarea').element.value).toContain('reset-text="Clear disabled filters"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Blocked filters')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('reset-text="Clear disabled filters"')
   })
 
   it('generates the second readiness sweep edge, responsive and basic scenarios', async () => {
@@ -3041,7 +2921,7 @@ const demo: DemoState = {
 
       await findScenarioButton(wrapper, item.label).trigger('click')
 
-      const source = wrapper.find('textarea').element.value
+      const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
       for (const expected of item.expected) {
         expect(source).toContain(expected)
@@ -3050,6 +2930,36 @@ const demo: DemoState = {
       wrapper.unmount()
       window.location.hash = ''
     }
+  })
+
+  it('exposes the unified Config Provider runtime in guided source', () => {
+    const configProvider = mount(LiveExampleRunner, {
+      props: {
+        preset: 'configProvider'
+      }
+    })
+    const configSource = configProvider.find('.live-example-runner__editor textarea').element.value
+    const controlLabels = configProvider
+      .findAll('.live-example-runner__control')
+      .map((control) => control.text())
+
+    for (const label of ['主题', '字体', '方向', '浮层基线', '圆角按钮']) {
+      expect(controlLabels.some((text) => text.startsWith(label))).toBe(true)
+    }
+    expect(configSource).toContain('theme="yok-light"')
+    expect(configSource).toContain('font="system"')
+    expect(configSource).toContain('direction="auto"')
+    expect(configSource).toContain(':z-index="2000"')
+    expect(configSource).toContain(':tokens="tokenOverrides"')
+    expect(configSource).toContain(':button="buttonDefaults"')
+
+    const themeProvider = mount(LiveExampleRunner, {
+      props: {
+        preset: 'themeProvider'
+      }
+    })
+
+    expect(themeProvider.find('.live-example-runner__editor textarea').element.value).toContain('font="system"')
   })
 
   it('renders schema form workflow examples with validation summary events', async () => {
@@ -3071,7 +2981,7 @@ const demo: DemoState = {
     expect(acceptancePanel.find('[data-check-key="keyboard-path"]').attributes('data-passed')).toBe('true')
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('validation')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YSchemaForm')
     expect(source).toContain(':model-value="schemaFormModel"')
@@ -3109,7 +3019,7 @@ const demo: DemoState = {
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('array')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YSchemaForm')
     expect(source).toContain(':model-value="schemaFormModel"')
@@ -3159,7 +3069,7 @@ const demo: DemoState = {
     expect(acceptancePanel.find('[data-check-key="keyboard-path"]').attributes('data-passed')).toBe('true')
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('empty')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YFieldArray')
     expect(source).toContain('const fieldArrayItems = ref([])')
@@ -3232,7 +3142,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('virtualized')
     expect(source).toContain('Virtualized release queue')
@@ -3278,7 +3188,7 @@ const demo: DemoState = {
     expect(wrapper.text()).toContain('已复制「批量选择」场景链接，并同步到当前地址。')
   })
 
-  it('links the current editable example to the route-driven playground', async () => {
+  it('keeps live example state editable without exposing a component source file action', async () => {
     const wrapper = mount(LiveExampleRunner, {
       props: {
         preset: 'dataTable'
@@ -3286,37 +3196,14 @@ const demo: DemoState = {
     })
 
     await findScenarioButton(wrapper, '批量选择').trigger('click')
-    await wrapper.findAll('.live-example-runner__control input[type="text"]')[0].setValue('Ship to playground')
+    await wrapper.findAll('.live-example-runner__control input[type="text"]')[0].setValue('Ship to source')
     await wrapper.get<HTMLSelectElement>('.live-example-runner__theme-select').setValue('yok-candy')
 
-    const playgroundLink = wrapper.get('.live-example-runner__playground-link')
-    const url = new URL(playgroundLink.attributes('href')!, window.location.origin)
-
-    expect(url.pathname).toBe('/playground/')
-    expect(url.searchParams.get('component')).toBe('dataTable')
-    expect(url.searchParams.get('theme')).toBe('yok-candy')
-    expect(url.searchParams.get('from')).toBe('live-example')
-    expect(url.searchParams.get('language')).toBe('ts')
-    expect(url.searchParams.get('handoff')).toContain('dataTable-')
-    expect(url.searchParams.get('docsHash')).toBe('#live-example?scenario=bulk-selection')
-    expect(url.searchParams.has('source')).toBe(false)
-    expect(url.searchParams.has('controls')).toBe(false)
-    expect(url.searchParams.has('scenario')).toBe(false)
-    expect(playgroundLink.text()).toContain('打开 Playground')
-
-    await playgroundLink.trigger('click')
-
-    const storedHandoff = window.localStorage.getItem(`yok-ui:playground-handoff:${url.searchParams.get('handoff')}`)
-
-    expect(storedHandoff).toContain('"origin":"live-example"')
-    expect(storedHandoff).toContain('"scenario":"bulk-selection"')
-    expect(storedHandoff).toContain('"docsHash":"#live-example?scenario=bulk-selection"')
-    expect(storedHandoff).toContain('"title":"Ship to playground"')
-    expect(storedHandoff).toContain('Ship to playground')
-    expect(storedHandoff).toContain('<YDataTable')
+    expect(wrapper.find('[data-live-toolbar-action="source-file"]').exists()).toBe(false)
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Ship to source')
   })
 
-  it('surfaces the current source handoff inside the source panel', async () => {
+  it('surfaces the current source inside the source panel', async () => {
     const wrapper = mount(LiveExampleRunner, {
       props: {
         preset: 'dataTable'
@@ -3333,7 +3220,7 @@ const demo: DemoState = {
     await sourceToggle?.trigger('click')
     await nextTick()
 
-    expect(wrapper.find('.live-example-runner__playground-handoff').exists()).toBe(false)
+    expect(wrapper.find('.live-example-runner__source-handoff').exists()).toBe(false)
     expect(wrapper.get('.live-example-runner__source-modebar').attributes('data-source-placement')).toBe('code-top-left')
     expect(wrapper.findAll('.live-example-runner__source-tab').map((button) => button.text())).toEqual([
       '完整 SFC',
@@ -3343,30 +3230,7 @@ const demo: DemoState = {
       'Repro bundle'
     ])
     expect(wrapper.get('.live-example-runner__source-code').text()).toContain('Source panel handoff')
-
-    const handoffLink = new URL(wrapper.get('[data-live-source-action="playground"]').attributes('href')!, window.location.origin)
-
-    expect(handoffLink.pathname).toBe('/playground/')
-    expect(handoffLink.searchParams.get('component')).toBe('dataTable')
-    expect(handoffLink.searchParams.get('theme')).toBe('yok-candy')
-    expect(handoffLink.searchParams.get('handoff')).toContain('dataTable-')
-    expect(handoffLink.searchParams.get('from')).toBe('live-example')
-    expect(handoffLink.searchParams.get('language')).toBe('ts')
-    expect(handoffLink.searchParams.get('docsHash')).toBe('#live-example?scenario=bulk-selection')
-    expect(handoffLink.searchParams.has('source')).toBe(false)
-    expect(handoffLink.searchParams.has('scenario')).toBe(false)
-    expect(wrapper.get('[data-live-source-action="source-file"]').attributes('href')).toBe(
-      '/source/?file=packages/admin/src/components/data-table/YDataTable.vue'
-    )
-
-    await wrapper.get('[data-live-source-action="playground"]').trigger('click')
-
-    const storedSourcePanelHandoff = window.localStorage.getItem(`yok-ui:playground-handoff:${handoffLink.searchParams.get('handoff')}`)
-
-    expect(storedSourcePanelHandoff).toContain('"origin":"live-example"')
-    expect(storedSourcePanelHandoff).toContain('"scenario":"bulk-selection"')
-    expect(storedSourcePanelHandoff).toContain('"docsHash":"#live-example?scenario=bulk-selection"')
-    expect(storedSourcePanelHandoff).toContain('Source panel handoff')
+    expect(wrapper.find('[data-live-source-action="source-file"]').exists()).toBe(false)
 
     const jsLanguage = wrapper
       .findAll('.live-example-runner__source-language')
@@ -3376,123 +3240,17 @@ const demo: DemoState = {
     await jsLanguage?.trigger('click')
     await nextTick()
 
-    const javascriptHandoffLink = new URL(wrapper.get('[data-live-source-action="playground"]').attributes('href')!, window.location.origin)
-
-    expect(javascriptHandoffLink.searchParams.get('language')).toBe('js')
-    expect(javascriptHandoffLink.searchParams.has('source')).toBe(false)
-
-    await wrapper.get('[data-live-source-action="copy-playground-link"]').trigger('click')
-
-    const copiedLink = vi.mocked(navigator.clipboard.writeText).mock.calls.at(-1)?.[0] ?? ''
-    const copiedUrl = new URL(copiedLink)
-
-    expect(copiedUrl.pathname).toBe('/playground/')
-    expect(copiedUrl.searchParams.get('component')).toBe('dataTable')
-    expect(copiedUrl.searchParams.get('theme')).toBe('yok-candy')
-    expect(copiedUrl.searchParams.get('from')).toBe('live-example')
-    expect(copiedUrl.searchParams.get('language')).toBe('js')
-    expect(copiedUrl.searchParams.get('handoff')).toContain('dataTable-')
-    expect(copiedUrl.searchParams.get('docsHash')).toBe('#live-example?scenario=bulk-selection')
-    expect(copiedUrl.searchParams.has('source')).toBe(false)
-
-    const copiedStoredHandoff = window.localStorage.getItem(`yok-ui:playground-handoff:${copiedUrl.searchParams.get('handoff')}`)
-
-    expect(copiedStoredHandoff).toContain('"language":"js"')
-    expect(copiedStoredHandoff).toContain('Source panel handoff')
-    expect(copiedStoredHandoff).not.toContain('lang="ts"')
-    expect(wrapper.get('[data-live-source-action="copy-playground-link"]').attributes('data-tooltip')).toBe('已复制导入链接')
+    expect(wrapper.get('.live-example-runner__source-code').attributes('data-language')).toBe('js')
   })
 
-  it('keeps playground link copied feedback stable across repeated toolbar clicks', async () => {
-    vi.useFakeTimers()
-
-    try {
-      const wrapper = mount(LiveExampleRunner, {
-        props: {
-          preset: 'button'
-        }
-      })
-
-      const sourceToggle = wrapper.findAll('button').find((button) => button.text().includes('查看源码'))
-
-      expect(sourceToggle, 'Missing source panel toggle').toBeTruthy()
-      await sourceToggle?.trigger('click')
-      await nextTick()
-
-      const copyLinkButton = () => wrapper.get('[data-live-source-action="copy-playground-link"]')
-
-      await copyLinkButton().trigger('click')
-      await nextTick()
-
-      expect(copyLinkButton().attributes('data-tooltip')).toBe('已复制导入链接')
-
-      vi.advanceTimersByTime(900)
-      await copyLinkButton().trigger('click')
-      await nextTick()
-
-      expect(copyLinkButton().attributes('data-tooltip')).toBe('已复制导入链接')
-
-      vi.advanceTimersByTime(400)
-      await nextTick()
-
-      expect(copyLinkButton().attributes('data-tooltip')).toBe('已复制导入链接')
-
-      vi.advanceTimersByTime(800)
-      await nextTick()
-
-      expect(copyLinkButton().attributes('data-tooltip')).toBe('复制导入链接')
-    } finally {
-      vi.useRealTimers()
-    }
-  })
-
-  it('copies the Playground import link directly from the live example toolbar', async () => {
+  it('does not expose a component source file action directly from the live example toolbar', () => {
     const wrapper = mount(LiveExampleRunner, {
       props: {
         preset: 'button'
       }
     })
 
-    await findScenarioButton(wrapper, '键盘触发').trigger('click')
-    await nextTick()
-
-    await wrapper.get('[data-live-toolbar-action="copy-playground-link"]').trigger('click')
-    await nextTick()
-
-    const copiedLink = vi.mocked(navigator.clipboard.writeText).mock.calls.at(-1)?.[0] ?? ''
-    const copiedUrl = new URL(copiedLink)
-
-    expect(copiedUrl.pathname).toBe('/playground/')
-    expect(copiedUrl.searchParams.get('component')).toBe('button')
-    expect(copiedUrl.searchParams.get('theme')).toBe('yok-light')
-    expect(copiedUrl.searchParams.get('from')).toBe('live-example')
-    expect(copiedUrl.searchParams.get('language')).toBe('ts')
-    expect(copiedUrl.searchParams.get('docsHash')).toBe('#live-example?scenario=keyboard-button')
-    expect(copiedUrl.searchParams.get('handoff')).toContain('button-')
-    expect(copiedUrl.searchParams.has('source')).toBe(false)
-
-    const copiedStoredHandoff = window.localStorage.getItem(`yok-ui:playground-handoff:${copiedUrl.searchParams.get('handoff')}`)
-
-    expect(copiedStoredHandoff).toContain('"origin":"live-example"')
-    expect(copiedStoredHandoff).toContain('"scenario":"keyboard-button"')
-    expect(copiedStoredHandoff).toContain('"docsHash":"#live-example?scenario=keyboard-button"')
-    expect(wrapper.get('[data-live-toolbar-action="copy-playground-link"]').attributes('data-tooltip')).toBe('已复制导入链接')
-    expect(wrapper.text()).toContain('已复制当前示例的 Playground 导入链接。')
-  })
-
-  it('links to the real component source file directly from the live example toolbar', () => {
-    const wrapper = mount(LiveExampleRunner, {
-      props: {
-        preset: 'button'
-      }
-    })
-
-    const sourceFileLink = wrapper.get('[data-live-toolbar-action="source-file"]')
-
-    expect(sourceFileLink.attributes('href')).toBe('/source/?file=packages/core/src/components/button/YButton.vue')
-    expect(sourceFileLink.attributes('data-tooltip')).toBe('查看组件源码')
-    expect(sourceFileLink.attributes('aria-label')).toBe('查看组件源码')
-    expect(sourceFileLink.get('.example-source-actions__glyph').attributes('data-icon')).toBe('source')
+    expect(wrapper.find('[data-live-toolbar-action="source-file"]').exists()).toBe(false)
   })
 
   it('keeps source copy feedback stable across repeated source toolbar clicks', async () => {
@@ -3554,7 +3312,7 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('bulk')
-    expect(wrapper.find('textarea').element.value).toContain('selected-row-keys="button,data-table,theme"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('selected-row-keys="button,data-table,theme"')
     expect(wrapper.text()).toContain('已切换到「批量选择」场景。')
   })
 
@@ -3569,7 +3327,7 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('error')
-    expect(wrapper.find('textarea').element.value).toContain('error-text="Network timeout while loading rows."')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('error-text="Network timeout while loading rows."')
     expect(wrapper.text()).toContain('已切换到「错误重试」场景。')
 
     window.location.hash = ''
@@ -3586,9 +3344,9 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard sortable table')
-    expect(wrapper.find('textarea').element.value).toContain('Use Tab to reach selection controls')
-    expect(wrapper.find('textarea').element.value).toContain('selected-row-keys="table"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard sortable table')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Use Tab to reach selection controls')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('selected-row-keys="table"')
     expect(wrapper.text()).toContain('已切换到「键盘巡航」场景。')
 
     window.location.hash = ''
@@ -3616,9 +3374,9 @@ const demo: DemoState = {
     await keyboardScenario?.trigger('click')
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard submit flow')
-    expect(wrapper.find('textarea').element.value).toContain('Press Tab through fields and Enter on Submit')
-    expect(wrapper.find('textarea').element.value).toContain('type="submit"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard submit flow')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Press Tab through fields and Enter on Submit')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('type="submit"')
     expect(wrapper.text()).toContain('已切换到「键盘提交」场景。')
   })
 
@@ -3637,7 +3395,7 @@ const demo: DemoState = {
 
     await summaryScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('summary')
     expect(source).toContain('<YFormSummary')
@@ -3660,8 +3418,8 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard submit flow')
-    expect(wrapper.find('textarea').element.value).toContain('Press Tab through fields and Enter on Submit')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard submit flow')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Press Tab through fields and Enter on Submit')
     expect(wrapper.text()).toContain('已切换到「键盘提交」场景。')
 
     window.location.hash = ''
@@ -3690,9 +3448,9 @@ const demo: DemoState = {
     await keyboardScenario?.trigger('click')
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard cascader path')
-    expect(wrapper.find('textarea').element.value).toContain('Enter opens the path picker')
-    expect(wrapper.find('textarea').element.value).toContain('model-value="core,form,cascader"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard cascader path')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Enter opens the path picker')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('model-value="core,form,cascader"')
     expect(wrapper.text()).toContain('已切换到「键盘级联」场景。')
   })
 
@@ -3708,9 +3466,9 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('lazy')
-    expect(wrapper.find('textarea').element.value).toContain('remoteCascaderOptions')
-    expect(wrapper.find('textarea').element.value).toContain(':load="loadRemoteCascaderOptions"')
-    expect(wrapper.find('textarea').element.value).toContain('lazy')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('remoteCascaderOptions')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(':load="loadRemoteCascaderOptions"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('lazy')
 
     await wrapper.get<HTMLInputElement>('.live-example-runner__preview .yok-cascader__input').trigger('click')
     await nextTick()
@@ -3803,8 +3561,8 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard cascader path')
-    expect(wrapper.find('textarea').element.value).toContain('Enter opens the path picker')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard cascader path')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Enter opens the path picker')
     expect(wrapper.text()).toContain('已切换到「键盘级联」场景。')
 
     window.location.hash = ''
@@ -3832,7 +3590,7 @@ const demo: DemoState = {
 
     await shortcutScenario?.trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('shortcut')
     expect(source).toContain('Release shortcut date')
@@ -3841,14 +3599,14 @@ const demo: DemoState = {
 
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('disabled')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Weekday review date')
     expect(source).toContain(':disabled-date="disableWeekends"')
 
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('validation')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('id="release-date-field"')
     expect(source).toContain('aria-describedby="release-date-help"')
@@ -3866,7 +3624,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard date picker')
@@ -3887,7 +3645,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('validation')
     expect(source).toContain('id="release-date-field"')
@@ -3978,7 +3736,7 @@ const demo: DemoState = {
 
     await stepScenario?.trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('step')
     expect(source).toContain('Meeting time')
@@ -3987,14 +3745,14 @@ const demo: DemoState = {
 
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('disabled')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Before 18:00')
     expect(source).toContain(':disabled-time="disableAfterWork"')
 
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('validation')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('id="release-time-field"')
     expect(source).toContain('aria-describedby="release-time-help"')
@@ -4012,7 +3770,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard time picker')
@@ -4033,7 +3791,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('validation')
     expect(source).toContain('id="release-time-field"')
@@ -4129,7 +3887,7 @@ const demo: DemoState = {
 
     await precisionScenario?.trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('precision')
     expect(source).toContain('Rating score')
@@ -4138,7 +3896,7 @@ const demo: DemoState = {
 
     await densityScenario?.trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('density')
     expect(source).toContain('Compact quantity')
@@ -4148,7 +3906,7 @@ const demo: DemoState = {
 
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('controls')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Budget amount')
     expect(source).toContain(':controls="false"')
@@ -4164,7 +3922,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard quantity')
@@ -4408,7 +4166,7 @@ const demo: DemoState = {
 
     await stepScenario?.trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('step')
     expect(source).toContain('Release confidence')
@@ -4417,7 +4175,7 @@ const demo: DemoState = {
 
     await rangeScenario?.trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('range')
     expect(source).toContain('Budget range')
@@ -4429,7 +4187,7 @@ const demo: DemoState = {
 
     await verticalScenario?.trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('vertical')
     expect(source).toContain('Vertical temperature')
@@ -4444,7 +4202,7 @@ const demo: DemoState = {
 
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('error')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Coverage threshold')
     expect(source).toContain('error="Threshold must be at least 80 before release."')
@@ -4460,7 +4218,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard volume')
@@ -4494,9 +4252,9 @@ const demo: DemoState = {
     await keyboardScenario?.trigger('click')
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard date range')
-    expect(wrapper.find('textarea').element.value).toContain('Enter opens the calendar')
-    expect(wrapper.find('textarea').element.value).toContain('model-value="2026-06-13,2026-06-20"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard date range')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Enter opens the calendar')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('model-value="2026-06-13,2026-06-20"')
     expect(wrapper.text()).toContain('已切换到「键盘范围」场景。')
   })
 
@@ -4510,7 +4268,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('validation')
     expect(source).toContain('id="release-window-field"')
@@ -4533,8 +4291,8 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard date range')
-    expect(wrapper.find('textarea').element.value).toContain('Enter opens the calendar')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard date range')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Enter opens the calendar')
     expect(wrapper.text()).toContain('已切换到「键盘范围」场景。')
 
     window.location.hash = ''
@@ -4608,7 +4366,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('partial')
     expect(wrapper.text()).toContain('未完成范围')
@@ -4620,7 +4378,7 @@ const demo: DemoState = {
     window.dispatchEvent(new Event('hashchange'))
     await wrapper.vm.$nextTick()
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('disabledDate')
     expect(wrapper.text()).toContain('禁用日期')
@@ -4653,9 +4411,9 @@ const demo: DemoState = {
     await keyboardScenario?.trigger('click')
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard dismiss drawer')
-    expect(wrapper.find('textarea').element.value).toContain(':close-on-overlay="false"')
-    expect(wrapper.find('textarea').element.value).toContain('Escape returns focus to the trigger')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard dismiss drawer')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(':close-on-overlay="false"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Escape returns focus to the trigger')
     expect(wrapper.text()).toContain('已切换到「键盘关闭」场景。')
   })
 
@@ -4670,8 +4428,8 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard dismiss drawer')
-    expect(wrapper.find('textarea').element.value).toContain('Escape returns focus to the trigger')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard dismiss drawer')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Escape returns focus to the trigger')
     expect(wrapper.text()).toContain('已切换到「键盘关闭」场景。')
 
     window.location.hash = ''
@@ -4700,9 +4458,9 @@ const demo: DemoState = {
     await keyboardScenario?.trigger('click')
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard focus modal')
-    expect(wrapper.find('textarea').element.value).toContain(':close-on-overlay="false"')
-    expect(wrapper.find('textarea').element.value).toContain('Tab stays inside the dialog')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard focus modal')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(':close-on-overlay="false"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Tab stays inside the dialog')
     expect(wrapper.text()).toContain('已切换到「键盘焦点」场景。')
   })
 
@@ -4717,8 +4475,8 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard focus modal')
-    expect(wrapper.find('textarea').element.value).toContain('Tab stays inside the dialog')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard focus modal')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Tab stays inside the dialog')
     expect(wrapper.text()).toContain('已切换到「键盘焦点」场景。')
 
     window.location.hash = ''
@@ -4747,9 +4505,9 @@ const demo: DemoState = {
     await keyboardScenario?.trigger('click')
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard popover')
-    expect(wrapper.find('textarea').element.value).toContain('Enter and Space open the popover')
-    expect(wrapper.find('textarea').element.value).toContain('Escape closes it')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard popover')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Enter and Space open the popover')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Escape closes it')
     expect(wrapper.text()).toContain('已切换到「键盘触发」场景。')
   })
 
@@ -4769,14 +4527,14 @@ const demo: DemoState = {
 
     await placementScenario?.trigger('click')
 
-    expect(wrapper.find('textarea').element.value).toContain('trigger="hover"')
-    expect(wrapper.find('textarea').element.value).toContain('placement="right-start"')
-    expect(wrapper.find('textarea').element.value).toContain(':show-delay="120"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('trigger="hover"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('placement="right-start"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(':show-delay="120"')
 
     await disabledScenario?.trigger('click')
 
-    expect(wrapper.find('textarea').element.value).toContain('disabled')
-    expect(wrapper.find('textarea').element.value).toContain('Disabled popovers keep the trigger inert')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('disabled')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Disabled popovers keep the trigger inert')
   })
 
   it('hydrates popover keyboard scenarios from shareable live-example hashes', async () => {
@@ -4790,8 +4548,8 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(wrapper.find('textarea').element.value).toContain('Keyboard popover')
-    expect(wrapper.find('textarea').element.value).toContain('Enter and Space open the popover')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard popover')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Enter and Space open the popover')
     expect(wrapper.text()).toContain('已切换到「键盘触发」场景。')
 
     window.location.hash = ''
@@ -4841,7 +4599,7 @@ const demo: DemoState = {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('bulk')
-    expect(wrapper.find('textarea').element.value).toContain('selected-row-keys="button,data-table,theme"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('selected-row-keys="button,data-table,theme"')
 
     window.location.hash = ''
   })
@@ -4908,25 +4666,6 @@ const demo: DemoState = {
     expect(replay.text()).toContain('Data Table@bulkAction')
     expect(replay.text()).toContain('Replay event')
 
-    const playgroundUrl = new URL(
-      wrapper.get('.live-example-runner__playground-link').attributes('href')!,
-      window.location.origin
-    )
-    const handoffKey = playgroundUrl.searchParams.get('handoff') ?? ''
-    const storedHandoff = window.localStorage.getItem(`yok-ui:playground-handoff:${handoffKey}`) ?? ''
-
-    expect(playgroundUrl.searchParams.get('handoff')).toContain('dataTable-')
-    expect(playgroundUrl.searchParams.get('from')).toBe('live-example')
-    expect(playgroundUrl.searchParams.get('language')).toBe('ts')
-    expect(playgroundUrl.searchParams.get('docsHash')).toBe('#live-example?scenario=bulk-selection')
-    expect(playgroundUrl.searchParams.has('replay')).toBe(false)
-    expect(playgroundUrl.searchParams.has('source')).toBe(false)
-    expect(storedHandoff).toContain('"event":"bulkAction"')
-    expect(storedHandoff).toContain('"label":"4. Replay event"')
-    expect(storedHandoff).toContain('"origin":"live-example"')
-    expect(storedHandoff).toContain('"language":"ts"')
-    expect(storedHandoff).toContain('"docsHash":"#live-example?scenario=bulk-selection"')
-
     await replay.get('.live-example-runner__replay-copy').trigger('click')
 
     const repro = vi.mocked(navigator.clipboard.writeText).mock.calls.at(-1)?.[0] ?? ''
@@ -4935,7 +4674,7 @@ const demo: DemoState = {
     expect(repro).toContain('- Component: YDataTable')
     expect(repro).toContain('- Scenario: 批量选择')
     expect(repro).toContain('- Docs: /components/data-table')
-    expect(repro).toContain('- Playground:')
+    expect(repro).toContain('- Source link:')
     expect(repro).toContain('## Replay steps')
     expect(repro).toContain('- [x] 1. Restore context')
     expect(repro).toContain('- [x] 4. Replay event')
@@ -4966,7 +4705,7 @@ const demo: DemoState = {
     await demoFileCheckbox?.setValue(true)
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('rules')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YUpload')
     expect(source).toContain('model-value="demo-files"')
@@ -4989,7 +4728,7 @@ const demo: DemoState = {
     expect(wrapper.text()).toContain('拒绝类型')
     expect(wrapper.text()).toContain('guide.exe')
 
-    const rejectSource = wrapper.find('textarea').element.value
+    const rejectSource = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(rejectSource).toContain('accept=".png,.jpg"')
     expect(rejectSource).toContain('guide.exe')
@@ -5001,7 +4740,7 @@ const demo: DemoState = {
     window.dispatchEvent(new Event('hashchange'))
     await nextTick()
 
-    const validationSource = wrapper.find('textarea').element.value
+    const validationSource = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('validation')
     expect(validationSource).toContain('id="release-upload-field"')
@@ -5015,7 +4754,7 @@ const demo: DemoState = {
     window.dispatchEvent(new Event('hashchange'))
     await nextTick()
 
-    const requestSource = wrapper.find('textarea').element.value
+    const requestSource = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('request')
     expect(requestSource).toContain('auto-upload')
@@ -5029,7 +4768,7 @@ const demo: DemoState = {
     window.dispatchEvent(new Event('hashchange'))
     await nextTick()
 
-    const pictureSource = wrapper.find('textarea').element.value
+    const pictureSource = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('picture')
     expect(pictureSource).toContain('list-type="picture"')
@@ -5044,7 +4783,7 @@ const demo: DemoState = {
     window.dispatchEvent(new Event('hashchange'))
     await nextTick()
 
-    const keyboardSource = wrapper.find('textarea').element.value
+    const keyboardSource = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(keyboardSource).toContain('button-label="Choose with keyboard"')
@@ -5163,12 +4902,12 @@ const demo: DemoState = {
     })
 
     expect(wrapper.text()).toContain('Modal scenario')
-    expect(wrapper.find('textarea').element.value).toContain('<YModal open')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YModal open')
 
     await setCheckbox(wrapper, '默认打开', false)
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('danger')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YModal title="Delete component draft"')
     expect(source).toContain(':close-on-overlay="false"')
@@ -5368,7 +5107,7 @@ const demo: DemoState = {
 
     await disabledScenario?.trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('danger')
     expect(source).toContain('Delete draft')
@@ -5377,17 +5116,17 @@ const demo: DemoState = {
     expect(wrapper.text()).toContain('已切换到「禁用危险项」场景。')
 
     await hoverScenario?.trigger('click')
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
     expect(source).toContain('trigger="hover"')
     expect(source).toContain('placement="top-start"')
 
     await persistentScenario?.trigger('click')
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
     expect(source).toContain(':hide-on-click="false"')
     expect(source).toContain('Sticky menu')
 
     await disabledTriggerScenario?.trigger('click')
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
     expect(source).toContain('<YDropdown')
     expect(source).toContain('disabled')
     expect(source).not.toContain(' open')
@@ -5403,7 +5142,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard actions')
@@ -5428,7 +5167,7 @@ const demo: DemoState = {
     await wrapper.get('[data-testid="dropdown-simulate-copy-command"]').trigger('click')
     await nextTick()
 
-    expect(wrapper.find('textarea').element.value).toContain('Copy command')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Copy command')
     expect(wrapper.find('.live-example-runner__preview .yok-dropdown__menu').exists()).toBe(false)
     expect(wrapper.find('.live-example-runner__state-panel code').text()).toContain('"dropdownAction": "copy"')
     expect(wrapper.find('.live-example-runner__state-panel code').text()).toContain('"dropdownOpen": false')
@@ -5460,7 +5199,7 @@ const demo: DemoState = {
 
     await dangerScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('danger')
     expect(source).toContain('Delete draft permanently?')
@@ -5480,7 +5219,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Confirm with keyboard?')
@@ -5537,8 +5276,8 @@ const demo: DemoState = {
 
     await dateRange.findAll('.live-example-runner__control select')[0].setValue('freeze')
 
-    expect(dateRange.find('textarea').element.value).toContain('Release freeze window')
-    expect(dateRange.find('textarea').element.value).toContain('error="Release freeze overlaps with QA handoff."')
+    expect(dateRange.find('.live-example-runner__editor textarea').element.value).toContain('Release freeze window')
+    expect(dateRange.find('.live-example-runner__editor textarea').element.value).toContain('error="Release freeze overlaps with QA handoff."')
 
     const tooltip = mount(LiveExampleRunner, {
       props: {
@@ -5550,8 +5289,8 @@ const demo: DemoState = {
 
     await tooltip.findAll('.live-example-runner__control select')[0].setValue('disabled')
 
-    expect(tooltip.find('textarea').element.value).toContain('Resolve validation errors before publishing.')
-    expect(tooltip.find('textarea').element.value).toContain('<YButton variant="secondary" disabled>')
+    expect(tooltip.find('.live-example-runner__editor textarea').element.value).toContain('Resolve validation errors before publishing.')
+    expect(tooltip.find('.live-example-runner__editor textarea').element.value).toContain('<YButton variant="secondary" disabled>')
 
     const popover = mount(LiveExampleRunner, {
       props: {
@@ -5563,8 +5302,8 @@ const demo: DemoState = {
 
     await popover.findAll('.live-example-runner__control select')[0].setValue('empty')
 
-    expect(popover.find('textarea').element.value).toContain('No filters saved')
-    expect(popover.find('textarea').element.value).toContain('Popover can guide compact empty states.')
+    expect(popover.find('.live-example-runner__editor textarea').element.value).toContain('No filters saved')
+    expect(popover.find('.live-example-runner__editor textarea').element.value).toContain('Popover can guide compact empty states.')
 
     const drawer = mount(LiveExampleRunner, {
       props: {
@@ -5576,8 +5315,8 @@ const demo: DemoState = {
 
     await drawer.findAll('.live-example-runner__control select')[0].setValue('mobileNav')
 
-    expect(drawer.find('textarea').element.value).toContain('placement="left"')
-    expect(drawer.find('textarea').element.value).toContain('Mobile navigation uses a left drawer')
+    expect(drawer.find('.live-example-runner__editor textarea').element.value).toContain('placement="left"')
+    expect(drawer.find('.live-example-runner__editor textarea').element.value).toContain('Mobile navigation uses a left drawer')
 
     const table = mount(LiveExampleRunner, {
       props: {
@@ -5589,16 +5328,16 @@ const demo: DemoState = {
 
     await table.findAll('.live-example-runner__control select')[0].setValue('selection')
 
-    expect(table.find('textarea').element.value).toContain('selected-row-keys="button,data-table"')
-    expect(table.find('textarea').element.value).toContain('Selection state mirrors batch operations.')
+    expect(table.find('.live-example-runner__editor textarea').element.value).toContain('selected-row-keys="button,data-table"')
+    expect(table.find('.live-example-runner__editor textarea').element.value).toContain('Selection state mirrors batch operations.')
 
     await table.findAll('.live-example-runner__control select')[0].setValue('expand')
 
-    expect(table.find('textarea').element.value).toContain('expandable')
-    expect(table.find('textarea').element.value).toContain('expanded-row-keys="1"')
-    expect(table.find('textarea').element.value).toContain('#expand')
-    expect(table.find('textarea').element.value).toContain('@expand-change="handleExpandChange"')
-    expect(table.find('textarea').element.value).toContain('Expandable rows reveal details without leaving table context.')
+    expect(table.find('.live-example-runner__editor textarea').element.value).toContain('expandable')
+    expect(table.find('.live-example-runner__editor textarea').element.value).toContain('expanded-row-keys="1"')
+    expect(table.find('.live-example-runner__editor textarea').element.value).toContain('#expand')
+    expect(table.find('.live-example-runner__editor textarea').element.value).toContain('@expand-change="handleExpandChange"')
+    expect(table.find('.live-example-runner__editor textarea').element.value).toContain('Expandable rows reveal details without leaving table context.')
     await nextTick()
     expect(table.find('.live-example-runner__preview').text()).toContain('1 · Button docs include variants')
 
@@ -5612,8 +5351,8 @@ const demo: DemoState = {
 
     await transfer.findAll('.live-example-runner__control select')[0].setValue('review')
 
-    expect(transfer.find('textarea').element.value).toContain('disabled')
-    expect(transfer.find('textarea').element.value).toContain('Readonly review keeps assigned permissions visible.')
+    expect(transfer.find('.live-example-runner__editor textarea').element.value).toContain('disabled')
+    expect(transfer.find('.live-example-runner__editor textarea').element.value).toContain('Readonly review keeps assigned permissions visible.')
   })
 
   it('promotes tooltip examples to error and keyboard workflow scenes', async () => {
@@ -5637,7 +5376,7 @@ const demo: DemoState = {
 
     await errorScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('error')
     expect(source).toContain('Fix validation errors before publishing.')
@@ -5662,14 +5401,14 @@ const demo: DemoState = {
     expect(lightScenario).toBeTruthy()
 
     await clickScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('trigger="click"')
-    expect(wrapper.find('textarea').element.value).toContain('open')
-    expect(wrapper.find('textarea').element.value).toContain('Click trigger mirrors controlled tooltip workflows.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('trigger="click"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('open')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Click trigger mirrors controlled tooltip workflows.')
 
     await lightScenario?.trigger('click')
-    expect(wrapper.find('textarea').element.value).toContain('theme="light"')
-    expect(wrapper.find('textarea').element.value).toContain('placement="right"')
-    expect(wrapper.find('textarea').element.value).toContain('Light tooltip works for dense toolbars and settings rows.')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('theme="light"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('placement="right"')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('Light tooltip works for dense toolbars and settings rows.')
   })
 
   it('hydrates tooltip error scenarios from shareable live-example hashes', async () => {
@@ -5682,7 +5421,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('error')
     expect(source).toContain('Fix validation errors before publishing.')
@@ -5702,7 +5441,7 @@ const demo: DemoState = {
     await nextTick()
     await nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
     const tooltipBubble = wrapper.find('.live-example-runner__stage [role="tooltip"]')
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('light')
@@ -5759,7 +5498,7 @@ const demo: DemoState = {
     const selectedNodeSelect = wrapper.findAll('.live-example-runner__control select')[1]
     await selectedNodeSelect.setValue('command-palette')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YTree')
     expect(source).toContain('selected-key="command-palette"')
@@ -5768,7 +5507,7 @@ const demo: DemoState = {
 
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('permissions')
 
-    expect(wrapper.find('textarea').element.value).toContain('check-strictly')
+    expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain('check-strictly')
   })
 
   it('generates transfer and tree readiness depth scenarios', async () => {
@@ -5782,13 +5521,13 @@ const demo: DemoState = {
 
     await transferScenario.setValue('keyboard')
 
-    expect(transfer.find('textarea').element.value).toContain('Keyboard transfer')
-    expect(transfer.find('textarea').element.value).toContain('Tab reaches source checks, move buttons and target checks')
+    expect(transfer.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard transfer')
+    expect(transfer.find('.live-example-runner__editor textarea').element.value).toContain('Tab reaches source checks, move buttons and target checks')
 
     await transferScenario.setValue('mobile')
 
-    expect(transfer.find('textarea').element.value).toContain('Mobile permission transfer')
-    expect(transfer.find('textarea').element.value).toContain('Compact labels keep dual lists readable on narrow screens')
+    expect(transfer.find('.live-example-runner__editor textarea').element.value).toContain('Mobile permission transfer')
+    expect(transfer.find('.live-example-runner__editor textarea').element.value).toContain('Compact labels keep dual lists readable on narrow screens')
 
     const tree = mount(LiveExampleRunner, {
       props: {
@@ -5799,18 +5538,18 @@ const demo: DemoState = {
 
     await treeScenario.setValue('empty')
 
-    expect(tree.find('textarea').element.value).toContain(':nodes="[]"')
-    expect(tree.find('textarea').element.value).toContain('No matching components')
+    expect(tree.find('.live-example-runner__editor textarea').element.value).toContain(':nodes="[]"')
+    expect(tree.find('.live-example-runner__editor textarea').element.value).toContain('No matching components')
 
     await treeScenario.setValue('keyboard')
 
-    expect(tree.find('textarea').element.value).toContain('Keyboard component tree')
-    expect(tree.find('textarea').element.value).toContain('Arrow keys move through visible tree items')
+    expect(tree.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard component tree')
+    expect(tree.find('.live-example-runner__editor textarea').element.value).toContain('Arrow keys move through visible tree items')
 
     await treeScenario.setValue('mobile')
 
-    expect(tree.find('textarea').element.value).toContain('Mobile component tree')
-    expect(tree.find('textarea').element.value).toContain('Short labels keep the tree scannable')
+    expect(tree.find('.live-example-runner__editor textarea').element.value).toContain('Mobile component tree')
+    expect(tree.find('.live-example-runner__editor textarea').element.value).toContain('Short labels keep the tree scannable')
   })
 
   it('keeps transfer live previews interactive after moving options', async () => {
@@ -5910,7 +5649,7 @@ const demo: DemoState = {
 
     await disabledScenario?.trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('disabled')
     expect(source).toContain('Release queue paused')
@@ -5922,7 +5661,7 @@ const demo: DemoState = {
     const pageSlider = wrapper.findAll('.live-example-runner__control input[type="range"]')[0]
     await pageSlider.setValue(5)
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YPagination')
     expect(source).toContain(':page="5"')
@@ -6010,7 +5749,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard pagination path')
@@ -6043,7 +5782,7 @@ const demo: DemoState = {
 
     await gridScenario?.trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('grid')
     expect(source).toContain('Component resource grid')
@@ -6052,7 +5791,7 @@ const demo: DemoState = {
 
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('loading')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('loading')
     expect(source).toContain('Refreshing review tasks')
@@ -6068,7 +5807,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard readable task list')
@@ -6139,7 +5878,7 @@ const demo: DemoState = {
 
     await alternateScenario?.trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('alternate')
     expect(source).toContain('Alternating release story')
@@ -6147,7 +5886,7 @@ const demo: DemoState = {
 
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('loading')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Publishing job timeline')
     expect(source).toContain("loading: true")
@@ -6164,7 +5903,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard readable release timeline')
@@ -6235,7 +5974,7 @@ const demo: DemoState = {
 
     await unitScenario?.trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('unit')
     expect(source).toContain('Account balance')
@@ -6244,14 +5983,14 @@ const demo: DemoState = {
 
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('loading')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Revenue loading')
     expect(source).toContain('loading')
 
     await wrapper.findAll('.live-example-runner__control select')[0].setValue('countdown')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YCountdown')
     expect(source).toContain('format="DD days HH:mm:ss"')
@@ -6307,7 +6046,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Screen reader metric')
@@ -6347,7 +6086,7 @@ const demo: DemoState = {
 
     await alphaScenario?.trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('<YColorPicker')
     expect(source).toContain('show-alpha')
@@ -6357,14 +6096,14 @@ const demo: DemoState = {
 
     await presetScenario?.trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain(':presets="brandPresets"')
     expect(source).toContain('Brand presets keep theme choices consistent.')
 
     await validationScenario?.trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('id="brand-color-field"')
     expect(source).toContain('aria-describedby="brand-color-help"')
@@ -6374,7 +6113,7 @@ const demo: DemoState = {
 
     await keyboardScenario?.trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard color')
     expect(source).toContain('Typing a HEX value keeps keyboard editing first-class.')
@@ -6390,7 +6129,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('validation')
     expect(source).toContain('id="brand-color-field"')
@@ -6478,9 +6217,9 @@ const demo: DemoState = {
     const scenarioSelect = inputNumber.find('.live-example-runner__control select')
     await scenarioSelect.setValue('error')
 
-    expect(inputNumber.find('textarea').element.value).toContain('Coverage threshold')
-    expect(inputNumber.find('textarea').element.value).toContain(':max="100"')
-    expect(inputNumber.find('textarea').element.value).toContain('Threshold must be reviewed before release.')
+    expect(inputNumber.find('.live-example-runner__editor textarea').element.value).toContain('Coverage threshold')
+    expect(inputNumber.find('.live-example-runner__editor textarea').element.value).toContain(':max="100"')
+    expect(inputNumber.find('.live-example-runner__editor textarea').element.value).toContain('Threshold must be reviewed before release.')
 
     const radioGroup = mount(LiveExampleRunner, {
       props: {
@@ -6493,8 +6232,8 @@ const demo: DemoState = {
     const packageSelect = radioGroup.findAll('.live-example-runner__control select')[1]
     await packageSelect.setValue('product')
 
-    expect(radioGroup.find('textarea').element.value).toContain('<YRadioGroup')
-    expect(radioGroup.find('textarea').element.value).toContain('model-value="product"')
+    expect(radioGroup.find('.live-example-runner__editor textarea').element.value).toContain('<YRadioGroup')
+    expect(radioGroup.find('.live-example-runner__editor textarea').element.value).toContain('model-value="product"')
 
     const switchRunner = mount(LiveExampleRunner, {
       props: {
@@ -6506,7 +6245,7 @@ const demo: DemoState = {
 
     await setCheckbox(switchRunner, '开启', false)
 
-    expect(switchRunner.find('textarea').element.value).toContain('model-value="false"')
+    expect(switchRunner.find('.live-example-runner__editor textarea').element.value).toContain('model-value="false"')
   })
 
   it('generates guided navigation examples for tabs, steps and collapse', async () => {
@@ -6522,8 +6261,8 @@ const demo: DemoState = {
     const activeTabSelect = tabs.findAll('.live-example-runner__control select')[1]
     await activeTabSelect.setValue('api')
 
-    expect(tabs.find('textarea').element.value).toContain('<YTabs')
-    expect(tabs.find('textarea').element.value).toContain('model-value="api"')
+    expect(tabs.find('.live-example-runner__editor textarea').element.value).toContain('<YTabs')
+    expect(tabs.find('.live-example-runner__editor textarea').element.value).toContain('model-value="api"')
 
     const steps = mount(LiveExampleRunner, {
       props: {
@@ -6537,9 +6276,9 @@ const demo: DemoState = {
     const currentStepSlider = steps.find('.live-example-runner__control input[type="range"]')
     await currentStepSlider.setValue(2)
 
-    expect(steps.find('textarea').element.value).toContain('<YSteps')
-    expect(steps.find('textarea').element.value).toContain(':current="2"')
-    expect(steps.find('textarea').element.value).toContain('selectable')
+    expect(steps.find('.live-example-runner__editor textarea').element.value).toContain('<YSteps')
+    expect(steps.find('.live-example-runner__editor textarea').element.value).toContain(':current="2"')
+    expect(steps.find('.live-example-runner__editor textarea').element.value).toContain('selectable')
 
     const tour = mount(LiveExampleRunner, {
       props: {
@@ -6553,9 +6292,9 @@ const demo: DemoState = {
     const tourScenarioSelect = tour.find('.live-example-runner__control select')
     await tourScenarioSelect.setValue('keyboard')
 
-    expect(tour.find('textarea').element.value).toContain('<YTour')
-    expect(tour.find('textarea').element.value).toContain('close-on-escape')
-    expect(tour.find('textarea').element.value).toContain('tourSteps')
+    expect(tour.find('.live-example-runner__editor textarea').element.value).toContain('<YTour')
+    expect(tour.find('.live-example-runner__editor textarea').element.value).toContain('close-on-escape')
+    expect(tour.find('.live-example-runner__editor textarea').element.value).toContain('tourSteps')
 
     const collapse = mount(LiveExampleRunner, {
       props: {
@@ -6568,9 +6307,9 @@ const demo: DemoState = {
     const scenarioSelect = collapse.find('.live-example-runner__control select')
     await scenarioSelect.setValue('accordion')
 
-    expect(collapse.find('textarea').element.value).toContain('<YCollapse')
-    expect(collapse.find('textarea').element.value).toContain('model-value="settings"')
-    expect(collapse.find('textarea').element.value).toContain('accordion')
+    expect(collapse.find('.live-example-runner__editor textarea').element.value).toContain('<YCollapse')
+    expect(collapse.find('.live-example-runner__editor textarea').element.value).toContain('model-value="settings"')
+    expect(collapse.find('.live-example-runner__editor textarea').element.value).toContain('accordion')
   })
 
   it('promotes tabs examples to error, mobile and keyboard workflow scenes', async () => {
@@ -6601,7 +6340,7 @@ const demo: DemoState = {
 
     await errorScenario?.trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('model-value="error"')
     expect(source).toContain('Release note is blocked until the API tab is reviewed.')
@@ -6609,14 +6348,14 @@ const demo: DemoState = {
 
     await mobileScenario?.trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('model-value="mobile"')
     expect(source).toContain('Short labels keep mobile tab rows readable.')
 
     await keyboardScenario?.trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('model-value="keyboard"')
     expect(source).toContain('Arrow keys move focus between tabs')
@@ -6674,7 +6413,7 @@ const demo: DemoState = {
 
     await errorScenario?.trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain(':current="1"')
     expect(source).toContain("status: 'error'")
@@ -6682,14 +6421,14 @@ const demo: DemoState = {
 
     await verticalScenario?.trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('direction="vertical"')
     expect(source).toContain('Vertical steps keep long release flows readable.')
 
     await keyboardScenario?.trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('selectable')
     expect(source).toContain('Tab reaches each step button')
@@ -6780,8 +6519,8 @@ const demo: DemoState = {
     await nextTick()
     await nextTick()
 
-    expect(tabs.find('textarea').element.value).toContain('Arrow keys move focus between tabs')
-    expect(tabs.find('textarea').element.value).toContain('model-value="keyboard"')
+    expect(tabs.find('.live-example-runner__editor textarea').element.value).toContain('Arrow keys move focus between tabs')
+    expect(tabs.find('.live-example-runner__editor textarea').element.value).toContain('model-value="keyboard"')
 
     window.location.hash = '#live-example?scenario=keyboard-steps'
 
@@ -6794,8 +6533,8 @@ const demo: DemoState = {
     await nextTick()
     await nextTick()
 
-    expect(steps.find('textarea').element.value).toContain('Tab reaches each step button')
-    expect(steps.find('textarea').element.value).toContain('selectable')
+    expect(steps.find('.live-example-runner__editor textarea').element.value).toContain('Tab reaches each step button')
+    expect(steps.find('.live-example-runner__editor textarea').element.value).toContain('selectable')
 
     window.location.hash = ''
   })
@@ -6812,8 +6551,8 @@ const demo: DemoState = {
     await nextTick()
     await nextTick()
 
-    expect(input.find('textarea').element.value).toContain('Keyboard field')
-    expect(input.find('textarea').element.value).toContain('Tab enters the native input')
+    expect(input.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard field')
+    expect(input.find('.live-example-runner__editor textarea').element.value).toContain('Tab enters the native input')
 
     window.history.pushState(null, '', '/components/input')
   })
@@ -6831,14 +6570,14 @@ const demo: DemoState = {
 
     await findScenarioButton(progress, '失败进度').trigger('click')
 
-    let source = progress.find('textarea').element.value
+    let source = progress.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('tone="danger"')
     expect(source).toContain('Dependency install failed.')
 
     await findScenarioButton(progress, '键盘进度').trigger('click')
 
-    source = progress.find('textarea').element.value
+    source = progress.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard progress status')
     expect(source).toContain('Screen reader announces progressbar value changes.')
@@ -6857,7 +6596,7 @@ const demo: DemoState = {
 
     await findScenarioButton(textarea, '帮助说明').trigger('click')
 
-    source = textarea.find('textarea').element.value
+    source = textarea.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Release summary')
     expect(source).toContain('aria-describedby="release-summary-help"')
@@ -6865,7 +6604,7 @@ const demo: DemoState = {
 
     await findScenarioButton(textarea, '尺寸密度').trigger('click')
 
-    source = textarea.find('textarea').element.value
+    source = textarea.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Compact note')
     expect(source).toContain('size="sm"')
@@ -6874,14 +6613,14 @@ const demo: DemoState = {
 
     await findScenarioButton(textarea, '校验错误').trigger('click')
 
-    source = textarea.find('textarea').element.value
+    source = textarea.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('error="Release note is required before publishing."')
     expect(source).toContain('invalid')
 
     await findScenarioButton(textarea, '键盘长文').trigger('click')
 
-    source = textarea.find('textarea').element.value
+    source = textarea.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard release note')
     expect(source).toContain('Tab focuses the textarea; Shift+Enter keeps editing on multiline content.')
@@ -6956,21 +6695,21 @@ const demo: DemoState = {
 
     await findScenarioButton(tagBadge, '风险标签').trigger('click')
 
-    let source = tagBadge.find('textarea').element.value
+    let source = tagBadge.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('tone="danger"')
     expect(source).toContain('Breaking')
 
     await findScenarioButton(tagBadge, '独立状态').trigger('click')
 
-    source = tagBadge.find('textarea').element.value
+    source = tagBadge.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('dot text="Online"')
     expect(source).toContain('Standalone status badges work as compact legends')
 
     await findScenarioButton(tagBadge, '键盘旁路').trigger('click')
 
-    source = tagBadge.find('textarea').element.value
+    source = tagBadge.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Tags and badges stay non-interactive; keyboard focus moves to the adjacent action.')
     expect(window.location.hash).toBe('#live-example?scenario=keyboard-tag-badge')
@@ -6986,7 +6725,7 @@ const demo: DemoState = {
 
     await findScenarioButton(avatar, '图片头像').trigger('click')
 
-    source = avatar.find('textarea').element.value
+    source = avatar.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('src-set=')
     expect(source).toContain('fit="cover"')
@@ -6995,7 +6734,7 @@ const demo: DemoState = {
 
     await findScenarioButton(avatar, '头像组').trigger('click')
 
-    source = avatar.find('textarea').element.value
+    source = avatar.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Reviewer group')
     expect(source).toContain('YAvatarGroup')
@@ -7004,7 +6743,7 @@ const demo: DemoState = {
 
     await findScenarioButton(avatar, '键盘资料').trigger('click')
 
-    source = avatar.find('textarea').element.value
+    source = avatar.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Avatar remains labelled while the profile action receives keyboard focus.')
     expect(window.location.hash).toBe('#live-example?scenario=keyboard-avatar')
@@ -7020,14 +6759,14 @@ const demo: DemoState = {
 
     await findScenarioButton(breadcrumb, '权限断点').trigger('click')
 
-    source = breadcrumb.find('textarea').element.value
+    source = breadcrumb.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('disabled: true')
     expect(source).toContain('Admin is hidden for the current role.')
 
     await findScenarioButton(breadcrumb, '键盘返回').trigger('click')
 
-    source = breadcrumb.find('textarea').element.value
+    source = breadcrumb.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('aria-label="Keyboard breadcrumb"')
     expect(source).toContain('Tab reaches ancestor links before the current page label.')
@@ -7075,7 +6814,7 @@ const demo: DemoState = {
       await nextTick()
       await nextTick()
 
-      expect(wrapper.find('textarea').element.value).toContain(expected)
+      expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(expected)
     }
 
     window.location.hash = ''
@@ -7094,14 +6833,14 @@ const demo: DemoState = {
 
     await findScenarioButton(virtualList, '空列表').trigger('click')
 
-    let source = virtualList.find('textarea').element.value
+    let source = virtualList.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain(':items="[]"')
     expect(source).toContain('No component rows match filters.')
 
     await findScenarioButton(virtualList, '键盘列表').trigger('click')
 
-    source = virtualList.find('textarea').element.value
+    source = virtualList.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard virtual list')
     expect(source).toContain('Tab focuses the virtualized viewport; arrow keys scroll inside the list.')
@@ -7118,14 +6857,14 @@ const demo: DemoState = {
 
     await findScenarioButton(watermark, '机密水印').trigger('click')
 
-    source = watermark.find('textarea').element.value
+    source = watermark.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('content="CONFIDENTIAL"')
     expect(source).toContain('Protected export review')
 
     await findScenarioButton(watermark, '键盘水印').trigger('click')
 
-    source = watermark.find('textarea').element.value
+    source = watermark.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard watermark preview')
     expect(source).toContain('Watermark overlay is aria-hidden and never blocks keyboard focus.')
@@ -7146,7 +6885,7 @@ const demo: DemoState = {
     await findScenarioButton(wrapper, '自动播放').trigger('click')
     await setCheckbox(wrapper, '悬停暂停', false)
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain(':autoplay="true"')
     expect(source).toContain(':interval="1800"')
@@ -7154,7 +6893,7 @@ const demo: DemoState = {
 
     await findScenarioButton(wrapper, '键盘路径').trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard carousel')
     expect(source).toContain('Focus the viewport, then use ArrowLeft and ArrowRight to switch slides.')
@@ -7173,14 +6912,14 @@ const demo: DemoState = {
 
     await findScenarioButton(divider, '空状态分隔').trigger('click')
 
-    let source = divider.find('textarea').element.value
+    let source = divider.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('No matching rows')
     expect(source).toContain('Empty sections still need quiet rhythm.')
 
     await findScenarioButton(divider, '键盘分隔').trigger('click')
 
-    source = divider.find('textarea').element.value
+    source = divider.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard divider region')
     expect(source).toContain('Separators stay non-focusable while surrounding controls remain reachable.')
@@ -7196,7 +6935,7 @@ const demo: DemoState = {
 
     await findScenarioButton(formItem, 'Slot 绑定').trigger('click')
 
-    source = formItem.find('textarea').element.value
+    source = formItem.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('v-slot="{ labelFor, messageId, invalid }"')
     expect(source).toContain(':id="labelFor"')
@@ -7205,14 +6944,14 @@ const demo: DemoState = {
 
     await findScenarioButton(formItem, '校验错误').trigger('click')
 
-    source = formItem.find('textarea').element.value
+    source = formItem.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('error="Component name is required."')
     expect(source).toContain('aria-describedby="component-name-help"')
 
     await findScenarioButton(formItem, '键盘字段').trigger('click')
 
-    source = formItem.find('textarea').element.value
+    source = formItem.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard component name')
     expect(source).toContain('Tab enters the input, then reaches the next form action.')
@@ -7228,7 +6967,7 @@ const demo: DemoState = {
 
     await findScenarioButton(formSummary, '关联字段').trigger('click')
 
-    source = formSummary.find('textarea').element.value
+    source = formSummary.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('const summaryErrors = [')
     expect(source).toContain(':errors="summaryErrors"')
@@ -7238,14 +6977,14 @@ const demo: DemoState = {
 
     await findScenarioButton(formSummary, '空摘要').trigger('click')
 
-    source = formSummary.find('textarea').element.value
+    source = formSummary.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain(':errors="[]"')
     expect(source).toContain('No validation errors')
 
     await findScenarioButton(formSummary, '键盘摘要').trigger('click')
 
-    source = formSummary.find('textarea').element.value
+    source = formSummary.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard validation summary')
     expect(source).toContain('Enter moves focus to the invalid field summary target.')
@@ -7264,14 +7003,14 @@ const demo: DemoState = {
 
     await findScenarioButton(wrapper, '未滚动隐藏').trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain(':visibility-height="9999"')
     expect(source).toContain('Backtop stays hidden until the page has meaningful scroll depth.')
 
     await findScenarioButton(wrapper, '键盘返回').trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard back to top')
     expect(source).toContain('Enter activates the focused backtop button.')
@@ -7291,7 +7030,7 @@ const demo: DemoState = {
 
     await findScenarioButton(wrapper, '目标容器').trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('target=".affix-target"')
     expect(source).toContain(':offset="24"')
@@ -7299,7 +7038,7 @@ const demo: DemoState = {
 
     await findScenarioButton(wrapper, '键盘顺序').trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard sticky toolbar')
     expect(source).toContain('Tab order stays native.')
@@ -7319,7 +7058,7 @@ const demo: DemoState = {
 
     await findScenarioButton(wrapper, '滚动容器').trigger('click')
 
-    let source = wrapper.find('textarea').element.value
+    let source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('container=".anchor-target"')
     expect(source).toContain(':offset="64"')
@@ -7327,7 +7066,7 @@ const demo: DemoState = {
 
     await findScenarioButton(wrapper, '键盘顺序').trigger('click')
 
-    source = wrapper.find('textarea').element.value
+    source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard component sections')
     expect(source).toContain('Native Tab and Enter behavior.')
@@ -7380,7 +7119,7 @@ const demo: DemoState = {
       await nextTick()
       await nextTick()
 
-      expect(wrapper.find('textarea').element.value).toContain(expected)
+      expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(expected)
     }
 
     window.location.hash = ''
@@ -7398,14 +7137,14 @@ const demo: DemoState = {
 
     await findScenarioButton(commandPalette, '空命令').trigger('click')
 
-    let source = commandPalette.find('textarea').element.value
+    let source = commandPalette.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain(':commands="[]"')
     expect(source).toContain('No commands found')
 
     await findScenarioButton(commandPalette, '键盘命令').trigger('click')
 
-    source = commandPalette.find('textarea').element.value
+    source = commandPalette.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard command palette')
     expect(source).toContain('Down, Up, Enter and Escape keep the command palette usable without a pointer.')
@@ -7421,14 +7160,14 @@ const demo: DemoState = {
 
     await findScenarioButton(codeBlock, '空代码').trigger('click')
 
-    source = codeBlock.find('textarea').element.value
+    source = codeBlock.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('code=""')
     expect(source).toContain('No snippet selected')
 
     await findScenarioButton(codeBlock, '键盘复制').trigger('click')
 
-    source = codeBlock.find('textarea').element.value
+    source = codeBlock.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard copy path')
     expect(source).toContain('Tab reaches the copy action after the scrollable code region.')
@@ -7444,14 +7183,14 @@ const demo: DemoState = {
 
     await findScenarioButton(themeSwitcher, '对比复核').trigger('click')
 
-    source = themeSwitcher.find('textarea').element.value
+    source = themeSwitcher.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Theme contrast needs review before publishing.')
     expect(source).toContain('tone="danger"')
 
     await findScenarioButton(themeSwitcher, '键盘主题').trigger('click')
 
-    source = themeSwitcher.find('textarea').element.value
+    source = themeSwitcher.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard theme switcher')
     expect(source).toContain('Each theme option is a pressed button in the keyboard path.')
@@ -7469,14 +7208,14 @@ const demo: DemoState = {
 
     await findScenarioButton(pageHeader, '无状态').trigger('click')
 
-    let source = pageHeader.find('textarea').element.value
+    let source = pageHeader.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('No status badge')
     expect(source).not.toContain('status="Live"')
 
     await findScenarioButton(pageHeader, '键盘页头').trigger('click')
 
-    source = pageHeader.find('textarea').element.value
+    source = pageHeader.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard page header')
     expect(source).toContain('<template #actions>')
@@ -7492,14 +7231,14 @@ const demo: DemoState = {
 
     await findScenarioButton(metricCard, '风险指标').trigger('click')
 
-    source = metricCard.find('textarea').element.value
+    source = metricCard.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('tone="danger"')
     expect(source).toContain('Blocked examples need owner review.')
 
     await findScenarioButton(metricCard, '键盘指标').trigger('click')
 
-    source = metricCard.find('textarea').element.value
+    source = metricCard.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard metric card')
     expect(source).toContain('The metric is read as static content; adjacent actions receive focus.')
@@ -7515,14 +7254,14 @@ const demo: DemoState = {
 
     await findScenarioButton(filterTabs, '空筛选').trigger('click')
 
-    source = filterTabs.find('textarea').element.value
+    source = filterTabs.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain(':items="[]"')
     expect(source).toContain('No filters available')
 
     await findScenarioButton(filterTabs, '键盘筛选').trigger('click')
 
-    source = filterTabs.find('textarea').element.value
+    source = filterTabs.find('.live-example-runner__editor textarea').element.value
 
     expect(source).toContain('Keyboard status filters')
     expect(source).toContain('Arrow keys move through tabs while Home and End jump to edges.')
@@ -7574,7 +7313,7 @@ const demo: DemoState = {
       await nextTick()
       await nextTick()
 
-      expect(wrapper.find('textarea').element.value).toContain(expected)
+      expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(expected)
     }
 
     window.location.hash = ''
@@ -7592,8 +7331,8 @@ const demo: DemoState = {
     const avatarSizeSelect = avatar.findAll('.live-example-runner__control select')[1]
     await avatarSizeSelect.setValue('lg')
 
-    expect(avatar.find('textarea').element.value).toContain('<YAvatar')
-    expect(avatar.find('textarea').element.value).toContain('size="lg"')
+    expect(avatar.find('.live-example-runner__editor textarea').element.value).toContain('<YAvatar')
+    expect(avatar.find('.live-example-runner__editor textarea').element.value).toContain('size="lg"')
 
     const checkbox = mount(LiveExampleRunner, {
       props: {
@@ -7605,8 +7344,8 @@ const demo: DemoState = {
 
     await setCheckbox(checkbox, '选中', false)
 
-    expect(checkbox.find('textarea').element.value).toContain('<YCheckbox')
-    expect(checkbox.find('textarea').element.value).toContain('model-value="false"')
+    expect(checkbox.find('.live-example-runner__editor textarea').element.value).toContain('<YCheckbox')
+    expect(checkbox.find('.live-example-runner__editor textarea').element.value).toContain('model-value="false"')
 
     const rate = mount(LiveExampleRunner, {
       props: {
@@ -7633,21 +7372,21 @@ const demo: DemoState = {
 
     await copywritingScenario?.trigger('click')
 
-    expect(rate.find('textarea').element.value).toContain('<YRate')
-    expect(rate.find('textarea').element.value).toContain(':texts="rateTexts"')
-    expect(rate.find('textarea').element.value).toContain('size="large"')
+    expect(rate.find('.live-example-runner__editor textarea').element.value).toContain('<YRate')
+    expect(rate.find('.live-example-runner__editor textarea').element.value).toContain(':texts="rateTexts"')
+    expect(rate.find('.live-example-runner__editor textarea').element.value).toContain('size="large"')
     expect(rate.find('.live-example-runner__stage').text()).toContain('Great')
 
     await clearScenario?.trigger('click')
 
-    expect(rate.find('textarea').element.value).toContain('clearable')
-    expect(rate.find('textarea').element.value).toContain('Click the same score again')
+    expect(rate.find('.live-example-runner__editor textarea').element.value).toContain('clearable')
+    expect(rate.find('.live-example-runner__editor textarea').element.value).toContain('Click the same score again')
 
     await keyboardScenario?.trigger('click')
 
-    expect(rate.find('textarea').element.value).toContain('Keyboard satisfaction')
-    expect(rate.find('textarea').element.value).toContain('Arrow keys adjust the rating')
-    expect(rate.find('textarea').element.value).toContain('<YRate')
+    expect(rate.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard satisfaction')
+    expect(rate.find('.live-example-runner__editor textarea').element.value).toContain('Arrow keys adjust the rating')
+    expect(rate.find('.live-example-runner__editor textarea').element.value).toContain('<YRate')
 
     const slider = mount(LiveExampleRunner, {
       props: {
@@ -7660,9 +7399,9 @@ const demo: DemoState = {
 
     await slider.find('.live-example-runner__control select').setValue('error')
 
-    expect(slider.find('textarea').element.value).toContain('<YSlider')
-    expect(slider.find('textarea').element.value).toContain('Coverage threshold')
-    expect(slider.find('textarea').element.value).toContain('error="Threshold must be at least 80 before release."')
+    expect(slider.find('.live-example-runner__editor textarea').element.value).toContain('<YSlider')
+    expect(slider.find('.live-example-runner__editor textarea').element.value).toContain('Coverage threshold')
+    expect(slider.find('.live-example-runner__editor textarea').element.value).toContain('error="Threshold must be at least 80 before release."')
   })
 
   it('generates guided examples for breadcrumb and time picker', async () => {
@@ -7677,8 +7416,8 @@ const demo: DemoState = {
     const separatorSelect = breadcrumb.findAll('.live-example-runner__control select')[1]
     await separatorSelect.setValue('>')
 
-    expect(breadcrumb.find('textarea').element.value).toContain('<YBreadcrumb')
-    expect(breadcrumb.find('textarea').element.value).toContain('separator="&gt;"')
+    expect(breadcrumb.find('.live-example-runner__editor textarea').element.value).toContain('<YBreadcrumb')
+    expect(breadcrumb.find('.live-example-runner__editor textarea').element.value).toContain('separator="&gt;"')
 
     const timePicker = mount(LiveExampleRunner, {
       props: {
@@ -7691,10 +7430,10 @@ const demo: DemoState = {
     const timeSelect = timePicker.find('.live-example-runner__control select')
     await timeSelect.setValue('disabled')
 
-    expect(timePicker.find('textarea').element.value).toContain('<YTimePicker')
-    expect(timePicker.find('textarea').element.value).toContain('Before 18:00')
-    expect(timePicker.find('textarea').element.value).toContain(':minute-step="30"')
-    expect(timePicker.find('textarea').element.value).toContain(':disabled-time="disableAfterWork"')
+    expect(timePicker.find('.live-example-runner__editor textarea').element.value).toContain('<YTimePicker')
+    expect(timePicker.find('.live-example-runner__editor textarea').element.value).toContain('Before 18:00')
+    expect(timePicker.find('.live-example-runner__editor textarea').element.value).toContain(':minute-step="30"')
+    expect(timePicker.find('.live-example-runner__editor textarea').element.value).toContain(':disabled-time="disableAfterWork"')
   })
 
   it('generates guided examples for feedback and result components', async () => {
@@ -7708,9 +7447,9 @@ const demo: DemoState = {
 
     await setCheckbox(popconfirm, '默认打开', false)
 
-    expect(popconfirm.find('textarea').element.value).toContain('<YPopconfirm')
-    expect(popconfirm.find('textarea').element.value).not.toContain('<YPopconfirm open')
-    expect(popconfirm.find('textarea').element.value).toContain('confirm-text="Archive"')
+    expect(popconfirm.find('.live-example-runner__editor textarea').element.value).toContain('<YPopconfirm')
+    expect(popconfirm.find('.live-example-runner__editor textarea').element.value).not.toContain('<YPopconfirm open')
+    expect(popconfirm.find('.live-example-runner__editor textarea').element.value).toContain('confirm-text="Archive"')
 
     const result = mount(LiveExampleRunner, {
       props: {
@@ -7723,9 +7462,9 @@ const demo: DemoState = {
     const scenarioSelect = result.find('.live-example-runner__control select')
     await scenarioSelect.setValue('notFound')
 
-    expect(result.find('textarea').element.value).toContain('<YResult')
-    expect(result.find('textarea').element.value).toContain('status="404"')
-    expect(result.find('textarea').element.value).toContain('<YButton')
+    expect(result.find('.live-example-runner__editor textarea').element.value).toContain('<YResult')
+    expect(result.find('.live-example-runner__editor textarea').element.value).toContain('status="404"')
+    expect(result.find('.live-example-runner__editor textarea').element.value).toContain('<YButton')
   })
 
   it('promotes result examples to error, server, mobile and keyboard workflow scenes', async () => {
@@ -7748,7 +7487,7 @@ const demo: DemoState = {
 
     await serverScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('server')
     expect(source).toContain('status="500"')
@@ -7767,7 +7506,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard complete')
@@ -7797,7 +7536,7 @@ const demo: DemoState = {
 
     await permissionScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('permission')
     expect(source).toContain('No permission')
@@ -7847,7 +7586,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('No saved view selected')
@@ -7877,7 +7616,7 @@ const demo: DemoState = {
 
     await listScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('list')
     expect(source).toContain('Loading release queue')
@@ -7929,7 +7668,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('screenReader')
     expect(source).toContain('Loading account summary')
@@ -7960,7 +7699,7 @@ const demo: DemoState = {
 
     await errorScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('error')
     expect(source).toContain('<YImage')
@@ -8015,8 +7754,8 @@ const demo: DemoState = {
     await keyboardWrapper.vm.$nextTick()
 
     expect(keyboardWrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-    expect(keyboardWrapper.find('textarea').element.value).toContain('Escape closes the preview dialog.')
-    expect(keyboardWrapper.find('textarea').element.value).toContain('<YButton variant="secondary">Next focus target</YButton>')
+    expect(keyboardWrapper.find('.live-example-runner__editor textarea').element.value).toContain('Escape closes the preview dialog.')
+    expect(keyboardWrapper.find('.live-example-runner__editor textarea').element.value).toContain('<YButton variant="secondary">Next focus target</YButton>')
 
     window.location.hash = '#live-example?scenario=image-controlled-preview'
 
@@ -8027,7 +7766,7 @@ const demo: DemoState = {
     })
     await controlledWrapper.vm.$nextTick()
 
-    const controlledSource = controlledWrapper.find('textarea').element.value
+    const controlledSource = controlledWrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(controlledWrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('controlled')
     expect(controlledSource).toContain('Open preview from external state')
@@ -8060,7 +7799,7 @@ const demo: DemoState = {
 
     await validationScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('validation')
     expect(source).toContain('tone="danger"')
@@ -8117,7 +7856,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard reachable alert')
@@ -8146,7 +7885,7 @@ const demo: DemoState = {
 
     await actionScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('action')
     expect(source).toContain('Release candidate')
@@ -8164,7 +7903,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard card action')
@@ -8193,7 +7932,7 @@ const demo: DemoState = {
 
     await disabledScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('disabled')
     expect(source).toContain('model-value="usage"')
@@ -8289,7 +8028,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard disclosure path')
@@ -8318,7 +8057,7 @@ const demo: DemoState = {
 
     await reviewScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('review')
     expect(source).toContain('Release review profile')
@@ -8375,7 +8114,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard readable metadata')
@@ -8405,7 +8144,7 @@ const demo: DemoState = {
 
     await dangerScenario?.trigger('click')
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('danger')
     expect(source).toContain('tone="danger"')
@@ -8425,7 +8164,7 @@ const demo: DemoState = {
     })
     await wrapper.vm.$nextTick()
 
-    const source = wrapper.find('textarea').element.value
+    const source = wrapper.find('.live-example-runner__editor textarea').element.value
 
     expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
     expect(source).toContain('Keyboard reachable')
@@ -8447,15 +8186,15 @@ const demo: DemoState = {
     await approvalCommentBox.findAll('.live-example-runner__control select')[0].setValue('required')
     await nextTick()
 
-    expect(approvalCommentBox.find('textarea').element.value).toContain('<YApprovalCommentBox')
-    expect(approvalCommentBox.find('textarea').element.value).toContain('const approvalComment = ref')
-    expect(approvalCommentBox.find('textarea').element.value).toContain('Submitting an empty required comment emits invalid')
+    expect(approvalCommentBox.find('.live-example-runner__editor textarea').element.value).toContain('<YApprovalCommentBox')
+    expect(approvalCommentBox.find('.live-example-runner__editor textarea').element.value).toContain('const approvalComment = ref')
+    expect(approvalCommentBox.find('.live-example-runner__editor textarea').element.value).toContain('Submitting an empty required comment emits invalid')
 
     await approvalCommentBox.findAll('.live-example-runner__control select')[0].setValue('keyboard')
     await nextTick()
 
-    expect(approvalCommentBox.find('textarea').element.value).toContain('Keyboard review comment')
-    expect(approvalCommentBox.find('textarea').element.value).toContain('Tab reaches decision buttons, textarea, suggestions, submit and cancel.')
+    expect(approvalCommentBox.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard review comment')
+    expect(approvalCommentBox.find('.live-example-runner__editor textarea').element.value).toContain('Tab reaches decision buttons, textarea, suggestions, submit and cancel.')
 
     const bulkActionBar = mount(LiveExampleRunner, {
       props: {
@@ -8468,21 +8207,21 @@ const demo: DemoState = {
     await bulkActionBar.findAll('.live-example-runner__control select')[0].setValue('empty')
     await nextTick()
 
-    expect(bulkActionBar.find('textarea').element.value).toContain('const bulkSelectedRowKeys = ref([])')
-    expect(bulkActionBar.find('textarea').element.value).toContain('No rows selected')
+    expect(bulkActionBar.find('.live-example-runner__editor textarea').element.value).toContain('const bulkSelectedRowKeys = ref([])')
+    expect(bulkActionBar.find('.live-example-runner__editor textarea').element.value).toContain('No rows selected')
 
     await bulkActionBar.findAll('.live-example-runner__control select')[0].setValue('keyboard')
     await nextTick()
 
-    expect(bulkActionBar.find('textarea').element.value).toContain('Keyboard bulk action bar')
-    expect(bulkActionBar.find('textarea').element.value).toContain('Tab reaches Publish, Assign owner, Archive and Clear selection.')
+    expect(bulkActionBar.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard bulk action bar')
+    expect(bulkActionBar.find('.live-example-runner__editor textarea').element.value).toContain('Tab reaches Publish, Assign owner, Archive and Clear selection.')
 
     await bulkActionBar.findAll('.live-example-runner__control select')[0].setValue('menu')
     await nextTick()
 
-    expect(bulkActionBar.find('textarea').element.value).toContain('<YBulkActionMenu')
-    expect(bulkActionBar.find('textarea').element.value).toContain('requiresConfirm')
-    expect(bulkActionBar.find('textarea').element.value).toContain('Grouped menu actions include a second click for dangerous operations.')
+    expect(bulkActionBar.find('.live-example-runner__editor textarea').element.value).toContain('<YBulkActionMenu')
+    expect(bulkActionBar.find('.live-example-runner__editor textarea').element.value).toContain('requiresConfirm')
+    expect(bulkActionBar.find('.live-example-runner__editor textarea').element.value).toContain('Grouped menu actions include a second click for dangerous operations.')
 
     const dataToolbar = mount(LiveExampleRunner, {
       props: {
@@ -8494,13 +8233,13 @@ const demo: DemoState = {
 
     await findScenarioButton(dataToolbar, '无操作').trigger('click')
 
-    expect(dataToolbar.find('textarea').element.value).not.toContain('<YButton')
-    expect(dataToolbar.find('textarea').element.value).toContain('No toolbar actions')
+    expect(dataToolbar.find('.live-example-runner__editor textarea').element.value).not.toContain('<YButton')
+    expect(dataToolbar.find('.live-example-runner__editor textarea').element.value).toContain('No toolbar actions')
 
     await findScenarioButton(dataToolbar, '键盘工具栏').trigger('click')
 
-    expect(dataToolbar.find('textarea').element.value).toContain('Keyboard data toolbar')
-    expect(dataToolbar.find('textarea').element.value).toContain('<YButton variant="primary">Create component</YButton>')
+    expect(dataToolbar.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard data toolbar')
+    expect(dataToolbar.find('.live-example-runner__editor textarea').element.value).toContain('<YButton variant="primary">Create component</YButton>')
 
     const savedViews = mount(LiveExampleRunner, {
       props: {
@@ -8512,21 +8251,21 @@ const demo: DemoState = {
 
     await findScenarioButton(savedViews, '空视图').trigger('click')
 
-    expect(savedViews.find('textarea').element.value).toContain(':items="[]"')
-    expect(savedViews.find('textarea').element.value).toContain('const savedViewItems = []')
-    expect(savedViews.find('textarea').element.value).toContain('No saved views yet')
+    expect(savedViews.find('.live-example-runner__editor textarea').element.value).toContain(':items="[]"')
+    expect(savedViews.find('.live-example-runner__editor textarea').element.value).toContain('const savedViewItems = []')
+    expect(savedViews.find('.live-example-runner__editor textarea').element.value).toContain('No saved views yet')
 
     await findScenarioButton(savedViews, '键盘视图').trigger('click')
 
-    expect(savedViews.find('textarea').element.value).toContain('Keyboard saved views')
-    expect(savedViews.find('textarea').element.value).toContain('Save, create and manage controls stay reachable after view buttons.')
+    expect(savedViews.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard saved views')
+    expect(savedViews.find('.live-example-runner__editor textarea').element.value).toContain('Save, create and manage controls stay reachable after view buttons.')
 
     await findScenarioButton(savedViews, '管理视图').trigger('click')
 
-    expect(savedViews.find('textarea').element.value).toContain('<YSavedViewManager')
-    expect(savedViews.find('textarea').element.value).toContain('v-model:items="savedViewItems"')
-    expect(savedViews.find('textarea').element.value).toContain("const defaultSavedView = ref('live')")
-    expect(savedViews.find('textarea').element.value).toContain('Rename, pin, duplicate, delete and choose a default table view.')
+    expect(savedViews.find('.live-example-runner__editor textarea').element.value).toContain('<YSavedViewManager')
+    expect(savedViews.find('.live-example-runner__editor textarea').element.value).toContain('v-model:items="savedViewItems"')
+    expect(savedViews.find('.live-example-runner__editor textarea').element.value).toContain("const defaultSavedView = ref('live')")
+    expect(savedViews.find('.live-example-runner__editor textarea').element.value).toContain('Rename, pin, duplicate, delete and choose a default table view.')
   })
 
   it('promotes search, timeline and review helpers to empty, loading and keyboard live examples', async () => {
@@ -8540,14 +8279,14 @@ const demo: DemoState = {
 
     await findScenarioButton(searchPanel, '空筛选').trigger('click')
 
-    expect(searchPanel.find('textarea').element.value).toContain('const searchPanelModel = ref({})')
-    expect(searchPanel.find('textarea').element.value).toContain(':fields="searchPanelFields"')
-    expect(searchPanel.find('textarea').element.value).toContain('No filters applied')
+    expect(searchPanel.find('.live-example-runner__editor textarea').element.value).toContain('const searchPanelModel = ref({})')
+    expect(searchPanel.find('.live-example-runner__editor textarea').element.value).toContain(':fields="searchPanelFields"')
+    expect(searchPanel.find('.live-example-runner__editor textarea').element.value).toContain('No filters applied')
 
     await findScenarioButton(searchPanel, '键盘筛选').trigger('click')
 
-    expect(searchPanel.find('textarea').element.value).toContain('Keyboard search panel')
-    expect(searchPanel.find('textarea').element.value).toContain('Apply filters and Clear filters stay after the fields in tab order.')
+    expect(searchPanel.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard search panel')
+    expect(searchPanel.find('.live-example-runner__editor textarea').element.value).toContain('Apply filters and Clear filters stay after the fields in tab order.')
 
     const statusTimeline = mount(LiveExampleRunner, {
       props: {
@@ -8559,13 +8298,13 @@ const demo: DemoState = {
 
     await findScenarioButton(statusTimeline, '空时间线').trigger('click')
 
-    expect(statusTimeline.find('textarea').element.value).toContain(':items="[]"')
-    expect(statusTimeline.find('textarea').element.value).toContain('No status events yet')
+    expect(statusTimeline.find('.live-example-runner__editor textarea').element.value).toContain(':items="[]"')
+    expect(statusTimeline.find('.live-example-runner__editor textarea').element.value).toContain('No status events yet')
 
     await findScenarioButton(statusTimeline, '键盘时间线').trigger('click')
 
-    expect(statusTimeline.find('textarea').element.value).toContain('Keyboard status timeline')
-    expect(statusTimeline.find('textarea').element.value).toContain('Timeline remains readable while adjacent review actions receive focus.')
+    expect(statusTimeline.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard status timeline')
+    expect(statusTimeline.find('.live-example-runner__editor textarea').element.value).toContain('Timeline remains readable while adjacent review actions receive focus.')
 
     const reviewWorkflow = mount(LiveExampleRunner, {
       props: {
@@ -8577,13 +8316,13 @@ const demo: DemoState = {
 
     await findScenarioButton(reviewWorkflow, '加载审核').trigger('click')
 
-    expect(reviewWorkflow.find('textarea').element.value).toContain('loading')
-    expect(reviewWorkflow.find('textarea').element.value).toContain('Saving review decision')
+    expect(reviewWorkflow.find('.live-example-runner__editor textarea').element.value).toContain('loading')
+    expect(reviewWorkflow.find('.live-example-runner__editor textarea').element.value).toContain('Saving review decision')
 
     await findScenarioButton(reviewWorkflow, '键盘审核').trigger('click')
 
-    expect(reviewWorkflow.find('textarea').element.value).toContain('Keyboard review workflow')
-    expect(reviewWorkflow.find('textarea').element.value).toContain('Approve, request changes and reject stay in a predictable focus order.')
+    expect(reviewWorkflow.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard review workflow')
+    expect(reviewWorkflow.find('.live-example-runner__editor textarea').element.value).toContain('Approve, request changes and reject stay in a predictable focus order.')
   })
 
   it('promotes brand and theme helpers to scenario-rich live examples', async () => {
@@ -8597,8 +8336,8 @@ const demo: DemoState = {
 
     await findScenarioButton(brandHero, '风险主张').trigger('click')
 
-    expect(brandHero.find('textarea').element.value).toContain('Needs clearer value proposition before launch.')
-    expect(brandHero.find('textarea').element.value).toContain('primary-text="Review copy"')
+    expect(brandHero.find('.live-example-runner__editor textarea').element.value).toContain('Needs clearer value proposition before launch.')
+    expect(brandHero.find('.live-example-runner__editor textarea').element.value).toContain('primary-text="Review copy"')
 
     const featureGrid = mount(LiveExampleRunner, {
       props: {
@@ -8610,8 +8349,8 @@ const demo: DemoState = {
 
     await findScenarioButton(featureGrid, '空特性').trigger('click')
 
-    expect(featureGrid.find('textarea').element.value).toContain(':features="[]"')
-    expect(featureGrid.find('textarea').element.value).toContain('No features selected')
+    expect(featureGrid.find('.live-example-runner__editor textarea').element.value).toContain(':features="[]"')
+    expect(featureGrid.find('.live-example-runner__editor textarea').element.value).toContain('No features selected')
 
     const logoCloud = mount(LiveExampleRunner, {
       props: {
@@ -8623,8 +8362,8 @@ const demo: DemoState = {
 
     await findScenarioButton(logoCloud, '空客户墙').trigger('click')
 
-    expect(logoCloud.find('textarea').element.value).toContain(':logos="[]"')
-    expect(logoCloud.find('textarea').element.value).toContain('No logos available')
+    expect(logoCloud.find('.live-example-runner__editor textarea').element.value).toContain(':logos="[]"')
+    expect(logoCloud.find('.live-example-runner__editor textarea').element.value).toContain('No logos available')
 
     const profileCard = mount(LiveExampleRunner, {
       props: {
@@ -8636,8 +8375,8 @@ const demo: DemoState = {
 
     await findScenarioButton(profileCard, '无标签').trigger('click')
 
-    expect(profileCard.find('textarea').element.value).toContain('tags=""')
-    expect(profileCard.find('textarea').element.value).toContain('No profile tags')
+    expect(profileCard.find('.live-example-runner__editor textarea').element.value).toContain('tags=""')
+    expect(profileCard.find('.live-example-runner__editor textarea').element.value).toContain('No profile tags')
 
     const themeProvider = mount(LiveExampleRunner, {
       props: {
@@ -8649,12 +8388,12 @@ const demo: DemoState = {
 
     await findScenarioButton(themeProvider, '复核主题').trigger('click')
 
-    expect(themeProvider.find('textarea').element.value).toContain('theme="yok-clean"')
-    expect(themeProvider.find('textarea').element.value).toContain('Local theme contrast needs review.')
+    expect(themeProvider.find('.live-example-runner__editor textarea').element.value).toContain('theme="yok-clean"')
+    expect(themeProvider.find('.live-example-runner__editor textarea').element.value).toContain('Local theme contrast needs review.')
 
     await findScenarioButton(themeProvider, '键盘主题').trigger('click')
 
-    expect(themeProvider.find('textarea').element.value).toContain('Keyboard themed region')
+    expect(themeProvider.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard themed region')
   })
 
   it('hydrates remaining keyboard scenarios from shareable live-example hashes', async () => {
@@ -8683,7 +8422,7 @@ const demo: DemoState = {
       await wrapper.vm.$nextTick()
 
       expect(wrapper.findAll('.live-example-runner__control select')[0].element.value).toBe('keyboard')
-      expect(wrapper.find('textarea').element.value).toContain(expectedSource)
+      expect(wrapper.find('.live-example-runner__editor textarea').element.value).toContain(expectedSource)
 
       wrapper.unmount()
       window.location.hash = ''
@@ -8701,8 +8440,8 @@ const demo: DemoState = {
 
     await statistic.findAll('.live-example-runner__control select')[0].setValue('loading')
 
-    expect(statistic.find('textarea').element.value).toContain('<YStatistic')
-    expect(statistic.find('textarea').element.value).toContain('loading')
+    expect(statistic.find('.live-example-runner__editor textarea').element.value).toContain('<YStatistic')
+    expect(statistic.find('.live-example-runner__editor textarea').element.value).toContain('loading')
 
     const timeline = mount(LiveExampleRunner, {
       props: {
@@ -8714,8 +8453,8 @@ const demo: DemoState = {
 
     await timeline.findAll('.live-example-runner__control select')[0].setValue('reverse')
 
-    expect(timeline.find('textarea').element.value).toContain('<YTimeline')
-    expect(timeline.find('textarea').element.value).toContain('reverse')
+    expect(timeline.find('.live-example-runner__editor textarea').element.value).toContain('<YTimeline')
+    expect(timeline.find('.live-example-runner__editor textarea').element.value).toContain('reverse')
 
     const virtualList = mount(LiveExampleRunner, {
       props: {
@@ -8728,8 +8467,8 @@ const demo: DemoState = {
     const heightSlider = virtualList.find('.live-example-runner__control input[type="range"]')
     await heightSlider.setValue(300)
 
-    expect(virtualList.find('textarea').element.value).toContain('<YVirtualList')
-    expect(virtualList.find('textarea').element.value).toContain(':height="300"')
+    expect(virtualList.find('.live-example-runner__editor textarea').element.value).toContain('<YVirtualList')
+    expect(virtualList.find('.live-example-runner__editor textarea').element.value).toContain(':height="300"')
 
     const watermark = mount(LiveExampleRunner, {
       props: {
@@ -8742,9 +8481,9 @@ const demo: DemoState = {
     const contentInput = watermark.find('.live-example-runner__control input[type="text"]')
     await contentInput.setValue('Draft Only')
 
-    expect(watermark.find('textarea').element.value).toContain('<YWatermark')
-    expect(watermark.find('textarea').element.value).toContain('content="Draft Only"')
-    expect(watermark.find('textarea').element.value).toContain(':font-size="15"')
+    expect(watermark.find('.live-example-runner__editor textarea').element.value).toContain('<YWatermark')
+    expect(watermark.find('.live-example-runner__editor textarea').element.value).toContain('content="Draft Only"')
+    expect(watermark.find('.live-example-runner__editor textarea').element.value).toContain(':font-size="15"')
   })
 
   it('generates guided examples for remaining core source-first components', async () => {
@@ -8759,8 +8498,8 @@ const demo: DemoState = {
     const alignSelect = divider.findAll('.live-example-runner__control select')[1]
     await alignSelect.setValue('end')
 
-    expect(divider.find('textarea').element.value).toContain('<YDivider')
-    expect(divider.find('textarea').element.value).toContain('align="end"')
+    expect(divider.find('.live-example-runner__editor textarea').element.value).toContain('<YDivider')
+    expect(divider.find('.live-example-runner__editor textarea').element.value).toContain('align="end"')
 
     const descriptions = mount(LiveExampleRunner, {
       props: {
@@ -8773,8 +8512,8 @@ const demo: DemoState = {
     const descriptionsScenario = descriptions.find('.live-example-runner__control select')
     await descriptionsScenario.setValue('vertical')
 
-    expect(descriptions.find('textarea').element.value).toContain('<YDescriptions')
-    expect(descriptions.find('textarea').element.value).toContain('layout="vertical"')
+    expect(descriptions.find('.live-example-runner__editor textarea').element.value).toContain('<YDescriptions')
+    expect(descriptions.find('.live-example-runner__editor textarea').element.value).toContain('layout="vertical"')
 
     const list = mount(LiveExampleRunner, {
       props: {
@@ -8786,8 +8525,8 @@ const demo: DemoState = {
 
     await list.findAll('.live-example-runner__control select')[0].setValue('loading')
 
-    expect(list.find('textarea').element.value).toContain('<YList')
-    expect(list.find('textarea').element.value).toContain('loading')
+    expect(list.find('.live-example-runner__editor textarea').element.value).toContain('<YList')
+    expect(list.find('.live-example-runner__editor textarea').element.value).toContain('loading')
 
     const message = mount(LiveExampleRunner, {
       props: {
@@ -8799,8 +8538,8 @@ const demo: DemoState = {
 
     await setCheckbox(message, '可关闭', false)
 
-    expect(message.find('textarea').element.value).toContain('<YMessage')
-    expect(message.find('textarea').element.value).not.toContain('closable')
+    expect(message.find('.live-example-runner__editor textarea').element.value).toContain('<YMessage')
+    expect(message.find('.live-example-runner__editor textarea').element.value).not.toContain('closable')
   })
 
   it('generates guided examples for form helpers and admin workflow components', async () => {
@@ -8815,8 +8554,8 @@ const demo: DemoState = {
     const valueInput = formItem.findAll('.live-example-runner__control input[type="text"]')[4]
     await valueInput.setValue('YokInput')
 
-    expect(formItem.find('textarea').element.value).toContain('<YFormItem')
-    expect(formItem.find('textarea').element.value).toContain('model-value="YokInput"')
+    expect(formItem.find('.live-example-runner__editor textarea').element.value).toContain('<YFormItem')
+    expect(formItem.find('.live-example-runner__editor textarea').element.value).toContain('model-value="YokInput"')
 
     const formSummary = mount(LiveExampleRunner, {
       props: {
@@ -8828,8 +8567,8 @@ const demo: DemoState = {
 
     await setCheckbox(formSummary, '点击聚焦字段', false)
 
-    expect(formSummary.find('textarea').element.value).toContain('<YFormSummary')
-    expect(formSummary.find('textarea').element.value).toContain(':focus-on-click="false"')
+    expect(formSummary.find('.live-example-runner__editor textarea').element.value).toContain('<YFormSummary')
+    expect(formSummary.find('.live-example-runner__editor textarea').element.value).toContain(':focus-on-click="false"')
 
     const statusTimeline = mount(LiveExampleRunner, {
       props: {
@@ -8841,8 +8580,8 @@ const demo: DemoState = {
 
     await statusTimeline.findAll('.live-example-runner__control select')[0].setValue('reverse')
 
-    expect(statusTimeline.find('textarea').element.value).toContain('<YStatusTimeline')
-    expect(statusTimeline.find('textarea').element.value).toContain('reverse')
+    expect(statusTimeline.find('.live-example-runner__editor textarea').element.value).toContain('<YStatusTimeline')
+    expect(statusTimeline.find('.live-example-runner__editor textarea').element.value).toContain('reverse')
 
     const reviewWorkflow = mount(LiveExampleRunner, {
       props: {
@@ -8854,8 +8593,8 @@ const demo: DemoState = {
 
     await setCheckbox(reviewWorkflow, '禁用', true)
 
-    expect(reviewWorkflow.find('textarea').element.value).toContain('<YReviewWorkflow')
-    expect(reviewWorkflow.find('textarea').element.value).toContain('disabled')
+    expect(reviewWorkflow.find('.live-example-runner__editor textarea').element.value).toContain('<YReviewWorkflow')
+    expect(reviewWorkflow.find('.live-example-runner__editor textarea').element.value).toContain('disabled')
 
     const crudLayout = mount(LiveExampleRunner, {
       props: {
@@ -8868,14 +8607,14 @@ const demo: DemoState = {
     await setCheckbox(crudLayout, '吸顶头部', true)
     await crudLayout.findAll('.live-example-runner__control select')[0].setValue('review')
 
-    expect(crudLayout.find('textarea').element.value).toContain('<YCrudLayout')
-    expect(crudLayout.find('textarea').element.value).toContain('sticky-header')
-    expect(crudLayout.find('textarea').element.value).toContain('Pending review rows')
+    expect(crudLayout.find('.live-example-runner__editor textarea').element.value).toContain('<YCrudLayout')
+    expect(crudLayout.find('.live-example-runner__editor textarea').element.value).toContain('sticky-header')
+    expect(crudLayout.find('.live-example-runner__editor textarea').element.value).toContain('Pending review rows')
 
     await crudLayout.findAll('.live-example-runner__control select')[0].setValue('keyboard')
 
-    expect(crudLayout.find('textarea').element.value).toContain('Keyboard CRUD layout')
-    expect(crudLayout.find('textarea').element.value).toContain('Tab reaches filters, table settings and row actions in order')
+    expect(crudLayout.find('.live-example-runner__editor textarea').element.value).toContain('Keyboard CRUD layout')
+    expect(crudLayout.find('.live-example-runner__editor textarea').element.value).toContain('Tab reaches filters, table settings and row actions in order')
 
     const backtop = mount(LiveExampleRunner, {
       props: {
@@ -8888,7 +8627,7 @@ const demo: DemoState = {
     const rightSlider = backtop.findAll('.live-example-runner__control input[type="range"]')[1]
     await rightSlider.setValue(48)
 
-    expect(backtop.find('textarea').element.value).toContain('<YBacktop')
-    expect(backtop.find('textarea').element.value).toContain(':right="48"')
+    expect(backtop.find('.live-example-runner__editor textarea').element.value).toContain('<YBacktop')
+    expect(backtop.find('.live-example-runner__editor textarea').element.value).toContain(':right="48"')
   })
 })

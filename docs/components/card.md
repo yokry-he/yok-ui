@@ -28,7 +28,11 @@ const footerCode = [
 
 Card 用于组织一组相关内容，是文档、设置页、后台概览和品牌展示页都会复用的基础容器。
 
-## Example
+::: tip TIP
+`YCard` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Package card {#card-package-card}
 
 <DocDemo
   title="Package card"
@@ -48,6 +52,8 @@ Card 用于组织一组相关内容，是文档、设置页、后台概览和品
   </YCard>
 </DocDemo>
 
+## Footer actions {#card-footer-actions}
+
 <DocDemo
   title="Footer actions"
   description="底部操作应使用真实按钮或链接，不依赖整卡点击来表达可操作区域。"
@@ -64,15 +70,7 @@ Card 用于组织一组相关内容，是文档、设置页、后台概览和品
   </YCard>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="card"
-  title="在线编辑 Card 示例"
-  description="切换信息卡、操作卡、网格卡、移动卡和键盘操作场景，验证 Card 在真实页面里的层级和操作区。"
-/>
-
-## Usage notes
+## Usage notes {#card-usage-notes}
 
 - Card 负责组织一组相关内容，适合概览、设置、列表项和仪表盘区块。
 - `extra` 适合放标题栏右侧的轻量入口，例如复制链接、状态切换或更多操作。
@@ -80,11 +78,11 @@ Card 用于组织一组相关内容，是文档、设置页、后台概览和品
 - 不建议把整张 Card 做成隐式按钮；需要点击时，把真实按钮或链接放在 `footer` 或主体内容中。
 - 网格卡片要控制信息密度，移动端应减少描述长度，并让操作区自然换行。
 
-## API
+## Card API {#card-api}
 
 <ComponentApiSection name="YCard" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - Card 本身是内容容器，不应把整张卡片做成隐式按钮。
 - `interactive` 只表达可交互视觉状态，实际点击区域应由内部按钮或链接提供。

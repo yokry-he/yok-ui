@@ -12,9 +12,7 @@
     "docs:a11y": "vitest run docs/.vitepress/data/interactionContracts.test.ts docs/.vitepress/data/accessibilityEvidence.test.ts docs/.vitepress/data/docsA11yAuditTargets.test.ts docs/.vitepress/data/docsA11yRuntimeAudit.test.ts",
     "docs:a11y:runtime": "node scripts/docs-a11y-runtime.mjs",
     "docs:dev": "pnpm --filter @yok-ui/docs dev",
-    "docs:build": "pnpm --filter @yok-ui/docs build",
-    "playground:dev": "pnpm --filter @yok-ui/playground dev",
-    "playground:build": "pnpm --filter @yok-ui/playground build"
+    "docs:build": "pnpm --filter @yok-ui/docs build"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.4",

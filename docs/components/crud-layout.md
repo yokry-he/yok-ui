@@ -96,7 +96,11 @@ CRUD Layout 是 Admin 包的资源管理页骨架。它参考主流组件库的 
 
 它不会替代 `YSearchPanel`、`YFilterTabs` 或 `YDataTable`，而是负责把这些组件放到对的位置，让业务页少写布局样板代码。
 
-## Example
+::: tip TIP
+`YCrudLayout` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Composed admin page {#crud-layout-composed-admin-page}
 
 <DocDemo
   title="Composed admin page"
@@ -143,15 +147,11 @@ CRUD Layout 是 Admin 包的资源管理页骨架。它参考主流组件库的 
   </YCrudLayout>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner preset="crudLayout" />
-
-## API
+## CRUD Layout API {#crud-layout-api}
 
 <ComponentApiSection name="YCrudLayout" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 外层是具名 `section`，默认使用 `title` 作为可访问名称。
 - 主列表区域不强行声明页面级 landmark，避免嵌入已有 AppShell 或文档页时产生重复 `main`。

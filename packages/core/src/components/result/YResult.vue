@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YResult'
@@ -23,7 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const statusMeta: Record<YResultStatus, { icon: string; title: string; subtitle: string; tone: 'success' | 'info' | 'warning' | 'danger' }> = {
   success: {
-    icon: '✓',
+    icon: '',
     title: 'Success',
     subtitle: 'The operation has been completed.',
     tone: 'success'
@@ -41,7 +42,7 @@ const statusMeta: Record<YResultStatus, { icon: string; title: string; subtitle:
     tone: 'warning'
   },
   danger: {
-    icon: '×',
+    icon: '',
     title: 'Something went wrong',
     subtitle: 'The operation could not be completed.',
     tone: 'danger'
@@ -67,6 +68,17 @@ const statusMeta: Record<YResultStatus, { icon: string; title: string; subtitle:
 }
 
 const meta = computed(() => statusMeta[props.status])
+const statusIconNames = {
+  success: 'check',
+  info: 'info',
+  warning: 'warning',
+  danger: 'error'
+} as const
+const resolvedStatusIconName = computed(() =>
+  props.status in statusIconNames
+    ? statusIconNames[props.status as keyof typeof statusIconNames]
+    : ''
+)
 const displayTitle = computed(() => props.title || meta.value.title)
 const displaySubtitle = computed(() => props.subtitle || meta.value.subtitle)
 </script>
@@ -79,7 +91,8 @@ const displaySubtitle = computed(() => props.subtitle || meta.value.subtitle)
   >
     <div class="yok-result__icon" aria-hidden="true">
       <slot name="icon">
-        {{ meta.icon }}
+        <YInternalIcon v-if="resolvedStatusIconName" :name="resolvedStatusIconName" />
+        <template v-else>{{ meta.icon }}</template>
       </slot>
     </div>
     <div class="yok-result__content">

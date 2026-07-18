@@ -28,7 +28,11 @@ const alignCode = [
 
 Divider 用于分隔内容组，也可以带上轻量标签，帮助长表单、设置页和文档页面建立节奏。
 
-## Example
+::: tip TIP
+`YDivider` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Labeled groups {#divider-labeled-groups}
 
 <DocDemo
   title="Labeled groups"
@@ -50,6 +54,8 @@ Divider 用于分隔内容组，也可以带上轻量标签，帮助长表单、
   </div>
 </DocDemo>
 
+## Alignment {#divider-alignment}
+
 <DocDemo
   title="Alignment"
   description="align 用于控制标签位置，帮助不同密度的内容保持清晰节奏。"
@@ -64,19 +70,11 @@ Divider 用于分隔内容组，也可以带上轻量标签，帮助长表单、
   </div>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="divider"
-  title="在线编辑 Divider 示例"
-  description="调整分割线标签和对齐方式，让长表单、设置页和文档内容更有节奏。"
-/>
-
-## API
+## Divider API {#divider-api}
 
 <ComponentApiSection name="YDivider" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 默认分割线作为视觉分隔，不应替代真实标题层级。
 - 带 `label` 时文案应简短，帮助用户理解相邻内容分组。

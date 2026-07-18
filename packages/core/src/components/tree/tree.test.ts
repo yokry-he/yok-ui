@@ -84,7 +84,9 @@ describe('YTree', () => {
     const treeItems = wrapper.findAll('[role="treeitem"]')
 
     expect(tree.attributes('aria-label')).toBe('Component tree')
-    expect(treeItems.map((item) => item.text())).toEqual(['−Core', 'Button', 'Tree', '+Product'])
+    expect(treeItems.map((item) => item.text())).toEqual(['Core', 'Button', 'Tree', 'Product'])
+    expect(wrapper.get('[aria-label="Collapse Core"] svg').exists()).toBe(true)
+    expect(wrapper.get('[aria-label="Expand Product"] svg').exists()).toBe(true)
     expect(wrapper.get('[aria-selected="true"]').text()).toContain('Button')
     expect(wrapper.get('[aria-level="2"]').text()).toContain('Button')
   })
@@ -173,7 +175,8 @@ describe('YTree', () => {
     await wrapper.get('[aria-label="Expand Core"]').trigger('click')
 
     expect(wrapper.emitted('update:expandedKeys')?.[0]).toEqual([['core']])
-    expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual(['+Core', '+Product'])
+    expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual(['Core', 'Product'])
+    expect(wrapper.findAll('.yok-tree__toggle svg')).toHaveLength(2)
   })
 
   it('supports keyboard navigation and expand/collapse', async () => {
@@ -418,9 +421,10 @@ describe('YTree', () => {
     await nextTick()
 
     expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual([
-      '−Remote folder',
+      'Remote folder',
       'Remote child'
     ])
+    expect(wrapper.get('[aria-label="Collapse Remote folder"] svg').exists()).toBe(true)
     expect(wrapper.emitted('load')?.[0]).toEqual([{
       node: { key: 'remote', label: 'Remote folder' },
       key: 'remote',
@@ -459,9 +463,10 @@ describe('YTree', () => {
 
     expect(load).toHaveBeenCalledTimes(2)
     expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual([
-      '−Remote folder',
+      'Remote folder',
       'Retry child'
     ])
+    expect(wrapper.get('[aria-label="Collapse Remote folder"] svg').exists()).toBe(true)
   })
 
   it('exposes reloadNode to refresh loaded lazy children', async () => {
@@ -481,9 +486,10 @@ describe('YTree', () => {
     await nextTick()
 
     expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual([
-      '−Remote folder',
+      'Remote folder',
       'Remote child A'
     ])
+    expect(wrapper.get('[aria-label="Collapse Remote folder"] svg').exists()).toBe(true)
 
     await expect(wrapper.vm.reloadNode('remote')).resolves.toBe(true)
     await flushPromises()
@@ -491,7 +497,7 @@ describe('YTree', () => {
 
     expect(load).toHaveBeenCalledTimes(2)
     expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual([
-      '−Remote folder',
+      'Remote folder',
       'Remote child B'
     ])
     await expect(wrapper.vm.reloadNode('missing')).resolves.toBe(false)

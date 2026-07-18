@@ -110,6 +110,58 @@ describe('YAutocomplete', () => {
     expect(wrapper.emitted('clear')).toHaveLength(1)
   })
 
+  it('loads remote suggestions from remoteMethod and ignores stale responses', async () => {
+    let resolveButtonSearch: (options: typeof options) => void = () => {}
+    let resolveRemoteSearch: (options: typeof options) => void = () => {}
+    const remoteMethod = (query: string) =>
+      new Promise<typeof options>((resolve) => {
+        if (query === 'button') {
+          resolveButtonSearch = resolve
+          return
+        }
+
+        if (query === 'remote') {
+          resolveRemoteSearch = resolve
+          return
+        }
+
+        resolve([])
+      })
+
+    const wrapper = mount(YAutocomplete, {
+      props: {
+        modelValue: '',
+        label: 'Component',
+        options,
+        loadingText: 'Loading remote suggestions...',
+        remoteMethod
+      },
+      attachTo: document.body
+    })
+
+    const input = wrapper.get('input')
+    await input.setValue('button')
+    await nextTick()
+
+    expect(wrapper.get('[role="status"]').text()).toBe('Loading remote suggestions...')
+    expect(wrapper.find('[role="option"]').exists()).toBe(false)
+
+    await input.setValue('remote')
+    await nextTick()
+
+    resolveRemoteSearch([{ label: 'Remote component', value: 'remote', description: 'Fetched from API' }])
+    await nextTick()
+    await nextTick()
+
+    expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['Remote componentFetched from API'])
+
+    resolveButtonSearch([{ label: 'Button', value: 'button', description: 'Stale result' }])
+    await nextTick()
+    await nextTick()
+
+    expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['Remote componentFetched from API'])
+  })
+
   it('supports external form ids and invalid state', () => {
     const wrapper = mount(YAutocomplete, {
       props: {

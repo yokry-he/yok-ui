@@ -2,6 +2,7 @@
 import { computed, nextTick, ref, useId, watch } from 'vue'
 import { useDismissableLayer } from '../../composables/useDismissableLayer'
 import { useFloatingLayer } from '../../composables/useFloatingLayer'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 import { flattenTree, findNode, getNodeChildren } from '../tree/tree'
 import type { YTreeFlatNode, YTreeNode } from '../tree/types'
 import { useYokConfig, type YokConfigSize } from '../config-provider'
@@ -551,7 +552,7 @@ watch(query, (value) => {
               :aria-label="`Remove ${node.label}`"
               @click="removeNode(node, $event)"
             >
-              ×
+              <YInternalIcon name="close" />
             </button>
           </span>
           <span
@@ -565,7 +566,9 @@ watch(query, (value) => {
         <span v-else class="yok-tree-select__value" :class="{ 'yok-tree-select__value--placeholder': !selectedNode }">
           {{ displayText }}
         </span>
-        <span class="yok-tree-select__chevron" aria-hidden="true">⌄</span>
+        <span class="yok-tree-select__chevron" aria-hidden="true">
+          <YInternalIcon name="chevronDown" />
+        </span>
       </div>
       <button
         v-if="clearable && hasSelection && !disabled"
@@ -574,7 +577,7 @@ watch(query, (value) => {
         aria-label="Clear selection"
         @click="clearSelection"
       >
-        ×
+        <YInternalIcon name="close" />
       </button>
     </div>
     <Transition name="yok-floating-layer">
@@ -639,11 +642,13 @@ watch(query, (value) => {
               :aria-label="flatNode.expanded ? `Collapse ${flatNode.label}` : `Expand ${flatNode.label}`"
               @click.stop="toggleNode(flatNode)"
             >
-              <span aria-hidden="true">{{ flatNode.expanded ? '−' : '+' }}</span>
+              <YInternalIcon :name="flatNode.expanded ? 'minus' : 'chevronRight'" />
             </button>
             <span v-else class="yok-tree-select__spacer" aria-hidden="true" />
             <span class="yok-tree-select__item-label">{{ flatNode.label }}</span>
-            <span v-if="isNodeSelected(flatNode.key)" class="yok-tree-select__check" aria-hidden="true">✓</span>
+            <span v-if="isNodeSelected(flatNode.key)" class="yok-tree-select__check" aria-hidden="true">
+              <YInternalIcon name="check" />
+            </span>
           </div>
         </div>
         <span v-else class="yok-tree-select__empty" role="status">{{ emptyText }}</span>
@@ -790,8 +795,15 @@ watch(query, (value) => {
 }
 
 .yok-tree-select__chevron {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
   inset-inline-end: var(--yok-tree-select-control-padding-inline);
   color: var(--yok-color-textMuted);
+  font-size: 16px;
+  line-height: 1;
   pointer-events: none;
 }
 
@@ -807,6 +819,7 @@ watch(query, (value) => {
   color: var(--yok-color-textMuted);
   cursor: pointer;
   font: inherit;
+  font-size: 14px;
   line-height: 1;
   padding: 0;
 }
@@ -885,9 +898,11 @@ watch(query, (value) => {
 }
 
 .yok-tree-select__toggle {
-  display: grid;
+  display: inline-flex;
   width: 22px;
   height: 22px;
+  align-items: center;
+  justify-content: center;
   place-items: center;
   border: 1px solid var(--yok-color-border);
   border-radius: var(--yok-radius-sm);
@@ -895,6 +910,7 @@ watch(query, (value) => {
   color: currentColor;
   cursor: pointer;
   font: inherit;
+  font-size: 14px;
   font-weight: 820;
   line-height: 1;
   padding: 0;
@@ -913,7 +929,13 @@ watch(query, (value) => {
 }
 
 .yok-tree-select__check {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
   color: var(--yok-color-primary);
+  font-size: 16px;
   font-weight: 900;
   text-align: center;
 }

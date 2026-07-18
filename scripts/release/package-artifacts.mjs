@@ -1066,6 +1066,7 @@ export async function smokeTestTarballs({
   }
 
   const commandRunner = adapters.commandRunner ?? runCommand
+  const realpathAdapter = adapters.realpath ?? realpath
   const temporaryRoot = adapters.temporaryRoot ?? tmpdir()
   let source
   let installSpecs
@@ -1097,8 +1098,8 @@ export async function smokeTestTarballs({
   }
 
   const [workspaceRealRoot, temporaryRealRoot] = await Promise.all([
-    realpath(workspaceRoot),
-    realpath(temporaryRoot)
+    realpathAdapter(workspaceRoot),
+    realpathAdapter(temporaryRoot)
   ])
 
   if (
@@ -1109,12 +1110,6 @@ export async function smokeTestTarballs({
       `Smoke test temporary directory true path must be outside the workspace: ${temporaryRealRoot}`
     )
   }
-
-  const createdConsumerDirectory = await mkdtemp(
-    resolve(temporaryRealRoot, 'yok-ui-clean-consumer-')
-  )
-  const consumerDirectory = await realpath(createdConsumerDirectory)
-  let isolationAccepted = false
 
   const registryArgs = source.kind === 'registry'
     ? ['--registry', source.registry]
@@ -1127,8 +1122,15 @@ export async function smokeTestTarballs({
     'vue@^3.5.0',
     ...installSpecs
   ]
+  const createdConsumerDirectory = await mkdtemp(
+    resolve(temporaryRealRoot, 'yok-ui-clean-consumer-')
+  )
+  let consumerDirectory
+  let isolationAccepted = false
 
   try {
+    consumerDirectory = await realpathAdapter(createdConsumerDirectory)
+
     if (
       consumerDirectory === workspaceRealRoot ||
       isPathInside(workspaceRealRoot, consumerDirectory)
@@ -1201,9 +1203,10 @@ export async function smokeTestTarballs({
     }
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error)
+    const errorDirectory = consumerDirectory ?? createdConsumerDirectory
 
     throw createRedactedError(
-      `Clean consumer smoke test failed in ${consumerDirectory}: ${reason}\n` +
+      `Clean consumer smoke test failed in ${errorDirectory}: ${reason}\n` +
       `Action: rerun ${smokeCommandSummary(source)}`
     )
   } finally {

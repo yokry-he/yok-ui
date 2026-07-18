@@ -4,13 +4,14 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   readdirSync,
   rmSync,
   symlinkSync,
   writeFileSync
 } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, resolve } from 'node:path'
+import { basename, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import {
@@ -902,6 +903,48 @@ describe('smokeTestTarballs', () => {
     } finally {
       rmSync(consumerDirectory, { recursive: true, force: true })
       rmSync(tarballDirectory, { recursive: true, force: true })
+    }
+  })
+
+  it('cleans an unusable consumer when realpath fails after creation even with keepTemp', async () => {
+    const tarballDirectory = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-realpath-failure-tarballs-'))
+    const temporaryRoot = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-realpath-failure-root-'))
+    const tarballs = createSmokeTarballs(tarballDirectory)
+    let createdConsumerDirectory = ''
+    let commandCount = 0
+
+    try {
+      await expect(
+        smokeTestTarballs({
+          tarballs,
+          keepTemp: true,
+          adapters: {
+            temporaryRoot,
+            realpath: async (path: string) => {
+              const resolvedPath = realpathSync(path)
+
+              if (basename(resolvedPath).startsWith('yok-ui-clean-consumer-')) {
+                createdConsumerDirectory = resolvedPath
+                throw new Error('simulated consumer realpath failure')
+              }
+
+              return resolvedPath
+            },
+            commandRunner: async () => {
+              commandCount += 1
+              throw new Error('command runner must not execute during setup failure')
+            }
+          }
+        })
+      ).rejects.toThrow('simulated consumer realpath failure')
+
+      expect(commandCount).toBe(0)
+      expect(createdConsumerDirectory).not.toBe('')
+      expect(existsSync(createdConsumerDirectory)).toBe(false)
+      expect(readdirSync(temporaryRoot)).toEqual([])
+    } finally {
+      rmSync(tarballDirectory, { recursive: true, force: true })
+      rmSync(temporaryRoot, { recursive: true, force: true })
     }
   })
 

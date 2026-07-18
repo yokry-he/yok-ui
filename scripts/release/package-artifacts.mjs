@@ -62,9 +62,31 @@ function packedEntryForTarget(packageName, field, target) {
   }
 
   for (const segment of relativeTarget.split('/')) {
-    if (segment === '.' || segment === '..' || segment.toLowerCase() === 'node_modules') {
+    if (segment === '') {
       throw new Error(
-        `${packageName} field ${field} target ${target} contains forbidden path segment ${segment}`
+        `${packageName} field ${field} target ${target} contains an empty path segment`
+      )
+    }
+
+    let decodedSegment
+
+    try {
+      decodedSegment = decodeURIComponent(segment)
+    } catch {
+      throw new Error(
+        `${packageName} field ${field} target ${target} contains malformed percent encoding in segment ${segment}`
+      )
+    }
+
+    if (
+      decodedSegment === '.' ||
+      decodedSegment === '..' ||
+      decodedSegment.toLowerCase() === 'node_modules'
+    ) {
+      const decodedContext = decodedSegment === segment ? '' : ` (decoded as ${decodedSegment})`
+
+      throw new Error(
+        `${packageName} field ${field} target ${target} contains forbidden path segment ${segment}${decodedContext}`
       )
     }
   }
@@ -116,8 +138,10 @@ function inspectExportTarget(packageName, field, target, entries) {
   }
 
   for (const [condition, conditionTarget] of Object.entries(target)) {
-    if (condition.startsWith('.')) {
-      throw new Error(`${packageName} field ${field} contains invalid condition ${condition}`)
+    if (condition === '' || condition.startsWith('.')) {
+      throw new Error(
+        `${packageName} field ${field} contains invalid condition key ${JSON.stringify(condition)}`
+      )
     }
 
     inspectExportTarget(packageName, `${field}.${condition}`, conditionTarget, entries)
@@ -135,7 +159,19 @@ function inspectExports(packageName, exportsField, entries) {
   }
 
   const exportEntries = Object.entries(exportsField)
-  const subpathEntries = exportEntries.filter(([exportPath]) => exportPath.startsWith('.'))
+  const invalidSubpathEntry = exportEntries.find(
+    ([exportPath]) => exportPath.startsWith('.') && exportPath !== '.' && !exportPath.startsWith('./')
+  )
+
+  if (invalidSubpathEntry) {
+    throw new Error(
+      `${packageName} field exports contains invalid subpath key ${JSON.stringify(invalidSubpathEntry[0])}`
+    )
+  }
+
+  const subpathEntries = exportEntries.filter(
+    ([exportPath]) => exportPath === '.' || exportPath.startsWith('./')
+  )
 
   if (subpathEntries.length > 0 && subpathEntries.length !== exportEntries.length) {
     throw new Error(`${packageName} field exports cannot mix subpath and condition keys`)

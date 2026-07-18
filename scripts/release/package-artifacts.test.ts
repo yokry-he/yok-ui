@@ -207,6 +207,41 @@ describe('inspectPackedManifest', () => {
     )
   })
 
+  it.each([
+    ['./dist/%2e%2e/index.js', '%2e%2e', '..'],
+    ['./dist/%2E/index.js', '%2E', '.'],
+    ['./dist/%6eode_modules/index.js', '%6eode_modules', 'node_modules']
+  ] as const)(
+    'rejects percent-encoded forbidden path segments in target %s',
+    (target, segment, decodedSegment) => {
+      const fixture = createPackedFixture()
+      fixture.manifest.exports['./unsafe'] = target
+
+      expect(() => inspectPackedManifest(fixture)).toThrow(
+        `@yok-ui/example field exports["./unsafe"] target ${target} contains forbidden path segment ${segment} ` +
+        `(decoded as ${decodedSegment})`
+      )
+    }
+  )
+
+  it('rejects empty export target path segments', () => {
+    const fixture = createPackedFixture()
+    fixture.manifest.exports['./unsafe'] = './dist//index.js'
+
+    expect(() => inspectPackedManifest(fixture)).toThrow(
+      '@yok-ui/example field exports["./unsafe"] target ./dist//index.js contains an empty path segment'
+    )
+  })
+
+  it('rejects malformed percent encoding with target and segment context', () => {
+    const fixture = createPackedFixture()
+    fixture.manifest.exports['./unsafe'] = './dist/%2/index.js'
+
+    expect(() => inspectPackedManifest(fixture)).toThrow(
+      '@yok-ui/example field exports["./unsafe"] target ./dist/%2/index.js contains malformed percent encoding in segment %2'
+    )
+  })
+
   it.each(['../dist/index.js', '/dist/index.js', 'dist/index.js'])(
     'rejects non-package-relative target %s',
     (target) => {
@@ -290,6 +325,42 @@ describe('inspectPackedManifest', () => {
     expect(() => inspectPackedManifest(fixture)).toThrow(
       '@yok-ui/example field exports cannot mix subpath and condition keys'
     )
+  })
+
+  it.each(['.bad', '..'])(
+    'rejects malformed export subpath key %s',
+    (exportPath) => {
+      const fixture = createPackedFixture()
+      fixture.manifest.exports = {
+        [exportPath]: './dist/index.js'
+      }
+
+      expect(() => inspectPackedManifest(fixture)).toThrow(
+        `@yok-ui/example field exports contains invalid subpath key ${JSON.stringify(exportPath)}`
+      )
+    }
+  )
+
+  it('rejects an empty exports condition key', () => {
+    const fixture = createPackedFixture()
+    fixture.manifest.exports = {
+      '': './dist/index.js'
+    }
+
+    expect(() => inspectPackedManifest(fixture)).toThrow(
+      '@yok-ui/example field exports contains invalid condition key ""'
+    )
+  })
+
+  it('accepts exact root and package-relative subpath export keys', () => {
+    const fixture = createPackedFixture()
+    fixture.manifest.exports = {
+      '.': './dist/index.js',
+      './feature': './dist/feature.js'
+    }
+    fixture.entries.push('package/dist/feature.js')
+
+    expect(inspectPackedManifest(fixture)).toBe(fixture.manifest)
   })
 
   it('accepts a package-level string export', () => {

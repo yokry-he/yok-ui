@@ -11,6 +11,18 @@
     "hooks",
     "yok-ui"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yokry-he/yok-ui.git",
+    "directory": "packages/hooks"
+  },
+  "homepage": "https://github.com/yokry-he/yok-ui/tree/main/packages/hooks#readme",
+  "bugs": {
+    "url": "https://github.com/yokry-he/yok-ui/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": false,
   "files": [
     "dist",

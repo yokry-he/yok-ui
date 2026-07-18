@@ -1,4 +1,4 @@
-import { execFile } from 'node:child_process'
+import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { createReadStream } from 'node:fs'
 import {
@@ -9,12 +9,10 @@ import {
   stat,
   writeFile
 } from 'node:fs/promises'
-import { dirname, isAbsolute, posix, relative, resolve, sep } from 'node:path'
+import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { promisify } from 'node:util'
 import { loadReleasePackages } from './package-graph.mjs'
 
-const execFileAsync = promisify(execFile)
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const publishRoot = resolve(workspaceRoot, 'outputs/publish')
 const pnpmCommand = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
@@ -26,6 +24,9 @@ const dependencyFields = [
   'devDependencies'
 ]
 const packageEntryPrefix = 'package/'
+const defaultCommandTimeoutMs = 5 * 60 * 1_000
+const defaultMaxBufferBytes = 20 * 1024 * 1024
+const windowsCmdMetaCharacters = /([()\][%!^"`<>&|;, *?])/g
 
 function isPlainObject(value) {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
@@ -53,24 +54,30 @@ function packedEntryForTarget(packageName, field, target) {
   }
 
   const relativeTarget = target.slice(2)
-  const normalizedTarget = posix.normalize(relativeTarget)
 
-  if (
-    relativeTarget.includes('\\') ||
-    normalizedTarget === '..' ||
-    normalizedTarget.startsWith('../') ||
-    posix.isAbsolute(normalizedTarget)
-  ) {
+  if (relativeTarget.includes('\\')) {
     throw new Error(
       `${packageName} field ${field} target ${target} escapes the packed package directory`
     )
   }
 
-  return `${packageEntryPrefix}${normalizedTarget}`
+  for (const segment of relativeTarget.split('/')) {
+    if (segment === '.' || segment === '..' || segment.toLowerCase() === 'node_modules') {
+      throw new Error(
+        `${packageName} field ${field} target ${target} contains forbidden path segment ${segment}`
+      )
+    }
+  }
+
+  return `${packageEntryPrefix}${relativeTarget}`
 }
 
 function assertPackedTarget(packageName, field, target, entries) {
   const packedEntry = packedEntryForTarget(packageName, field, target)
+
+  if (target.includes('*')) {
+    return
+  }
 
   if (!entries.has(packedEntry)) {
     throw new Error(
@@ -79,27 +86,47 @@ function assertPackedTarget(packageName, field, target, entries) {
   }
 }
 
-function inspectConditionalExport(packageName, field, target, entries) {
-  if (!isPlainObject(target)) {
+function inspectExportTarget(packageName, field, target, entries) {
+  if (typeof target === 'string') {
+    assertPackedTarget(packageName, field, target, entries)
+    return
+  }
+
+  if (target === null) {
+    return
+  }
+
+  if (Array.isArray(target)) {
+    if (target.length === 0) {
+      throw new Error(
+        `${packageName} field ${field} must be a string, null, condition object, or non-empty fallback array`
+      )
+    }
+
+    target.forEach((fallbackTarget, index) => {
+      inspectExportTarget(packageName, `${field}[${index}]`, fallbackTarget, entries)
+    })
+    return
+  }
+
+  if (!isPlainObject(target) || Object.keys(target).length === 0) {
     throw new Error(
-      `${packageName} field ${field} must be a string or an import/types conditional export`
+      `${packageName} field ${field} must be a string, null, condition object, or non-empty fallback array`
     )
   }
 
-  for (const condition of ['types', 'import']) {
-    if (!Object.hasOwn(target, condition)) {
-      throw new Error(`${packageName} field ${field}.${condition} is required`)
-    }
-  }
-
   for (const [condition, conditionTarget] of Object.entries(target)) {
-    assertPackedTarget(packageName, `${field}.${condition}`, conditionTarget, entries)
+    if (condition.startsWith('.')) {
+      throw new Error(`${packageName} field ${field} contains invalid condition ${condition}`)
+    }
+
+    inspectExportTarget(packageName, `${field}.${condition}`, conditionTarget, entries)
   }
 }
 
 function inspectExports(packageName, exportsField, entries) {
-  if (typeof exportsField === 'string') {
-    assertPackedTarget(packageName, 'exports', exportsField, entries)
+  if (typeof exportsField === 'string' || Array.isArray(exportsField)) {
+    inspectExportTarget(packageName, 'exports', exportsField, entries)
     return
   }
 
@@ -108,21 +135,21 @@ function inspectExports(packageName, exportsField, entries) {
   }
 
   const exportEntries = Object.entries(exportsField)
-  const isSubpathMap = exportEntries.every(([exportPath]) => exportPath.startsWith('.'))
+  const subpathEntries = exportEntries.filter(([exportPath]) => exportPath.startsWith('.'))
 
-  if (!isSubpathMap) {
-    inspectConditionalExport(packageName, 'exports', exportsField, entries)
+  if (subpathEntries.length > 0 && subpathEntries.length !== exportEntries.length) {
+    throw new Error(`${packageName} field exports cannot mix subpath and condition keys`)
+  }
+
+  if (subpathEntries.length === 0) {
+    inspectExportTarget(packageName, 'exports', exportsField, entries)
     return
   }
 
   for (const [exportPath, target] of exportEntries) {
     const field = `exports[${JSON.stringify(exportPath)}]`
 
-    if (typeof target === 'string') {
-      assertPackedTarget(packageName, field, target, entries)
-    } else {
-      inspectConditionalExport(packageName, field, target, entries)
-    }
+    inspectExportTarget(packageName, field, target, entries)
   }
 }
 
@@ -198,38 +225,181 @@ export function inspectPackedManifest({ expectedPackage, manifest, entries }) {
   return manifest
 }
 
-async function runCommand(command, args, context) {
-  try {
-    return await execFileAsync(command, args, {
-      cwd: workspaceRoot,
-      encoding: 'utf8',
-      maxBuffer: 20 * 1024 * 1024
-    })
-  } catch (error) {
-    const stdout = typeof error?.stdout === 'string' ? error.stdout.trim() : ''
-    const stderr = typeof error?.stderr === 'string' ? error.stderr.trim() : ''
-    const details = [stderr, stdout, error instanceof Error ? error.message : String(error)]
-      .filter(Boolean)
-      .join('\n')
+function escapeWindowsCommand(command) {
+  return command.replace(windowsCmdMetaCharacters, '^$1')
+}
 
-    throw new Error(`${context} failed${details ? `:\n${details}` : ''}`)
+function escapeWindowsArgument(value) {
+  let argument = String(value)
+
+  argument = argument.replace(/(?=(\\+?)?)\1"/g, '$1$1\\"')
+  argument = argument.replace(/(?=(\\+?)?)\1$/, '$1$1')
+  argument = `"${argument}"`
+  argument = argument.replace(windowsCmdMetaCharacters, '^$1')
+
+  // Cmd shims parse arguments once in cmd.exe and again in the shim.
+  return argument.replace(windowsCmdMetaCharacters, '^$1')
+}
+
+export function createCommandInvocation(
+  command,
+  args,
+  { platform = process.platform, env = process.env } = {}
+) {
+  if (platform !== 'win32' || !/\.(?:cmd|bat)$/i.test(command)) {
+    return {
+      command,
+      args: [...args],
+      windowsVerbatimArguments: false
+    }
+  }
+
+  if ([command, ...args].some((value) => /[\0\r\n]/.test(String(value)))) {
+    throw new Error('Windows command arguments must not contain NUL or line break characters')
+  }
+
+  const commandLine = [
+    escapeWindowsCommand(command),
+    ...args.map(escapeWindowsArgument)
+  ].join(' ')
+
+  return {
+    command: env.ComSpec ?? env.COMSPEC ?? 'cmd.exe',
+    args: ['/d', '/s', '/c', `"${commandLine}"`],
+    windowsVerbatimArguments: true
   }
 }
 
-export async function inspectPackageTarball({ expectedPackage, tarballPath }) {
+export async function runCommand({
+  command,
+  args,
+  context,
+  cwd = workspaceRoot,
+  timeoutMs = defaultCommandTimeoutMs,
+  maxBufferBytes = defaultMaxBufferBytes,
+  env = process.env,
+  platform = process.platform,
+  spawnImpl = spawn
+}) {
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+    throw new Error(`${context} timeoutMs must be a positive finite number`)
+  }
+
+  const invocation = createCommandInvocation(command, args, { platform, env })
+
+  return await new Promise((resolvePromise, reject) => {
+    let child
+
+    try {
+      child = spawnImpl(invocation.command, invocation.args, {
+        cwd,
+        env,
+        shell: false,
+        windowsVerbatimArguments: invocation.windowsVerbatimArguments,
+        stdio: ['ignore', 'pipe', 'pipe']
+      })
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error)
+
+      reject(new Error(`${context} failed to start: ${reason}`))
+      return
+    }
+
+    const stdoutChunks = []
+    const stderrChunks = []
+    let bufferedBytes = 0
+    let settled = false
+    let timedOut = false
+    let exceededBuffer = false
+
+    function appendOutput(chunks, chunk) {
+      const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+
+      bufferedBytes += buffer.length
+      if (bufferedBytes > maxBufferBytes) {
+        exceededBuffer = true
+        child.kill('SIGKILL')
+        return
+      }
+
+      chunks.push(buffer)
+    }
+
+    child.stdout?.on('data', (chunk) => appendOutput(stdoutChunks, chunk))
+    child.stderr?.on('data', (chunk) => appendOutput(stderrChunks, chunk))
+
+    const timeout = setTimeout(() => {
+      timedOut = true
+      child.kill('SIGKILL')
+    }, timeoutMs)
+
+    child.on('error', (error) => {
+      if (settled) {
+        return
+      }
+
+      settled = true
+      clearTimeout(timeout)
+      reject(new Error(`${context} failed to start: ${error.message}`))
+    })
+
+    child.on('close', (code, signal) => {
+      if (settled) {
+        return
+      }
+
+      settled = true
+      clearTimeout(timeout)
+
+      if (timedOut) {
+        reject(new Error(`${context} timed out after ${timeoutMs}ms`))
+        return
+      }
+
+      if (exceededBuffer) {
+        reject(new Error(`${context} exceeded output limit of ${maxBufferBytes} bytes`))
+        return
+      }
+
+      const stdout = Buffer.concat(stdoutChunks).toString('utf8')
+      const stderr = Buffer.concat(stderrChunks).toString('utf8')
+
+      if (code !== 0) {
+        const output = [stderr.trim(), stdout.trim()].filter(Boolean).join('\n')
+        const exitDetail = signal ? `signal ${signal}` : `exit code ${String(code)}`
+
+        reject(new Error(`${context} failed (${exitDetail})${output ? `:\n${output}` : ''}`))
+        return
+      }
+
+      resolvePromise({ stdout, stderr })
+    })
+  })
+}
+
+export async function inspectPackageTarball({
+  expectedPackage,
+  tarballPath,
+  commandTimeoutMs = defaultCommandTimeoutMs,
+  commandRunner = runCommand
+}) {
   const packageName = packageContext(expectedPackage)
   const absoluteTarballPath = resolve(tarballPath)
   const [{ stdout: entryOutput }, { stdout: manifestOutput }] = await Promise.all([
-    runCommand(
-      tarCommand,
-      ['-tzf', absoluteTarballPath],
-      `${packageName} tar entry inspection for ${absoluteTarballPath}`
-    ),
-    runCommand(
-      tarCommand,
-      ['-xOf', absoluteTarballPath, 'package/package.json'],
-      `${packageName} packed manifest inspection for ${absoluteTarballPath}`
-    )
+    commandRunner({
+      command: tarCommand,
+      args: ['-tzf', absoluteTarballPath],
+      context: `${packageName} tar entry inspection for ${absoluteTarballPath}`,
+      cwd: workspaceRoot,
+      timeoutMs: commandTimeoutMs
+    }),
+    commandRunner({
+      command: tarCommand,
+      args: ['-xOf', absoluteTarballPath, 'package/package.json'],
+      context: `${packageName} packed manifest inspection for ${absoluteTarballPath}`,
+      cwd: workspaceRoot,
+      timeoutMs: commandTimeoutMs
+    })
   ])
   const entries = entryOutput
     .split(/\r?\n/)
@@ -332,20 +502,32 @@ async function listTarballs(outputDir) {
     .sort()
 }
 
-async function packReleasePackage(releasePackage, outputDir, version) {
+async function packReleasePackage(
+  releasePackage,
+  outputDir,
+  version,
+  {
+    commandRunner,
+    commandTimeoutMs,
+    inspectTarball,
+    integrityCalculator
+  }
+) {
   const beforePack = new Set(await listTarballs(outputDir))
 
-  await runCommand(
-    pnpmCommand,
-    [
+  await commandRunner({
+    command: pnpmCommand,
+    args: [
       '--dir',
       `packages/${releasePackage.directory}`,
       'pack',
       '--pack-destination',
       outputDir
     ],
-    `${releasePackage.name} pack`
-  )
+    context: `${releasePackage.name} pack`,
+    cwd: workspaceRoot,
+    timeoutMs: commandTimeoutMs
+  })
 
   const createdTarballs = (await listTarballs(outputDir)).filter(
     (entry) => !beforePack.has(entry)
@@ -359,17 +541,19 @@ async function packReleasePackage(releasePackage, outputDir, version) {
   }
 
   const tarballPath = resolve(outputDir, createdTarballs[0])
-  await inspectPackageTarball({
+  await inspectTarball({
     expectedPackage: {
       name: releasePackage.name,
       version
     },
-    tarballPath
+    tarballPath,
+    commandTimeoutMs,
+    commandRunner
   })
 
   const [{ size: bytes }, integrity] = await Promise.all([
     stat(tarballPath),
-    calculateIntegrity(tarballPath)
+    integrityCalculator(tarballPath)
   ])
 
   return {
@@ -382,8 +566,21 @@ async function packReleasePackage(releasePackage, outputDir, version) {
   }
 }
 
-export async function buildReleaseArtifacts({ outputDir, version } = {}) {
-  const releasePackages = await loadReleasePackages()
+export async function buildReleaseArtifacts({
+  outputDir,
+  version,
+  commandTimeoutMs = defaultCommandTimeoutMs,
+  adapters = {}
+} = {}) {
+  if (!Number.isFinite(commandTimeoutMs) || commandTimeoutMs <= 0) {
+    throw new Error('Release artifact commandTimeoutMs must be a positive finite number')
+  }
+
+  const loadPackages = adapters.loadReleasePackages ?? loadReleasePackages
+  const commandRunner = adapters.commandRunner ?? runCommand
+  const inspectTarball = adapters.inspectPackageTarball ?? inspectPackageTarball
+  const integrityCalculator = adapters.calculateIntegrity ?? calculateIntegrity
+  const releasePackages = await loadPackages()
   const alignedVersion = getAlignedReleaseVersion(releasePackages)
 
   if (version !== undefined && version !== alignedVersion) {
@@ -396,24 +593,52 @@ export async function buildReleaseArtifacts({ outputDir, version } = {}) {
   await assertNoSymlinkSegments(resolvedOutputDir)
   await rm(resolvedOutputDir, { recursive: true, force: true })
   await mkdir(resolvedOutputDir, { recursive: true })
+  let outputPrepared = true
 
-  await runCommand(pnpmCommand, ['build'], 'Yok UI workspace build')
+  try {
+    await commandRunner({
+      command: pnpmCommand,
+      args: ['build'],
+      context: 'Yok UI workspace build',
+      cwd: workspaceRoot,
+      timeoutMs: commandTimeoutMs
+    })
 
-  const artifacts = []
+    const artifacts = []
 
-  for (const releasePackage of releasePackages) {
-    artifacts.push(
-      await packReleasePackage(releasePackage, resolvedOutputDir, alignedVersion)
+    for (const releasePackage of releasePackages) {
+      artifacts.push(
+        await packReleasePackage(releasePackage, resolvedOutputDir, alignedVersion, {
+          commandRunner,
+          commandTimeoutMs,
+          inspectTarball,
+          integrityCalculator
+        })
+      )
+    }
+
+    await writeFile(
+      resolve(resolvedOutputDir, 'release-artifacts.json'),
+      `${JSON.stringify(artifacts, null, 2)}\n`,
+      'utf8'
     )
+
+    outputPrepared = false
+    return artifacts
+  } catch (error) {
+    if (outputPrepared) {
+      try {
+        await rm(resolvedOutputDir, { recursive: true, force: true })
+      } catch (cleanupError) {
+        throw new AggregateError(
+          [error, cleanupError],
+          `Release artifact build failed and cleanup of ${resolvedOutputDir} also failed`
+        )
+      }
+    }
+
+    throw error
   }
-
-  await writeFile(
-    resolve(resolvedOutputDir, 'release-artifacts.json'),
-    `${JSON.stringify(artifacts, null, 2)}\n`,
-    'utf8'
-  )
-
-  return artifacts
 }
 
 async function runCli() {

@@ -1,17 +1,27 @@
-import { execFileSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import {
+  buildReleaseArtifacts,
   inspectPackageTarball,
   inspectPackedManifest
 } from './package-artifacts.mjs'
+import * as packageArtifactModule from './package-artifacts.mjs'
 
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+const publishRoot = resolve(workspaceRoot, 'outputs/publish')
 const iconsPackageDir = resolve(workspaceRoot, 'packages/icons')
-const pnpmCommand = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
 const dependencyFields = [
   'dependencies',
   'optionalDependencies',
@@ -55,6 +65,68 @@ function createPackedFixture() {
 
 function withoutEntry(entries: string[], target: string) {
   return entries.filter((entry) => entry !== `package/${target.replace(/^\.\//, '')}`)
+}
+
+function createPublishDirectory(prefix: string) {
+  mkdirSync(publishRoot, { recursive: true })
+
+  return mkdtempSync(resolve(publishRoot, prefix))
+}
+
+function createBuildHarness({ failPackage = '' } = {}) {
+  const releasePackages = [
+    {
+      name: '@yok-ui/first',
+      directory: 'first',
+      level: 0,
+      manifest: { version: '1.2.3' }
+    },
+    {
+      name: '@yok-ui/second',
+      directory: 'second',
+      level: 1,
+      manifest: { version: '1.2.3' }
+    },
+    {
+      name: '@yok-ui/third',
+      directory: 'third',
+      level: 2,
+      manifest: { version: '1.2.3' }
+    }
+  ]
+  const commands: Array<Record<string, any>> = []
+
+  return {
+    releasePackages,
+    commands,
+    adapters: {
+      loadReleasePackages: async () => releasePackages,
+      inspectPackageTarball: async () => ({ manifest: {}, entries: [] }),
+      commandRunner: async (options: Record<string, any>) => {
+        commands.push(options)
+
+        if (options.context === `${failPackage} pack`) {
+          throw new Error(`${options.context} failed (exit code 9): intentional failure`)
+        }
+
+        if (options.args.includes('pack')) {
+          const packageDirectory = options.args[options.args.indexOf('--dir') + 1]
+          const outputDir = options.args[options.args.indexOf('--pack-destination') + 1]
+          const releasePackage = releasePackages.find(
+            ({ directory }) => packageDirectory === `packages/${directory}`
+          )
+          const tarballName = releasePackage?.name.replace('@', '').replace('/', '-')
+
+          writeFileSync(
+            resolve(outputDir, `${tarballName}-1.2.3.tgz`),
+            `packed:${releasePackage?.name}`
+          )
+        }
+
+        return { stdout: '', stderr: '' }
+      }
+    }
+  }
 }
 
 describe('inspectPackedManifest', () => {
@@ -122,6 +194,104 @@ describe('inspectPackedManifest', () => {
     )
   })
 
+  it.each([
+    ['./dist/./index.js', '.'],
+    ['./dist/../index.js', '..'],
+    ['./node_modules/dependency/index.js', 'node_modules']
+  ] as const)('rejects forbidden path segments in target %s', (target, segment) => {
+    const fixture = createPackedFixture()
+    fixture.manifest.exports['./unsafe'] = target
+
+    expect(() => inspectPackedManifest(fixture)).toThrow(
+      `@yok-ui/example field exports["./unsafe"] target ${target} contains forbidden path segment ${segment}`
+    )
+  })
+
+  it.each(['../dist/index.js', '/dist/index.js', 'dist/index.js'])(
+    'rejects non-package-relative target %s',
+    (target) => {
+      const fixture = createPackedFixture()
+      fixture.manifest.exports['./unsafe'] = target
+
+      expect(() => inspectPackedManifest(fixture)).toThrow(
+        `@yok-ui/example field exports["./unsafe"] target ${target} must be a package-relative path`
+      )
+    }
+  )
+
+  it('accepts nested condition objects and validates every concrete target', () => {
+    const fixture = createPackedFixture()
+    fixture.manifest.exports['./feature'] = {
+      types: './dist/feature.d.ts',
+      import: {
+        node: './dist/feature.node.js',
+        default: './dist/feature.js'
+      }
+    }
+    fixture.entries.push(
+      'package/dist/feature.d.ts',
+      'package/dist/feature.node.js',
+      'package/dist/feature.js'
+    )
+
+    expect(inspectPackedManifest(fixture)).toBe(fixture.manifest)
+
+    fixture.entries = withoutEntry(fixture.entries, './dist/feature.node.js')
+
+    expect(() => inspectPackedManifest(fixture)).toThrow(
+      '@yok-ui/example field exports["./feature"].import.node target ./dist/feature.node.js is missing from the tarball'
+    )
+  })
+
+  it('accepts fallback arrays and null export targets', () => {
+    const fixture = createPackedFixture()
+    fixture.manifest.exports['./feature'] = [
+      './dist/feature.js',
+      {
+        node: './dist/feature.node.js',
+        default: null
+      }
+    ]
+    fixture.manifest.exports['./disabled'] = null
+    fixture.entries.push('package/dist/feature.js', 'package/dist/feature.node.js')
+
+    expect(inspectPackedManifest(fixture)).toBe(fixture.manifest)
+  })
+
+  it('reports a missing target inside an export fallback array', () => {
+    const fixture = createPackedFixture()
+    fixture.manifest.exports['./feature'] = [
+      './dist/feature.js',
+      { default: './dist/feature.fallback.js' }
+    ]
+    fixture.entries.push('package/dist/feature.js')
+
+    expect(() => inspectPackedManifest(fixture)).toThrow(
+      '@yok-ui/example field exports["./feature"][1].default target ./dist/feature.fallback.js is missing from the tarball'
+    )
+  })
+
+  it.each([42, true, [], {}])('rejects invalid export target shape %#', (target) => {
+    const fixture = createPackedFixture()
+    fixture.manifest.exports['./invalid'] = target
+
+    expect(() => inspectPackedManifest(fixture)).toThrow(
+      '@yok-ui/example field exports["./invalid"] must be a string, null, condition object, or non-empty fallback array'
+    )
+  })
+
+  it('rejects exports objects that mix subpath and condition keys', () => {
+    const fixture = createPackedFixture()
+    fixture.manifest.exports = {
+      '.': './dist/index.js',
+      default: './dist/index.cjs'
+    }
+
+    expect(() => inspectPackedManifest(fixture)).toThrow(
+      '@yok-ui/example field exports cannot mix subpath and condition keys'
+    )
+  })
+
   it('accepts a package-level string export', () => {
     const fixture = createPackedFixture()
     fixture.manifest.exports = './dist/index.js'
@@ -148,44 +318,270 @@ describe('inspectPackedManifest', () => {
   })
 })
 
-describe('inspectPackageTarball', () => {
-  const packDirectory = mkdtempSync(resolve(tmpdir(), 'yok-ui-icons-pack-'))
-  const sourceManifest = JSON.parse(
-    readFileSync(resolve(iconsPackageDir, 'package.json'), 'utf8')
-  )
-  let tarballPath = ''
-
-  beforeAll(() => {
-    execFileSync(pnpmCommand, ['--dir', iconsPackageDir, 'build'], {
-      cwd: workspaceRoot,
-      encoding: 'utf8'
-    })
-    execFileSync(
-      pnpmCommand,
-      ['--dir', iconsPackageDir, 'pack', '--pack-destination', packDirectory],
+describe('portable command runner', () => {
+  it('routes Windows cmd shims through cmd.exe with escaped arguments', () => {
+    const createCommandInvocation = (
+      packageArtifactModule as typeof packageArtifactModule & {
+        createCommandInvocation: (...args: any[]) => {
+          command: string
+          args: string[]
+          windowsVerbatimArguments?: boolean
+        }
+      }
+    ).createCommandInvocation
+    const invocation = createCommandInvocation(
+      'pnpm.cmd',
+      ['--pack-destination', 'C:\\publish dir\\artifact & echo unsafe'],
       {
-        cwd: workspaceRoot,
-        encoding: 'utf8'
+        platform: 'win32',
+        env: { ComSpec: 'C:\\Windows\\System32\\cmd.exe' }
       }
     )
 
-    const tarballs = readdirSync(packDirectory).filter((entry) => entry.endsWith('.tgz'))
+    expect(invocation.command).toBe('C:\\Windows\\System32\\cmd.exe')
+    expect(invocation.args.slice(0, 3)).toEqual(['/d', '/s', '/c'])
+    expect(invocation.args).toHaveLength(4)
+    expect(invocation.args[3]).toContain('^&')
+    expect(invocation.args[3]).not.toContain(' & ')
+    expect(invocation.windowsVerbatimArguments).toBe(true)
+  })
 
-    expect(tarballs).toHaveLength(1)
-    tarballPath = resolve(packDirectory, tarballs[0])
+  it('uses direct command execution outside Windows cmd shims', () => {
+    const createCommandInvocation = (
+      packageArtifactModule as typeof packageArtifactModule & {
+        createCommandInvocation: (...args: any[]) => {
+          command: string
+          args: string[]
+          windowsVerbatimArguments?: boolean
+        }
+      }
+    ).createCommandInvocation
+
+    expect(
+      createCommandInvocation('pnpm', ['build'], { platform: 'linux', env: {} })
+    ).toEqual({
+      command: 'pnpm',
+      args: ['build'],
+      windowsVerbatimArguments: false
+    })
+  })
+
+  it('rejects command arguments containing line breaks', () => {
+    const createCommandInvocation = (
+      packageArtifactModule as typeof packageArtifactModule & {
+        createCommandInvocation: (...args: any[]) => unknown
+      }
+    ).createCommandInvocation
+
+    expect(() =>
+      createCommandInvocation('pnpm.cmd', ['safe\nunsafe'], {
+        platform: 'win32',
+        env: { ComSpec: 'cmd.exe' }
+      })
+    ).toThrow('Windows command arguments must not contain NUL or line break characters')
+  })
+
+  it('reports command failure context without including unrelated environment values', async () => {
+    const runCommand = (
+      packageArtifactModule as typeof packageArtifactModule & {
+        runCommand: (options: Record<string, unknown>) => Promise<unknown>
+      }
+    ).runCommand
+    const secret = 'must-not-appear-in-command-error'
+    let caughtError: unknown
+
+    try {
+      await runCommand({
+        command: process.execPath,
+        args: ['--eval', "process.stderr.write('intentional failure'); process.exit(7)"],
+        context: '@yok-ui/example pack',
+        cwd: workspaceRoot,
+        timeoutMs: 5_000,
+        env: { ...process.env, ARTIFACT_TEST_SECRET: secret }
+      })
+    } catch (error) {
+      caughtError = error
+    }
+
+    expect(caughtError).toBeInstanceOf(Error)
+    expect((caughtError as Error).message).toContain('@yok-ui/example pack failed')
+    expect((caughtError as Error).message).toContain('intentional failure')
+    expect((caughtError as Error).message).not.toContain(secret)
+  })
+
+  it('terminates a command after the configured timeout with context', async () => {
+    const runCommand = (
+      packageArtifactModule as typeof packageArtifactModule & {
+        runCommand: (options: Record<string, unknown>) => Promise<unknown>
+      }
+    ).runCommand
+
+    await expect(
+      runCommand({
+        command: process.execPath,
+        args: ['--eval', 'setTimeout(() => {}, 10_000)'],
+        context: 'slow tar inspection',
+        cwd: workspaceRoot,
+        timeoutMs: 30
+      })
+    ).rejects.toThrow('slow tar inspection timed out after 30ms')
+  })
+})
+
+describe('buildReleaseArtifacts', () => {
+  it('cleans stale output, builds once, packs in graph order, and writes deterministic records', async () => {
+    const outputDir = createPublishDirectory('package-artifacts-build-')
+    const harness = createBuildHarness()
+
+    writeFileSync(resolve(outputDir, 'stale-package.tgz'), 'stale')
+    writeFileSync(resolve(outputDir, 'release-artifacts.json'), 'stale manifest')
+
+    try {
+      const artifacts = await buildReleaseArtifacts({
+        outputDir,
+        commandTimeoutMs: 1_234,
+        adapters: harness.adapters
+      })
+
+      expect(harness.commands.map(({ context }) => context)).toEqual([
+        'Yok UI workspace build',
+        '@yok-ui/first pack',
+        '@yok-ui/second pack',
+        '@yok-ui/third pack'
+      ])
+      expect(harness.commands.every(({ timeoutMs }) => timeoutMs === 1_234)).toBe(true)
+      expect(existsSync(resolve(outputDir, 'stale-package.tgz'))).toBe(false)
+      expect(artifacts.map(({ packageName, level }) => ({ packageName, level }))).toEqual([
+        { packageName: '@yok-ui/first', level: 0 },
+        { packageName: '@yok-ui/second', level: 1 },
+        { packageName: '@yok-ui/third', level: 2 }
+      ])
+
+      for (const artifact of artifacts) {
+        const bytes = readFileSync(artifact.tarballPath)
+        const integrity = `sha512-${createHash('sha512').update(bytes).digest('base64')}`
+
+        expect(artifact.bytes).toBe(bytes.length)
+        expect(artifact.integrity).toBe(integrity)
+      }
+
+      expect(
+        JSON.parse(readFileSync(resolve(outputDir, 'release-artifacts.json'), 'utf8'))
+      ).toEqual(artifacts)
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true })
+    }
+  })
+
+  it('rejects output outside outputs/publish before running commands', async () => {
+    const harness = createBuildHarness()
+    const outputDir = resolve(workspaceRoot, 'outputs/outside-publish')
+
+    await expect(
+      buildReleaseArtifacts({ outputDir, adapters: harness.adapters })
+    ).rejects.toThrow(`Release artifact outputDir ${outputDir} must be a child of ${publishRoot}`)
+    expect(harness.commands).toHaveLength(0)
+    expect(existsSync(outputDir)).toBe(false)
+  })
+
+  it.skipIf(process.platform === 'win32')(
+    'rejects an output path containing a symlink without touching its destination',
+    async () => {
+      const symlinkContainer = createPublishDirectory('package-artifacts-symlink-')
+      const outsideDirectory = mkdtempSync(resolve(tmpdir(), 'package-artifacts-outside-'))
+      const symlinkPath = resolve(symlinkContainer, 'escape')
+      const sentinelPath = resolve(outsideDirectory, 'sentinel.txt')
+      const harness = createBuildHarness()
+
+      writeFileSync(sentinelPath, 'preserve me')
+      symlinkSync(outsideDirectory, symlinkPath, 'dir')
+
+      try {
+        await expect(
+          buildReleaseArtifacts({
+            outputDir: resolve(symlinkPath, 'artifacts'),
+            adapters: harness.adapters
+          })
+        ).rejects.toThrow(`Release artifact output path must not contain symlink ${symlinkPath}`)
+        expect(readFileSync(sentinelPath, 'utf8')).toBe('preserve me')
+        expect(harness.commands).toHaveLength(0)
+      } finally {
+        rmSync(symlinkContainer, { recursive: true, force: true })
+        rmSync(outsideDirectory, { recursive: true, force: true })
+      }
+    }
+  )
+
+  it('removes all partial artifacts when a package command fails', async () => {
+    const outputDir = createPublishDirectory('package-artifacts-failure-')
+    const harness = createBuildHarness({ failPackage: '@yok-ui/second' })
+
+    await expect(
+      buildReleaseArtifacts({ outputDir, adapters: harness.adapters })
+    ).rejects.toThrow('@yok-ui/second pack failed (exit code 9): intentional failure')
+
+    expect(existsSync(outputDir)).toBe(false)
+    expect(harness.commands.map(({ context }) => context)).toEqual([
+      'Yok UI workspace build',
+      '@yok-ui/first pack',
+      '@yok-ui/second pack'
+    ])
+  })
+})
+
+describe('buildReleaseArtifacts real package integration', () => {
+  const outputDir = createPublishDirectory('package-artifacts-icons-')
+  const sourceManifest = JSON.parse(
+    readFileSync(resolve(iconsPackageDir, 'package.json'), 'utf8')
+  )
+  let artifacts: Awaited<ReturnType<typeof buildReleaseArtifacts>> = []
+
+  beforeAll(async () => {
+    const portableRunCommand = (
+      packageArtifactModule as typeof packageArtifactModule & {
+        runCommand: (options: Record<string, any>) => Promise<{ stdout: string; stderr: string }>
+      }
+    ).runCommand
+
+    artifacts = await buildReleaseArtifacts({
+      outputDir,
+      adapters: {
+        loadReleasePackages: async () => [
+          {
+            name: sourceManifest.name,
+            directory: 'icons',
+            packageDir: iconsPackageDir,
+            manifest: sourceManifest,
+            level: 0
+          }
+        ],
+        commandRunner: async (options: Record<string, any>) => {
+          if (options.context === 'Yok UI workspace build') {
+            return await portableRunCommand({
+              ...options,
+              args: ['--dir', iconsPackageDir, 'build']
+            })
+          }
+
+          return await portableRunCommand(options)
+        }
+      }
+    })
   }, 120_000)
 
   afterAll(() => {
-    rmSync(packDirectory, { recursive: true, force: true })
+    rmSync(outputDir, { recursive: true, force: true })
   })
 
-  it('accepts real @yok-ui/icons packed content and its rewritten manifest', async () => {
+  it('builds and accepts real @yok-ui/icons packed content and its rewritten manifest', async () => {
+    expect(artifacts).toHaveLength(1)
+
     const inspection = await inspectPackageTarball({
       expectedPackage: {
         name: sourceManifest.name,
         version: sourceManifest.version
       },
-      tarballPath
+      tarballPath: artifacts[0].tarballPath
     })
 
     expect(inspection.manifest.name).toBe('@yok-ui/icons')
@@ -198,5 +594,9 @@ describe('inspectPackageTarball', () => {
         expect(value).not.toMatch(/^workspace:/)
       }
     }
+
+    expect(
+      JSON.parse(readFileSync(resolve(outputDir, 'release-artifacts.json'), 'utf8'))
+    ).toEqual(artifacts)
   })
 })

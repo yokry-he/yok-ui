@@ -242,6 +242,22 @@ describe('inspectPackedManifest', () => {
     )
   })
 
+  it.each([
+    ['./dist%2Findex.js', 'dist%2Findex.js', '/'],
+    ['./dist%5Cindex.js', 'dist%5Cindex.js', '\\']
+  ] as const)(
+    'rejects encoded path separators in target %s',
+    (target, segment, separator) => {
+      const fixture = createPackedFixture()
+      fixture.manifest.exports['./unsafe'] = target
+
+      expect(() => inspectPackedManifest(fixture)).toThrow(
+        `@yok-ui/example field exports["./unsafe"] target ${target} segment ${segment} ` +
+        `decodes to forbidden path separator ${JSON.stringify(separator)}`
+      )
+    }
+  )
+
   it.each(['../dist/index.js', '/dist/index.js', 'dist/index.js'])(
     'rejects non-package-relative target %s',
     (target) => {
@@ -341,6 +357,30 @@ describe('inspectPackedManifest', () => {
     }
   )
 
+  it.each([
+    ['./feature/../secret', 'contains forbidden path segment ..'],
+    ['./feature//secret', 'contains an empty path segment'],
+    ['./%2e%2e/secret', 'contains forbidden path segment %2e%2e (decoded as ..)'],
+    ['./node_modules/secret', 'contains forbidden path segment node_modules'],
+    ['./feature%2Fsecret', 'segment feature%2Fsecret decodes to forbidden path separator "/"'],
+    ['./feature%5Csecret', 'segment feature%5Csecret decodes to forbidden path separator "\\\\"'],
+    ['./feature\\secret', 'contains a literal backslash'],
+    ['./feature/%2/secret', 'contains malformed percent encoding in segment %2'],
+    ['./', 'contains an empty path segment']
+  ] as const)(
+    'rejects invalid package export subpath key %s',
+    (exportPath, reason) => {
+      const fixture = createPackedFixture()
+      fixture.manifest.exports = {
+        [exportPath]: './dist/index.js'
+      }
+
+      expect(() => inspectPackedManifest(fixture)).toThrow(
+        `@yok-ui/example field exports subpath key ${JSON.stringify(exportPath)} ${reason}`
+      )
+    }
+  )
+
   it('rejects an empty exports condition key', () => {
     const fixture = createPackedFixture()
     fixture.manifest.exports = {
@@ -359,6 +399,25 @@ describe('inspectPackedManifest', () => {
       './feature': './dist/feature.js'
     }
     fixture.entries.push('package/dist/feature.js')
+
+    expect(inspectPackedManifest(fixture)).toBe(fixture.manifest)
+  })
+
+  it('accepts dotted, scoped-looking, and nested package paths', () => {
+    const fixture = createPackedFixture()
+    fixture.manifest.exports = {
+      '.': './dist/index.js',
+      './feature': './dist/feature.js',
+      './feature/file.min.js': './dist/file.min.js',
+      './@scope/name': './dist/@scope/name.js',
+      './feature/nested/path': './dist/nested/path.js'
+    }
+    fixture.entries.push(
+      'package/dist/feature.js',
+      'package/dist/file.min.js',
+      'package/dist/@scope/name.js',
+      'package/dist/nested/path.js'
+    )
 
     expect(inspectPackedManifest(fixture)).toBe(fixture.manifest)
   })

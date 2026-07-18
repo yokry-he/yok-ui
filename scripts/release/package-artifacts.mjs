@@ -46,26 +46,18 @@ function normalizeTarEntry(entry) {
   return entry.replaceAll('\\', '/').replace(/^\.\//, '').replace(/\/$/, '')
 }
 
-function packedEntryForTarget(packageName, field, target) {
-  if (typeof target !== 'string' || !target.startsWith('./')) {
+function validatePackagePathSegments(packageName, field, pathContext, relativePath) {
+  const context = `${packageName} field ${field} ${pathContext}`
+
+  if (relativePath.includes('\\')) {
     throw new Error(
-      `${packageName} field ${field} target ${String(target)} must be a package-relative path`
+      `${context} contains a literal backslash`
     )
   }
 
-  const relativeTarget = target.slice(2)
-
-  if (relativeTarget.includes('\\')) {
-    throw new Error(
-      `${packageName} field ${field} target ${target} escapes the packed package directory`
-    )
-  }
-
-  for (const segment of relativeTarget.split('/')) {
+  for (const segment of relativePath.split('/')) {
     if (segment === '') {
-      throw new Error(
-        `${packageName} field ${field} target ${target} contains an empty path segment`
-      )
+      throw new Error(`${context} contains an empty path segment`)
     }
 
     let decodedSegment
@@ -74,7 +66,19 @@ function packedEntryForTarget(packageName, field, target) {
       decodedSegment = decodeURIComponent(segment)
     } catch {
       throw new Error(
-        `${packageName} field ${field} target ${target} contains malformed percent encoding in segment ${segment}`
+        `${context} contains malformed percent encoding in segment ${segment}`
+      )
+    }
+
+    const decodedSeparator = decodedSegment.includes('/')
+      ? '/'
+      : decodedSegment.includes('\\')
+        ? '\\'
+        : ''
+
+    if (decodedSeparator) {
+      throw new Error(
+        `${context} segment ${segment} decodes to forbidden path separator ${JSON.stringify(decodedSeparator)}`
       )
     }
 
@@ -86,10 +90,22 @@ function packedEntryForTarget(packageName, field, target) {
       const decodedContext = decodedSegment === segment ? '' : ` (decoded as ${decodedSegment})`
 
       throw new Error(
-        `${packageName} field ${field} target ${target} contains forbidden path segment ${segment}${decodedContext}`
+        `${context} contains forbidden path segment ${segment}${decodedContext}`
       )
     }
   }
+}
+
+function packedEntryForTarget(packageName, field, target) {
+  if (typeof target !== 'string' || !target.startsWith('./')) {
+    throw new Error(
+      `${packageName} field ${field} target ${String(target)} must be a package-relative path`
+    )
+  }
+
+  const relativeTarget = target.slice(2)
+
+  validatePackagePathSegments(packageName, field, `target ${target}`, relativeTarget)
 
   return `${packageEntryPrefix}${relativeTarget}`
 }
@@ -184,6 +200,15 @@ function inspectExports(packageName, exportsField, entries) {
 
   for (const [exportPath, target] of exportEntries) {
     const field = `exports[${JSON.stringify(exportPath)}]`
+
+    if (exportPath !== '.') {
+      validatePackagePathSegments(
+        packageName,
+        'exports',
+        `subpath key ${JSON.stringify(exportPath)}`,
+        exportPath.slice(2)
+      )
+    }
 
     inspectExportTarget(packageName, field, target, entries)
   }

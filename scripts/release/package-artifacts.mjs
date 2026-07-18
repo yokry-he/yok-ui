@@ -4,14 +4,17 @@ import { createReadStream } from 'node:fs'
 import {
   lstat,
   mkdir,
+  mkdtemp,
+  readFile,
   readdir,
   rm,
   stat,
   writeFile
 } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { loadReleasePackages } from './package-graph.mjs'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+import { loadReleasePackages, releasePackageNames } from './package-graph.mjs'
 
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const publishRoot = resolve(workspaceRoot, 'outputs/publish')
@@ -27,6 +30,7 @@ const packageEntryPrefix = 'package/'
 const defaultCommandTimeoutMs = 5 * 60 * 1_000
 const defaultMaxBufferBytes = 20 * 1024 * 1024
 const windowsCmdMetaCharacters = /([()\][%!^"`<>&|;, *?])/g
+const semverLikePattern = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/
 
 function isPlainObject(value) {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
@@ -702,19 +706,410 @@ export async function buildReleaseArtifacts({
   }
 }
 
+function isPathInside(parentPath, candidatePath) {
+  const relativePath = relative(parentPath, candidatePath)
+
+  return relativePath !== '' &&
+    relativePath !== '..' &&
+    !relativePath.startsWith(`..${sep}`) &&
+    !isAbsolute(relativePath)
+}
+
+function validateRegistry(registry) {
+  let registryUrl
+
+  try {
+    registryUrl = new URL(registry)
+  } catch {
+    throw new Error('Smoke test registry must be a valid HTTP(S) URL')
+  }
+
+  if (!['http:', 'https:'].includes(registryUrl.protocol)) {
+    throw new Error('Smoke test registry must be a valid HTTP(S) URL')
+  }
+
+  if (registryUrl.username || registryUrl.password) {
+    throw new Error('Smoke test registry URL must not contain credentials')
+  }
+
+  if (registryUrl.search) {
+    throw new Error('Smoke test registry URL must not contain query parameters')
+  }
+
+  if (registryUrl.hash) {
+    throw new Error('Smoke test registry URL must not contain a fragment')
+  }
+
+  return registryUrl.href
+}
+
+function validateSmokeVersion(version) {
+  if (version === undefined) {
+    throw new Error('Registry smoke test requires version')
+  }
+
+  if (typeof version !== 'string' || !semverLikePattern.test(version)) {
+    throw new Error(`Registry smoke test version ${String(version)} must be semver-like`)
+  }
+
+  return version
+}
+
+async function validateSmokeTarballs(tarballs) {
+  if (!Array.isArray(tarballs) || tarballs.length === 0) {
+    throw new Error('Tarball smoke test requires non-empty tarball package records')
+  }
+
+  const recordByPackageName = new Map()
+
+  for (const record of tarballs) {
+    if (!isPlainObject(record) || typeof record.packageName !== 'string' || typeof record.tarballPath !== 'string') {
+      throw new Error('Tarball smoke test tarball package records must contain packageName and tarballPath')
+    }
+
+    if (recordByPackageName.has(record.packageName)) {
+      throw new Error(`Tarball smoke test tarball package records contain duplicate ${record.packageName}`)
+    }
+
+    recordByPackageName.set(record.packageName, record)
+  }
+
+  const actualPackageNames = [...recordByPackageName.keys()].sort()
+  const expectedPackageNames = [...releasePackageNames].sort()
+
+  if (JSON.stringify(actualPackageNames) !== JSON.stringify(expectedPackageNames)) {
+    throw new Error(
+      'Tarball smoke test tarball package records must match the eight release packages; ' +
+      `expected ${expectedPackageNames.join(', ')}, received ${actualPackageNames.join(', ')}`
+    )
+  }
+
+  const normalizedRecords = []
+
+  for (const packageName of releasePackageNames) {
+    const record = recordByPackageName.get(packageName)
+    const tarballPath = resolve(record.tarballPath)
+    let tarballStat
+
+    try {
+      tarballStat = await stat(tarballPath)
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error)
+
+      throw new Error(`${packageName} tarball ${tarballPath} cannot be read: ${reason}`)
+    }
+
+    if (!tarballStat.isFile() || !tarballPath.endsWith('.tgz')) {
+      throw new Error(`${packageName} tarball ${tarballPath} must be a .tgz file`)
+    }
+
+    normalizedRecords.push({ packageName, tarballPath })
+  }
+
+  return normalizedRecords
+}
+
+function collectStringTargets(target, targets = []) {
+  if (typeof target === 'string') {
+    targets.push(target)
+  } else if (Array.isArray(target)) {
+    target.forEach((entry) => collectStringTargets(entry, targets))
+  } else if (isPlainObject(target)) {
+    Object.values(target).forEach((entry) => collectStringTargets(entry, targets))
+  }
+
+  return targets
+}
+
+async function assertInstalledFile(packageName, packageDirectory, field, target) {
+  const relativeTarget = packedEntryForTarget(packageName, field, target)
+    .slice(packageEntryPrefix.length)
+  const targetPath = resolve(packageDirectory, relativeTarget)
+  let targetStat
+
+  try {
+    targetStat = await stat(targetPath)
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error)
+
+    throw new Error(
+      `${packageName} declared ${field} ${target} does not resolve in the clean consumer: ${reason}`
+    )
+  }
+
+  if (!targetStat.isFile()) {
+    throw new Error(
+      `${packageName} declared ${field} ${target} does not resolve to a file in the clean consumer`
+    )
+  }
+
+  return targetPath
+}
+
+async function inspectInstalledPackageEntries(consumerDirectory) {
+  const typeEntries = []
+  const cssEntries = []
+
+  for (const packageName of releasePackageNames) {
+    const packageDirectory = resolve(consumerDirectory, 'node_modules', ...packageName.split('/'))
+    const manifestPath = resolve(packageDirectory, 'package.json')
+    let manifest
+
+    try {
+      manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error)
+
+      throw new Error(`${packageName} installed manifest ${manifestPath} cannot be read: ${reason}`)
+    }
+
+    if (!isPlainObject(manifest) || manifest.name !== packageName) {
+      throw new Error(`${packageName} installed manifest has an unexpected package identity`)
+    }
+
+    if (typeof manifest.types !== 'string') {
+      throw new Error(`${packageName} installed manifest is missing its declared types entry`)
+    }
+
+    await assertInstalledFile(packageName, packageDirectory, 'types entry', manifest.types)
+    typeEntries.push(`${packageName}:${manifest.types}`)
+
+    if (!isPlainObject(manifest.exports)) {
+      continue
+    }
+
+    for (const [exportPath, target] of Object.entries(manifest.exports)) {
+      if (exportPath === '.' || !/(?:style|\.css$)/i.test(exportPath)) {
+        continue
+      }
+
+      const targets = collectStringTargets(target)
+
+      if (targets.length === 0) {
+        throw new Error(`${packageName} declared CSS export ${exportPath} has no file target`)
+      }
+
+      for (const cssTarget of targets) {
+        await assertInstalledFile(packageName, packageDirectory, `CSS export ${exportPath}`, cssTarget)
+      }
+
+      cssEntries.push(`${packageName}${exportPath.slice(1)}`)
+    }
+  }
+
+  return { typeEntries, cssEntries }
+}
+
+function smokeCommandSummary(source) {
+  if (source.kind === 'registry') {
+    return `pnpm add --ignore-workspace --registry ${source.registry} vue@^3.5.0 @yok-ui/*@${source.version}`
+  }
+
+  return 'pnpm add --ignore-workspace vue@^3.5.0 <eight verified Yok UI tarballs>'
+}
+
+export async function smokeTestTarballs({
+  tarballs,
+  keepTemp = false,
+  registry,
+  version,
+  commandTimeoutMs = defaultCommandTimeoutMs,
+  adapters = {}
+} = {}) {
+  const hasTarballs = tarballs !== undefined
+  const hasRegistry = registry !== undefined
+
+  if (hasTarballs && hasRegistry) {
+    throw new Error('Smoke test cannot combine tarballs and registry modes')
+  }
+
+  if (!hasTarballs && !hasRegistry) {
+    throw new Error('Smoke test requires tarballs or registry')
+  }
+
+  if (typeof keepTemp !== 'boolean') {
+    throw new Error('Smoke test keepTemp must be a boolean')
+  }
+
+  if (!Number.isFinite(commandTimeoutMs) || commandTimeoutMs <= 0) {
+    throw new Error('Smoke test commandTimeoutMs must be a positive finite number')
+  }
+
+  const commandRunner = adapters.commandRunner ?? runCommand
+  let source
+  let installSpecs
+
+  if (hasRegistry) {
+    const normalizedRegistry = validateRegistry(registry)
+    const normalizedVersion = validateSmokeVersion(version)
+
+    source = { kind: 'registry', registry: normalizedRegistry, version: normalizedVersion }
+    installSpecs = releasePackageNames.map((packageName) => `${packageName}@${normalizedVersion}`)
+  } else {
+    if (version !== undefined) {
+      throw new Error('Tarball smoke test does not accept registry version')
+    }
+
+    const records = await validateSmokeTarballs(tarballs)
+
+    source = { kind: 'tarballs', tarballs: records }
+    installSpecs = records.map(({ tarballPath }) => tarballPath)
+  }
+
+  const consumerDirectory = await mkdtemp(resolve(tmpdir(), 'yok-ui-clean-consumer-'))
+
+  if (isPathInside(workspaceRoot, consumerDirectory) || consumerDirectory === workspaceRoot) {
+    await rm(consumerDirectory, { recursive: true, force: true })
+    throw new Error(`Smoke test temporary directory ${consumerDirectory} must be outside ${workspaceRoot}`)
+  }
+
+  const registryArgs = source.kind === 'registry'
+    ? ['--registry', source.registry]
+    : []
+  const installArgs = [
+    'add',
+    '--ignore-workspace',
+    ...registryArgs,
+    'vue@^3.5.0',
+    ...installSpecs
+  ]
+
+  try {
+    const consumerManifest = {
+      private: true,
+      type: 'module',
+      ...(source.kind === 'tarballs'
+        ? {
+            pnpm: {
+              overrides: Object.fromEntries(
+                source.tarballs.map(({ packageName, tarballPath }) => [
+                  packageName,
+                  pathToFileURL(tarballPath).href
+                ])
+              )
+            }
+          }
+        : {})
+    }
+
+    await writeFile(
+      resolve(consumerDirectory, 'package.json'),
+      `${JSON.stringify(consumerManifest, null, 2)}\n`,
+      'utf8'
+    )
+
+    await commandRunner({
+      command: pnpmCommand,
+      args: installArgs,
+      context: `Clean consumer install in ${consumerDirectory}`,
+      cwd: consumerDirectory,
+      timeoutMs: commandTimeoutMs
+    })
+
+    const { typeEntries, cssEntries } = await inspectInstalledPackageEntries(consumerDirectory)
+    const probePath = resolve(consumerDirectory, 'import-probe.mjs')
+
+    await writeFile(
+      probePath,
+      `const packages = ${JSON.stringify(releasePackageNames)}\n` +
+      'for (const packageName of packages) { await import(packageName) }\n',
+      'utf8'
+    )
+
+    await commandRunner({
+      command: process.execPath,
+      args: [probePath],
+      context: `Clean consumer ESM import probe in ${consumerDirectory}`,
+      cwd: consumerDirectory,
+      timeoutMs: commandTimeoutMs
+    })
+
+    return {
+      source,
+      importedPackages: [...releasePackageNames],
+      typeEntries,
+      cssEntries,
+      ...(keepTemp ? { tempDirectory: consumerDirectory } : {})
+    }
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error)
+
+    throw new Error(
+      `Clean consumer smoke test failed in ${consumerDirectory}: ${reason}\n` +
+      `Action: rerun ${smokeCommandSummary(source)}`,
+      { cause: error }
+    )
+  } finally {
+    if (!keepTemp) {
+      await rm(consumerDirectory, { recursive: true, force: true })
+    }
+  }
+}
+
 async function runCli() {
-  const [mode] = process.argv.slice(2)
+  const [mode, ...cliArgs] = process.argv.slice(2)
 
   if (mode !== 'verify') {
-    throw new Error('Usage: node scripts/release/package-artifacts.mjs verify')
+    throw new Error(
+      'Usage: node scripts/release/package-artifacts.mjs verify ' +
+      '[--registry [url] --version x.y.z] [--keep-temp]'
+    )
+  }
+
+  let registry
+  let version
+  let keepTemp = false
+
+  for (let index = 0; index < cliArgs.length; index += 1) {
+    const argument = cliArgs[index]
+
+    if (argument === '--keep-temp') {
+      keepTemp = true
+      continue
+    }
+
+    if (argument === '--version') {
+      version = cliArgs[index + 1]
+      index += 1
+      continue
+    }
+
+    if (argument === '--registry') {
+      const candidate = cliArgs[index + 1]
+
+      if (candidate && !candidate.startsWith('--')) {
+        registry = candidate
+        index += 1
+      } else {
+        registry = 'https://registry.npmjs.org/'
+      }
+      continue
+    }
+
+    throw new Error(`Unknown release verification option ${argument}`)
+  }
+
+  if (registry !== undefined) {
+    const smoke = await smokeTestTarballs({ registry, version, keepTemp })
+
+    console.log(JSON.stringify({ smoke }, null, 2))
+    return
   }
 
   const releasePackages = await loadReleasePackages()
-  const version = getAlignedReleaseVersion(releasePackages)
-  const outputDir = resolve(publishRoot, version)
-  const artifacts = await buildReleaseArtifacts({ outputDir, version })
+  const alignedVersion = getAlignedReleaseVersion(releasePackages)
 
-  console.log(JSON.stringify(artifacts, null, 2))
+  if (version !== undefined && version !== alignedVersion) {
+    throw new Error(
+      `Requested release version ${String(version)} does not match aligned package version ${alignedVersion}`
+    )
+  }
+
+  const outputDir = resolve(publishRoot, alignedVersion)
+  const artifacts = await buildReleaseArtifacts({ outputDir, version: alignedVersion })
+  const smoke = await smokeTestTarballs({ tarballs: artifacts, keepTemp })
+
+  console.log(JSON.stringify({ artifacts, smoke }, null, 2))
 }
 
 const isCliEntry = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)

@@ -51,7 +51,7 @@ async function loadPackageManifest(name, level) {
   }
 }
 
-function validateInternalDependencies(releasePackages) {
+export function validateInternalDependencies(releasePackages) {
   for (const releasePackage of releasePackages) {
     for (const field of dependencyFields) {
       for (const dependencyName of Object.keys(releasePackage.manifest[field] ?? {})) {
@@ -63,7 +63,8 @@ function validateInternalDependencies(releasePackages) {
 
         if (dependencyLevel === undefined) {
           throw new Error(
-            `${releasePackage.name} ${field} references unknown internal package ${dependencyName}`
+            `${releasePackage.name} ${field} references unknown internal package ${dependencyName} ` +
+            `from release level ${releasePackage.level}`
           )
         }
 

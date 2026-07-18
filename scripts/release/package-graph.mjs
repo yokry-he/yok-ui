@@ -2,13 +2,13 @@ import { readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export const releaseLevels = [
-  ['@yok-ui/themes', '@yok-ui/hooks', '@yok-ui/icons', '@yok-ui/resolver'],
-  ['@yok-ui/core'],
-  ['@yok-ui/product', '@yok-ui/admin', '@yok-ui/brand']
-]
+export const releaseLevels = Object.freeze([
+  Object.freeze(['@yok-ui/themes', '@yok-ui/hooks', '@yok-ui/icons', '@yok-ui/resolver']),
+  Object.freeze(['@yok-ui/core']),
+  Object.freeze(['@yok-ui/product', '@yok-ui/admin', '@yok-ui/brand'])
+])
 
-export const releasePackageNames = releaseLevels.flat()
+export const releasePackageNames = Object.freeze(releaseLevels.flat())
 
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const dependencyFields = [
@@ -20,6 +20,30 @@ const dependencyFields = [
 const levelByPackageName = new Map(
   releaseLevels.flatMap((packageNames, level) => packageNames.map((packageName) => [packageName, level]))
 )
+
+function isPlainObject(value) {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return false
+  }
+
+  const prototype = Object.getPrototypeOf(value)
+
+  return prototype === Object.prototype || prototype === null
+}
+
+function validatePackageManifest(manifest, { name, manifestPath }) {
+  if (!isPlainObject(manifest)) {
+    throw new Error(`Release package ${name} manifest at ${manifestPath} must be a plain object`)
+  }
+
+  for (const field of dependencyFields) {
+    if (Object.hasOwn(manifest, field) && !isPlainObject(manifest[field])) {
+      throw new Error(
+        `Release package ${name} manifest field ${field} at ${manifestPath} must be a plain object`
+      )
+    }
+  }
+}
 
 async function loadPackageManifest(name, level) {
   const directory = name.replace('@yok-ui/', '')
@@ -34,6 +58,8 @@ async function loadPackageManifest(name, level) {
 
     throw new Error(`Failed to load release package ${name} manifest at ${manifestPath}: ${reason}`)
   }
+
+  validatePackageManifest(manifest, { name, manifestPath })
 
   if (manifest.name !== name) {
     throw new Error(
@@ -53,6 +79,8 @@ async function loadPackageManifest(name, level) {
 
 export function validateInternalDependencies(releasePackages) {
   for (const releasePackage of releasePackages) {
+    validatePackageManifest(releasePackage.manifest, releasePackage)
+
     for (const field of dependencyFields) {
       for (const dependencyName of Object.keys(releasePackage.manifest[field] ?? {})) {
         if (!dependencyName.startsWith('@yok-ui/')) {

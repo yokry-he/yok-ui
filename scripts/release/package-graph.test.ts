@@ -24,6 +24,10 @@ const dependencyFields = [
 ] as const
 
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+const validationManifestPath = resolve(workspaceRoot, 'packages/core/package.json')
+const invalidDependencyFields = dependencyFields.flatMap((field) =>
+  [null, [], 'workspace:*'].map((value) => ({ field, value }))
+)
 
 function expectedReleasePackages() {
   return expectedReleaseLevels.flatMap((packageNames, level) =>
@@ -83,6 +87,24 @@ function expectDependencyValidationError(
   expect((caughtError as Error).message).toBe(message)
 }
 
+function expectManifestValidationError(manifest: unknown, message: string) {
+  let caughtError: unknown
+
+  try {
+    validateInternalDependencies([{
+      name: '@yok-ui/core',
+      manifestPath: validationManifestPath,
+      manifest,
+      level: 1
+    }])
+  } catch (error) {
+    caughtError = error
+  }
+
+  expect(caughtError).toBeInstanceOf(Error)
+  expect((caughtError as Error).message).toBe(message)
+}
+
 describe('release package graph', () => {
   it('contains the exact public package set in dependency-safe levels', async () => {
     const packages = await loadReleasePackages()
@@ -91,6 +113,20 @@ describe('release package graph', () => {
     expect(releaseLevels).toEqual(expectedReleaseLevels)
     expect(releasePackageNames).toEqual(expectedPackageNames)
     expect(packages).toStrictEqual(expectedReleasePackages())
+  })
+
+  it('keeps the nested release graph and flattened package order immutable and aligned', () => {
+    const expectedPackageNames = expectedReleaseLevels.flat()
+
+    expect(Object.isFrozen(releaseLevels)).toBe(true)
+    expect(releaseLevels.every((level) => Object.isFrozen(level))).toBe(true)
+    expect(Object.isFrozen(releasePackageNames)).toBe(true)
+    expect(() => releaseLevels.reverse()).toThrow(TypeError)
+    expect(() => releaseLevels[0].reverse()).toThrow(TypeError)
+    expect(() => releasePackageNames.reverse()).toThrow(TypeError)
+    expect(releaseLevels).toEqual(expectedReleaseLevels)
+    expect(releasePackageNames).toEqual(expectedPackageNames)
+    expect(releasePackageNames).toEqual(releaseLevels.flat())
   })
 
   it('resolves package manifests independently from the current working directory', async () => {
@@ -231,4 +267,24 @@ describe('release package graph', () => {
       '(package level 1, dependency level 2)'
     )
   })
+
+  it.each([null, [], 'invalid manifest', 42])('rejects non-object manifest value %#', (manifest) => {
+    expectManifestValidationError(
+      manifest,
+      `Release package @yok-ui/core manifest at ${validationManifestPath} must be a plain object`
+    )
+  })
+
+  it.each(invalidDependencyFields)(
+    'rejects non-object $field value %# with package and manifest context',
+    ({ field, value }) => {
+      expectManifestValidationError(
+        {
+          name: '@yok-ui/core',
+          [field]: value
+        },
+        `Release package @yok-ui/core manifest field ${field} at ${validationManifestPath} must be a plain object`
+      )
+    }
+  )
 })

@@ -176,6 +176,19 @@ function createInstalledSmokePackages(consumerDirectory: string, { broken = '' }
   }
 }
 
+function updateInstalledManifest(
+  consumerDirectory: string,
+  packageName: string,
+  update: (manifest: Record<string, any>, packageDirectory: string) => void
+) {
+  const packageDirectory = resolve(consumerDirectory, 'node_modules', ...packageName.split('/'))
+  const manifestPath = resolve(packageDirectory, 'package.json')
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+
+  update(manifest, packageDirectory)
+  writeFileSync(manifestPath, JSON.stringify(manifest))
+}
+
 describe('inspectPackedManifest', () => {
   it.each(dependencyFields)('rejects workspace protocols in %s', (field) => {
     const fixture = createPackedFixture()
@@ -842,6 +855,189 @@ describe('smokeTestTarballs', () => {
           }
         })
       ).rejects.toThrow(expectedMessage)
+    } finally {
+      rmSync(tarballDirectory, { recursive: true, force: true })
+    }
+  })
+
+  it('fails when exports["."].types points to a missing declaration', async () => {
+    const tarballDirectory = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-export-types-'))
+    const tarballs = createSmokeTarballs(tarballDirectory)
+
+    try {
+      await expect(
+        smokeTestTarballs({
+          tarballs,
+          adapters: {
+            commandRunner: async (options: Record<string, any>) => {
+              if (options.command.includes('pnpm')) {
+                createInstalledSmokePackages(options.cwd)
+                updateInstalledManifest(options.cwd, '@yok-ui/core', (manifest) => {
+                  manifest.exports['.'].types = './dist/missing-export.d.ts'
+                })
+              }
+
+              return { stdout: '', stderr: '' }
+            }
+          }
+        })
+      ).rejects.toThrow('declared export . types target ./dist/missing-export.d.ts')
+    } finally {
+      rmSync(tarballDirectory, { recursive: true, force: true })
+    }
+  })
+
+  it('validates nested conditional and array type export targets without treating JS as types', async () => {
+    const tarballDirectory = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-nested-types-'))
+    const tarballs = createSmokeTarballs(tarballDirectory)
+
+    try {
+      const result = await smokeTestTarballs({
+        tarballs,
+        adapters: {
+          commandRunner: async (options: Record<string, any>) => {
+            if (options.command.includes('pnpm')) {
+              createInstalledSmokePackages(options.cwd)
+              updateInstalledManifest(options.cwd, '@yok-ui/core', (manifest, packageDirectory) => {
+                manifest.exports['.'] = {
+                  import: './dist/index.js',
+                  default: './dist/index.js',
+                  types: [
+                    './dist/index.d.ts',
+                    { browser: './dist/index.browser.d.ts' }
+                  ]
+                }
+                writeFileSync(
+                  resolve(packageDirectory, 'dist/index.browser.d.ts'),
+                  'export declare const browser: true\n'
+                )
+              })
+            }
+
+            return { stdout: '', stderr: '' }
+          }
+        }
+      })
+
+      expect(result.typeEntries).toContain('@yok-ui/core:./dist/index.d.ts')
+      expect(result.typeEntries).toContain('@yok-ui/core:./dist/index.browser.d.ts')
+      expect(result.typeEntries).not.toContain('@yok-ui/core:./dist/index.js')
+    } finally {
+      rmSync(tarballDirectory, { recursive: true, force: true })
+    }
+  })
+
+  it('fails for a missing type target nested inside a conditional fallback array', async () => {
+    const tarballDirectory = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-nested-type-failure-'))
+    const tarballs = createSmokeTarballs(tarballDirectory)
+
+    try {
+      await expect(
+        smokeTestTarballs({
+          tarballs,
+          adapters: {
+            commandRunner: async (options: Record<string, any>) => {
+              if (options.command.includes('pnpm')) {
+                createInstalledSmokePackages(options.cwd)
+                updateInstalledManifest(options.cwd, '@yok-ui/core', (manifest) => {
+                  manifest.exports['.'].types = [
+                    './dist/index.d.ts',
+                    { legacy: './dist/missing-legacy.d.ts' }
+                  ]
+                })
+              }
+
+              return { stdout: '', stderr: '' }
+            }
+          }
+        })
+      ).rejects.toThrow('declared export . types target ./dist/missing-legacy.d.ts')
+    } finally {
+      rmSync(tarballDirectory, { recursive: true, force: true })
+    }
+  })
+
+  it('discovers a CSS target under a neutral public export key', async () => {
+    const tarballDirectory = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-neutral-css-'))
+    const tarballs = createSmokeTarballs(tarballDirectory)
+
+    try {
+      const result = await smokeTestTarballs({
+        tarballs,
+        adapters: {
+          commandRunner: async (options: Record<string, any>) => {
+            if (options.command.includes('pnpm')) {
+              createInstalledSmokePackages(options.cwd)
+              updateInstalledManifest(options.cwd, '@yok-ui/core', (manifest, packageDirectory) => {
+                manifest.exports['./theme'] = './dist/theme.css'
+                writeFileSync(resolve(packageDirectory, 'dist/theme.css'), ':root {}\n')
+              })
+            }
+
+            return { stdout: '', stderr: '' }
+          }
+        }
+      })
+
+      expect(result.cssEntries).toContain('@yok-ui/core/theme')
+    } finally {
+      rmSync(tarballDirectory, { recursive: true, force: true })
+    }
+  })
+
+  it('fails when a CSS target under a neutral key is missing', async () => {
+    const tarballDirectory = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-neutral-css-failure-'))
+    const tarballs = createSmokeTarballs(tarballDirectory)
+
+    try {
+      await expect(
+        smokeTestTarballs({
+          tarballs,
+          adapters: {
+            commandRunner: async (options: Record<string, any>) => {
+              if (options.command.includes('pnpm')) {
+                createInstalledSmokePackages(options.cwd)
+                updateInstalledManifest(options.cwd, '@yok-ui/core', (manifest) => {
+                  manifest.exports['./theme'] = './dist/missing-theme.css'
+                })
+              }
+
+              return { stdout: '', stderr: '' }
+            }
+          }
+        })
+      ).rejects.toThrow('declared CSS export ./theme target ./dist/missing-theme.css')
+    } finally {
+      rmSync(tarballDirectory, { recursive: true, force: true })
+    }
+  })
+
+  it('does not classify a misleading style key that points to JavaScript as CSS', async () => {
+    const tarballDirectory = mkdtempSync(resolve(tmpdir(), 'yok-ui-smoke-misleading-style-'))
+    const tarballs = createSmokeTarballs(tarballDirectory)
+
+    try {
+      const result = await smokeTestTarballs({
+        tarballs,
+        adapters: {
+          commandRunner: async (options: Record<string, any>) => {
+            if (options.command.includes('pnpm')) {
+              createInstalledSmokePackages(options.cwd)
+              updateInstalledManifest(options.cwd, '@yok-ui/core', (manifest, packageDirectory) => {
+                manifest.exports['./style-tools'] = './dist/style-tools.js'
+                writeFileSync(
+                  resolve(packageDirectory, 'dist/style-tools.js'),
+                  'export const tool = true\n'
+                )
+              })
+            }
+
+            return { stdout: '', stderr: '' }
+          }
+        }
+      })
+
+      expect(result.cssEntries).not.toContain('@yok-ui/core/style-tools')
     } finally {
       rmSync(tarballDirectory, { recursive: true, force: true })
     }

@@ -31,6 +31,8 @@ const defaultCommandTimeoutMs = 5 * 60 * 1_000
 const defaultMaxBufferBytes = 20 * 1024 * 1024
 const windowsCmdMetaCharacters = /([()\][%!^"`<>&|;, *?])/g
 const semverLikePattern = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/
+const declarationFilePattern = /\.d\.(?:ts|mts|cts)$/i
+const stylesheetFilePattern = /\.(?:css|scss|sass|less|styl|stylus)$/i
 
 function isPlainObject(value) {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
@@ -809,16 +811,41 @@ async function validateSmokeTarballs(tarballs) {
   return normalizedRecords
 }
 
-function collectStringTargets(target, targets = []) {
+function isTypesCondition(condition) {
+  return condition === 'types' || condition.startsWith('types@')
+}
+
+function collectPublicEntryTargets(
+  target,
+  { insideTypesCondition = false, typeTargets = [], styleTargets = [] } = {}
+) {
   if (typeof target === 'string') {
-    targets.push(target)
+    if (insideTypesCondition || declarationFilePattern.test(target)) {
+      typeTargets.push(target)
+    }
+
+    if (stylesheetFilePattern.test(target)) {
+      styleTargets.push(target)
+    }
   } else if (Array.isArray(target)) {
-    target.forEach((entry) => collectStringTargets(entry, targets))
+    target.forEach((entry) => {
+      collectPublicEntryTargets(entry, {
+        insideTypesCondition,
+        typeTargets,
+        styleTargets
+      })
+    })
   } else if (isPlainObject(target)) {
-    Object.values(target).forEach((entry) => collectStringTargets(entry, targets))
+    for (const [condition, conditionTarget] of Object.entries(target)) {
+      collectPublicEntryTargets(conditionTarget, {
+        insideTypesCondition: insideTypesCondition || isTypesCondition(condition),
+        typeTargets,
+        styleTargets
+      })
+    }
   }
 
-  return targets
+  return { typeTargets, styleTargets }
 }
 
 async function assertInstalledFile(packageName, packageDirectory, field, target) {
@@ -847,8 +874,8 @@ async function assertInstalledFile(packageName, packageDirectory, field, target)
 }
 
 async function inspectInstalledPackageEntries(consumerDirectory) {
-  const typeEntries = []
-  const cssEntries = []
+  const typeEntries = new Set()
+  const cssEntries = new Set()
 
   for (const packageName of releasePackageNames) {
     const packageDirectory = resolve(consumerDirectory, 'node_modules', ...packageName.split('/'))
@@ -872,32 +899,53 @@ async function inspectInstalledPackageEntries(consumerDirectory) {
     }
 
     await assertInstalledFile(packageName, packageDirectory, 'types entry', manifest.types)
-    typeEntries.push(`${packageName}:${manifest.types}`)
+    typeEntries.add(`${packageName}:${manifest.types}`)
 
-    if (!isPlainObject(manifest.exports)) {
+    if (
+      typeof manifest.exports !== 'string' &&
+      !Array.isArray(manifest.exports) &&
+      !isPlainObject(manifest.exports)
+    ) {
       continue
     }
 
-    for (const [exportPath, target] of Object.entries(manifest.exports)) {
-      if (exportPath === '.' || !/(?:style|\.css$)/i.test(exportPath)) {
-        continue
+    const exportEntries = isPlainObject(manifest.exports) &&
+      Object.keys(manifest.exports).some((key) => key === '.' || key.startsWith('./'))
+      ? Object.entries(manifest.exports)
+      : [['.', manifest.exports]]
+
+    for (const [exportPath, target] of exportEntries) {
+      const { typeTargets, styleTargets } = collectPublicEntryTargets(target)
+
+      for (const typeTarget of typeTargets) {
+        await assertInstalledFile(
+          packageName,
+          packageDirectory,
+          `export ${exportPath} types target`,
+          typeTarget
+        )
+        typeEntries.add(`${packageName}:${typeTarget}`)
       }
 
-      const targets = collectStringTargets(target)
-
-      if (targets.length === 0) {
-        throw new Error(`${packageName} declared CSS export ${exportPath} has no file target`)
+      for (const styleTarget of styleTargets) {
+        await assertInstalledFile(
+          packageName,
+          packageDirectory,
+          `CSS export ${exportPath} target`,
+          styleTarget
+        )
       }
 
-      for (const cssTarget of targets) {
-        await assertInstalledFile(packageName, packageDirectory, `CSS export ${exportPath}`, cssTarget)
+      if (styleTargets.length > 0) {
+        cssEntries.add(exportPath === '.' ? packageName : `${packageName}${exportPath.slice(1)}`)
       }
-
-      cssEntries.push(`${packageName}${exportPath.slice(1)}`)
     }
   }
 
-  return { typeEntries, cssEntries }
+  return {
+    typeEntries: [...typeEntries],
+    cssEntries: [...cssEntries]
+  }
 }
 
 function smokeCommandSummary(source) {

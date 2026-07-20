@@ -40,6 +40,7 @@ export function redactSensitiveText(value) {
     .replace(/(Authorization\s*:\s*Bearer\s+)[^\s]+/gi, '$1[REDACTED]')
     .replace(/(_authToken\s*=\s*)(?:"[^"\r\n]*"|'[^'\r\n]*'|[^\s\r\n]+)/gi, '$1[REDACTED]')
     .replace(/(\bNPM_TOKEN\s*=\s*)(?:"[^"\r\n]*"|'[^'\r\n]*'|[^\s\r\n]+)/gi, '$1[REDACTED]')
+    .replace(/(\b(?:otp|one[- ]time(?: password| code)?)\s*[:=]\s*)["']?\d{6,10}["']?/gi, '$1[REDACTED]')
     .replace(/\bnpm_[A-Za-z0-9]{20,}\b/g, '[REDACTED]')
     .replace(/\b(https?:\/\/)[^/\s@]+@/gi, '$1[REDACTED]@')
 }
@@ -533,6 +534,14 @@ export function getAlignedReleaseVersion(releasePackages) {
   return packageVersions[0].version
 }
 
+export function getReleaseArtifactOutputDirectory(version) {
+  if (typeof version !== 'string' || !semverLikePattern.test(version)) {
+    throw new Error(`Release artifact version ${String(version)} must be semver-like`)
+  }
+
+  return resolve(publishRoot, version, 'artifacts')
+}
+
 function resolvePublishOutputDirectory(outputDir) {
   if (typeof outputDir !== 'string' || outputDir.length === 0) {
     throw new Error('Release artifact outputDir must be a non-empty path')
@@ -733,41 +742,41 @@ function isPathInside(parentPath, candidatePath) {
     !isAbsolute(relativePath)
 }
 
-function validateRegistry(registry) {
+export function validateRegistryUrl(registry, context = 'Registry') {
   let registryUrl
 
   if (typeof registry !== 'string') {
-    throw new Error('Smoke test registry must be a valid HTTP(S) URL')
+    throw new Error(`${context} must be a valid HTTP(S) URL`)
   }
 
   if (!/^https?:\/\//i.test(registry)) {
     if (/^https?:/i.test(registry)) {
-      throw new Error('Smoke test registry must be an explicit HTTP(S) URL with //')
+      throw new Error(`${context} must be an explicit HTTP(S) URL with //`)
     }
 
-    throw new Error('Smoke test registry must be a valid HTTP(S) URL')
+    throw new Error(`${context} must be a valid HTTP(S) URL`)
   }
 
   try {
     registryUrl = new URL(registry)
   } catch {
-    throw new Error('Smoke test registry must be a valid HTTP(S) URL')
+    throw new Error(`${context} must be a valid HTTP(S) URL`)
   }
 
   if (!['http:', 'https:'].includes(registryUrl.protocol)) {
-    throw new Error('Smoke test registry must be a valid HTTP(S) URL')
+    throw new Error(`${context} must be a valid HTTP(S) URL`)
   }
 
   if (registryUrl.username || registryUrl.password) {
-    throw new Error('Smoke test registry URL must not contain credentials')
+    throw new Error(`${context} URL must not contain credentials`)
   }
 
   if (registryUrl.search) {
-    throw new Error('Smoke test registry URL must not contain query parameters')
+    throw new Error(`${context} URL must not contain query parameters`)
   }
 
   if (registryUrl.hash) {
-    throw new Error('Smoke test registry URL must not contain a fragment')
+    throw new Error(`${context} URL must not contain a fragment`)
   }
 
   const hostname = registryUrl.hostname.toLowerCase()
@@ -778,11 +787,11 @@ function validateRegistry(registry) {
     registryUrl.protocol === 'http:' &&
     (!isLoopback || !/^http:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?(?:\/|$)/i.test(registry))
   ) {
-    throw new Error('Smoke test registry must use HTTPS except for loopback localhost, 127.0.0.1, or ::1')
+    throw new Error(`${context} must use HTTPS except for loopback localhost, 127.0.0.1, or ::1`)
   }
 
   if (!isLoopback && !hostname.includes('.')) {
-    throw new Error('Smoke test registry hostname must be fully-qualified, not an ambiguous single-label name')
+    throw new Error(`${context} hostname must be fully-qualified, not an ambiguous single-label name`)
   }
 
   return registryUrl.href
@@ -1073,7 +1082,7 @@ export async function smokeTestTarballs({
   const expectedVersions = new Map()
 
   if (hasRegistry) {
-    const normalizedRegistry = validateRegistry(registry)
+    const normalizedRegistry = validateRegistryUrl(registry, 'Smoke test registry')
     const normalizedVersion = validateSmokeVersion(version)
 
     source = { kind: 'registry', registry: normalizedRegistry, version: normalizedVersion }
@@ -1278,7 +1287,7 @@ async function runCli() {
     )
   }
 
-  const outputDir = resolve(publishRoot, alignedVersion)
+  const outputDir = getReleaseArtifactOutputDirectory(alignedVersion)
   const artifacts = await buildReleaseArtifacts({ outputDir, version: alignedVersion })
   const smoke = await smokeTestTarballs({ tarballs: artifacts, keepTemp })
 

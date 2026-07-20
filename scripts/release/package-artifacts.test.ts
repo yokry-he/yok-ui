@@ -687,6 +687,18 @@ describe('portable command runner', () => {
 })
 
 describe('buildReleaseArtifacts', () => {
+  it('keeps generated artifacts in a receipt-safe version subdirectory', () => {
+    const getReleaseArtifactOutputDirectory = (
+      packageArtifactModule as typeof packageArtifactModule & {
+        getReleaseArtifactOutputDirectory: (version: string) => string
+      }
+    ).getReleaseArtifactOutputDirectory
+
+    expect(getReleaseArtifactOutputDirectory('0.1.0')).toBe(
+      resolve(publishRoot, '0.1.0', 'artifacts')
+    )
+  })
+
   it('cleans stale output, builds once, packs in graph order, and writes deterministic records', async () => {
     const outputDir = createPublishDirectory('package-artifacts-build-')
     const harness = createBuildHarness()

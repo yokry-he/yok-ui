@@ -10,6 +10,7 @@
     "test:watch": "vitest",
     "release:dry-run": "node scripts/release-dry-run.mjs",
     "release:verify": "node scripts/release/package-artifacts.mjs verify",
+    "release:publish": "node scripts/release/publish-packages.mjs publish",
     "docs:a11y": "vitest run docs/.vitepress/data/interactionContracts.test.ts docs/.vitepress/data/accessibilityEvidence.test.ts docs/.vitepress/data/docsA11yAuditTargets.test.ts docs/.vitepress/data/docsA11yRuntimeAudit.test.ts",
     "docs:a11y:runtime": "node scripts/docs-a11y-runtime.mjs",
     "docs:dev": "pnpm --filter @yok-ui/docs dev",

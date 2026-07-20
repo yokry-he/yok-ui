@@ -45,3 +45,6 @@ jobs:
 
       - name: Build documentation
         run: pnpm docs:build
+
+      - name: Verify publishable package artifacts
+        run: pnpm release:verify

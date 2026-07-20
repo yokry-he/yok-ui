@@ -1228,22 +1228,14 @@ export async function smokeTestTarballs({
   }
 }
 
-async function runCli() {
-  const [mode, ...cliArgs] = process.argv.slice(2)
-
-  if (mode !== 'verify') {
-    throw new Error(
-      'Usage: node scripts/release/package-artifacts.mjs verify ' +
-      '[--registry [url] --version x.y.z] [--keep-temp]'
-    )
-  }
-
+export function parseReleaseVerifyArgs(cliArgs) {
+  const normalizedArgs = cliArgs[0] === '--' ? cliArgs.slice(1) : cliArgs
   let registry
   let version
   let keepTemp = false
 
-  for (let index = 0; index < cliArgs.length; index += 1) {
-    const argument = cliArgs[index]
+  for (let index = 0; index < normalizedArgs.length; index += 1) {
+    const argument = normalizedArgs[index]
 
     if (argument === '--keep-temp') {
       keepTemp = true
@@ -1251,13 +1243,13 @@ async function runCli() {
     }
 
     if (argument === '--version') {
-      version = cliArgs[index + 1]
+      version = normalizedArgs[index + 1]
       index += 1
       continue
     }
 
     if (argument === '--registry') {
-      const candidate = cliArgs[index + 1]
+      const candidate = normalizedArgs[index + 1]
 
       if (candidate && !candidate.startsWith('--')) {
         registry = candidate
@@ -1270,6 +1262,21 @@ async function runCli() {
 
     throw new Error(`Unknown release verification option ${argument}`)
   }
+
+  return { registry, version, keepTemp }
+}
+
+async function runCli() {
+  const [mode, ...cliArgs] = process.argv.slice(2)
+
+  if (mode !== 'verify') {
+    throw new Error(
+      'Usage: node scripts/release/package-artifacts.mjs verify ' +
+      '[--registry [url] --version x.y.z] [--keep-temp]'
+    )
+  }
+
+  const { registry, version, keepTemp } = parseReleaseVerifyArgs(cliArgs)
 
   if (registry !== undefined) {
     const smoke = await smokeTestTarballs({ registry, version, keepTemp })

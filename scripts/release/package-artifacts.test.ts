@@ -18,6 +18,7 @@ import {
   buildReleaseArtifacts,
   inspectPackageTarball,
   inspectPackedManifest,
+  parseReleaseVerifyArgs,
   smokeTestTarballs
 } from './package-artifacts.mjs'
 import * as packageArtifactModule from './package-artifacts.mjs'
@@ -37,6 +38,19 @@ const expectedPackage = {
   name: '@yok-ui/example',
   version: '1.2.3'
 }
+
+describe('parseReleaseVerifyArgs', () => {
+  it.each([
+    ['standard pnpm arguments', ['--registry', '--version', '0.1.0']],
+    ['pnpm separator arguments', ['--', '--registry', '--version', '0.1.0']]
+  ])('accepts %s', (_label, cliArgs) => {
+    expect(parseReleaseVerifyArgs(cliArgs)).toEqual({
+      registry: 'https://registry.npmjs.org/',
+      version: '0.1.0',
+      keepTemp: false
+    })
+  })
+})
 
 function createPackedFixture() {
   return {

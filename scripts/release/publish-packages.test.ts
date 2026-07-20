@@ -423,6 +423,41 @@ describe('publishRelease', () => {
     expect(result.packages[0].status).toBe('published')
   })
 
+  it('allows slow first-package registry propagation without republishing', async () => {
+    const harness = createHarness()
+    const firstArtifact = harness.artifacts[0]
+    const registryLookup = harness.adapters.registryLookup
+    let delayedLookups = 0
+
+    harness.adapters.registryLookup = async (options: Record<string, any>) => {
+      const published = harness.commandCalls.some(({ args }) => args?.[1] === firstArtifact.tarballPath)
+
+      if (
+        options.packageName === firstArtifact.packageName &&
+        published &&
+        delayedLookups < 8
+      ) {
+        delayedLookups += 1
+        return { status: 'absent' }
+      }
+
+      return await registryLookup(options)
+    }
+
+    const result = await publishRelease({
+      version,
+      dryRun: false,
+      confirmPublicRelease: true,
+      adapters: {
+        ...harness.adapters,
+        sleep: async () => undefined
+      }
+    })
+
+    expect(harness.commandCalls.filter(({ args }) => args[1] === firstArtifact.tarballPath)).toHaveLength(1)
+    expect(result.packages[0].status).toBe('published')
+  })
+
   it('retries when a newly published version is visible before its integrity metadata', async () => {
     const harness = createHarness()
     const firstArtifact = harness.artifacts[0]

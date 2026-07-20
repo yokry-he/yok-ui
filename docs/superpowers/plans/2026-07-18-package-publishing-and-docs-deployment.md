@@ -553,7 +553,7 @@ Expected: the npm username that owns or can publish to the `yok-ui` organization
 Run:
 
 ```bash
-npm access ls-packages yok-ui
+npm access list packages yok-ui --registry https://registry.npmjs.org/
 npm view @yok-ui/core@0.1.0 version --json
 ```
 
@@ -574,8 +574,8 @@ Expected: eight successful or integrity-matched package records in the receipt. 
 Run:
 
 ```bash
-npm view @yok-ui/core@0.1.0 version dist.integrity repository --json
-pnpm release:verify -- --registry --version 0.1.0
+npm view @yok-ui/core@0.1.0 version dist.integrity repository --json --registry https://registry.npmjs.org/
+pnpm release:verify --registry --version 0.1.0
 ```
 
 Expected: version `0.1.0`, correct GitHub repository, and clean install/import verification from npm.

@@ -42,9 +42,9 @@ pnpm release:publish -- --version 0.1.0 --tag latest --dry-run
 首次发布需要你本地登录 npm，因为包还没有配置 Trusted Publishing。
 
 ```bash
-npm login
-npm whoami
-npm access ls-packages yok-ui
+npm login --auth-type=web --registry https://registry.npmjs.org/
+npm whoami --registry https://registry.npmjs.org/
+npm access list packages yok-ui --registry https://registry.npmjs.org/
 ```
 
 确认账号具备 `yok-ui` 组织发布权限后执行：
@@ -57,17 +57,19 @@ pnpm release:publish -- --version 0.1.0 --tag latest --confirm-public-release
 
 - 真实发布必须显式加 `--confirm-public-release`。
 - 不要在命令中传 npm token 或 OTP。npm 如需 2FA，会在终端里提示你输入。
+- `npm login --auth-type=web` 会把一次性认证页面交给浏览器。认证完成后，凭据由 npm CLI 写入用户级配置；不要把 `~/.npmrc`、token 或认证 URL 提交到仓库。
 - 发布脚本会写入 `outputs/publish/0.1.0/publish-receipt.json`，该文件记录每个包的状态、tarball integrity、字节大小和失败阶段。
 - 如果中途失败，先看 receipt 的 `failure.stage`。修复后重新执行同一条命令，已发布且 integrity 一致的包会自动跳过。
+- 新建 scoped package 首次发布后，npm 网页可能已经显示成功，但 registry 读取仍会短暂返回 `E404`。脚本会以线性退避等待约 4.6 分钟；若仍超时，不要再次手工执行 `npm publish`，先等待 registry 同步，再重跑同一条发布命令。脚本会核对 integrity 并安全跳过已发布包。
 
 发布后验证：
 
 ```bash
-npm view @yok-ui/core@0.1.0 version dist.integrity repository --json
-pnpm release:verify -- --registry --version 0.1.0
+npm view @yok-ui/core@0.1.0 version dist.integrity repository --json --registry https://registry.npmjs.org/
+pnpm release:verify --registry --version 0.1.0
 ```
 
-第二条命令会从 npm 官方 registry 安装真实发布版本，而不是安装本地 tarball。
+第一条命令确认版本、产物 integrity 和源码仓库信息；第二条命令会从 npm 官方 registry 安装全部 8 个真实发布版本，而不是安装本地 tarball，并验证 ESM、类型声明和 CSS exports。
 
 ## GitHub Trusted Publishing
 
@@ -159,9 +161,9 @@ npm config set registry https://registry.npmjs.org
 先确认网络、npm 登录状态和组织权限：
 
 ```bash
-npm whoami
-npm access ls-packages yok-ui
-npm view @yok-ui/core@0.1.0 version --json
+npm whoami --registry https://registry.npmjs.org/
+npm access list packages yok-ui --registry https://registry.npmjs.org/
+npm view @yok-ui/core@0.1.0 version --json --registry https://registry.npmjs.org/
 ```
 
 如果是权限问题，不要重复发布。先修复 npm 组织成员权限或 package 权限。

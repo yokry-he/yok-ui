@@ -18,7 +18,9 @@ const defaultRegistry = 'https://registry.npmjs.org/'
 const exactVersionPattern = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/
 const distTagPattern = /^[A-Za-z][0-9A-Za-z._-]{0,127}$/
 const integrityPattern = /^sha(?:256|384|512)-[A-Za-z0-9+/]+={0,2}$/
-const defaultVerificationAttempts = 5
+// Newly created scoped packages can take several minutes to reach registry reads.
+// Linear backoff across 24 attempts allows about 4.6 minutes of propagation.
+const defaultVerificationAttempts = 24
 const defaultVerificationDelayMs = 1_000
 const defaultPublishTimeoutMs = 15 * 60 * 1_000
 let receiptSequence = 0

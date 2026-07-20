@@ -10,13 +10,13 @@ describe('ReleaseVerification', () => {
     expect(source).not.toContain("from '../data/releaseReadiness'")
   })
 
-  it('replaces the legacy release dashboard on the public route', () => {
+  it('keeps the public release route on the secret-free operations dashboard', () => {
     const page = readFileSync('docs/resources/release.md', 'utf8')
     const theme = readFileSync('docs/.vitepress/theme/index.ts', 'utf8')
 
-    expect(page).toContain('<ReleaseVerification />')
-    expect(page).not.toContain('<ReleaseDashboard />')
+    expect(page).toContain('<ReleaseDashboard />')
+    expect(page).not.toContain('<ReleaseVerification />')
+    expect(theme).toContain("app.component('ReleaseDashboard'")
     expect(theme).toContain("app.component('ReleaseVerification'")
-    expect(theme).not.toContain("app.component('ReleaseDashboard'")
   })
 })

@@ -32,6 +32,7 @@ export default {
     app.component('IconGallery', defineAsyncComponent(() => import('../components/IconGallery.vue')))
     app.component('LiveExampleMatrix', defineAsyncComponent(() => import('../components/LiveExampleMatrix.vue')))
     app.component('PackageComponents', defineAsyncComponent(() => import('../components/PackageComponents.vue')))
+    app.component('ReleaseDashboard', defineAsyncComponent(() => import('../components/ReleaseDashboard.vue')))
     app.component('ReleaseVerification', defineAsyncComponent(() => import('../components/ReleaseVerification.vue')))
     app.component('SourceFileReference', defineAsyncComponent(() => import('../components/SourceFileReference.vue')))
     app.component('ThemeLab', defineAsyncComponent(() => import('../components/ThemeLab.vue')))

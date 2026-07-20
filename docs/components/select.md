@@ -2,16 +2,23 @@
 import { reactive, ref } from 'vue'
 import type { YFormRule } from '@yok-ui/core'
 
-const value = ref('core')
+const basicValue = ref('')
+const optionsValue = ref('')
+const disabledOptionValue = ref('')
+const disabledValue = ref('core')
 const clearableValue = ref('product')
+const sizeValue = ref('core')
 const multipleValue = ref(['core', 'product'])
-const collapsedValue = ref(['core', 'product', 'admin'])
-const searchableValue = ref('')
-const disabledOptionValue = ref('core')
-const creatableValue = ref('')
-const virtualizedValue = ref('pkg-12')
+const customLabelValue = ref('core')
 const groupedValue = ref('select')
+const filterableValue = ref('')
+const remoteValue = ref('')
+const creatableValue = ref('')
+const valueKeyValue = ref('component-select')
+const collapsedValue = ref(['core', 'product', 'admin'])
 const loadingValue = ref('')
+const emptyValue = ref('')
+const virtualizedValue = ref('pkg-12')
 const releaseForm = reactive<Record<string, string>>({
   packageName: ''
 })
@@ -21,10 +28,16 @@ const releaseRules: Record<string, YFormRule | YFormRule[]> = {
     trigger: 'change'
   }
 }
+
 const options = [
   { label: 'Core package', value: 'core' },
   { label: 'Product package', value: 'product' },
   { label: 'Admin package', value: 'admin' }
+]
+const aliasOptions = [
+  { label: 'Core package · 基础组件', value: 'core' },
+  { label: 'Product package · 业务组件', value: 'product' },
+  { label: 'Admin package · 管理端组件', value: 'admin' }
 ]
 const disabledOptions = [
   { label: 'Core package', value: 'core' },
@@ -38,104 +51,156 @@ const groupedOptions = [
   { label: 'Select', value: 'select', group: 'Form' },
   { label: 'Tooltip', value: 'tooltip', group: 'Overlay' }
 ]
+const packageOptions = [
+  { label: 'Component Select', value: 'component-select' },
+  { label: 'Component Cascader', value: 'component-cascader' },
+  { label: 'Component Tree', value: 'component-tree' }
+]
+const remotePackageOptions = [
+  { label: 'Core package', value: 'core' },
+  { label: 'Product package', value: 'product' },
+  { label: 'Admin package', value: 'admin' },
+  { label: 'Design token package', value: 'design-token' },
+  { label: 'Virtualized select package', value: 'virtualized-select' }
+]
+const loadingOptions = [
+  { label: 'Loading from npm registry...', value: 'loading', disabled: true }
+]
+function searchRemotePackages(query: string) {
+  return new Promise<typeof remotePackageOptions>((resolve) => {
+    globalThis.setTimeout(() => {
+      const normalizedQuery = query.trim().toLowerCase()
+      resolve(remotePackageOptions.filter((option) =>
+        option.label.toLowerCase().includes(normalizedQuery) ||
+        option.value.toLowerCase().includes(normalizedQuery)
+      ))
+    }, 480)
+  })
+}
 const largeOptions = Array.from({ length: 1000 }, (_, index) => ({
   label: `Package ${index + 1}`,
   value: `pkg-${index + 1}`
 }))
-const remoteOptions = [
-  { label: 'Loading from npm registry...', value: 'loading', disabled: true }
-]
+const emptyOptions: typeof options = []
 
-const basicSetup = `import { ref } from 'vue'
+const selectExampleSetup = [
+  "import { ref } from 'vue'",
+  "import { YSelect } from '@yok-ui/core'",
+  '',
+  "const basicValue = ref('')",
+  "const optionsValue = ref('')",
+  "const disabledOptionValue = ref('')",
+  "const disabledValue = ref('core')",
+  "const clearableValue = ref('product')",
+  "const sizeValue = ref('core')",
+  "const multipleValue = ref(['core', 'product'])",
+  "const customLabelValue = ref('core')",
+  "const groupedValue = ref('select')",
+  "const filterableValue = ref('')",
+  "const remoteValue = ref('')",
+  "const creatableValue = ref('')",
+  "const valueKeyValue = ref('component-select')",
+  "const collapsedValue = ref(['core', 'product', 'admin'])",
+  "const loadingValue = ref('')",
+  "const emptyValue = ref('')",
+  "const virtualizedValue = ref('pkg-12')",
+  '',
+  'const options = [',
+  "  { label: 'Core package', value: 'core' },",
+  "  { label: 'Product package', value: 'product' },",
+  "  { label: 'Admin package', value: 'admin' }",
+  ']',
+  'const aliasOptions = [',
+  "  { label: 'Core package · 基础组件', value: 'core' },",
+  "  { label: 'Product package · 业务组件', value: 'product' },",
+  "  { label: 'Admin package · 管理端组件', value: 'admin' }",
+  ']',
+  'const disabledOptions = [',
+  "  { label: 'Core package', value: 'core' },",
+  "  { label: 'Product package', value: 'product' },",
+  "  { label: 'Admin package', value: 'admin', disabled: true }",
+  ']',
+  'const groupedOptions = [',
+  "  { label: 'Button', value: 'button', group: 'Basic' },",
+  "  { label: 'Divider', value: 'divider', group: 'Basic' },",
+  "  { label: 'Input', value: 'input', group: 'Form' },",
+  "  { label: 'Select', value: 'select', group: 'Form' },",
+  "  { label: 'Tooltip', value: 'tooltip', group: 'Overlay' }",
+  ']',
+  'const packageOptions = [',
+  "  { label: 'Component Select', value: 'component-select' },",
+  "  { label: 'Component Cascader', value: 'component-cascader' },",
+  "  { label: 'Component Tree', value: 'component-tree' }",
+  ']',
+  'const remotePackageOptions = [',
+  "  { label: 'Core package', value: 'core' },",
+  "  { label: 'Product package', value: 'product' },",
+  "  { label: 'Admin package', value: 'admin' },",
+  "  { label: 'Design token package', value: 'design-token' },",
+  "  { label: 'Virtualized select package', value: 'virtualized-select' }",
+  ']',
+  'const loadingOptions = [',
+  "  { label: 'Loading from npm registry...', value: 'loading', disabled: true }",
+  ']',
+  'function searchRemotePackages(query) {',
+  '  return new Promise((resolve) => {',
+  '    globalThis.setTimeout(() => {',
+  '      const normalizedQuery = query.trim().toLowerCase()',
+  '      resolve(remotePackageOptions.filter((option) =>',
+  '        option.label.toLowerCase().includes(normalizedQuery) ||',
+  '        option.value.toLowerCase().includes(normalizedQuery)',
+  '      ))',
+  '    }, 480)',
+  '  })',
+  '}',
+  'const largeOptions = Array.from({ length: 1000 }, (_, index) => ({',
+  '  label: `Package ${index + 1}`,',
+  '  value: `pkg-${index + 1}`',
+  '}))',
+  'const emptyOptions = []'
+].join('\n')
+
+const optionsSetup = `import { ref } from 'vue'
 import { YSelect } from '@yok-ui/core'
 
-const value = ref('core')
-const disabledOptionValue = ref('core')
-
+const value = ref('')
 const options = [
   { label: 'Core package', value: 'core' },
   { label: 'Product package', value: 'product' },
   { label: 'Admin package', value: 'admin' }
-]
+]`
+
+const disabledOptionsSetup = `import { ref } from 'vue'
+import { YSelect } from '@yok-ui/core'
+
+const value = ref('')
 const disabledOptions = [
   { label: 'Core package', value: 'core' },
   { label: 'Product package', value: 'product' },
   { label: 'Admin package', value: 'admin', disabled: true }
 ]`
 
-const basicCode = `<YSelect v-model="value" label="Package" :options="options" />
-<YSelect v-model="disabledOptionValue" label="Disabled option" :options="disabledOptions" />`
-
-const clearableSetup = `import { ref } from 'vue'
-import { YSelect } from '@yok-ui/core'
-
-const clearableValue = ref('product')
-const options = [
-  { label: 'Core package', value: 'core' },
-  { label: 'Product package', value: 'product' },
-  { label: 'Admin package', value: 'admin' }
-]`
-
-const clearableCode = `<YSelect v-model="clearableValue" label="Clearable package" clearable :options="options" />`
-
-const multipleSetup = `import { ref } from 'vue'
-import { YSelect } from '@yok-ui/core'
-
-const multipleValue = ref(['core', 'product'])
-const collapsedValue = ref(['core', 'product', 'admin'])
-const options = [
-  { label: 'Core package', value: 'core' },
-  { label: 'Product package', value: 'product' },
-  { label: 'Admin package', value: 'admin' }
-]`
-
-const multipleCode = `<YSelect v-model="multipleValue" label="Packages" multiple clearable :options="options" />
-<YSelect v-model="collapsedValue" label="Collapsed packages" multiple collapse-tags :max-collapse-tags="2" clearable :options="options" />`
-
-const filterableSetup = `import { ref } from 'vue'
-import { YSelect } from '@yok-ui/core'
-
-const searchableValue = ref('')
-const creatableValue = ref('')
-const options = [
-  { label: 'Core package', value: 'core' },
-  { label: 'Product package', value: 'product' },
-  { label: 'Admin package', value: 'admin' }
-]`
-
-const filterableCode = `<YSelect v-model="searchableValue" label="Search package" filterable search-placeholder="Search packages" empty-text="No package matches" :options="options" />
-<YSelect v-model="creatableValue" label="Creatable tag" filterable allow-create search-placeholder="Search or create tags" :options="options" />`
-
-const remoteSetup = `import { ref } from 'vue'
-import { YSelect } from '@yok-ui/core'
-
-const loadingValue = ref('')
-const remoteOptions = [
-  { label: 'Loading from npm registry...', value: 'loading', disabled: true }
-]`
-
-const remoteCode = `<YSelect v-model="loadingValue" label="Remote package" filterable loading loading-text="Loading package options..." :options="remoteOptions" />`
-
 const groupedSetup = `import { ref } from 'vue'
 import { YSelect } from '@yok-ui/core'
 
-const groupedValue = ref('select')
-const virtualizedValue = ref('pkg-12')
+const value = ref('select')
 const groupedOptions = [
   { label: 'Button', value: 'button', group: 'Basic' },
   { label: 'Divider', value: 'divider', group: 'Basic' },
   { label: 'Input', value: 'input', group: 'Form' },
   { label: 'Select', value: 'select', group: 'Form' },
   { label: 'Tooltip', value: 'tooltip', group: 'Overlay' }
-]
-const largeOptions = Array.from({ length: 1000 }, (_, index) => ({
-  label: \`Package \${index + 1}\`,
-  value: \`pkg-\${index + 1}\`
-}))`
+]`
 
-const groupedCode = `<YSelect v-model="groupedValue" label="Grouped package" :options="groupedOptions" />
-<YSelect v-model="virtualizedValue" label="Virtualized package" filterable virtualized :virtual-height="220" :virtual-item-height="36" :virtual-overscan="2" :options="largeOptions" />
-`
+const multipleSetup = `import { ref } from 'vue'
+import { YSelect } from '@yok-ui/core'
+
+const value = ref(['core', 'product'])
+const options = [
+  { label: 'Core package', value: 'core' },
+  { label: 'Product package', value: 'product' },
+  { label: 'Admin package', value: 'admin' }
+]`
 
 const formSetup = [
   "import { reactive } from 'vue'",
@@ -149,14 +214,89 @@ const formSetup = [
   "    validator: (value) => Boolean(value) || '发布前需要选择一个包。',",
   "    trigger: 'change'",
   '  }',
-  '}',
-  'const options = [',
-  "  { label: 'Core package', value: 'core' },",
-  "  { label: 'Product package', value: 'product' },",
-  "  { label: 'Admin package', value: 'admin' }",
-  ']'
+  '}'
 ].join('\n')
 
+const basicCode = `<YSelect v-model="basicValue" placeholder="Select" :options="options" style="width: 240px" />`
+const optionsCode = `<YSelect v-model="optionsValue" placeholder="Select" :options="aliasOptions" style="width: 240px" />`
+const disabledOptionCode = `<YSelect v-model="disabledOptionValue" placeholder="Select" :options="disabledOptions" style="width: 240px" />`
+const disabledCode = `<YSelect v-model="disabledValue" disabled placeholder="Select" :options="options" style="width: 240px" />`
+const clearableCode = `<YSelect v-model="clearableValue" clearable placeholder="Select" :options="options" style="width: 240px" />`
+const sizeCode = `<div class="demo-stack demo-stack--inline">
+  <YSelect v-model="sizeValue" size="large" placeholder="Large" :options="options" style="width: 220px" />
+  <YSelect v-model="sizeValue" placeholder="Default" :options="options" style="width: 220px" />
+  <YSelect v-model="sizeValue" size="small" placeholder="Small" :options="options" style="width: 220px" />
+</div>`
+const multipleCode = `<YSelect v-model="multipleValue" multiple clearable placeholder="Select" :options="options" style="width: 320px" />`
+const customLabelCode = `<YSelect v-model="customLabelValue" placeholder="Select" :options="aliasOptions" style="width: 320px" />`
+const groupedCode = `<YSelect v-model="groupedValue" placeholder="Select" :options="groupedOptions" style="width: 280px" />`
+const filterableCode = `<YSelect
+  v-model="filterableValue"
+  filterable
+  search-placeholder="Search packages"
+  empty-text="No package matches"
+  placeholder="Select"
+  :options="options"
+  style="width: 280px"
+/>`
+const remoteCode = `<YSelect
+  v-model="remoteValue"
+  filterable
+  search-placeholder="Search remote packages"
+  loading-text="Loading remote packages..."
+  remote-error-text="Remote search failed"
+  :remote-method="searchRemotePackages"
+  placeholder="Select"
+  :options="remotePackageOptions"
+  style="width: 280px"
+/>`
+const creatableCode = `<YSelect
+  v-model="creatableValue"
+  filterable
+  allow-create
+  search-placeholder="Search or create"
+  placeholder="Select"
+  :options="options"
+  style="width: 280px"
+/>`
+const valueKeyCode = `<YSelect v-model="valueKeyValue" placeholder="Select" :options="packageOptions" style="width: 280px" />`
+const collapseTagsCode = `<YSelect
+  v-model="collapsedValue"
+  multiple
+  collapse-tags
+  :max-collapse-tags="2"
+  clearable
+  placeholder="Select"
+  :options="options"
+  style="width: 360px"
+/>`
+const loadingCode = `<YSelect
+  v-model="loadingValue"
+  loading
+  loading-text="正在加载组件..."
+  placeholder="Select"
+  :options="loadingOptions"
+  style="width: 280px"
+/>`
+const emptyCode = `<YSelect
+  v-model="emptyValue"
+  filterable
+  empty-text="没有匹配的组件"
+  placeholder="Select"
+  :options="emptyOptions"
+  style="width: 280px"
+/>`
+const virtualCode = `<YSelect
+  v-model="virtualizedValue"
+  filterable
+  virtualized
+  :virtual-height="220"
+  :virtual-item-height="36"
+  :virtual-overscan="2"
+  placeholder="Select"
+  :options="largeOptions"
+  style="width: 320px"
+/>`
 const formCode = [
   '<YForm :model="releaseForm" :rules="releaseRules">',
   '  <YFormItem prop="packageName" label="Release package" required v-slot="{ error, invalid, labelFor, messageId, validate }">',
@@ -178,149 +318,343 @@ const formCode = [
 ].join('\n')
 </script>
 
-# Select
+# Select 选择器
 
-Select 用于从一组选项里选择单个或多个值。当前版本使用 Yok UI 自绘 `combobox + listbox` 结构，并通过 `@floating-ui/vue` 统一处理下拉面板定位、翻转和视口避让。
+当选项过多时，使用下拉菜单展示并选择内容。Yok UI 的 Select 保持 `combobox + listbox` 语义，并通过统一的弹层定位能力处理翻转、视口避让和键盘焦点。
 
-## Example
+::: tip TIP
+`YSelect` 会尽量继承容器宽度。用于行内表单、工具栏或窄布局时，建议像 Element Plus 文档中一样为组件或外层容器设置稳定宽度，避免弹层宽度和触发器宽度不一致。
+:::
+
+## 基础用法 {#basic-usage}
+
+适用广泛的基础单选，`v-model` 的值为当前被选中的 `option.value`。
 
 <DocDemo
-  id="demo-basic-select"
-  title="Basic usage"
-  description="基础单选适合包类型、状态、权限等固定选项；禁用选项保留在列表中但不可选择。"
+  id="select-basic-usage"
+  title="基础用法"
+  description="通过 options 提供列表数据，选择后同步更新 v-model。"
   :code="basicCode"
-  :setup="basicSetup"
-  :usage="['combobox', 'Floating UI', 'disabled-option']"
+  :setup="selectExampleSetup"
+  :usage="['v-model', 'options', 'single select']"
 >
-  <div class="demo-stack">
-    <YSelect v-model="value" label="Package" :options="options" />
-    <YSelect
-      v-model="disabledOptionValue"
-      label="Disabled option"
-      :options="disabledOptions"
-    />
-  </div>
-  <p class="demo-note">Selected: {{ value }} · Disabled option value: {{ disabledOptionValue }}</p>
+  <YSelect v-model="basicValue" placeholder="Select" :options="options" style="width: 240px" />
 </DocDemo>
 
+## Options 属性 {#options-attributes}
+
+`YSelect` 以 `options` 数组作为数据源。每一项包含 `label` 和 `value`，也可以附加 `group`、`disabled` 等字段。
+
 <DocDemo
-  title="Clearable"
-  description="开启 clearable 后，已选值旁会出现清空按钮，并同步触发 clear、change 和 update:modelValue。"
+  id="select-options-attributes"
+  title="Options 属性"
+  description="通过 label 定义展示文本，通过 value 定义提交值。"
+  :code="optionsCode"
+  :setup="selectExampleSetup"
+  :usage="['label', 'value', 'data driven']"
+>
+  <YSelect v-model="optionsValue" placeholder="Select" :options="aliasOptions" style="width: 240px" />
+</DocDemo>
+
+## 有禁用选项 {#disabled-option}
+
+在 `options` 中为单个选项设置 `disabled: true` 后，该选项会保留在列表中，但不可被选择。
+
+<DocDemo
+  id="select-disabled-option"
+  title="有禁用选项"
+  description="适合展示暂不可用、无权限或仍在规划中的选项。"
+  :code="disabledOptionCode"
+  :setup="selectExampleSetup"
+  :usage="['disabled option', 'listbox']"
+>
+  <YSelect v-model="disabledOptionValue" placeholder="Select" :options="disabledOptions" style="width: 240px" />
+</DocDemo>
+
+## 禁用状态 {#disabled}
+
+为组件设置 `disabled` 后，触发器不可聚焦、不可展开，也不会触发值变更事件。
+
+<DocDemo
+  id="select-disabled"
+  title="禁用状态"
+  description="禁用状态用于只读配置、权限不足或流程未完成的场景。"
+  :code="disabledCode"
+  :setup="selectExampleSetup"
+  :usage="['disabled', 'readonly flow']"
+>
+  <YSelect v-model="disabledValue" disabled placeholder="Select" :options="options" style="width: 240px" />
+</DocDemo>
+
+## 可清空 {#clearable}
+
+使用 `clearable` 属性即可得到一个可清空的选择器。清空时会触发 `clear`、`change` 和 `update:modelValue`。
+
+<DocDemo
+  id="select-clearable"
+  title="可清空"
+  description="适合筛选项、可选配置项和非必填表单项。"
   :code="clearableCode"
-  :setup="clearableSetup"
-  :usage="['clearable', 'clear event', 'single value']"
+  :setup="selectExampleSetup"
+  :usage="['clearable', 'clear event']"
 >
-  <div class="demo-stack">
-    <YSelect v-model="clearableValue" label="Clearable package" clearable :options="options" />
-  </div>
-  <p class="demo-note">Clearable value: {{ clearableValue || 'empty' }}</p>
+  <YSelect v-model="clearableValue" clearable placeholder="Select" :options="options" style="width: 240px" />
 </DocDemo>
 
+## 尺寸 {#sizes}
+
+通过 `size` 控制选择器尺寸；未指定时会继承 `YConfigProvider` 的全局尺寸。
+
 <DocDemo
-  title="Multiple selection"
-  description="多选会以标签展示选中项；开启 collapseTags 后可以把长选择结果压缩成摘要。"
+  id="select-sizes"
+  title="尺寸"
+  description="提供 large、medium、small 三种尺寸，用于表单、工具栏和紧凑配置面板。"
+  :code="sizeCode"
+  :setup="selectExampleSetup"
+  :usage="['size', 'config provider']"
+>
+  <div class="demo-stack demo-stack--inline">
+    <YSelect v-model="sizeValue" size="large" placeholder="Large" :options="options" style="width: 220px" />
+    <YSelect v-model="sizeValue" placeholder="Default" :options="options" style="width: 220px" />
+    <YSelect v-model="sizeValue" size="small" placeholder="Small" :options="options" style="width: 220px" />
+  </div>
+</DocDemo>
+
+## 基础多选 {#multiple}
+
+设置 `multiple` 后，`v-model` 使用字符串数组，选中项以标签形式展示。
+
+<DocDemo
+  id="select-multiple"
+  title="基础多选"
+  description="适合包类型、状态集合、权限范围等多值选择。"
   :code="multipleCode"
-  :setup="multipleSetup"
-  :usage="['multiple', 'collapse-tags', 'remove tag', 'aria-multiselectable']"
+  :setup="selectExampleSetup"
+  :usage="['multiple', 'tags', 'aria-multiselectable']"
 >
-  <div class="demo-stack">
-    <YSelect v-model="multipleValue" label="Packages" multiple clearable :options="options" />
-    <YSelect
-      v-model="collapsedValue"
-      label="Collapsed packages"
-      multiple
-      collapse-tags
-      :max-collapse-tags="2"
-      clearable
-      :options="options"
-    />
-  </div>
-  <p class="demo-note">Multiple: {{ multipleValue.join(', ') || 'none' }} · Collapsed: {{ collapsedValue.join(', ') }}</p>
+  <YSelect v-model="multipleValue" multiple clearable placeholder="Select" :options="options" style="width: 320px" />
 </DocDemo>
 
-<DocDemo
-  title="Filterable and creatable"
-  description="可搜索模式会在弹层中展示 searchbox；开启 allowCreate 时可以把未匹配输入创建为新选项。"
-  :code="filterableCode"
-  :setup="filterableSetup"
-  :usage="['filterable', 'searchbox', 'empty-text', 'allow-create']"
->
-  <div class="demo-stack">
-    <YSelect
-      v-model="searchableValue"
-      label="Search package"
-      filterable
-      search-placeholder="Search packages"
-      empty-text="No package matches"
-      :options="options"
-    />
-    <YSelect
-      v-model="creatableValue"
-      label="Creatable tag"
-      filterable
-      allow-create
-      search-placeholder="Search or create tags"
-      :options="options"
-    />
-  </div>
-  <p class="demo-note">Search: {{ searchableValue || 'none' }} · Created: {{ creatableValue || 'none' }}</p>
-</DocDemo>
+## 自定义模板 {#custom-template}
+
+Element Plus 使用插槽自定义选项模板；Yok UI 当前版本采用数据驱动，优先通过 `label` 和 `group` 组织展示内容。需要完全自定义 option 渲染时，应在组件能力中新增 `option` slot 后再承诺文档 API。
 
 <DocDemo
-  title="Remote loading"
-  description="远程搜索加载中会暂停旧选项渲染，并通过 role=status 暴露 loading 文案。"
-  :code="remoteCode"
-  :setup="remoteSetup"
-  :usage="['remote-search', 'loading', 'loading-text', 'status']"
+  id="select-custom-template"
+  title="自定义模板"
+  description="当前以更明确的 label 文案表达选项状态，保持文档和真实 API 一致。"
+  :code="customLabelCode"
+  :setup="selectExampleSetup"
+  :usage="['label', 'structured option', 'api honest']"
 >
-  <div class="demo-stack">
-    <YSelect
-      v-model="loadingValue"
-      label="Remote package"
-      filterable
-      loading
-      loading-text="Loading package options..."
-      :options="remoteOptions"
-    />
-  </div>
-  <p class="demo-note">Remote value: {{ loadingValue || 'waiting for result' }}</p>
+  <YSelect v-model="customLabelValue" placeholder="Select" :options="aliasOptions" style="width: 320px" />
 </DocDemo>
 
+## 将选项进行分组 {#option-group}
+
+为选项提供相同的 `group` 字段后，下拉面板会按组展示。
+
 <DocDemo
-  title="Grouped and virtualized"
-  description="分组选项适合小规模分类；大列表可以开启 virtualized，保持滚动性能和 listbox 语义。"
+  id="select-option-group"
+  title="将选项进行分组"
+  description="适合组件库、权限域、业务线等具有明显分类的选项。"
   :code="groupedCode"
-  :setup="groupedSetup"
-  :usage="['grouped', 'virtualized', 'aria-setsize', 'large-list']"
+  :setup="selectExampleSetup"
+  :usage="['group', 'option category']"
 >
-  <div class="demo-stack">
-    <YSelect
-      v-model="groupedValue"
-      label="Grouped package"
-      :options="groupedOptions"
-    />
-    <YSelect
-      v-model="virtualizedValue"
-      label="Virtualized package"
-      filterable
-      virtualized
-      :virtual-height="220"
-      :virtual-item-height="36"
-      :virtual-overscan="2"
-      :options="largeOptions"
-    />
-  </div>
-  <p class="demo-note">Grouped: {{ groupedValue }} · Virtualized: {{ virtualizedValue }}</p>
+  <YSelect v-model="groupedValue" placeholder="Select" :options="groupedOptions" style="width: 280px" />
 </DocDemo>
 
-## Form Validation
+## 筛选选项 {#filterable}
+
+设置 `filterable` 后，下拉面板会显示搜索框，并按 `label` 本地过滤。
 
 <DocDemo
-  title="Form validation"
-  description="Select 的表单校验需要把单选、多选返回值归一化，再触发字段级校验。"
+  id="select-filterable"
+  title="筛选选项"
+  description="本地筛选适合数量不大但需要快速定位的固定选项列表。"
+  :code="filterableCode"
+  :setup="selectExampleSetup"
+  :usage="['filterable', 'searchbox', 'empty text']"
+>
+  <YSelect
+    v-model="filterableValue"
+    filterable
+    search-placeholder="Search packages"
+    empty-text="No package matches"
+    placeholder="Select"
+    :options="options"
+    style="width: 280px"
+  />
+</DocDemo>
+
+## 远程搜索 {#remote-search}
+
+远程搜索通过 `filterable` 和 `remote-method` 组合完成。输入变化后组件会调用远程方法、自动展示加载态，并忽略过期返回，避免旧请求覆盖新结果。
+
+<DocDemo
+  id="select-remote-search"
+  title="远程搜索"
+  description="输入关键词后异步返回选项；search 事件仍可用于日志、埋点或外部状态复现。"
+  :code="remoteCode"
+  :setup="selectExampleSetup"
+  :usage="['remote-method', 'loading state', 'stale request guard']"
+>
+  <YSelect
+    v-model="remoteValue"
+    filterable
+    search-placeholder="Search remote packages"
+    loading-text="Loading remote packages..."
+    remote-error-text="Remote search failed"
+    :remote-method="searchRemotePackages"
+    placeholder="Select"
+    :options="remotePackageOptions"
+    style="width: 280px"
+  />
+</DocDemo>
+
+## 创建新的选项 {#allow-create}
+
+设置 `allow-create` 后，搜索词没有命中现有选项时，可以创建并选中该值。
+
+<DocDemo
+  id="select-allow-create"
+  title="创建新的选项"
+  description="适合标签、临时分类和配置项快速录入。"
+  :code="creatableCode"
+  :setup="selectExampleSetup"
+  :usage="['allow-create', 'filterable']"
+>
+  <YSelect
+    v-model="creatableValue"
+    filterable
+    allow-create
+    search-placeholder="Search or create"
+    placeholder="Select"
+    :options="options"
+    style="width: 280px"
+  />
+</DocDemo>
+
+## 使用值键 value-key 属性 {#value-key}
+
+Element Plus 的 `value-key` 用于对象值场景。Yok UI 当前 `YSelectValue` 为 `string | string[]`，因此推荐把稳定业务主键写入 `value` 字段。
+
+<DocDemo
+  id="select-value-key"
+  title="使用值键 value-key 属性"
+  description="当前以稳定 value 字段替代对象值 value-key，避免比较对象引用导致状态不稳定。"
+  :code="valueKeyCode"
+  :setup="selectExampleSetup"
+  :usage="['stable value', 'business key']"
+>
+  <YSelect v-model="valueKeyValue" placeholder="Select" :options="packageOptions" style="width: 280px" />
+</DocDemo>
+
+## 自定义标签 {#custom-tag}
+
+多选场景下可以使用 `collapse-tags` 和 `max-collapse-tags` 控制标签展示数量。
+
+<DocDemo
+  id="select-custom-tag"
+  title="自定义标签"
+  description="折叠标签能避免工具栏或表单行被大量选中项撑开。"
+  :code="collapseTagsCode"
+  :setup="selectExampleSetup"
+  :usage="['collapse-tags', 'max-collapse-tags']"
+>
+  <YSelect
+    v-model="collapsedValue"
+    multiple
+    collapse-tags
+    :max-collapse-tags="2"
+    clearable
+    placeholder="Select"
+    :options="options"
+    style="width: 360px"
+  />
+</DocDemo>
+
+## 自定义加载 {#custom-loading}
+
+通过 `loading` 和 `loading-text` 定义加载状态文案。
+
+<DocDemo
+  id="select-custom-loading"
+  title="自定义加载"
+  description="加载中会暂停可选项渲染，并向用户说明当前状态。"
+  :code="loadingCode"
+  :setup="selectExampleSetup"
+  :usage="['loading', 'loading-text']"
+>
+  <YSelect
+    v-model="loadingValue"
+    loading
+    loading-text="正在加载组件..."
+    placeholder="Select"
+    :options="loadingOptions"
+    style="width: 280px"
+  />
+</DocDemo>
+
+## 空值配置 {#empty-values}
+
+过滤后无匹配项或没有可用数据时，可以用 `empty-text` 配置空状态文案。
+
+<DocDemo
+  id="select-empty-values"
+  title="空值配置"
+  description="用于无匹配结果、权限下无选项或数据尚未配置的场景。"
+  :code="emptyCode"
+  :setup="selectExampleSetup"
+  :usage="['empty-text', 'empty options']"
+>
+  <YSelect
+    v-model="emptyValue"
+    filterable
+    empty-text="没有匹配的组件"
+    placeholder="Select"
+    :options="emptyOptions"
+    style="width: 280px"
+  />
+</DocDemo>
+
+## 大数据列表 {#virtualized}
+
+当选项数量很大时，可以开启 `virtualized`，只渲染视口附近的选项。
+
+<DocDemo
+  id="select-virtualized"
+  title="大数据列表"
+  description="虚拟滚动适合千级以上选项，同时保留 listbox / option 的可访问结构。"
+  :code="virtualCode"
+  :setup="selectExampleSetup"
+  :usage="['virtualized', 'large list', 'performance']"
+>
+  <YSelect
+    v-model="virtualizedValue"
+    filterable
+    virtualized
+    :virtual-height="220"
+    :virtual-item-height="36"
+    :virtual-overscan="2"
+    placeholder="Select"
+    :options="largeOptions"
+    style="width: 320px"
+  />
+</DocDemo>
+
+## 表单校验 {#form-validation}
+
+与 `YForm` 和 `YFormItem` 配合时，需要把 `error`、`invalid`、`aria-describedby` 和值更新显式传入 Select。
+
+<DocDemo
+  id="select-form-validation"
+  title="表单校验"
+  description="表单项负责校验时机，Select 负责展示无效状态并保持可访问关联。"
   :code="formCode"
   :setup="formSetup"
-  :usage="['YFormItem', 'filterable', 'required']"
+  :usage="['YForm', 'aria-describedby', 'validation']"
 >
   <YForm :model="releaseForm" :rules="releaseRules">
     <YFormItem prop="packageName" label="Release package" required v-slot="{ error, invalid, labelFor, messageId, validate }">
@@ -341,34 +675,15 @@ Select 用于从一组选项里选择单个或多个值。当前版本使用 Yok
   </YForm>
 </DocDemo>
 
-## Live example
+## Select API {#select-api}
 
-<LiveExampleRunner
-  preset="select"
-  title="在线编辑 Select 示例"
-  description="Select 运行器覆盖包选择、可清空、多选标签、标签折叠、尺寸密度、可搜索、无匹配、分组选项、禁用选项、创建选项、虚拟滚动、远程加载、必填错误、禁用审核、移动选择和键盘选择场景，可直接验证弹层定位与 combobox 语义。"
-/>
-
-## API
+Yok UI 的 Select API 和示例保持同源维护，以下数据来自组件注册表。
 
 <ComponentApiSection name="YSelect" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
-- 触发器使用 `role="combobox"`、`aria-expanded`、`aria-controls` 和 `aria-activedescendant`。
-- 下拉面板使用 `role="listbox"`，选项使用 `role="option"` 和 `aria-selected`。
-- 选项带有 `group` 时会渲染 `role="group"` 与分组标签，同时保持方向键按扁平选项顺序移动。
-- 选项带有 `disabled` 时会保留在列表中但不可被点击或键盘选中，方向键只在可用选项之间移动。
-- 多选时下拉面板会增加 `aria-multiselectable="true"`，选中项以紧凑标签展示。
-- 开启 `collapseTags` 后只展示前 `maxCollapseTags` 个标签，并用带 `aria-label` 的摘要标签提示剩余选中数量。
-- 开启 `allowCreate` 时，只有在 `filterable` 搜索词不匹配现有选项时才出现创建项，并以 `role="option"` 暴露给鼠标和键盘路径。
-- 开启 `virtualized` 时，listbox 会保留 `role="listbox"`，可见选项仍使用 `role="option"`，并通过 `aria-setsize` 与 `aria-posinset` 描述完整列表位置。
-- 可搜索时浮层内会展示 `role="searchbox"`，并通过 `aria-controls` 关联当前 listbox。
-- 异步加载时下拉面板使用 `role="status"` 暴露 loading 文案，并暂停渲染旧选项。
-- 搜索框支持 `ArrowDown` / `ArrowUp` 进入可选项，`Enter` 选择第一个匹配项，`Escape` 关闭并返回触发器。
-- 支持 Enter / Space 打开，方向键移动选项，Home / End 跳转首尾，Escape 关闭并返回触发器。
-- 错误状态通过 `aria-invalid` 暴露，可通过 `ariaDescribedby` 与外部错误信息关联。
-- `change`、`clear`、`remove`、`visibleChange` 和 `search` 事件可用于表单校验、远程搜索、审计日志和 Playground 复现。
-- 弹层定位由 Floating UI 处理，文档示例需要同时覆盖普通、错误、禁用、移动和键盘路径，避免只验证静态触发器。
-
-<ComponentAccessibilityEvidence name="YSelect" />
+- 触发器使用 `combobox` 语义，并通过 `aria-expanded`、`aria-controls`、`aria-activedescendant` 关联弹层。
+- 弹层使用 `listbox` 和 `option` 语义，多选状态会同步到 `aria-selected`。
+- 可搜索模式使用独立 `searchbox`，并保持 Escape、Enter、方向键和 Tab 的键盘流程。
+- 表单校验场景通过 `aria-invalid` 和 `aria-describedby` 暴露错误信息。

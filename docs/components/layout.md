@@ -168,7 +168,11 @@ const collapsedAsideCode = [
 
 Layout 用于搭建页面的基础骨架。它参考 Element Plus Container 的 `Container / Header / Aside / Main / Footer` 组合方式：外层负责 flex 方向和尺寸，内容交互仍交给 Menu、Table、Form 等组件。
 
-## Page Shell
+::: tip TIP
+`YLayout` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Page Shell {#layout-page-shell}
 
 <DocDemo
   title="Page shell"
@@ -188,7 +192,7 @@ Layout 用于搭建页面的基础骨架。它参考 Element Plus Container 的 
   </YLayout>
 </DocDemo>
 
-## Admin Shell
+## Admin Shell {#layout-admin-shell}
 
 <DocDemo
   title="Admin shell"
@@ -212,7 +216,7 @@ Layout 用于搭建页面的基础骨架。它参考 Element Plus Container 的 
   </YLayout>
 </DocDemo>
 
-## Collapsed Aside
+## Collapsed Aside {#layout-collapsed-aside}
 
 <DocDemo
   title="Collapsed aside"
@@ -233,29 +237,14 @@ Layout 用于搭建页面的基础骨架。它参考 Element Plus Container 的 
   </YLayout>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="layout"
-  title="在线编辑 Layout 示例"
-  description="运行器覆盖页面壳层、后台导航和折叠侧栏，可直接进入 Playground 调整完整 SFC。"
-/>
-
-## Usage Notes
+## Usage Notes {#layout-usage-notes}
 
 - `YLayout` 的 `direction="auto"` 会在直接子元素包含 `YHeader` 或 `YFooter` 时使用纵向布局，否则使用横向布局。
 - `YAside` 只负责侧栏尺寸与区域语义；真实导航建议组合 `YMenu`，移动端建议放入抽屉或紧凑导航。
 - `YMain` 是页面主体区域，默认带内边距；工作台、表格页或嵌套滚动场景可设置 `scrollable` 或 `:padded="false"`。
 - `sticky` 顶栏适合文档、后台和长页面工具栏；使用时应确认内容区域不会被遮挡。
 
-## Accessibility
-
-- `YLayout` 使用 `role="group"` 和 `ariaLabel` 描述页面骨架区域。
-- `YHeader`、`YAside`、`YMain`、`YFooter` 使用原生语义标签，不额外创建键盘陷阱。
-- 焦点顺序由 DOM 顺序决定；布局组件不改变子组件的 Tab 行为。
-- `YAside` 应提供能描述导航或补充信息的 `ariaLabel`。
-
-## API
+## Layout API {#layout-api}
 
 <ComponentApiSection name="YLayout" />
 
@@ -300,3 +289,10 @@ Layout 用于搭建页面的基础骨架。它参考 Element Plus Container 的 
   }
 }
 </style>
+
+## Accessibility {#accessibility}
+
+- `YLayout` 使用 `role="group"` 和 `ariaLabel` 描述页面骨架区域。
+- `YHeader`、`YAside`、`YMain`、`YFooter` 使用原生语义标签，不额外创建键盘陷阱。
+- 焦点顺序由 DOM 顺序决定；布局组件不改变子组件的 Tab 行为。
+- `YAside` 应提供能描述导航或补充信息的 `ariaLabel`。

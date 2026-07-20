@@ -55,17 +55,38 @@ describe('utility packages', () => {
   })
 
   it('exports icon path data and a Vue icon renderer', async () => {
+    const icons = await import('@yok-ui/icons')
     const {
+      YCheckIcon,
+      YSearchIcon,
       YokIcon,
       createYokIcon,
+      getYokIconComponentName,
+      yokIconCategories,
       yokIconPaths
-    } = await import('@yok-ui/icons')
+    } = icons
 
+    expect(Object.keys(yokIconPaths).length).toBeGreaterThanOrEqual(80)
     expect(yokIconPaths.check.paths.length).toBeGreaterThan(0)
+    expect(yokIconPaths.settings.paths.length).toBeGreaterThan(0)
+    expect(yokIconPaths.arrowRight.paths.length).toBeGreaterThan(0)
+    expect(yokIconPaths.calendar.paths.length).toBeGreaterThan(0)
+    expect(yokIconCategories.system).toContain('check')
+    expect(yokIconCategories.arrow).toContain('arrowRight')
+    expect(yokIconCategories.form).toContain('calendar')
+    expect(getYokIconComponentName('moreHorizontal')).toBe('YMoreHorizontalIcon')
+
+    Object.keys(yokIconPaths).forEach((name) => {
+      const exportName = getYokIconComponentName(name as keyof typeof yokIconPaths)
+
+      expect(icons, `${exportName} should be exported for ${name}`).toHaveProperty(exportName)
+    })
 
     const CustomIcon = createYokIcon('spark', [
       'M12 3l2.4 5.2L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.6-.8L12 3z'
-    ])
+    ], {
+      strokeWidth: 1.5
+    })
     const customWrapper = mount(CustomIcon, {
       props: {
         title: 'Spark'
@@ -73,15 +94,29 @@ describe('utility packages', () => {
     })
 
     expect(customWrapper.get('svg').attributes('role')).toBe('img')
+    expect(customWrapper.get('svg').attributes('stroke-width')).toBe('1.5')
     expect(customWrapper.get('title').text()).toBe('Spark')
     expect(customWrapper.get('path').attributes('d')).toContain('M12 3')
+
+    const directWrapper = mount(YSearchIcon, {
+      props: {
+        title: 'Search'
+      }
+    })
+
+    expect(directWrapper.get('svg').attributes('role')).toBe('img')
+    expect(directWrapper.get('title').text()).toBe('Search')
+
+    const decorativeWrapper = mount(YCheckIcon)
+
+    expect(decorativeWrapper.get('svg').attributes('aria-hidden')).toBe('true')
 
     const wrapper = mount(defineComponent({
       setup() {
         const tone = ref('currentColor')
 
         return () => h(YokIcon, {
-          name: 'check',
+          name: 'settings',
           size: 20,
           color: tone.value,
           title: 'Done'

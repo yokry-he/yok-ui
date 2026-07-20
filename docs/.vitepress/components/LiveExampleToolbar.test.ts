@@ -36,10 +36,7 @@ const toolbarProps = {
   hasStoredDraft: false,
   copied: false,
   copiedLabel: '完整 SFC',
-  copiedRunReport: false,
-  copiedPlaygroundLink: false,
-  playgroundHandoffUrl: '/playground/?component=button',
-  sourceFileUrl: '/source/?file=packages/core/src/components/button/YButton.vue'
+  copiedRunReport: false
 }
 
 describe('LiveExampleToolbar', () => {
@@ -56,8 +53,8 @@ describe('LiveExampleToolbar', () => {
 
     expect(settings.attributes('open')).toBeUndefined()
     expect(settings.get('summary').text()).toContain('示例设置')
-    expect(primaryRow.element.children[0]?.classList.contains('live-example-runner__toolbar-main-actions')).toBe(true)
-    expect(primaryRow.element.children[1]?.classList.contains('live-example-runner__toolbar-settings')).toBe(true)
+    expect(primaryRow.element.children[0]?.classList.contains('live-example-runner__toolbar-settings')).toBe(true)
+    expect(primaryRow.element.children[1]?.classList.contains('live-example-runner__toolbar-main-actions')).toBe(true)
     expect(mainActions.find('.live-example-runner__example-actions').exists()).toBe(true)
     expect(mainActions.find('.live-example-runner__viewport').exists()).toBe(false)
     expect(mainActions.find('.live-example-runner__report-copy').exists()).toBe(false)
@@ -75,7 +72,6 @@ describe('LiveExampleToolbar', () => {
     expect(wrapper.text()).toContain('示例模板')
     expect(wrapper.text()).toContain('复制范围')
     expect(wrapper.text()).toContain('主题预设')
-    expect(wrapper.get('.live-example-runner__playground-link').attributes('href')).toBe('/playground/?component=button')
     expect(wrapper.get('.live-example-runner__example-actions').attributes('aria-label')).toBe('Example source actions')
     expect(wrapper.findAll('.live-example-runner__source-language-action').map((button) => button.text())).toEqual([
       'TS',
@@ -84,10 +80,7 @@ describe('LiveExampleToolbar', () => {
     expect(wrapper.findAll('[data-live-toolbar-action]').map((item) => item.attributes('data-live-toolbar-action'))).toEqual([
       'language-ts',
       'language-js',
-      'playground',
-      'source-file',
       'copy-code',
-      'copy-playground-link',
       'reset-code',
       'toggle-source'
     ])
@@ -102,18 +95,7 @@ describe('LiveExampleToolbar', () => {
     expect(wrapper.get('[data-live-toolbar-action="copy-code"]').attributes('data-tooltip')).toBe('复制代码')
     expect(wrapper.get('[data-live-toolbar-action="copy-code"] .example-source-actions__glyph').attributes('data-icon')).toBe('copy')
     expect(wrapper.get('[data-live-toolbar-action="copy-code"] .example-source-actions__glyph').text()).toBe('')
-    expect(wrapper.get('[data-live-toolbar-action="playground"]').attributes('data-tooltip')).toBe('打开 Playground')
-    expect(wrapper.get('[data-live-toolbar-action="playground"] .example-source-actions__glyph').attributes('data-icon')).toBe('playground')
-    expect(wrapper.get('[data-live-toolbar-action="playground"] .example-source-actions__glyph').text()).toBe('')
-    expect(wrapper.get('[data-live-toolbar-action="source-file"]').attributes('href')).toBe(
-      '/source/?file=packages/core/src/components/button/YButton.vue'
-    )
-    expect(wrapper.get('[data-live-toolbar-action="source-file"]').attributes('data-tooltip')).toBe('查看组件源码')
-    expect(wrapper.get('[data-live-toolbar-action="source-file"] .example-source-actions__glyph').attributes('data-icon')).toBe('source')
-    expect(wrapper.get('[data-live-toolbar-action="source-file"] .example-source-actions__glyph').text()).toBe('')
-    expect(wrapper.get('[data-live-toolbar-action="copy-playground-link"]').attributes('data-tooltip')).toBe('复制导入链接')
-    expect(wrapper.get('[data-live-toolbar-action="copy-playground-link"] .example-source-actions__glyph').attributes('data-icon')).toBe('external')
-    expect(wrapper.get('[data-live-toolbar-action="copy-playground-link"] .example-source-actions__glyph').text()).toBe('')
+    expect(wrapper.find('[data-live-toolbar-action="source-file"]').exists()).toBe(false)
     expect(wrapper.get('[data-live-toolbar-action="reset-code"]').attributes('data-tooltip')).toBe('源码未修改')
     expect(wrapper.get('[data-live-toolbar-action="reset-code"]').attributes('disabled')).toBeDefined()
     expect(wrapper.get('[data-live-toolbar-action="reset-code"] .example-source-actions__glyph').attributes('data-icon')).toBe('reset')
@@ -127,8 +109,6 @@ describe('LiveExampleToolbar', () => {
     await wrapper.get('[data-live-toolbar-action="copy-code"]').trigger('click')
     await wrapper.get('[data-live-toolbar-action="reset-code"]').trigger('click')
     await wrapper.get('.live-example-runner__report-copy').trigger('click')
-    await wrapper.get('[data-live-toolbar-action="playground"]').trigger('click')
-    await wrapper.get('[data-live-toolbar-action="copy-playground-link"]').trigger('click')
 
     expect(wrapper.emitted('update:selectedPreset')).toEqual([['input']])
     expect(wrapper.emitted('apply-starter')).toHaveLength(1)
@@ -141,8 +121,6 @@ describe('LiveExampleToolbar', () => {
     expect(wrapper.emitted('copy-code')).toHaveLength(1)
     expect(wrapper.emitted('reset-code')).toBeUndefined()
     expect(wrapper.emitted('copy-run-report')).toHaveLength(1)
-    expect(wrapper.emitted('persist-playground-handoff')).toHaveLength(1)
-    expect(wrapper.emitted('copy-playground-link')).toHaveLength(1)
   })
 
   it('reflects run, source and draft states in button labels and disabled states', () => {
@@ -155,15 +133,13 @@ describe('LiveExampleToolbar', () => {
         showSourcePanel: true,
         hasStoredDraft: true,
         copied: true,
-        copiedRunReport: true,
-        copiedPlaygroundLink: true
+        copiedRunReport: true
       }
     })
 
     expect(wrapper.text()).toContain('手动运行')
     expect(wrapper.get('[data-live-toolbar-action="toggle-source"]').attributes('data-tooltip')).toBe('收起源码')
     expect(wrapper.get('[data-live-toolbar-action="copy-code"]').attributes('data-tooltip')).toBe('已复制 完整 SFC')
-    expect(wrapper.get('[data-live-toolbar-action="copy-playground-link"]').attributes('data-tooltip')).toBe('已复制导入链接')
     expect(wrapper.get('[data-live-toolbar-action="reset-code"]').attributes('data-tooltip')).toBe('恢复源码')
     expect(wrapper.get('[data-live-toolbar-action="reset-code"]').attributes('disabled')).toBeUndefined()
     expect(wrapper.text()).toContain('已复制报告')

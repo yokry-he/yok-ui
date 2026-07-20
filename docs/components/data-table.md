@@ -329,7 +329,11 @@ function toggleRemoteState() {
 
 Data Table 是 Admin 包的后台列表组合组件。它复用 Core 的 `YTable` 和 `YPagination`，把标题、操作区、批量状态、选择、排序和分页组合成常见的资源管理页底座。
 
-## Example
+::: tip TIP
+`YDataTable` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Resource management table {#data-table-resource-management-table}
 
 <DocDemo
   title="Resource management table"
@@ -383,6 +387,8 @@ Data Table 是 Admin 包的后台列表组合组件。它复用 Core 的 `YTable
   <p class="demo-note">{{ bulkMessage }}</p>
 </DocDemo>
 
+## Custom empty state {#data-table-custom-empty-state}
+
 <DocDemo
   title="Custom empty state"
   description="后台列表的空状态通常要承载创建、刷新或清空筛选动作，empty 插槽会透传内部表格状态和 refresh 函数。"
@@ -413,6 +419,8 @@ Data Table 是 Admin 包的后台列表组合组件。它复用 Core 的 `YTable
   <p class="demo-note">{{ emptyMessage }}</p>
 </DocDemo>
 
+## Scrollable resource matrix {#data-table-scrollable-resource-matrix}
+
 <DocDemo
   title="Scrollable resource matrix"
   description="后台资源列表可以限制表格工作区高度，表头吸顶、左右固定列和选择列会在内部滚动时保持可见。"
@@ -439,6 +447,8 @@ Data Table 是 Admin 包的后台列表组合组件。它复用 Core 的 `YTable
   </YDataTable>
 </DocDemo>
 
+## Resizable release matrix {#data-table-resizable-release-matrix}
+
 <DocDemo
   title="Resizable release matrix"
   description="允许用户在后台表格里临时拉宽关键列；列宽调整结束会触发 columnResize，业务层可把 widths 保存为个人偏好。"
@@ -464,6 +474,8 @@ Data Table 是 Admin 包的后台列表组合组件。它复用 Core 的 `YTable
   </YDataTable>
 </DocDemo>
 
+## Virtualized thousand-row table {#data-table-virtualized-thousand-row-table}
+
 <DocDemo
   title="Virtualized thousand-row table"
   description="面向千级后台数据，固定表格工作区高度，只渲染视口附近行，保留排序、筛选、选择和 summary 状态。"
@@ -488,7 +500,7 @@ Data Table 是 Admin 包的后台列表组合组件。它复用 Core 的 `YTable
   </YDataTable>
 </DocDemo>
 
-## Remote mode
+## Remote mode {#data-table-remote-mode}
 
 <DocDemo
   title="Remote request contract"
@@ -506,6 +518,8 @@ Data Table 是 Admin 包的后台列表组合组件。它复用 Core 的 `YTable
     </p>
   </div>
 </DocDemo>
+
+## Remote loading and error {#data-table-remote-loading-and-error}
 
 <DocDemo
   title="Remote loading and error"
@@ -549,7 +563,7 @@ Data Table 是 Admin 包的后台列表组合组件。它复用 Core 的 `YTable
   <p class="demo-note">{{ state }}</p>
 </DocDemo>
 
-## Usage notes
+## Usage notes {#data-table-usage-notes}
 
 - `bulkActions` 适合常见批量动作，点击后通过 `bulk-action` 返回 action、selectedRowKeys 和 selectedRows。
 - `bulkActions` prop 与 `#bulkActions` 插槽可以二选一；需要完全自定义按钮时使用插槽，需要快速配置时使用 props。
@@ -573,15 +587,11 @@ Data Table 是 Admin 包的后台列表组合组件。它复用 Core 的 `YTable
 - Live example 的“千行性能”场景用于验收虚拟滚动表格的千行数据、固定高度和视口附近渲染边界。
 - 键盘路径应优先保留原生控件语义：Tab 进入表格工具栏、密度切换、列设置、行选择和分页；Space 切换 checkbox 选择；Enter 激活工具栏、刷新、批量操作和分页按钮。Live example 的“键盘巡航”场景会把这条路径显式放进验收面板。
 
-## Live example
-
-<LiveExampleRunner preset="dataTable" />
-
-## API
+## Data Table API {#data-table-api}
 
 <ComponentApiSection name="YDataTable" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 外层容器同步 `aria-busy`，loading 时通过 `role="status"` 宣告。
 - 错误状态使用 `role="alert"`，可与 refreshable 的 Retry 动作组合。

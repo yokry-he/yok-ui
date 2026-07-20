@@ -180,7 +180,7 @@ function getSourceSummary(liveProfile?: LiveExampleProfile): ComponentQualityIte
       key: 'source',
       label: 'Source',
       value: 'Needed',
-      detail: '还需要 Live example source quality 证据，覆盖源码复制、安装命令、API map、场景链接和 Playground handoff。',
+      detail: '还需要 Live example source quality 证据，覆盖源码复制、安装命令、API map、场景链接和源码复现。',
       tone: 'warning'
     }
   }
@@ -192,7 +192,7 @@ function getSourceSummary(liveProfile?: LiveExampleProfile): ComponentQualityIte
       key: 'source',
       label: 'Source',
       value: 'Complete',
-      detail: `${quality.checks.length}/${quality.checks.length} source workflow checks passed：API map ${quality.apiCoverageRate}%，Playground ${quality.playgroundComponent}。`,
+      detail: `${quality.checks.length}/${quality.checks.length} source workflow checks passed：API map ${quality.apiCoverageRate}%。`,
       tone: 'success'
     }
   }

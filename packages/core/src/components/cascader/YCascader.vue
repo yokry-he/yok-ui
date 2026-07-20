@@ -23,6 +23,7 @@ import type {
 } from './types'
 import { useDismissableLayer } from '../../composables/useDismissableLayer'
 import { useFloatingLayer } from '../../composables/useFloatingLayer'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 import { useYokConfig, type YokConfigSize } from '../config-provider'
 
 defineOptions({
@@ -500,7 +501,7 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
         :aria-label="open ? 'Close cascader' : 'Open cascader'"
         @click="togglePanel"
       >
-        <span aria-hidden="true">›</span>
+        <YInternalIcon name="chevronRight" />
       </button>
       <button
         v-if="clearable && hasSelection"
@@ -510,7 +511,7 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
         aria-label="Clear selection"
         @click="clearValue"
       >
-        ×
+        <YInternalIcon name="close" />
       </button>
     </div>
     <div v-if="multiple && selectedMultipleLabels.length" class="yok-cascader__tags" aria-label="Selected options">
@@ -566,7 +567,7 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
             @click="selectOption(option, columnIndex, optionIndex)"
           >
             <span v-if="multiple" class="yok-cascader__check" aria-hidden="true">
-              {{ isOptionChecked(option, columnIndex) ? '✓' : '' }}
+              <YInternalIcon v-if="isOptionChecked(option, columnIndex)" name="check" />
             </span>
             <span class="yok-cascader__option-label">
               <slot name="option" :option="option" :level="column.level">
@@ -593,7 +594,7 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
               class="yok-cascader__option-arrow"
               aria-hidden="true"
             >
-              ›
+              <YInternalIcon name="chevronRight" />
             </span>
           </button>
         </div>
@@ -683,8 +684,10 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
 .yok-cascader__clear {
   position: absolute;
   inset-block: var(--yok-cascader-action-inset);
-  display: grid;
+  display: inline-flex;
   width: var(--yok-cascader-action-size);
+  align-items: center;
+  justify-content: center;
   place-items: center;
   border: 0;
   border-radius: var(--yok-radius-sm);
@@ -692,6 +695,7 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
   color: var(--yok-color-textMuted);
   cursor: pointer;
   font-size: 18px;
+  line-height: 1;
 }
 
 .yok-cascader__trigger {
@@ -815,15 +819,28 @@ function isOptionChecked(option: YCascaderOption, columnIndex: number) {
 }
 
 .yok-cascader__check {
-  display: grid;
+  display: inline-flex;
   width: 16px;
   height: 16px;
+  align-items: center;
+  justify-content: center;
   place-items: center;
   border: 1px solid color-mix(in srgb, var(--yok-color-primary) 34%, var(--yok-color-border));
   border-radius: var(--yok-radius-sm);
   color: var(--yok-color-primary);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
+  line-height: 1;
+}
+
+.yok-cascader__option-arrow {
+  display: inline-flex;
+  flex: 0 0 16px;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
   line-height: 1;
 }
 

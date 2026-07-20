@@ -235,7 +235,11 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
 
 当前版本支持单选、展开折叠、禁用节点、受控展开状态、级联勾选、节点插槽、拖拽事件、异步加载、虚拟滚动和键盘导航。内置重排工具会作为后续增强。
 
-## Example
+::: tip TIP
+`YTree` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Basic tree {#tree-basic-tree}
 
 <DocDemo
   title="Basic tree"
@@ -254,6 +258,8 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
   <p class="demo-note">{{ lastSelect }}</p>
 </DocDemo>
 
+## Checkable tree {#tree-checkable-tree}
+
 <DocDemo
   title="Checkable tree"
   description="可勾选树默认父子级联，适合权限结构和资源授权；半选状态会通过 payload 暴露。"
@@ -271,6 +277,8 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
   <p class="demo-note">{{ lastCheck }}</p>
 </DocDemo>
 
+## Strict check {#tree-strict-check}
+
 <DocDemo
   title="Strict check"
   description="checkStrictly 让父子节点独立勾选，适合不需要级联的标签树和配置树。"
@@ -286,6 +294,8 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
     aria-label="Strict tree"
   />
 </DocDemo>
+
+## Custom node {#tree-custom-node}
 
 <DocDemo
   title="Custom node"
@@ -304,6 +314,8 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
   </YTree>
 </DocDemo>
 
+## Drag event {#tree-drag-event}
+
 <DocDemo
   title="Drag event"
   description="draggable 会发出 drop 事件，但不会直接修改 nodes，业务层可以据此重排数据。"
@@ -319,6 +331,8 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
   />
   <p class="demo-note">{{ lastDrop }}</p>
 </DocDemo>
+
+## Virtualized tree {#tree-virtualized-tree}
 
 <DocDemo
   title="Virtualized tree"
@@ -336,6 +350,8 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
     aria-label="Large component tree"
   />
 </DocDemo>
+
+## Lazy loading {#tree-lazy-loading}
 
 <DocDemo
   title="Lazy loading"
@@ -357,27 +373,19 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
   <p class="demo-note">{{ lastLoad }}</p>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="tree"
-  title="在线编辑 Tree 示例"
-  description="运行器内置树数据，可直接调整 selected-key、expanded-keys、checked-keys 和 checkable。"
-/>
-
-## Checkbox selection
+## Checkbox selection {#tree-checkbox-selection}
 
 `checkable` 打开后，Tree 会显示节点勾选框。默认父子级联：勾选父节点会勾选可用子节点，部分子节点勾选时父节点进入半选状态。
 
 `checkStrictly` 可以关闭级联，让父子节点独立勾选。受控场景使用 `v-model:checked-keys`。
 
-## Drag and drop
+## Drag and drop {#tree-drag-and-drop}
 
 `draggable` 打开后，Tree 会发出 `drop` 事件，但不会直接修改 `nodes`。使用方可以根据 `draggingKey`、`dropKey` 和 `type` 更新自己的树数据。
 
 `allowDrop` 可以限制放置位置，例如禁止放入某些系统节点或只允许同层排序。
 
-## Usage notes
+## Usage notes {#tree-usage-notes}
 
 - `nodes` 应保持稳定 key，避免展开、选中和勾选状态丢失。
 - 受控模式使用 `selectedKey`、`expandedKeys`、`checkedKeys`；非受控初始值使用 `defaultExpandedKeys` 和 `defaultCheckedKeys`。
@@ -385,11 +393,11 @@ Tree 用于展示层级数据，例如组件分类、权限结构、文件目录
 - `lazy` 模式下，未声明 `children` 且 `isLeaf !== true` 的节点会显示展开入口；远端确认叶子节点时应返回 `isLeaf: true`，避免继续显示展开按钮。
 - 已加载的远程节点可以通过组件 ref 调用 `reloadNode(key)` 定向刷新，成功时替换该节点 children，失败时返回 `false` 并触发 `loadError`。
 
-## API
+## Tree API {#tree-api}
 
 <ComponentApiSection name="YTree" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 根容器使用 `role="tree"` 和可配置的 `aria-label`。
 - 节点使用 `role="treeitem"`、`aria-level`、`aria-selected` 和 `aria-disabled`。

@@ -64,7 +64,11 @@ const switchFormCode = [
 
 Switch 用于开关类设置，比 checkbox 更适合即时生效的二元状态。
 
-## Example
+::: tip TIP
+`YSwitch` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Basic switch {#switch-basic-switch}
 
 <DocDemo
   id="switch-basic"
@@ -82,7 +86,7 @@ Switch 用于开关类设置，比 checkbox 更适合即时生效的二元状态
   />
 </DocDemo>
 
-## Form Validation
+## Form Validation {#switch-form-validation}
 
 <DocDemo
   id="switch-form-validation"
@@ -108,19 +112,11 @@ Switch 用于开关类设置，比 checkbox 更适合即时生效的二元状态
   </YForm>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="switch"
-  title="在线编辑 Switch 示例"
-  description="适合即时生效设置项，检查开关状态和标签文案是否清晰。"
-/>
-
-## API
+## Switch API {#switch-api}
 
 <ComponentApiSection name="YSwitch" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 组件使用 `role="switch"` 和 `aria-checked` 表达状态，可通过键盘聚焦。
 - 与 `YFormItem` 配合时，应把 `invalid` 和 `messageId` 传给 `YSwitch`，并在 change 后调用 `validate('change')`。

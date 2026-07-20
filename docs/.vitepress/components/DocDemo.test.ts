@@ -34,22 +34,10 @@ describe('DocDemo', () => {
     expect(wrapper.get('.doc-demo__tools').attributes('aria-label')).toBe('示例操作')
     expect(wrapper.findAll('[data-demo-language]').map((button) => button.text())).toEqual(['TS', 'JS'])
     expect(wrapper.findAll('[data-demo-action]').map((item) => item.attributes('data-demo-action'))).toEqual([
-      'playground',
-      'source-file',
       'copy',
       'toggle-source'
     ])
-    expect(wrapper.get('[data-demo-action="playground"]').attributes('data-tooltip')).toBe('在 Playground 中编辑')
-    expect(wrapper.get('[data-demo-action="playground"] .doc-demo__tool-glyph').attributes('data-icon')).toBe('playground')
-    expect(wrapper.get('[data-demo-action="playground"] .doc-demo__tool-glyph').text()).toBe('')
-    expect(wrapper.get('[data-demo-action="playground"] .doc-demo__tool-text').text()).toBe('Playground')
-    expect(wrapper.get('[data-demo-action="source-file"]').attributes('target')).toBe('_blank')
-    expect(wrapper.get('[data-demo-action="source-file"]').attributes('rel')).toBe('noreferrer')
-    expect(wrapper.get('[data-demo-action="source-file"]').attributes('data-tooltip')).toBe('查看组件源码')
-    expect(wrapper.get('[data-demo-action="source-file"]').attributes('aria-label')).toBe('查看组件源码')
-    expect(wrapper.get('[data-demo-action="source-file"] .doc-demo__tool-glyph').attributes('data-icon')).toBe('source')
-    expect(wrapper.get('[data-demo-action="source-file"] .doc-demo__tool-glyph').text()).toBe('')
-    expect(wrapper.get('[data-demo-action="source-file"] .doc-demo__tool-text').text()).toBe('Source file')
+    expect(wrapper.find('[data-demo-action="source-file"]').exists()).toBe(false)
     expect(wrapper.get('[data-demo-action="copy"] .doc-demo__tool-glyph').attributes('data-icon')).toBe('copy')
     expect(wrapper.get('[data-demo-action="copy"] .doc-demo__tool-glyph').text()).toBe('')
     expect(wrapper.get('[data-demo-action="copy"] .doc-demo__tool-text').text()).toBe('Copy code')
@@ -88,7 +76,7 @@ describe('DocDemo', () => {
     expect(wrapper.get('[data-demo-action="copy"]').attributes('data-tooltip')).toBe('已复制')
   })
 
-  it('renders an Element Plus style example block with source, copy and playground actions', async () => {
+  it('renders an Element Plus style example block with copy and source toggle actions', async () => {
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
       value: {
@@ -115,32 +103,20 @@ describe('DocDemo', () => {
       }
     })
 
-    expect(wrapper.get('.doc-demo__intro').text()).toContain('Basic usage')
     expect(wrapper.get('.doc-demo').attributes('id')).toBe('demo-basic-usage')
     expect(wrapper.get('.doc-demo').attributes('data-demo-id')).toBe('demo-basic-usage')
-    expect(wrapper.get('.doc-demo__intro h3').attributes('id')).toBe('demo-basic-usage-title')
-    expect(wrapper.get('.doc-demo__permalink').attributes('href')).toBe('#demo-basic-usage')
-    expect(wrapper.get('.doc-demo__permalink').attributes('aria-label')).toBe('Permalink to Basic usage example')
-    expect(wrapper.get('.doc-demo__intro').text()).toContain('Use v-model')
+    expect(wrapper.get('.doc-demo').attributes('aria-label')).toBe('Basic usage')
+    expect(wrapper.find('.doc-demo__intro').exists()).toBe(false)
+    expect(wrapper.find('.doc-demo__permalink').exists()).toBe(false)
     expect(wrapper.get('.doc-demo__preview').text()).toContain('Select preview')
     expect(wrapper.find('.doc-demo__code').exists()).toBe(false)
     expect(wrapper.get('.doc-demo__shell > .doc-demo__source-bar').attributes('data-source-placement')).toBe('preview-bottom')
     expect(wrapper.get('.doc-demo__actions').attributes('aria-label')).toBe('示例操作')
     expect(wrapper.findAll('[data-demo-action]').map((item) => item.attributes('data-demo-action'))).toEqual([
-      'playground',
-      'source-file',
       'copy',
       'toggle-source'
     ])
-    expect(wrapper.get('.doc-demo__playground').attributes('href')).toContain('/playground/?')
-    expect(wrapper.get('.doc-demo__playground').attributes('href')).toContain('component=select')
-    expect(wrapper.get('.doc-demo__playground').attributes('href')).toContain('handoff=')
-    expect(wrapper.get('.doc-demo__playground').attributes('href')).not.toContain('source=')
-    expect(wrapper.get('.doc-demo__playground').attributes('href')).not.toContain('from=docs-demo')
-    expect(wrapper.get('[data-demo-action="source-file"]').attributes('href')).toBe(
-      '/source/?file=packages/core/src/components/select/YSelect.vue'
-    )
-    expect(wrapper.get('.doc-demo__playground').attributes('data-tooltip')).toBe('在 Playground 中编辑')
+    expect(wrapper.find('[data-demo-action="source-file"]').exists()).toBe(false)
     expect(wrapper.get('.doc-demo__copy').attributes('data-tooltip')).toBe('复制代码')
     expect(wrapper.findAll('.doc-demo__language').map((button) => button.text())).toEqual(['TS', 'JS'])
     expect(wrapper.find('.doc-demo__collapse').exists()).toBe(false)
@@ -185,7 +161,6 @@ describe('DocDemo', () => {
       .findAll('.doc-demo__language')
       .find((button) => button.text() === 'JS')
       ?.trigger('click')
-    expect(wrapper.get('.doc-demo__playground').attributes('href')).toContain('docs-demo-select-js')
     expect(wrapper.get('.doc-demo__source-meta').attributes('data-source-language')).toBe('JS')
     await wrapper.get('.doc-demo__copy').trigger('click')
 
@@ -211,7 +186,7 @@ describe('DocDemo', () => {
     expect(wrapper.get('.doc-demo__shell').attributes('data-source-open')).toBe('false')
   })
 
-  it('uses an Element Plus style source panel contract for playground, copy and source inspection', async () => {
+  it('uses an Element Plus style source panel contract for copy and source inspection', async () => {
     window.history.pushState({}, '', '/components/select')
 
     const wrapper = mount(DocDemo, {
@@ -241,8 +216,6 @@ describe('DocDemo', () => {
     expect(sourceToolbar.get('.doc-demo__source-meta').attributes('data-source-kind')).toBe('vue-sfc')
     expect(sourceToolbar.get('.doc-demo__source-meta').text()).toContain('SFC')
     expect(sourceToolbar.findAll('[data-demo-action]').map((item) => item.attributes('data-demo-action'))).toEqual([
-      'playground',
-      'source-file',
       'copy',
       'toggle-source'
     ])
@@ -278,8 +251,6 @@ describe('DocDemo', () => {
       'element-plus-compact'
     )
     expect(sourceToolbar.findAll('.doc-demo__tool-text').map((item) => item.text())).toEqual([
-      'Playground',
-      'Source file',
       'Copy code',
       'Toggle source'
     ])
@@ -371,136 +342,9 @@ describe('DocDemo', () => {
 
     expect(wrapper.get('.doc-demo').attributes('id')).toBe('remote-search-select')
     expect(wrapper.get('.doc-demo').attributes('data-demo-id')).toBe('remote-search-select')
-    expect(wrapper.get('.doc-demo__intro h3').attributes('id')).toBe('remote-search-select-title')
-    expect(wrapper.get('.doc-demo__permalink').attributes('href')).toBe('#remote-search-select')
-    expect(wrapper.get('.doc-demo__permalink').attributes('title')).toBe('复制或打开 Remote search 示例链接')
-  })
-
-  it('persists docs demo source as a compact Playground handoff on click', async () => {
-    Object.defineProperty(navigator, 'clipboard', {
-      configurable: true,
-      value: {
-        writeText: vi.fn()
-      }
-    })
-    window.localStorage.clear()
-    const navigateToHandoff = vi.fn()
-    ;(window as typeof window & { __YOK_DOCS_DEMO_NAVIGATE__?: (href: string) => void }).__YOK_DOCS_DEMO_NAVIGATE__ =
-      navigateToHandoff
-    window.history.pushState({}, '', '/components/select')
-
-    const wrapper = mount(DocDemo, {
-      props: {
-        title: 'Long select demo',
-        setup: [
-          "import { ref } from 'vue'",
-          "import { YSelect } from '@yok-ui/core'",
-          '',
-          "const value = ref('core')"
-        ].join('\n'),
-        code: '<YSelect v-model="value" label="Package" />'
-      },
-      slots: {
-        default: '<div>Select preview</div>'
-      }
-    })
-
-    const playground = wrapper.get<HTMLAnchorElement>('[data-demo-action="playground"]')
-
-    expect(playground.attributes('href')).toContain('handoff=')
-    expect(playground.attributes('href')).not.toContain('source=')
-
-    const clickEvent = new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true
-    })
-    const defaultAllowed = playground.element.dispatchEvent(clickEvent)
-
-    const href = playground.attributes('href') ?? ''
-    const url = new URL(href, 'http://127.0.0.1:5173')
-    const handoffKey = url.searchParams.get('handoff') ?? ''
-    const stored = window.localStorage.getItem(`yok-ui:playground-handoff:${handoffKey}`)
-
-    expect(url.pathname).toBe('/playground/')
-    expect(url.searchParams.get('component')).toBe('select')
-    expect(url.searchParams.get('from')).toBeNull()
-    expect(url.searchParams.get('source')).toBeNull()
-    expect(handoffKey).toContain('docs-demo-select-ts')
-    expect(defaultAllowed).toBe(false)
-    expect(navigateToHandoff).toHaveBeenCalledWith(href)
-    expect(stored).not.toBeNull()
-
-    const payload = JSON.parse(stored ?? '{}')
-
-    expect(payload).toMatchObject({
-      version: 1,
-      component: 'select',
-      origin: 'docs-demo',
-      language: 'ts',
-      docsHash: '#demo-long-select-demo'
-    })
-    expect(payload.source).toContain('<YSelect v-model="value" label="Package" />')
-
-    delete (window as typeof window & { __YOK_DOCS_DEMO_NAVIGATE__?: (href: string) => void }).__YOK_DOCS_DEMO_NAVIGATE__
-  })
-
-  it('falls back to a source query when Playground handoff storage is unavailable', async () => {
-    const originalLocalStorage = window.localStorage
-    const navigateToFallback = vi.fn()
-    ;(window as typeof window & { __YOK_DOCS_DEMO_NAVIGATE__?: (href: string) => void }).__YOK_DOCS_DEMO_NAVIGATE__ =
-      navigateToFallback
-    Object.defineProperty(window, 'localStorage', {
-      configurable: true,
-      value: {
-        setItem: vi.fn(() => {
-          throw new Error('storage unavailable')
-        })
-      }
-    })
-    window.history.pushState({}, '', '/components/select')
-
-    const wrapper = mount(DocDemo, {
-      props: {
-        title: 'Storage blocked select demo',
-        setup: [
-          "import { ref } from 'vue'",
-          "import { YSelect } from '@yok-ui/core'",
-          '',
-          "const value = ref('core')"
-        ].join('\n'),
-        code: '<YSelect v-model="value" label="Package" />'
-      },
-      slots: {
-        default: '<div>Select preview</div>'
-      }
-    })
-
-    try {
-      const playground = wrapper.get<HTMLAnchorElement>('[data-demo-action="playground"]')
-      const clickEvent = new MouseEvent('click', {
-        bubbles: true,
-        cancelable: true
-      })
-      const defaultAllowed = playground.element.dispatchEvent(clickEvent)
-      const fallbackHref = navigateToFallback.mock.calls.at(-1)?.[0] ?? ''
-      const fallbackUrl = new URL(fallbackHref, 'http://127.0.0.1:5173')
-
-      expect(defaultAllowed).toBe(false)
-      expect(fallbackUrl.pathname).toBe('/playground/')
-      expect(fallbackUrl.searchParams.get('component')).toBe('select')
-      expect(fallbackUrl.searchParams.get('from')).toBe('docs-demo')
-      expect(fallbackUrl.searchParams.get('language')).toBe('ts')
-      expect(fallbackUrl.searchParams.get('docsHash')).toBe('#demo-storage-blocked-select-demo')
-      expect(fallbackUrl.searchParams.has('handoff')).toBe(false)
-      expect(fallbackUrl.searchParams.get('source')).toContain('<YSelect v-model="value" label="Package" />')
-      expect(playground.attributes('href')).toBe(fallbackHref)
-    } finally {
-      Object.defineProperty(window, 'localStorage', {
-        configurable: true,
-        value: originalLocalStorage
-      })
-      delete (window as typeof window & { __YOK_DOCS_DEMO_NAVIGATE__?: (href: string) => void }).__YOK_DOCS_DEMO_NAVIGATE__
-    }
+    expect(wrapper.get('.doc-demo').attributes('aria-label')).toBe('Remote search')
+    expect(wrapper.find('.doc-demo__intro').exists()).toBe(false)
+    expect(wrapper.find('.doc-demo__permalink').exists()).toBe(false)
   })
 
   it('falls back to legacy selection when demo code clipboard writes are blocked', async () => {
@@ -618,8 +462,7 @@ describe('DocDemo', () => {
     expect(wrapper.get('.doc-demo__code').text()).toContain("import { YButton } from '@yok-ui/core'")
     expect(wrapper.get('.doc-demo__code').text()).toContain("const label = 'Publish'")
     expect(wrapper.get('.doc-demo__code').text()).toContain('<template>')
-    expect(wrapper.get('.doc-demo__playground').attributes('href')).toContain('handoff=docs-demo-button-ts')
-    expect(wrapper.get('.doc-demo__playground').attributes('href')).not.toContain('source=')
+    expect(wrapper.find('.doc-demo__source').exists()).toBe(false)
 
     await wrapper.get('.doc-demo__copy').trigger('click')
 

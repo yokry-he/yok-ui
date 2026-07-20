@@ -11,7 +11,11 @@ const code = `<YSpace direction="vertical" align="start">
 
 Text 用于基础文本语义、强调、标记、代码和省略展示，帮助文档和产品页面减少散落的文本样式。
 
-## Example
+::: tip TIP
+`YText` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Semantic text {#text-semantic-text}
 
 <DocDemo
   title="Semantic text"
@@ -27,19 +31,11 @@ Text 用于基础文本语义、强调、标记、代码和省略展示，帮助
   </YSpace>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="text"
-  title="在线编辑 Text 示例"
-  description="调整文本语义色、尺寸、加粗、内联代码和多行省略，验证文档和产品页面的真实排版场景。"
-/>
-
-## API
+## Text API {#text-api}
 
 <ComponentApiSection name="YText" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - Text 默认只负责视觉语义，不会额外制造焦点。
 - `code` 适合变量名、token 和配置键，不应包裹大段代码。

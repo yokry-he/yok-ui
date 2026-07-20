@@ -28,7 +28,7 @@ Yok UI 现在把可访问性成熟度拆成两层数据：
 | --- | --- |
 | `interactionContracts` | 记录复杂组件的交互模式、键盘路径、焦点恢复、ARIA 语义、文档和测试路径。 |
 | `accessibilityEvidence` | 为每个注册组件生成证据档案，按 `native`、`standard`、`complex`、`critical` 风险分层，并统计语义、键盘、焦点、ARIA、对比度、动效降级、文档和测试覆盖。 |
-| `docsA11yAuditTargets` | 为官网顶层路由、成熟度页和高风险组件页生成审计目标，声明优先级、桌面/移动视口、检查项、live example 路由和证据路径。 |
+| `docsA11yAuditTargets` | 为官网顶层路由、成熟度页和高风险组件页生成审计目标，声明优先级、桌面/移动视口、DocDemo / API / Accessibility 检查项和证据路径。 |
 
 新增组件时，至少要满足：
 
@@ -43,10 +43,10 @@ Yok UI 现在把可访问性成熟度拆成两层数据：
 
 | Target type | Coverage |
 | --- | --- |
-| Top navigation | `/guide/`、`/components/`、`/resources/`、`/playground/` 必须进入结构、真实路由、对比度和响应式检查。 |
+| Top navigation | `/guide/`、`/components/`、`/resources/` 必须进入结构、真实路由、对比度和响应式检查。 |
 | Maturity page | `/resources/maturity` 作为 critical 资源页，必须展示证据、队列和移动端检查状态。 |
 | High-risk components | 所有 interaction contract 组件必须进入组件页审计，包含 keyboard、focus、ARIA、responsive 检查。 |
-| Critical live examples | `Modal`、`Drawer`、`DatePicker`、`DateRangePicker`、`Table`、`DataTable`、`Transfer`、`Tree`、`CommandPalette` 必须拥有 `#live-example` 审计入口。 |
+| Critical component docs | `Modal`、`Drawer`、`DatePicker`、`DateRangePicker`、`Table`、`DataTable`、`Transfer`、`Tree`、`CommandPalette` 必须拥有 DocDemo、API 和 Accessibility 审计入口。 |
 
 短期内这套数据先作为静态门禁；运行文档站后，可以用真实 URL 扫描补一层运行时检查：
 
@@ -54,7 +54,7 @@ Yok UI 现在把可访问性成熟度拆成两层数据：
 DOCS_A11Y_BASE_URL=http://127.0.0.1:5179 pnpm docs:a11y:runtime
 ```
 
-运行时脚本会读取 `docsA11yAuditTargets`，逐个访问目标页面，检查 HTTP 状态、`main`、`h1`、顶部导航、`#live-example` 锚点和运行时报告结构，并把最近一次真实 URL 扫描写入 `docs/.vitepress/data/a11y-runtime-report.generated.json`。如果本机能找到 Chrome、Chromium 或 Edge，脚本会通过 Chrome DevTools Protocol 额外采集真实 hydrated HTML、控制台 error、桌面/平板/移动视口下的页面横向溢出；被明确滚动容器包住的代码块和 API 表格不会被误判为页面级溢出。
+运行时脚本会读取 `docsA11yAuditTargets`，逐个访问目标页面，检查 HTTP 状态、`main`、`h1`、顶部导航、DocDemo / API / Accessibility 结构和运行时报告格式，并把最近一次真实 URL 扫描写入 `docs/.vitepress/data/a11y-runtime-report.generated.json`。如果本机能找到 Chrome、Chromium 或 Edge，脚本会通过 Chrome DevTools Protocol 额外采集真实 hydrated HTML、控制台 error、桌面/平板/移动视口下的页面横向溢出；被明确滚动容器包住的代码块和 API 表格不会被误判为页面级溢出。
 
 可以通过环境变量调整运行方式：
 

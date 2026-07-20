@@ -57,6 +57,7 @@ const sourcePathOverrides: Record<string, string> = {
   YThemeProvider: 'packages/core/src/components/theme-provider/YThemeProvider.vue',
   YConfigProvider: 'packages/core/src/components/config-provider/YConfigProvider.vue',
   YIconButton: 'packages/core/src/components/button/YIconButton.vue',
+  YButtonGroup: 'packages/core/src/components/button/YButtonGroup.vue',
   YAvatarGroup: 'packages/core/src/components/avatar/YAvatarGroup.vue',
   YDatePickerPanel: 'packages/core/src/components/date-picker/YDatePickerPanel.vue',
   YDateRangePicker: 'packages/core/src/components/date-picker/YDateRangePicker.vue',
@@ -77,6 +78,10 @@ const sourcePathOverrides: Record<string, string> = {
   YVirtualTable: 'packages/core/src/components/table/YVirtualTable.vue',
   YVirtualTree: 'packages/core/src/components/tree/YVirtualTree.vue',
   YSavedViewManager: 'packages/admin/src/components/saved-views/YSavedViewManager.vue'
+}
+
+const delegatedThemeSourcePaths: Record<string, string[]> = {
+  YThemeProvider: ['packages/core/src/components/config-provider/YConfigProvider.vue']
 }
 
 const tokenMatchers: Array<[ThemeEvidenceCategory, RegExp]> = [
@@ -141,7 +146,10 @@ function getCategories(tokens: string[]) {
 
 function createEvidence(component: ComponentMeta): ComponentThemeEvidence {
   const sourcePath = getExpectedSourcePath(component)
-  const source = componentSourceByPath.get(sourcePath) ?? ''
+  const source = [
+    componentSourceByPath.get(sourcePath) ?? '',
+    ...(delegatedThemeSourcePaths[component.name] ?? []).map((path) => componentSourceByPath.get(path) ?? '')
+  ].join('\n')
   const tokens = getTokensFromSource(source)
   const categories = getCategories(tokens)
 

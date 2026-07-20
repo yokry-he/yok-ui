@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 import {
   filterTransferOptions,
   getEnabledTransferKeys,
@@ -183,10 +184,10 @@ function moveLeft() {
 
     <div class="yok-transfer__actions">
       <button class="yok-transfer__action yok-focus-ring" type="button" :disabled="!canMoveRight" aria-label="Move selected to target" @click="moveRight">
-        <span aria-hidden="true">›</span>
+        <YInternalIcon name="chevronRight" />
       </button>
       <button class="yok-transfer__action yok-focus-ring" type="button" :disabled="!canMoveLeft" aria-label="Move selected to source" @click="moveLeft">
-        <span aria-hidden="true">‹</span>
+        <YInternalIcon name="chevronLeft" />
       </button>
     </div>
 

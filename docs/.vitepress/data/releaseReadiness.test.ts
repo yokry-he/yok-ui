@@ -15,13 +15,13 @@ describe('releaseReadiness', () => {
       'api-live',
       'workflow-live',
       'source-quality',
-      'playground-edit-share',
+      'edited-source-share',
       'theme',
       'component-maturity',
       'a11y',
       'interaction-contract'
     ])
-    expect(candidates[0].gates.find((gate) => gate.key === 'playground-edit-share')).toMatchObject({
+    expect(candidates[0].gates.find((gate) => gate.key === 'edited-source-share')).toMatchObject({
       label: 'Edited Source Share',
       passed: true
     })

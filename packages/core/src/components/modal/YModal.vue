@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, toRef } from 'vue'
 import { useOverlayA11y } from '../../composables/useOverlayA11y'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YModal'
@@ -58,7 +59,7 @@ const { layerStyle } = useOverlayA11y({
               data-modal-close
               @click="$emit('close')"
             >
-              ×
+              <YInternalIcon name="close" />
             </button>
           </header>
           <div class="yok-modal__body">

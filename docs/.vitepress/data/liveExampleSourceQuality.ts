@@ -5,7 +5,6 @@ import {
   type LiveExamplePreset,
   type LiveExampleProfile
 } from './liveExamples'
-import { getPlaygroundComponentForPreset } from './playgroundExamples'
 
 export type LiveExampleSourceQualityStatus = 'complete' | 'partial' | 'missing'
 
@@ -15,9 +14,8 @@ export type LiveExampleSourceQualityCheckKey =
   | 'install-command'
   | 'repro-bundle'
   | 'api-map'
-  | 'playground-handoff'
   | 'source-panel-handoff'
-  | 'playground-edit-share'
+  | 'edited-source-share'
   | 'scenario-share-link'
   | 'state-share-link'
   | 'event-repro'
@@ -38,7 +36,6 @@ export interface LiveExampleSourceQualityItem {
   score: number
   apiRows: number
   apiCoverageRate: number
-  playgroundComponent: string
   checks: LiveExampleSourceQualityCheck[]
   missingChecks: LiveExampleSourceQualityCheck[]
 }
@@ -50,9 +47,8 @@ export interface LiveExampleSourceQualitySummary {
   missing: number
   averageScore: number
   apiMapped: number
-  playgroundLinked: number
   sourcePanelHandoffReady: number
-  playgroundEditShareReady: number
+  editedSourceShareReady: number
   reproReady: number
   sourceCopyReady: number
   nextQueue: LiveExampleSourceQualityItem[]
@@ -139,7 +135,6 @@ function getStatus(score: number): LiveExampleSourceQualityStatus {
 }
 
 export function getLiveExampleSourceQualityItem(profile: LiveExampleProfile): LiveExampleSourceQualityItem {
-  const playgroundComponent = getPlaygroundComponentForPreset(profile.preset) ?? ''
   const apiCoverage = getApiCoverage(profile)
   const hasWorkflowShare = profile.scenarioDepth === 'workflow' &&
     profile.capabilities.includes('scenario-switching') &&
@@ -178,28 +173,20 @@ export function getLiveExampleSourceQualityItem(profile: LiveExampleProfile): Li
       `${apiCoverage.covered}/${apiCoverage.total} API rows 已反链到 live evidence。`
     ),
     createCheck(
-      'playground-handoff',
-      'Playground handoff',
-      Boolean(playgroundComponent),
-      playgroundComponent
-        ? `可导入 /playground/?component=${playgroundComponent} 并携带源码、主题、场景和控件状态。`
-        : '需要登记 live example preset 到 Playground 组件 allowlist。'
-    ),
-    createCheck(
       'source-panel-handoff',
       'Source panel handoff',
-      Boolean(playgroundComponent) && hasSourceCopyModes,
-      playgroundComponent && hasSourceCopyModes
-        ? 'Playground handoff 会携带 sourcePanel.mode、sourcePanel.label、sourcePanel.language 和安装包管理器，用于追溯 SFC、Install、Diff 或 Repro bundle 来源。'
-        : '需要 Playground handoff 和源码面板复制模式共同支撑 sourcePanel 上下文。'
+      hasSourceCopyModes,
+      hasSourceCopyModes
+        ? '源码面板会携带 sourcePanel.mode、sourcePanel.label、sourcePanel.language 和安装包管理器，用于追溯 SFC、Install、Diff 或 Repro bundle 来源。'
+        : '需要源码面板复制模式支撑 sourcePanel 上下文。'
     ),
     createCheck(
-      'playground-edit-share',
+      'edited-source-share',
       'Edited source share',
-      Boolean(playgroundComponent) && hasSourceCopyModes,
-      playgroundComponent && hasSourceCopyModes
-        ? 'Playground 中编辑后的源码会进入分享链接，避免继续指向旧 handoff payload。'
-        : '需要 Playground handoff、源码编辑和源码复制能力共同支撑编辑后分享。'
+      hasSourceCopyModes,
+      hasSourceCopyModes
+        ? '编辑后的源码可复制并进入复现包，避免文档示例和实际复现材料漂移。'
+        : '需要源码编辑和源码复制能力共同支撑编辑后分享。'
     ),
     createCheck(
       'scenario-share-link',
@@ -213,7 +200,7 @@ export function getLiveExampleSourceQualityItem(profile: LiveExampleProfile): Li
       'state-share-link',
       'State share link',
       profile.capabilities.includes('visual-props'),
-      '可视化属性面板状态可序列化到分享链接，并可被 Playground 恢复。'
+      '可视化属性面板状态可序列化到分享链接，并可被 live example 恢复。'
     ),
     createCheck(
       'event-repro',
@@ -234,7 +221,6 @@ export function getLiveExampleSourceQualityItem(profile: LiveExampleProfile): Li
     score,
     apiRows: apiCoverage.total,
     apiCoverageRate: apiCoverage.rate,
-    playgroundComponent,
     checks,
     missingChecks
   }
@@ -256,9 +242,8 @@ export function getLiveExampleSourceQualitySummary(): LiveExampleSourceQualitySu
     missing: items.filter((item) => item.status === 'missing').length,
     averageScore: Math.round(items.reduce((total, item) => total + item.score, 0) / Math.max(items.length, 1)),
     apiMapped: countWithPassedCheck('api-map'),
-    playgroundLinked: countWithPassedCheck('playground-handoff'),
     sourcePanelHandoffReady: countWithPassedCheck('source-panel-handoff'),
-    playgroundEditShareReady: countWithPassedCheck('playground-edit-share'),
+    editedSourceShareReady: countWithPassedCheck('edited-source-share'),
     reproReady: countWithPassedCheck('repro-bundle'),
     sourceCopyReady: countWithPassedCheck('source-copy-modes'),
     nextQueue: items

@@ -14,7 +14,11 @@ const basicCode = '<YLogoCloud title="Built for every package layer" :logos="log
 
 Logo Cloud 用于展示合作方、项目分组、技术栈或包名称，适合品牌页中的信任区。
 
-## Example
+::: tip TIP
+`YLogoCloud` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Package layers {#logo-cloud-package-layers}
 
 <DocDemo
   title="Package layers"
@@ -26,15 +30,11 @@ Logo Cloud 用于展示合作方、项目分组、技术栈或包名称，适合
   <YLogoCloud title="Built for every package layer" :logos="logos" />
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner preset="logoCloud" />
-
-## API
+## Logo Cloud API {#logo-cloud-api}
 
 <ComponentApiSection name="YLogoCloud" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - `logos` 中的每一项都应是可读品牌、包名或技术名称，不应只传装饰图片。
 - `title` 用于说明这一组标识的含义，例如合作方、技术栈或包分层。

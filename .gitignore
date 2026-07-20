@@ -1,8 +1,12 @@
 node_modules
+.worktrees
 dist
 **/.vitepress/dist
 **/.vitepress/cache
 .vite
+.vercel
 coverage
+outputs/publish
+*.tgz
 *.log
 .DS_Store

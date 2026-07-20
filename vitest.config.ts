@@ -1,5 +1,10 @@
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
+import { fileURLToPath } from 'node:url'
+
+function packageSource(packageName: string) {
+  return fileURLToPath(new URL(`./packages/${packageName}/src`, import.meta.url))
+}
 
 export default defineConfig({
   plugins: [vue()],
@@ -10,13 +15,13 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@yok-ui/themes': '/Users/yokry/Documents/Codex/2026-06-13/vue3/packages/themes/src',
-      '@yok-ui/core': '/Users/yokry/Documents/Codex/2026-06-13/vue3/packages/core/src',
-      '@yok-ui/product': '/Users/yokry/Documents/Codex/2026-06-13/vue3/packages/product/src',
-      '@yok-ui/hooks': '/Users/yokry/Documents/Codex/2026-06-13/vue3/packages/hooks/src',
-      '@yok-ui/icons': '/Users/yokry/Documents/Codex/2026-06-13/vue3/packages/icons/src',
-      '@yok-ui/admin': '/Users/yokry/Documents/Codex/2026-06-13/vue3/packages/admin/src',
-      '@yok-ui/brand': '/Users/yokry/Documents/Codex/2026-06-13/vue3/packages/brand/src'
+      '@yok-ui/themes': packageSource('themes'),
+      '@yok-ui/core': packageSource('core'),
+      '@yok-ui/product': packageSource('product'),
+      '@yok-ui/hooks': packageSource('hooks'),
+      '@yok-ui/icons': packageSource('icons'),
+      '@yok-ui/admin': packageSource('admin'),
+      '@yok-ui/brand': packageSource('brand')
     }
   }
 })

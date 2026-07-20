@@ -17,7 +17,11 @@ const basicCode = [
 
 Loading 用于表达容器、页面片段或全屏流程正在处理中。Yok UI 的 Loading 参考 Element Plus 的容器遮罩和服务式 Loading 思路，也参考 Ant Design / Naive UI 的 Spin 类组件用法；当前先提供稳定的组件化版本，后续可以在同一语义上扩展 directive 或 service。
 
-## Example
+::: tip TIP
+`YLoading` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Container overlay {#loading-container-overlay}
 
 <DocDemo
   title="Container overlay"
@@ -34,15 +38,7 @@ Loading 用于表达容器、页面片段或全屏流程正在处理中。Yok UI
   </YLoading>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="loading"
-  title="在线编辑 Loading 示例"
-  description="切换内联状态、容器遮罩、全屏阻断、错误重试、移动端和键盘读屏路径，验证 Loading 是否清楚表达当前任务。"
-/>
-
-## Usage notes
+## Usage notes {#loading-usage-notes}
 
 - `overlay` 适合表格、卡片、详情区域刷新，内容仍然保留在 DOM 中，并通过 `aria-busy` 表达忙碌状态。
 - `fullscreen` 适合首屏初始化、发布任务、路由切换等阻断流程；不要用它替代普通按钮 loading。
@@ -50,7 +46,7 @@ Loading 用于表达容器、页面片段或全屏流程正在处理中。Yok UI
 - Loading 表示“正在处理”；如果需要表达具体完成百分比，使用 Progress；如果需要占位最终布局，使用 Skeleton。
 - 文案应说明正在处理什么，而不是只写“Loading...”。例如 “Refreshing table” 比 “Loading” 更有帮助。
 
-## Patterns
+## Patterns {#loading-patterns}
 
 | Pattern | Recommendation |
 | --- | --- |
@@ -61,11 +57,11 @@ Loading 用于表达容器、页面片段或全屏流程正在处理中。Yok UI
 | Custom indicator | 通过 `indicator` 插槽替换默认 spinner |
 | Accessibility | 提供清晰 `text` 或 `label`，避免读屏只听到泛泛的 Loading |
 
-## API
+## Loading API {#loading-api}
 
 <ComponentApiSection name="YLoading" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 内联模式使用 `role="status"` 和 `aria-live="polite"`，适合非阻断状态。
 - 遮罩和全屏模式会对根节点标记 `aria-busy`，同时在遮罩内提供 status 区域。

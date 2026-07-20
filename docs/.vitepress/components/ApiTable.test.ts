@@ -135,9 +135,9 @@ describe('ApiTable', () => {
 
     expect(coverage.text()).toBe('Example')
     expect(coverage.attributes('data-status')).toBe('covered')
-    expect(coverage.attributes('href')).toBe('#demo-basic-select')
+    expect(coverage.attributes('href')).toBe('#select-basic-usage')
     expect(coverage.attributes('data-scenario')).toBeUndefined()
-    expect(coverage.attributes('title')).toContain('Basic usage')
+    expect(coverage.attributes('title')).toContain('基础用法')
 
     await coverage.trigger('click')
 
@@ -173,10 +173,10 @@ describe('ApiTable', () => {
     const coverageBadges = wrapper.findAll('.api-table__coverage')
 
     expect(coverageBadges.map((badge) => badge.text())).toEqual(['Example', 'Example'])
-    expect(coverageBadges[0].attributes('href')).toBe('#demo-variants')
-    expect(coverageBadges[0].attributes('title')).toContain('Variants')
-    expect(coverageBadges[1].attributes('href')).toBe('#demo-sizes-and-states')
-    expect(coverageBadges[1].attributes('title')).toContain('Sizes')
+    expect(coverageBadges[0].attributes('href')).toBe('#button-basic-usage')
+    expect(coverageBadges[0].attributes('title')).toContain('基础用法')
+    expect(coverageBadges[1].attributes('href')).toBe('#button-sizes')
+    expect(coverageBadges[1].attributes('title')).toContain('调整尺寸')
   })
 
   it('filters rows by name, type and description', async () => {

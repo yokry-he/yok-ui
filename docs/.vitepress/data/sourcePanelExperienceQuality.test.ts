@@ -5,13 +5,12 @@ import {
 } from './sourcePanelExperienceQuality'
 
 describe('sourcePanelExperienceQuality', () => {
-  it('tracks Element Plus style source panels across docs, live examples and playground', () => {
+  it('tracks Element Plus style source panels across docs and live examples', () => {
     const items = getSourcePanelExperienceItems()
 
     expect(items.map((item) => item.key)).toEqual([
       'doc-demo',
-      'live-example',
-      'playground'
+      'live-example'
     ])
     expect(items.every((item) => item.status === 'complete')).toBe(true)
     expect(items.every((item) => item.score === 100)).toBe(true)
@@ -28,7 +27,6 @@ describe('sourcePanelExperienceQuality', () => {
         expect.objectContaining({ key: 'bottom-collapse', passed: true }),
         expect.objectContaining({ key: 'language-switch', passed: true }),
         expect.objectContaining({ key: 'shared-action-model', passed: true }),
-        expect.objectContaining({ key: 'playground-edit', passed: true }),
         expect.objectContaining({ key: 'copy-source', passed: true })
       ]))
       expect(item.checks.find((check) => check.key === 'element-plus-panel')?.detail).toContain('data-source-panel')
@@ -40,15 +38,14 @@ describe('sourcePanelExperienceQuality', () => {
   it('summarizes the source panel experience as a maturity gate', () => {
     const summary = getSourcePanelExperienceSummary()
 
-    expect(summary.total).toBe(3)
-    expect(summary.complete).toBe(3)
+    expect(summary.total).toBe(2)
+    expect(summary.complete).toBe(2)
     expect(summary.averageScore).toBe(100)
-    expect(summary.elementPlusPanels).toBe(3)
-    expect(summary.topRightToolbars).toBe(3)
-    expect(summary.bottomCollapseBars).toBe(3)
-    expect(summary.sharedActionModels).toBe(3)
-    expect(summary.playgroundEditActions).toBe(3)
-    expect(summary.copyActions).toBe(3)
+    expect(summary.elementPlusPanels).toBe(2)
+    expect(summary.topRightToolbars).toBe(2)
+    expect(summary.bottomCollapseBars).toBe(2)
+    expect(summary.sharedActionModels).toBe(2)
+    expect(summary.copyActions).toBe(2)
     expect(summary.nextQueue).toEqual([])
   })
 })

@@ -42,7 +42,11 @@ const disabledCode = [
 
 Breadcrumb 用于展示当前页面在站点或产品结构中的位置，帮助用户回到上级页面。它适合文档站、后台详情页、设置页和作品集的多层路径。
 
-## Example
+::: tip TIP
+`YBreadcrumb` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Documentation path {#breadcrumb-documentation-path}
 
 <DocDemo
   title="Documentation path"
@@ -54,15 +58,7 @@ Breadcrumb 用于展示当前页面在站点或产品结构中的位置，帮助
   <YBreadcrumb :items="docsItems" />
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="breadcrumb"
-  title="在线编辑 Breadcrumb 示例"
-  description="预览文档站和后台详情页里的路径层级，确认当前位置和分隔符表达清楚。"
-/>
-
-## Disabled item
+## Disabled item {#breadcrumb-disabled-item}
 
 <DocDemo
   title="Disabled item"
@@ -78,10 +74,10 @@ Breadcrumb 用于展示当前页面在站点或产品结构中的位置，帮助
   />
 </DocDemo>
 
-## Accessibility
-
-Breadcrumb 使用 `nav` 和有序列表表达路径层级，默认 `aria-label` 为 `Breadcrumb`。最后一项或显式设置 `current: true` 的项目会得到 `aria-current="page"`。禁用项不会渲染为链接，并使用 `aria-disabled="true"`。
-
-## API
+## Breadcrumb API {#breadcrumb-api}
 
 <ComponentApiSection name="YBreadcrumb" />
+
+## Accessibility {#accessibility}
+
+Breadcrumb 使用 `nav` 和有序列表表达路径层级，默认 `aria-label` 为 `Breadcrumb`。最后一项或显式设置 `current: true` 的项目会得到 `aria-current="page"`。禁用项不会渲染为链接，并使用 `aria-disabled="true"`。

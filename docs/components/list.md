@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { YListItem } from '@yok-ui/core'
 
-
 const tasks: YListItem[] = [
   {
     key: 'docs',
@@ -105,7 +104,11 @@ const stateCode = [
 
 List 用于展示消息、资源、任务、文章、设置项或轻量内容集合。它参考 Ant Design 的 List 模式，保留 header、footer、size、bordered、split、item layout、grid、loading、empty 等常用能力，但在 Yok UI 中保持更轻的 Core 定位：分页、虚拟滚动和远程数据由 `YPagination`、`YVirtualList` 或业务层组合完成。
 
-## Basic
+::: tip TIP
+`YList` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Basic list {#list-basic-list}
 
 <DocDemo
   title="Basic list"
@@ -121,7 +124,7 @@ List 用于展示消息、资源、任务、文章、设置项或轻量内容集
   />
 </DocDemo>
 
-## Bordered With Actions
+## Bordered With Actions {#list-bordered-with-actions}
 
 <DocDemo
   title="Bordered with actions"
@@ -148,7 +151,7 @@ List 用于展示消息、资源、任务、文章、设置项或轻量内容集
   </YList>
 </DocDemo>
 
-## Grid
+## Grid {#list-grid}
 
 <DocDemo
   title="Grid list"
@@ -170,7 +173,7 @@ List 用于展示消息、资源、任务、文章、设置项或轻量内容集
   </YList>
 </DocDemo>
 
-## Loading And Empty
+## Loading And Empty {#list-loading-and-empty}
 
 <DocDemo
   title="Loading and empty"
@@ -189,15 +192,7 @@ List 用于展示消息、资源、任务、文章、设置项或轻量内容集
   </div>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="list"
-  title="在线编辑 List 示例"
-  description="切换任务列表、资源网格、加载列表、空结果、移动列表和键盘阅读场景，并复制对应源码。"
-/>
-
-## Usage notes
+## Usage notes {#list-usage-notes}
 
 - 参考 Ant Design List 的组织方式，List 应覆盖基础列表、纵向详情、栅格资源、加载、空态和分页组合等场景。
 - Yok UI 的 `YList` 保持轻量 Core 定位；分页用 `YPagination` 组合，海量数据用 `YVirtualList` 组合。
@@ -206,11 +201,11 @@ List 用于展示消息、资源、任务、文章、设置项或轻量内容集
 - 远程刷新时使用 `loading`；搜索或筛选没有结果时使用空状态，而不是渲染空的 `ul`。
 - 列表项被禁用时应保留文本可读，并通过 `aria-disabled` 表达状态；操作区仍应使用真实按钮。
 
-## API
+## List API {#list-api}
 
 <ComponentApiSection name="YList" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 外层使用具名 `section`，默认可访问名称来自 `ariaLabel` 或 `title`。
 - 列表内容使用原生 `ul` / `li` 表达条目集合。

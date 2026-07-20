@@ -70,7 +70,10 @@ const guidedPropCoverageHints = new Set([
   'animated',
   'auto-upload',
   'autocomplete',
+  'auto-insert-space',
+  'autofocus',
   'before-upload',
+  'bg',
   'bordered',
   'block',
   'bulk-actions',
@@ -87,6 +90,7 @@ const guidedPropCoverageHints = new Set([
   'column-widths',
   'columns',
   'compact',
+  'circle',
   'confirm-text',
   'content',
   'cancel-text',
@@ -94,6 +98,8 @@ const guidedPropCoverageHints = new Set([
   'current',
   'count',
   'custom-request',
+  'dark',
+  'dashed',
   'dot',
   'close-on-outside-pointer',
   'color',
@@ -171,7 +177,9 @@ const guidedPropCoverageHints = new Set([
   'logos',
   'locale',
   'lazy',
+  'link',
   'loading',
+  'loading-icon',
   'loading-text',
   'loop',
   'list-type',
@@ -191,6 +199,7 @@ const guidedPropCoverageHints = new Set([
   'min-time',
   'multiple',
   'name',
+  'native-type',
   'next-text',
   'nodes',
   'offset',
@@ -205,6 +214,7 @@ const guidedPropCoverageHints = new Set([
   'pagination',
   'pause-on-hover',
   'placeholder',
+  'plain',
   'prompt-error',
   'prompt-label',
   'prompt-placeholder',
@@ -226,11 +236,14 @@ const guidedPropCoverageHints = new Set([
   'radius',
   'readonly',
   'remote',
+  'remote-error-text',
+  'remote-method',
   'required',
   'resizable',
   'reset-text',
   'rejected-files',
   'right',
+  'round',
   'role',
   'rotate',
   'rows',
@@ -337,13 +350,46 @@ const componentDocModules = import.meta.glob('../../components/*.md', {
 }) as Record<string, string>
 
 const docDemoCoverageHints: Record<string, string[]> = {
-  '/components/button': ['variant', 'size'],
+  '/components/button': [
+    'type',
+    'variant',
+    'size',
+    'native-type',
+    'plain',
+    'text',
+    'bg',
+    'link',
+    'round',
+    'circle',
+    'dashed',
+    'loading',
+    'loading-icon',
+    'disabled',
+    'icon',
+    'block',
+    'autofocus',
+    'auto-insert-space',
+    'color',
+    'dark',
+    'label',
+    'direction',
+    'vertical'
+  ],
   '/components/input': ['type', 'show-password'],
   '/components/input-otp': ['length', 'mask', 'type'],
   '/components/upload': ['downloadable', 'sortable'],
   '/components/table': ['striped'],
   '/components/select': ['label'],
   '/components/virtualized-select': ['height', 'item-height', 'overscan', 'filterable', 'multiple']
+}
+
+const docDemoEvidenceOverrides: Record<string, Record<string, ApiLiveDocDemoEvidence>> = {
+  '/components/button': {
+    size: {
+      id: 'button-sizes',
+      title: '调整尺寸'
+    }
+  }
 }
 
 function normalizeToken(value: string) {
@@ -475,6 +521,13 @@ function hasDocDemoCoverageHint(docsPath: string, row: ApiRow) {
 function findDocDemoEvidence(docsPath: string, row: ApiRow): ApiLiveDocDemoEvidence | undefined {
   if (!hasDocDemoCoverageHint(docsPath, row)) {
     return undefined
+  }
+
+  const rowToken = normalizeToken(row.name)
+  const override = rowToken ? docDemoEvidenceOverrides[docsPath]?.[rowToken] : undefined
+
+  if (override) {
+    return override
   }
 
   const source = getComponentDocSource(docsPath)

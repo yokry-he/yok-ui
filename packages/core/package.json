@@ -11,6 +11,18 @@
     "design-system",
     "yok-ui"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yokry-he/yok-ui.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/yokry-he/yok-ui/tree/main/packages/core#readme",
+  "bugs": {
+    "url": "https://github.com/yokry-he/yok-ui/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": [
     "**/*.css",
     "./src/styles/base.css"
@@ -41,6 +53,7 @@
   "dependencies": {
     "@floating-ui/vue": "^2.0.0",
     "@yok-ui/themes": "workspace:*",
+    "focus-trap": "^8.2.2",
     "qrcode": "^1.5.4"
   }
 }

@@ -36,7 +36,11 @@ const basicCode = [
 
 命令面板是 `@yok-ui/product` 的特色组件，适合个人工具、开发者工具和复杂控制台中的快速操作。
 
-## Example
+::: tip TIP
+`YCommandPalette` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Quick command launcher {#command-palette-quick-command-launcher}
 
 <DocDemo
   title="Quick command launcher"
@@ -49,15 +53,11 @@ const basicCode = [
   <YCommandPalette :open="open" :commands="commands" @close="open = false" @select="open = false" />
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner preset="commandPalette" />
-
-## API
+## Command Palette API {#command-palette-api}
 
 <ComponentApiSection name="YCommandPalette" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 外层使用 `role="dialog"` 和 `aria-modal="true"`。
 - 搜索输入使用 `role="combobox"`、`aria-controls` 和 `aria-activedescendant` 关联当前命令。
@@ -67,7 +67,7 @@ const basicCode = [
 - `Escape` 请求关闭。
 - 没有匹配命令时使用 `role="status"` 暴露空状态。
 
-## Roadmap
+## Roadmap {#command-palette-roadmap}
 
 - 命令分组
 - 快捷键提示

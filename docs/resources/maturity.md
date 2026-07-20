@@ -1,21 +1,19 @@
 # Maturity
 
-Maturity 页面用于持续追踪 Yok UI 和主流组件库之间的差距。这里不会粉饰进度：组件数量、API 数据、在线示例、guided 示例深度、workflow 场景矩阵、键盘焦点交互契约、可访问性证据档案、文档站审计目标、稳定状态、覆盖率百分比和后续队列都会从当前 registry、live example 覆盖表、interaction contract、accessibility evidence 与 docs audit target 数据中自动汇总。
+Maturity 页面用于持续追踪 Yok UI 的真实交付状态。这里不会把组件登记、文档存在或示例存在直接等同于浏览器验证；公开指标只从当前 registry、DocDemo 源码质量和最近一次运行时审计报告中推导。
 
-从当前版本开始，页面还会维护 `mainstream parity benchmark`：把 Element Plus、Ant Design Vue、Arco Design Vue、Naive UI 和 TDesign Vue Next 的组件总览、示例源码操作、Playground 交接、主题 token、企业表单、后台模板、桌面应用壳层和 Guide / Component / Resource 信息架构拆成外部基准项，再映射到 Yok UI 的组件、文档路由、Live Example、API evidence 和资源页证据。这样即使内部成熟度指标已经满分，也能继续用外部参照发现下一批追赶方向。
+成熟度采用五级证据：`registered`、`documented`、`example-ready`、`browser-verified` 和 `release-ready`。只有生成报告同时覆盖桌面、平板和手机视口且全部通过，组件才会进入 browser verified。
 
-页面同时追踪 `adoption readiness`：安装预设、全量注册、分包插件、按需导入、`@yok-ui/resolver` 自动导入、`style.css` side effect、类型声明、主题 CSS 导出和文档运行时审计都会作为采用门禁展示。主流组件库的完整度不只来自组件数量，也来自业务项目能否低成本、可类型检查、可按需裁剪地接入。
+这套指标刻意保持保守：没有运行时证据的稳定组件仍会停留在 example ready，避免用内部登记数据制造已经发布就绪的错觉。
 
-`support matrix` 会继续把 Vue 版本、现代浏览器、SSR、构建工具、包管理器、CSS 变量主题、可访问性和自动导入支持边界纳入看板。它对应主流组件库安装页常见的 compatibility 说明，目标是让 Yok UI 的接入前判断可以被测试和持续维护。
-
-<MaturityDashboard />
+<VerificationDashboard />
 
 ## How to read this page
 
 <div class="docs-card-grid">
   <section class="docs-card">
     <h3>先补深度</h3>
-    <p>主流组件库的优势不只是组件多，而是每个高频组件都有示例、API、可访问性、边界说明和稳定行为。复杂组件的 live example 需要登记基础态、受控回填、异常态、空态、加载态、批量操作、键盘路径和响应式场景，并在 live acceptance 面板里直接暴露通过项和缺口，而不只是单个 props 调试。</p>
+    <p>主流组件库的优势不只是组件多，而是每个高频组件都有示例、API、可访问性、边界说明和稳定行为。组件文档优先对齐 Element Plus 的示例块结构：真实预览、工具栏、源码展开、复制代码、API 和 Accessibility 证据应稳定共存。</p>
   </section>
   <section class="docs-card">
     <h3>再补广度</h3>
@@ -33,7 +31,7 @@ Maturity 页面用于持续追踪 Yok UI 和主流组件库之间的差距。这
 pnpm docs:a11y
 ```
 
-这个命令会单独验证 interaction contracts、accessibility evidence、docs audit targets 和 runtime audit core，适合在新增复杂组件、调整顶部导航、改成熟度页或重构 live example 后快速确认文档站质量门禁。
+这个命令会单独验证 interaction contracts、accessibility evidence、docs audit targets 和 runtime audit core，适合在新增复杂组件、调整顶部导航、改成熟度页或重构 DocDemo 示例块后快速确认文档站质量门禁。
 
 文档站运行后可以再跑真实 URL 扫描：
 
@@ -41,6 +39,6 @@ pnpm docs:a11y
 DOCS_A11Y_BASE_URL=http://127.0.0.1:5179 pnpm docs:a11y:runtime
 ```
 
-运行时扫描会访问审计目标页面，检查 HTTP 状态、页面结构、顶部导航、`#live-example` 锚点和审计报告格式，并把最新结果写入 `docs/.vitepress/data/a11y-runtime-report.generated.json`。Maturity 页面会读取这份报告展示最近一次真实 URL 验收结果。
+运行时扫描会访问审计目标页面，检查 HTTP 状态、页面结构、顶部导航、DocDemo / API / Accessibility 结构和审计报告格式，并把最新结果写入 `docs/.vitepress/data/a11y-runtime-report.generated.json`。Maturity 页面会读取这份报告展示最近一次真实 URL 验收结果。
 
 当本机存在 Chrome、Chromium 或 Edge 时，脚本会进一步通过 Chrome DevTools Protocol 执行真实浏览器审计：采集 hydrated HTML、控制台 error、桌面/平板/移动视口下的页面横向溢出，并过滤掉代码块、API 表格这类已经被滚动容器承载的内部宽内容。可以用 `DOCS_A11Y_REPORT_PATH=/tmp/yok-ui-a11y.json` 覆盖报告路径，用 `DOCS_A11Y_ROUTE=/components/input,/components/popover` 只复跑指定路由，用 `DOCS_A11Y_BROWSER=0` 临时降级为 HTTP 结构检查，用 `DOCS_A11Y_CHROME_PATH` 指定浏览器路径。

@@ -58,7 +58,11 @@ const verticalCode = [
 
 Segmented 用于在少量互斥选项之间快速切换。它参考 Ant Design Segmented 的单选、block、vertical、disabled、size 和 name 使用方式，并保留 Yok UI 的清爽可爱视觉。
 
-## Example
+::: tip TIP
+`YSegmented` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Basic switch {#segmented-basic-switch}
 
 <DocDemo
   title="Basic switch"
@@ -71,7 +75,7 @@ Segmented 用于在少量互斥选项之间快速切换。它参考 Ant Design S
   <p class="demo-note">Current view: {{ viewMode }}</p>
 </DocDemo>
 
-## Block
+## Block {#segmented-block}
 
 <DocDemo
   title="Block period"
@@ -84,7 +88,7 @@ Segmented 用于在少量互斥选项之间快速切换。它参考 Ant Design S
   <p class="demo-note">Report period: {{ period }}</p>
 </DocDemo>
 
-## Vertical
+## Vertical {#segmented-vertical}
 
 <DocDemo
   title="Vertical density"
@@ -97,26 +101,18 @@ Segmented 用于在少量互斥选项之间快速切换。它参考 Ant Design S
   <p class="demo-note">Density: {{ density }}</p>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="segmented"
-  title="在线编辑 Segmented 示例"
-  description="验证视图模式、等宽周期、纵向分段、禁用选项和键盘单选场景。"
-/>
-
-## Usage notes
+## Usage notes {#segmented-usage-notes}
 
 - 适合 2 到 5 个轻量选项，例如视图模式、统计周期、内容密度和筛选维度。
 - 复杂说明、错误提示或较多选项应优先使用 `YRadioGroup`。
 - `block` 适合工具栏、筛选条和窄容器；普通内联区域保持默认宽度更利于扫描。
 - 需要浏览器原生同组键盘行为时传入稳定 `name`。
 
-## API
+## Segmented API {#segmented-api}
 
 <ComponentApiSection name="YSegmented" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 组件使用 `role="radiogroup"` 并保留原生 `input type="radio"`。
 - 有可见标题时使用 `label`；无可见标题时必须提供 `ariaLabel`。

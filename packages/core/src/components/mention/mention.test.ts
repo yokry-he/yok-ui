@@ -120,4 +120,57 @@ describe('YMention', () => {
     expect(wrapper.emitted('change')?.[0]).toEqual([''])
     expect(wrapper.emitted('clear')).toHaveLength(1)
   })
+
+  it('loads remote mention suggestions with prefix context and ignores stale responses', async () => {
+    let resolveUserSearch: (options: typeof options) => void = () => {}
+    let resolveIssueSearch: (options: typeof options) => void = () => {}
+    const remoteMethod = (query: string, prefix: string) =>
+      new Promise<typeof options>((resolve) => {
+        if (query === 'ad' && prefix === '@') {
+          resolveUserSearch = resolve
+          return
+        }
+
+        if (query === '42' && prefix === '#') {
+          resolveIssueSearch = resolve
+          return
+        }
+
+        resolve([])
+      })
+
+    const wrapper = mount(YMention, {
+      props: {
+        modelValue: '',
+        label: 'Release note',
+        prefix: ['@', '#'],
+        options,
+        loadingText: 'Loading remote mentions...',
+        remoteMethod
+      },
+      attachTo: document.body
+    })
+
+    const textarea = wrapper.get('textarea')
+    await textarea.setValue('Ping @ad')
+    await nextTick()
+
+    expect(wrapper.get('[role="status"]').text()).toBe('Loading remote mentions...')
+    expect(wrapper.find('[role="option"]').exists()).toBe(false)
+
+    await textarea.setValue('Fix #42')
+    await nextTick()
+
+    resolveIssueSearch([{ label: 'Issue 42', value: 'issue-42', description: 'Remote issue' }])
+    await nextTick()
+    await nextTick()
+
+    expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['#Issue 42Remote issue'])
+
+    resolveUserSearch([{ label: 'Ada Lovelace', value: 'ada', description: 'Stale user' }])
+    await nextTick()
+    await nextTick()
+
+    expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['#Issue 42Remote issue'])
+  })
 })

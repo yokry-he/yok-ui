@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import ComponentPageToc from './ComponentPageToc.vue'
 
@@ -14,75 +15,106 @@ vi.mock('vitepress', () => ({
   })
 }))
 
+const renderPageHeadings = (headings: string[]) => {
+  document.body.innerHTML = [
+    '<div class="VPDoc">',
+    '  <div class="content-container">',
+    '    <div class="vp-doc">',
+    ...headings.map((heading) => `      ${heading}`),
+    '      <div class="doc-demo"><h3 id="demo-heading">Demo heading</h3></div>',
+    '      <div class="live-example-runner"><h2 id="live-example">Live example</h2></div>',
+    '    </div>',
+    '  </div>',
+    '</div>'
+  ].join('')
+}
+
+const collectHeadings = async () => {
+  await nextTick()
+  await new Promise((resolve) => window.requestAnimationFrame(resolve))
+  await nextTick()
+}
+
 describe('ComponentPageToc', () => {
   beforeEach(() => {
     routeState.path = '/components/data-table'
+    document.body.innerHTML = ''
   })
 
-  it('renders live example, API and Playground links for component pages', () => {
+  it('renders one Element Plus style contents list from the page headings', async () => {
+    renderPageHeadings([
+      '<h2 id="when-to-use">When to use</h2>',
+      '<h2 id="api">API</h2>',
+      '<h3 id="api-props">Props</h3>'
+    ])
+
+    const wrapper = mount(ComponentPageToc)
+
+    await collectHeadings()
+
+    expect(wrapper.find('.component-page-toc').exists()).toBe(true)
+    expect(wrapper.text()).toContain('CONTENTS')
+    expect(wrapper.find('a[href="#when-to-use"]').text()).toBe('When to use')
+    expect(wrapper.find('a[href="#api"]').text()).toBe('API')
+    expect(wrapper.find('a[href="#api-props"]').text()).toBe('Props')
+    expect(wrapper.find('a[href="#api-props"]').classes()).toContain('component-page-toc__section-link--nested')
+    expect(wrapper.find('a[href="#demo-heading"]').exists()).toBe(false)
+    expect(wrapper.find('a[href="#live-example"]').exists()).toBe(false)
+    expect(wrapper.find('.component-page-toc__group--maintenance').exists()).toBe(false)
+    expect(wrapper.find('.component-page-toc__scenario').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('API data center')
+  })
+
+  it('uses rendered Select headings instead of hard-coded route shortcuts', async () => {
+    routeState.path = '/components/select'
+    renderPageHeadings([
+      '<h2 id="basic-usage">基础用法</h2>',
+      '<h2 id="options-attributes">Options 属性</h2>',
+      '<h3 id="api-select-attributes">Select Attributes</h3>',
+      '<h2 id="accessibility">Accessibility</h2>'
+    ])
+
+    const wrapper = mount(ComponentPageToc)
+
+    await collectHeadings()
+
+    expect(wrapper.text()).toContain('CONTENTS')
+    expect(wrapper.find('a[href="#basic-usage"]').text()).toBe('基础用法')
+    expect(wrapper.find('a[href="#options-attributes"]').text()).toBe('Options 属性')
+    expect(wrapper.find('a[href="#api-select-attributes"]').text()).toBe('Select Attributes')
+    expect(wrapper.find('a[href="#accessibility"]').text()).toBe('Accessibility')
+    expect(wrapper.find('a[href="#api-props"]').exists()).toBe(false)
+    expect(wrapper.find('a[href="#live-example"]').exists()).toBe(false)
+  })
+
+  it('keeps the contents shell empty until rendered headings are available', () => {
     const wrapper = mount(ComponentPageToc)
 
     expect(wrapper.find('.component-page-toc').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Yok Contents')
-    expect(wrapper.text()).toContain('Data Table')
-    expect(wrapper.find('a[href="#live-example"]').exists()).toBe(true)
-    expect(wrapper.find('a[href="#live-example-api-map"]').exists()).toBe(true)
-    expect(wrapper.find('a[href="#live-example-scenarios"]').exists()).toBe(true)
-    expect(wrapper.find('a[href="#api"]').exists()).toBe(true)
-    expect(wrapper.find('a[href="#api-props"]').exists()).toBe(true)
-    expect(wrapper.find('a[href="#api-props-columns"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('API data center')
-    expect(wrapper.find('a[href="/resources/api-reference?api-q=YDataTable"]').exists()).toBe(true)
-    expect(wrapper.find('a[href="/resources/api-reference?api-q=YDataTable&api-kind=props"]').exists()).toBe(true)
-    expect(wrapper.find('a[href="/resources/api-reference?api-q=YDataTable&api-kind=events"]').exists()).toBe(true)
-    expect(wrapper.find('a[href="/playground/?component=dataTable"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('CONTENTS')
+    expect(wrapper.find('.component-page-toc__section-list').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Live example')
+    expect(wrapper.text()).not.toContain('API data center')
   })
 
-  it('dispatches scenario changes from the right-side scenario navigation', async () => {
-    const listener = vi.fn()
-    window.addEventListener('yok-ui:live-example-scenario', listener)
-
-    const wrapper = mount(ComponentPageToc)
-    const scenario = wrapper
-      .findAll('.component-page-toc__scenario')
-      .find((item) => item.text().includes('错误重试'))
-
-    expect(scenario?.attributes('href')).toBe('#live-example?scenario=error-retry')
-
-    await scenario?.trigger('click')
-
-    expect(listener).toHaveBeenCalledTimes(1)
-    expect(listener.mock.calls[0][0].detail).toEqual({
-      preset: 'dataTable',
-      scenarioKey: 'error-retry'
-    })
-
-    window.removeEventListener('yok-ui:live-example-scenario', listener)
-  })
-
-  it('hides component maintenance shortcuts when coverage is complete', () => {
-    routeState.path = '/components/bulk-action-bar'
+  it('reads the new page headings after navigation remounts the toc', async () => {
+    renderPageHeadings(['<h2 id="table-api">Table API</h2>'])
 
     const wrapper = mount(ComponentPageToc)
 
-    expect(wrapper.find('.component-page-toc__group--maintenance').exists()).toBe(false)
-    expect(wrapper.text()).toContain('Interaction contract')
-    expect(wrapper.find('a[href="/playground/?component=bulkActionBar"]').exists()).toBe(true)
-  })
+    await collectHeadings()
+    expect(wrapper.find('a[href="#table-api"]').exists()).toBe(true)
 
-  it('uses component-qualified API anchors for multi-component API pages', () => {
+    wrapper.unmount()
     routeState.path = '/components/tag-badge'
+    renderPageHeadings(['<h2 id="tag-api">Tag API</h2>', '<h3 id="badge-props">Badge Props</h3>'])
+    const nextWrapper = mount(ComponentPageToc)
 
-    const wrapper = mount(ComponentPageToc)
+    await collectHeadings()
 
-    expect(wrapper.text()).toContain('Tag')
-    expect(wrapper.text()).toContain('YTag')
-    expect(wrapper.text()).toContain('YBadge')
-    expect(wrapper.find('a[href="#api-y-tag-props"]').exists()).toBe(true)
-    expect(wrapper.find('a[href="#api-y-tag-props-tone"]').exists()).toBe(true)
-    expect(wrapper.find('a[href="#api-y-badge-props"]').exists()).toBe(true)
-    expect(wrapper.find('a[href="#api-y-badge-props-value"]').exists()).toBe(true)
-    expect(wrapper.find('a[href="#api-props"]').exists()).toBe(false)
+    expect(nextWrapper.find('a[href="#table-api"]').exists()).toBe(false)
+    expect(nextWrapper.find('a[href="#tag-api"]').exists()).toBe(true)
+    expect(nextWrapper.find('a[href="#badge-props"]').classes()).toContain('component-page-toc__section-link--nested')
   })
 
   it('does not render outside component pages', () => {

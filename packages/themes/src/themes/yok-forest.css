@@ -1,0 +1,35 @@
+[data-yok-theme='yok-forest'] {
+  --yok-color-primary: #166534;
+  --yok-color-primarySoft: #e8f8ee;
+  --yok-color-accentPink: #f472b6;
+  --yok-color-accentBlue: #67e8f9;
+  --yok-color-accentYellow: #eab308;
+  --yok-color-surface: #fcfffb;
+  --yok-color-surfaceMuted: #f0f8ef;
+  --yok-color-text: #243026;
+  --yok-color-textMuted: #63705f;
+  --yok-color-border: #d8e8d5;
+  --yok-color-danger: #b83a48;
+  --yok-color-warning: #875f00;
+  --yok-color-success: #167a59;
+  --yok-radius-xs: 6px;
+  --yok-radius-sm: 8px;
+  --yok-radius-md: 12px;
+  --yok-radius-lg: 16px;
+  --yok-radius-xl: 22px;
+  --yok-space-1: 4px;
+  --yok-space-2: 8px;
+  --yok-space-3: 12px;
+  --yok-space-4: 16px;
+  --yok-space-5: 20px;
+  --yok-space-6: 24px;
+  --yok-shadow-soft: 0 8px 24px rgba(37, 48, 45, 0.08);
+  --yok-shadow-pop: 0 14px 40px rgba(37, 48, 45, 0.12);
+  --yok-motion-fast: 120ms ease;
+  --yok-motion-normal: 180ms ease;
+  --yok-zIndex-tooltip: 900;
+  --yok-zIndex-floating: 1000;
+  --yok-zIndex-drawer: 1900;
+  --yok-zIndex-modal: 2000;
+  --yok-zIndex-toast: 3000;
+}

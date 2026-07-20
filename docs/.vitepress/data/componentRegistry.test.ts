@@ -12,7 +12,6 @@ import {
   componentSidebarGroups,
   guideSidebar,
   packageSidebar,
-  playgroundSidebar,
   resourceSidebar,
   sectionSidebars,
   topNavItems
@@ -23,7 +22,7 @@ describe('componentRegistry', () => {
     const names = components.map((component) => component.name)
 
     expect(new Set(names).size).toBe(names.length)
-    expect(components).toHaveLength(121)
+    expect(components).toHaveLength(122)
 
     components.forEach((component) => {
       expect(component.docs).toMatch(/^\/(components|guide)\//)
@@ -60,8 +59,19 @@ describe('componentRegistry', () => {
     expect(sectionSidebars['/guide/']).toBe(guideSidebar)
     expect(sectionSidebars['/packages/']).toBe(packageSidebar)
     expect(sectionSidebars['/resources/']).toBe(resourceSidebar)
-    expect(sectionSidebars['/playground/']).toBe(playgroundSidebar)
     expect(sectionSidebars['/blocks/']).toBe(blockSidebar)
+
+    const componentSidebarRoot = componentSidebar[0] as {
+      text: string
+      collapsed: boolean
+      items: unknown[]
+    }
+
+    expect(componentSidebar).toHaveLength(1)
+    expect(componentSidebarRoot.text).toContain('yok-sidebar-root-label')
+    expect(componentSidebarRoot.collapsed).toBe(false)
+    expect(componentSidebarRoot.items[0]).toEqual({ text: 'Overview 组件总览', link: '/components/' })
+    expect(componentSidebarRoot.items[1]).toBe(componentSidebarGroups[0])
 
     const componentSidebarText = JSON.stringify(componentSidebar)
     const guideSidebarText = JSON.stringify(guideSidebar)
@@ -70,7 +80,7 @@ describe('componentRegistry', () => {
     const blockSidebarText = JSON.stringify(blockSidebar)
 
     expect(componentSidebarText).toContain('Overview 组件总览')
-    expect(componentSidebarText).toContain('Button / Icon Button')
+    expect(componentSidebarText).toContain('Button / Button Group / Icon Button')
     expect(componentSidebarText).not.toContain('Installation')
     expect(componentSidebarText).not.toContain('Core')
     expect(componentSidebarText).not.toContain('Command Center')
@@ -91,14 +101,12 @@ describe('componentRegistry', () => {
     expect(topNavItems.map((item) => item.text)).toEqual([
       '指南',
       '组件',
-      '资源',
-      'Playground'
+      '资源'
     ])
     expect(topNavItems.map((item) => item.link)).toEqual([
       '/guide/',
       '/components/',
-      '/resources/',
-      '/playground/'
+      '/resources/'
     ])
   })
 
@@ -156,14 +164,30 @@ describe('componentRegistry', () => {
     ]))
     expect(componentApis.YFieldArray.slots?.find((row) => row.name === 'default')?.type).toContain('itemKey')
     expect(componentApis.YFieldArray.types?.map((row) => row.name)).toContain('YFieldArrayItemKey')
-    expect(componentApis.YThemeProvider.props?.map((row) => row.name)).toContain('theme')
+    expect(componentApis.YThemeProvider.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'theme',
+      'density',
+      'font',
+      'tokens'
+    ]))
     expect(componentApis.YConfigProvider.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
       'size',
       'density',
       'locale',
-      'namespace'
+      'direction',
+      'namespace',
+      'theme',
+      'font',
+      'zIndex',
+      'tokens',
+      'button'
     ]))
-    expect(componentApis.YConfigProvider.types?.map((row) => row.name)).toContain('YokConfigContext')
+    expect(componentApis.YConfigProvider.types?.map((row) => row.name)).toEqual(expect.arrayContaining([
+      'YokConfigContext',
+      'YokLocale',
+      'YokFontPresetName',
+      'YokButtonConfig'
+    ]))
     expect(componentApis.YSplitter.props?.map((row) => row.name)).toEqual(expect.arrayContaining([
       'panels',
       'modelValue',

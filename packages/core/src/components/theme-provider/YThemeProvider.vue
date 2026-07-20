@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { createThemeVars, type YokThemeName, type YokThemeTokens } from '@yok-ui/themes'
+import type { YokThemeName, YokThemeTokens } from '@yok-ui/themes'
+import {
+  YConfigProvider,
+  type YokConfigDensity,
+  type YokFontInput
+} from '../config-provider'
 
 defineOptions({
   name: 'YThemeProvider'
@@ -8,35 +12,26 @@ defineOptions({
 
 interface Props {
   theme?: YokThemeName
-  density?: 'comfortable' | 'compact'
+  density?: YokConfigDensity
+  font?: YokFontInput
   tokens?: YokThemeTokens
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   theme: 'yok-light',
-  density: 'comfortable'
+  density: 'comfortable',
+  font: 'system'
 })
-
-const themeVars = computed(() => (props.tokens ? createThemeVars(props.tokens) : undefined))
 </script>
 
 <template>
-  <div
+  <YConfigProvider
     class="yok-theme-provider"
-    :data-yok-theme="theme"
-    :data-yok-density="density"
-    :style="themeVars"
+    :theme="theme"
+    :density="density"
+    :font="font"
+    :tokens="tokens"
   >
     <slot />
-  </div>
+  </YConfigProvider>
 </template>
-
-<style scoped>
-.yok-theme-provider {
-  color: var(--yok-color-text);
-  background: var(--yok-color-surface);
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-}
-</style>

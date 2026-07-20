@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YMenu'
@@ -283,7 +284,9 @@ function handleKeydown(event: KeyboardEvent, item: YMenuItem, keyPath: YMenuKey[
           >
             <span v-if="entry.item.icon" class="yok-menu__icon" aria-hidden="true">{{ entry.item.icon }}</span>
             <span class="yok-menu__label">{{ entry.item.label }}</span>
-            <span class="yok-menu__chevron" aria-hidden="true">⌄</span>
+            <span class="yok-menu__chevron" aria-hidden="true">
+              <YInternalIcon name="chevronDown" />
+            </span>
           </button>
           <button
             v-else
@@ -406,6 +409,14 @@ function handleKeydown(event: KeyboardEvent, item: YMenuItem, keyPath: YMenuKey[
 }
 
 .yok-menu__chevron {
+  display: inline-flex;
+  flex: 0 0 16px;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  line-height: 1;
   transition: transform var(--yok-motion-fast);
 }
 

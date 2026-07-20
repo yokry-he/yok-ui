@@ -204,7 +204,11 @@ Data View 是后台列表页的组合组件。它把 `YSavedViews` 和 `YDataTab
 
 它适合组件库官网、SaaS 管理台、审核队列、资源库等需要反复切换筛选方案的页面。业务层仍然负责接口请求和持久化，Data View 只负责稳定的 UI 结构和事件流。
 
-## Example
+::: tip TIP
+`YDataView` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Saved table workspace {#data-view-saved-table-workspace}
 
 <DocDemo
   title="Saved table workspace"
@@ -238,15 +242,11 @@ Data View 是后台列表页的组合组件。它把 `YSavedViews` 和 `YDataTab
   <p class="demo-note">Current view: {{ activeView }} · {{ latestPreference }} · {{ latestSave }}</p>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner preset="dataView" />
-
-## API
+## Data View API {#data-view-api}
 
 <ComponentApiSection name="YDataView" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 外层使用具名 `section`，左侧保存视图和右侧数据表都有独立可访问名称。
 - 保存视图继承 `YSavedViews` 的原生 button 语义，当前视图通过 `aria-pressed` 表达。

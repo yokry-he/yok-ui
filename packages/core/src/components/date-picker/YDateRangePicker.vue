@@ -18,6 +18,7 @@ import {
 } from './date'
 import { useDismissableLayer } from '../../composables/useDismissableLayer'
 import { useFloatingLayer } from '../../composables/useFloatingLayer'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 import { useYokConfig, type YokConfigSize } from '../config-provider'
 
 defineOptions({
@@ -353,7 +354,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
         :aria-label="open ? 'Close date range calendar' : 'Open date range calendar'"
         @click="togglePanel"
       >
-        <span aria-hidden="true">▦</span>
+        <YInternalIcon name="calendar" />
       </button>
       <button
         v-if="clearable && modelValue.length"
@@ -363,7 +364,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
         aria-label="Clear date range"
         @click="clearValue"
       >
-        ×
+        <YInternalIcon name="close" />
       </button>
     </div>
     <p v-if="error" :id="errorId" class="yok-date-range__error" role="alert">{{ error }}</p>
@@ -380,9 +381,13 @@ function handleCalendarKeydown(event: KeyboardEvent) {
         @keydown="handleCalendarKeydown"
       >
         <div class="yok-date-range__panel-header">
-          <button class="yok-date-range__nav yok-focus-ring" type="button" aria-label="Previous month" @click="moveMonth(-1)">‹</button>
+          <button class="yok-date-range__nav yok-focus-ring" type="button" aria-label="Previous month" @click="moveMonth(-1)">
+            <YInternalIcon name="chevronLeft" />
+          </button>
           <strong>{{ monthLabel }}</strong>
-          <button class="yok-date-range__nav yok-focus-ring" type="button" aria-label="Next month" @click="moveMonth(1)">›</button>
+          <button class="yok-date-range__nav yok-focus-ring" type="button" aria-label="Next month" @click="moveMonth(1)">
+            <YInternalIcon name="chevronRight" />
+          </button>
         </div>
 
         <div v-if="resolvedShortcuts.length" class="yok-date-range__shortcuts" role="group" aria-label="Date range shortcuts">
@@ -515,8 +520,10 @@ function handleCalendarKeydown(event: KeyboardEvent) {
 .yok-date-range__clear {
   position: absolute;
   inset-block: var(--yok-date-range-action-inset);
-  display: grid;
+  display: inline-flex;
   width: var(--yok-date-range-action-size);
+  align-items: center;
+  justify-content: center;
   place-items: center;
   border: 0;
   border-radius: var(--yok-radius-sm);
@@ -524,6 +531,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
   color: var(--yok-color-textMuted);
   cursor: pointer;
   font-size: 16px;
+  line-height: 1;
 }
 
 .yok-date-range__trigger {
@@ -575,16 +583,19 @@ function handleCalendarKeydown(event: KeyboardEvent) {
 }
 
 .yok-date-range__nav {
-  display: grid;
+  display: inline-flex;
   width: 32px;
   height: 32px;
+  align-items: center;
+  justify-content: center;
   place-items: center;
   border: 1px solid var(--yok-color-border);
   border-radius: var(--yok-radius-md);
   background: var(--yok-color-surface);
   color: var(--yok-color-text);
   cursor: pointer;
-  font-size: 20px;
+  font-size: 16px;
+  line-height: 1;
 }
 
 .yok-date-range__nav:hover {

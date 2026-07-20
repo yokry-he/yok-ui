@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YCheckbox'
@@ -50,8 +51,12 @@ watch(() => props.indeterminate, syncIndeterminate, { flush: 'post' })
       @change="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)"
     />
     <span class="yok-checkbox__box" aria-hidden="true">
-      <span v-if="indeterminate" class="yok-checkbox__check">−</span>
-      <span v-else-if="modelValue" class="yok-checkbox__check">✓</span>
+      <span v-if="indeterminate" class="yok-checkbox__check">
+        <YInternalIcon name="minus" />
+      </span>
+      <span v-else-if="modelValue" class="yok-checkbox__check">
+        <YInternalIcon name="check" />
+      </span>
     </span>
     <span class="yok-checkbox__content">
       <span v-if="label" class="yok-checkbox__label">{{ label }}</span>

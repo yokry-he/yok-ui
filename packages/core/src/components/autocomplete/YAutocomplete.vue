@@ -16,6 +16,7 @@ export interface YAutocompleteOption {
 }
 
 export type YAutocompleteSize = 'small' | 'medium' | 'large'
+export type YAutocompleteRemoteMethod = (query: string) => YAutocompleteOption[] | Promise<YAutocompleteOption[]>
 
 const autocompleteSizeByConfig: Record<YokConfigSize, YAutocompleteSize> = {
   sm: 'small',
@@ -36,6 +37,8 @@ interface Props {
   clearable?: boolean
   loading?: boolean
   loadingText?: string
+  remoteMethod?: YAutocompleteRemoteMethod
+  remoteErrorText?: string
   emptyText?: string
   size?: YAutocompleteSize
 }
@@ -52,6 +55,7 @@ const props = withDefaults(defineProps<Props>(), {
   clearable: false,
   loading: false,
   loadingText: 'Loading suggestions',
+  remoteErrorText: 'Failed to load suggestions',
   emptyText: 'No suggestions'
 })
 
@@ -73,6 +77,10 @@ const panelRef = ref<HTMLElement | null>(null)
 const open = ref(false)
 const activeIndex = ref(-1)
 const searchText = ref(props.modelValue)
+const remoteOptions = ref<YAutocompleteOption[]>([])
+const remoteLoading = ref(false)
+const remoteError = ref('')
+let remoteRequestId = 0
 
 const fieldId = computed(() => props.id || `yok-autocomplete-${generatedId}`)
 const labelId = computed(() => `${fieldId.value}-label`)
@@ -82,14 +90,18 @@ const resolvedDensity = computed(() => yokConfig.density.value)
 const hasInvalidState = computed(() => Boolean(props.error || props.invalid))
 const describedBy = computed(() => props.ariaDescribedby || undefined)
 const inputAriaLabel = computed(() => props.label || 'Autocomplete')
+const hasActiveRemoteQuery = computed(() => Boolean(props.remoteMethod && searchText.value.trim()))
+const sourceOptions = computed(() => hasActiveRemoteQuery.value ? remoteOptions.value : props.options)
+const isLoading = computed(() => props.loading || remoteLoading.value)
+const emptyStatusText = computed(() => remoteError.value || props.emptyText)
 const filteredOptions = computed(() => {
   const query = searchText.value.trim().toLowerCase()
 
-  if (!query) {
-    return props.options
+  if (!query || hasActiveRemoteQuery.value) {
+    return sourceOptions.value
   }
 
-  return props.options.filter((option) =>
+  return sourceOptions.value.filter((option) =>
     option.label.toLowerCase().includes(query) ||
     option.value.toLowerCase().includes(query)
   )
@@ -156,6 +168,7 @@ function updateValue(event: Event) {
   searchText.value = value
   emit('update:modelValue', value)
   emit('search', value)
+  updateRemoteOptions(value)
   void openSuggestions()
 }
 
@@ -177,6 +190,7 @@ function selectOption(option: YAutocompleteOption) {
 
 function clearValue() {
   searchText.value = ''
+  resetRemoteOptions()
   emit('update:modelValue', '')
   emit('change', '')
   emit('clear')
@@ -240,6 +254,59 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 
+async function loadRemoteOptions(value: string) {
+  const remoteMethod = props.remoteMethod
+
+  if (!remoteMethod) {
+    return
+  }
+
+  const requestId = ++remoteRequestId
+  remoteError.value = ''
+  remoteLoading.value = true
+
+  try {
+    const nextOptions = await remoteMethod(value)
+
+    if (requestId !== remoteRequestId) {
+      return
+    }
+
+    remoteOptions.value = Array.isArray(nextOptions) ? nextOptions : []
+  } catch {
+    if (requestId !== remoteRequestId) {
+      return
+    }
+
+    remoteOptions.value = []
+    remoteError.value = props.remoteErrorText
+  } finally {
+    if (requestId === remoteRequestId) {
+      remoteLoading.value = false
+    }
+  }
+}
+
+function resetRemoteOptions() {
+  remoteRequestId += 1
+  remoteLoading.value = false
+  remoteError.value = ''
+  remoteOptions.value = []
+}
+
+function updateRemoteOptions(value: string) {
+  if (!props.remoteMethod) {
+    return
+  }
+
+  if (!value.trim()) {
+    resetRemoteOptions()
+    return
+  }
+
+  void loadRemoteOptions(value)
+}
+
 watch(filteredOptions, () => {
   if (!open.value) {
     return
@@ -252,6 +319,7 @@ watch(
   () => props.modelValue,
   (value) => {
     searchText.value = value
+    updateRemoteOptions(value)
   }
 )
 </script>
@@ -308,7 +376,7 @@ watch(
       class="yok-autocomplete__panel"
       :style="floatingStyles"
     >
-      <div v-if="loading" class="yok-autocomplete__empty" role="status">{{ loadingText }}</div>
+      <div v-if="isLoading" class="yok-autocomplete__empty" role="status">{{ loadingText }}</div>
       <div
         v-else-if="hasSuggestions"
         :id="listboxId"
@@ -333,7 +401,7 @@ watch(
           <span v-if="option.description" class="yok-autocomplete__option-description">{{ option.description }}</span>
         </button>
       </div>
-      <div v-else class="yok-autocomplete__empty" role="status">{{ emptyText }}</div>
+      <div v-else class="yok-autocomplete__empty" role="status">{{ emptyStatusText }}</div>
     </div>
   </div>
 </template>

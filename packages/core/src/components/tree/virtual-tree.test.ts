@@ -133,9 +133,10 @@ describe('YVirtualTree', () => {
     await nextTick()
 
     expect(wrapper.findAll('[role="treeitem"]').map((item) => item.text())).toEqual([
-      '−Remote folder',
+      'Remote folder',
       'Remote child'
     ])
+    expect(wrapper.get('[aria-label="Collapse Remote folder"]').find('svg').exists()).toBe(true)
     expect(wrapper.emitted('load')?.[0]).toEqual([{
       node: { key: 'remote', label: 'Remote folder' },
       key: 'remote',

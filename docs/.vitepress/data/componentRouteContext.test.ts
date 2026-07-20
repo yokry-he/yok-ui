@@ -16,7 +16,7 @@ describe('componentRouteContext', () => {
     expect(summary.apiCoverageRate).toBeGreaterThan(0)
     expect(summary.liveCoverageRate).toBeGreaterThan(0)
     expect(summary.a11yContractRate).toBeGreaterThan(0)
-    expect(summary.playgroundHandoffRate).toBeGreaterThan(0)
+    expect(summary.sourceReproRate).toBeGreaterThan(0)
     expect(summary.themeCoverageRate).toBe(100)
     expect(summary.complete + summary.needsAttention).toBe(summary.total)
     expect(summary.needsAttention).toBe(0)
@@ -72,21 +72,21 @@ describe('componentRouteContext', () => {
     expect(context?.qualityItems.find((item) => item.key === 'api-live')?.value).toBe('Linked')
     expect(context?.qualityItems.find((item) => item.key === 'live')?.value).toBe('Workflow')
     expect(context?.qualityItems.find((item) => item.key === 'source')?.value).toBe('Complete')
-    expect(context?.qualityItems.find((item) => item.key === 'source')?.detail).toContain('Playground dataTable')
+    expect(context?.qualityItems.find((item) => item.key === 'source')?.detail).toContain('API map 100%')
     expect(context?.qualityItems.find((item) => item.key === 'repro')?.value).toBe('Bundle')
     expect(context?.maturityItems.map((item) => item.key)).toEqual([
       'api',
       'live',
       'a11y',
-      'playground',
+      'source',
       'theme',
       'route'
     ])
     expect(context?.maturityItems.find((item) => item.key === 'api')?.value).toContain('rows')
     expect(context?.maturityItems.find((item) => item.key === 'live')?.value).toBe('12 scenarios')
     expect(context?.maturityItems.find((item) => item.key === 'a11y')?.value).toBe('verified')
-    expect(context?.maturityItems.find((item) => item.key === 'playground')?.value).toBe('Linked')
-    expect(context?.maturityItems.find((item) => item.key === 'playground')?.detail).toContain('/playground/?component=dataTable')
+    expect(context?.maturityItems.find((item) => item.key === 'source')?.value).toBe('Ready')
+    expect(context?.maturityItems.find((item) => item.key === 'source')?.detail).toContain('复现包')
     expect(context?.maturityItems.find((item) => item.key === 'theme')?.detail).toContain('token refs')
     expect(context?.maturityItems.find((item) => item.key === 'theme')?.detail).toContain('YDataTable.vue')
     expect(context?.maturityItems.find((item) => item.key === 'route')?.detail).toContain('Prev')
@@ -104,7 +104,7 @@ describe('componentRouteContext', () => {
     ])
     expect(context?.evidenceMatrix.find((item) => item.key === 'source')?.value).toBe('Complete')
     expect(context?.evidenceMatrix.find((item) => item.key === 'source')?.maturityItems.map((item) => item.key)).toEqual([
-      'playground'
+      'source'
     ])
     expect(context?.evidenceMatrix.find((item) => item.key === 'a11y')?.qualityItems.map((item) => item.key)).toEqual([
       'accessibility',

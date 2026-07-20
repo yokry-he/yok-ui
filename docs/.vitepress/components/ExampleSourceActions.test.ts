@@ -15,13 +15,13 @@ describe('ExampleSourceActions', () => {
         ],
         actions: [
           {
-            key: 'playground',
-            href: '/playground/?component=select&handoff=demo',
-            tooltip: '在 Playground 中编辑',
-            label: '在 Playground 中编辑',
+            key: 'source',
+            href: '/source/?component=select&handoff=demo',
+            tooltip: '在 source repro 中编辑',
+            label: '在 source repro 中编辑',
             glyph: '',
-            icon: 'playground',
-            text: 'Playground'
+            icon: 'source',
+            text: 'source repro'
           },
           {
             key: 'copy',
@@ -42,24 +42,24 @@ describe('ExampleSourceActions', () => {
     ])
     expect(wrapper.get('[data-demo-language="ts"]').attributes('aria-pressed')).toBe('true')
     expect(wrapper.findAll('[data-demo-action]').map((item) => item.attributes('data-demo-action'))).toEqual([
-      'playground',
+      'source',
       'copy'
     ])
-    expect(wrapper.get('[data-demo-action="playground"]').attributes('href')).toBe(
-      '/playground/?component=select&handoff=demo'
+    expect(wrapper.get('[data-demo-action="source"]').attributes('href')).toBe(
+      '/source/?component=select&handoff=demo'
     )
-    expect(wrapper.get('[data-demo-action="playground"]').attributes('data-tooltip')).toBe('在 Playground 中编辑')
-    expect(wrapper.get('[data-demo-action="playground"] .example-source-actions__glyph').attributes('data-icon')).toBe('playground')
-    expect(wrapper.get('[data-demo-action="playground"] .example-source-actions__glyph').text()).toBe('')
+    expect(wrapper.get('[data-demo-action="source"]').attributes('data-tooltip')).toBe('在 source repro 中编辑')
+    expect(wrapper.get('[data-demo-action="source"] .example-source-actions__glyph').attributes('data-icon')).toBe('source')
+    expect(wrapper.get('[data-demo-action="source"] .example-source-actions__glyph').text()).toBe('')
     expect(wrapper.get('[data-demo-action="copy"] .example-source-actions__glyph').attributes('data-icon')).toBe('copy')
     expect(wrapper.get('[data-demo-action="copy"] .example-source-actions__text').text()).toBe('Copy code')
 
     await wrapper.get('[data-demo-language="js"]').trigger('click')
-    await wrapper.get('[data-demo-action="playground"]').trigger('click')
+    await wrapper.get('[data-demo-action="source"]').trigger('click')
     await wrapper.get('[data-demo-action="copy"]').trigger('click')
 
     expect(wrapper.emitted('update:language')).toEqual([['js']])
-    expect(wrapper.emitted('action')?.map((event) => event[0])).toEqual(['playground', 'copy'])
+    expect(wrapper.emitted('action')?.map((event) => event[0])).toEqual(['source', 'copy'])
   })
 
   it('can prefix language action values for live examples', () => {
@@ -96,15 +96,15 @@ describe('ExampleSourceActions', () => {
   it('renders pressed state for mode-like source actions', () => {
     const wrapper = mount(ExampleSourceActions, {
       props: {
-        actionAttribute: 'data-playground-code-action',
+        actionAttribute: 'data-source-code-action',
         activeLanguage: 'ts',
         actions: [
           {
             key: 'mode-edit',
-            tooltip: '在 Playground 中编辑',
-            label: '在 Playground 中编辑',
+            tooltip: '在 source repro 中编辑',
+            label: '在 source repro 中编辑',
             glyph: '',
-            icon: 'playground',
+            icon: 'source',
             text: '编辑',
             pressed: true
           },
@@ -121,7 +121,7 @@ describe('ExampleSourceActions', () => {
       }
     })
 
-    expect(wrapper.get('[data-playground-code-action="mode-edit"]').attributes('aria-pressed')).toBe('true')
-    expect(wrapper.get('[data-playground-code-action="mode-source"]').attributes('aria-pressed')).toBe('false')
+    expect(wrapper.get('[data-source-code-action="mode-edit"]').attributes('aria-pressed')).toBe('true')
+    expect(wrapper.get('[data-source-code-action="mode-source"]').attributes('aria-pressed')).toBe('false')
   })
 })

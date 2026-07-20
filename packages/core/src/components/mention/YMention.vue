@@ -22,6 +22,7 @@ export interface YMentionSelectPayload {
 }
 
 export type YMentionSize = 'small' | 'medium' | 'large'
+export type YMentionRemoteMethod = (query: string, prefix: string) => YMentionOption[] | Promise<YMentionOption[]>
 
 const mentionSizeByConfig: Record<YokConfigSize, YMentionSize> = {
   sm: 'small',
@@ -49,6 +50,8 @@ interface Props {
   clearable?: boolean
   loading?: boolean
   loadingText?: string
+  remoteMethod?: YMentionRemoteMethod
+  remoteErrorText?: string
   emptyText?: string
   prefix?: string | string[]
   rows?: number
@@ -67,6 +70,7 @@ const props = withDefaults(defineProps<Props>(), {
   clearable: false,
   loading: false,
   loadingText: 'Loading mentions',
+  remoteErrorText: 'Failed to load mentions',
   emptyText: 'No mentions',
   prefix: '@',
   rows: 3
@@ -91,6 +95,10 @@ const open = ref(false)
 const activeIndex = ref(-1)
 const localValue = ref(props.modelValue)
 const lastCaretIndex = ref(props.modelValue.length)
+const remoteOptions = ref<YMentionOption[]>([])
+const remoteLoading = ref(false)
+const remoteError = ref('')
+let remoteRequestId = 0
 
 const fieldId = computed(() => props.id || `yok-mention-${generatedId}`)
 const labelId = computed(() => `${fieldId.value}-label`)
@@ -105,6 +113,10 @@ const prefixes = computed(() => Array.isArray(props.prefix)
   : props.prefix.split(',').map((item) => item.trim()).filter(Boolean)
 )
 const activeMention = computed(() => findMentionToken(localValue.value, lastCaretIndex.value))
+const hasActiveRemoteQuery = computed(() => Boolean(props.remoteMethod && activeMention.value?.keyword.trim()))
+const sourceOptions = computed(() => hasActiveRemoteQuery.value ? remoteOptions.value : props.options)
+const isLoading = computed(() => props.loading || remoteLoading.value)
+const emptyStatusText = computed(() => remoteError.value || props.emptyText)
 const filteredOptions = computed(() => {
   const keyword = activeMention.value?.keyword.trim().toLowerCase() ?? ''
 
@@ -112,11 +124,11 @@ const filteredOptions = computed(() => {
     return []
   }
 
-  if (!keyword) {
-    return props.options
+  if (!keyword || hasActiveRemoteQuery.value) {
+    return sourceOptions.value
   }
 
-  return props.options.filter((option) =>
+  return sourceOptions.value.filter((option) =>
     option.label.toLowerCase().includes(keyword) ||
     option.value.toLowerCase().includes(keyword)
   )
@@ -228,6 +240,9 @@ function updateValue(event: Event) {
 
   if (activeMention.value) {
     emit('search', activeMention.value.keyword, activeMention.value.prefix)
+    updateRemoteOptions(activeMention.value.keyword, activeMention.value.prefix)
+  } else {
+    resetRemoteOptions()
   }
 
   void openSuggestions()
@@ -261,6 +276,7 @@ function selectOption(option: YMentionOption) {
 function clearValue() {
   localValue.value = ''
   lastCaretIndex.value = 0
+  resetRemoteOptions()
   emit('update:modelValue', '')
   emit('change', '')
   emit('clear')
@@ -336,6 +352,59 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 
+async function loadRemoteOptions(query: string, prefix: string) {
+  const remoteMethod = props.remoteMethod
+
+  if (!remoteMethod) {
+    return
+  }
+
+  const requestId = ++remoteRequestId
+  remoteError.value = ''
+  remoteLoading.value = true
+
+  try {
+    const nextOptions = await remoteMethod(query, prefix)
+
+    if (requestId !== remoteRequestId) {
+      return
+    }
+
+    remoteOptions.value = Array.isArray(nextOptions) ? nextOptions : []
+  } catch {
+    if (requestId !== remoteRequestId) {
+      return
+    }
+
+    remoteOptions.value = []
+    remoteError.value = props.remoteErrorText
+  } finally {
+    if (requestId === remoteRequestId) {
+      remoteLoading.value = false
+    }
+  }
+}
+
+function resetRemoteOptions() {
+  remoteRequestId += 1
+  remoteLoading.value = false
+  remoteError.value = ''
+  remoteOptions.value = []
+}
+
+function updateRemoteOptions(query: string, prefix: string) {
+  if (!props.remoteMethod) {
+    return
+  }
+
+  if (!query.trim()) {
+    resetRemoteOptions()
+    return
+  }
+
+  void loadRemoteOptions(query, prefix)
+}
+
 watch(filteredOptions, () => {
   if (!open.value) {
     return
@@ -406,7 +475,7 @@ watch(
       class="yok-mention__panel"
       :style="floatingStyles"
     >
-      <div v-if="loading" class="yok-mention__empty" role="status">{{ loadingText }}</div>
+      <div v-if="isLoading" class="yok-mention__empty" role="status">{{ loadingText }}</div>
       <div
         v-else-if="hasSuggestions"
         :id="listboxId"
@@ -434,7 +503,7 @@ watch(
           </span>
         </button>
       </div>
-      <div v-else class="yok-mention__empty" role="status">{{ emptyText }}</div>
+      <div v-else class="yok-mention__empty" role="status">{{ emptyStatusText }}</div>
     </div>
   </div>
 </template>

@@ -99,7 +99,11 @@ Date Time Picker 用于选择单个日期时间，适合发布排期、预约窗
 
 当前版本使用 `YYYY-MM-DD HH:mm` 字符串作为值，支持快捷日期时间、禁用日期、禁用时间、清空、表单错误和键盘操作。
 
-## Example
+::: tip TIP
+`YDateTimePicker` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Basic date time {#date-time-picker-basic-date-time}
 
 <DocDemo
   title="Basic date time"
@@ -111,6 +115,8 @@ Date Time Picker 用于选择单个日期时间，适合发布排期、预约窗
   <YDateTimePicker v-model="releaseAt" label="Release at" :minute-step="15" />
   <p class="demo-note">Selected: {{ releaseAt }}</p>
 </DocDemo>
+
+## Shortcuts {#date-time-picker-shortcuts}
 
 <DocDemo
   title="Shortcuts"
@@ -128,6 +134,8 @@ Date Time Picker 用于选择单个日期时间，适合发布排期、预约窗
   />
   <p class="demo-note">Selected: {{ shortcutAt || 'none' }}</p>
 </DocDemo>
+
+## Disabled date and time {#date-time-picker-disabled-date-and-time}
 
 <DocDemo
   title="Disabled date and time"
@@ -147,6 +155,8 @@ Date Time Picker 用于选择单个日期时间，适合发布排期、预约窗
   />
   <p class="demo-note">{{ dateTimeState }}</p>
 </DocDemo>
+
+## Form validation {#date-time-picker-form-validation}
 
 <DocDemo
   title="Form validation"
@@ -168,15 +178,7 @@ Date Time Picker 用于选择单个日期时间，适合发布排期、预约窗
   <p id="release-date-time-help" class="demo-note">Choose a release date and time before publishing.</p>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="dateTimePicker"
-  title="在线编辑 Date Time Picker 示例"
-  description="切换基础日期时间、快捷项、禁用规则、校验错误、移动日期时间和键盘日期时间场景，验证组合日期时间字段。"
-/>
-
-## Usage notes
+## Usage notes {#date-time-picker-usage-notes}
 
 - 值使用 `YYYY-MM-DD HH:mm`，便于表单、查询参数、配置文件和接口提交。
 - `minuteStep` 会影响分钟列粒度，建议使用 5、10、15 或 30 这类能整除 60 的值。
@@ -188,11 +190,11 @@ Date Time Picker 用于选择单个日期时间，适合发布排期、预约窗
 - 移动端建议使用短标签、短占位和较粗分钟粒度，避免日期时间面板操作过密。
 - 键盘路径应覆盖打开面板、移动日期、切换小时、移动分钟、确认当前日期时间和关闭面板。
 
-## API
+## Date Time Picker API {#date-time-picker-api}
 
 <ComponentApiSection name="YDateTimePicker" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 输入框使用原生 `input`，设置 `aria-expanded`、`aria-controls` 和 `aria-haspopup="dialog"`。
 - 日期时间弹层使用 `role="dialog"`，日期区域使用 `role="grid"`。

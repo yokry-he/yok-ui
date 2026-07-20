@@ -25,7 +25,7 @@ describe('LiveExampleRunEvidence', () => {
             key: 'export',
             label: 'Export',
             value: 'Repro ready',
-            detail: 'Report and Playground are aligned.',
+            detail: 'Report and source repro are aligned.',
             passed: true
           }
         ]

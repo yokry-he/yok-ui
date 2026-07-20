@@ -1,4 +1,9 @@
 import type { App, Component } from 'vue'
+import {
+  createYokConfigContext,
+  yokConfigInjectionKey,
+  type YokConfigOptions
+} from './components/config-provider'
 import { YAffix } from './components/affix'
 import { YAlert } from './components/alert'
 import { YAutocomplete } from './components/autocomplete'
@@ -6,7 +11,7 @@ import { YAnchor } from './components/anchor'
 import { YAvatar, YAvatarGroup } from './components/avatar'
 import { YBacktop } from './components/backtop'
 import { YBreadcrumb } from './components/breadcrumb'
-import { YButton, YIconButton } from './components/button'
+import { YButton, YButtonGroup, YIconButton } from './components/button'
 import { YCalendar } from './components/calendar'
 import { YCarousel } from './components/carousel'
 import { YCascader, YCascaderPanel } from './components/cascader'
@@ -83,7 +88,9 @@ import { YWatermark } from './components/watermark'
 
 export function createYokInstaller(components: Component[]) {
   return {
-    install(app: App) {
+    install(app: App, options: YokConfigOptions = {}) {
+      app.provide(yokConfigInjectionKey, createYokConfigContext(options))
+
       components.forEach((component) => {
         const name = component.name
 
@@ -105,6 +112,7 @@ export const coreComponents: Component[] = [
   YBacktop,
   YBreadcrumb,
   YButton,
+  YButtonGroup,
   YIconButton,
   YCalendar,
   YCarousel,

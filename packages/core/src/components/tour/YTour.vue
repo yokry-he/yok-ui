@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue'
 import { useOverlayA11y } from '../../composables/useOverlayA11y'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YTour'
@@ -230,7 +231,7 @@ onBeforeUnmount(() => {
           <header class="yok-tour__header">
             <span class="yok-tour__progress">{{ progressText }}</span>
             <button class="yok-tour__close yok-focus-ring" type="button" :aria-label="skipText" @click="requestClose">
-              ×
+              <YInternalIcon name="close" />
             </button>
           </header>
           <div class="yok-tour__body">

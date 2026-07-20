@@ -19,6 +19,7 @@ import {
 } from '../time-picker/time'
 import { useDismissableLayer } from '../../composables/useDismissableLayer'
 import { useFloatingLayer } from '../../composables/useFloatingLayer'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 import { useYokConfig, type YokConfigSize } from '../config-provider'
 import {
   combineDateTimeValue,
@@ -364,7 +365,7 @@ function handlePanelKeydown(event: KeyboardEvent) {
         :aria-label="open ? 'Close date and time picker' : 'Open date and time picker'"
         @click="togglePanel"
       >
-        <span aria-hidden="true">◴</span>
+        <YInternalIcon name="clock" />
       </button>
       <button
         v-if="clearable && modelValue"
@@ -374,7 +375,7 @@ function handlePanelKeydown(event: KeyboardEvent) {
         aria-label="Clear date and time"
         @click="clearValue"
       >
-        ×
+        <YInternalIcon name="close" />
       </button>
     </div>
     <p v-if="error" :id="errorId" class="yok-date-time-picker__error" role="alert">{{ error }}</p>
@@ -408,9 +409,13 @@ function handlePanelKeydown(event: KeyboardEvent) {
         <div class="yok-date-time-picker__body">
           <section class="yok-date-time-picker__calendar" aria-label="Date">
             <div class="yok-date-time-picker__panel-header">
-              <button class="yok-date-time-picker__nav yok-focus-ring" type="button" aria-label="Previous month" @click="moveMonth(-1)">‹</button>
+              <button class="yok-date-time-picker__nav yok-focus-ring" type="button" aria-label="Previous month" @click="moveMonth(-1)">
+                <YInternalIcon name="chevronLeft" />
+              </button>
               <strong>{{ monthLabel }}</strong>
-              <button class="yok-date-time-picker__nav yok-focus-ring" type="button" aria-label="Next month" @click="moveMonth(1)">›</button>
+              <button class="yok-date-time-picker__nav yok-focus-ring" type="button" aria-label="Next month" @click="moveMonth(1)">
+                <YInternalIcon name="chevronRight" />
+              </button>
             </div>
             <div class="yok-date-time-picker__grid" role="grid" :aria-label="monthLabel">
               <div class="yok-date-time-picker__weekdays" role="row">
@@ -554,8 +559,10 @@ function handlePanelKeydown(event: KeyboardEvent) {
 .yok-date-time-picker__clear {
   position: absolute;
   inset-block: var(--yok-date-time-picker-action-inset);
-  display: grid;
+  display: inline-flex;
   width: var(--yok-date-time-picker-action-size);
+  align-items: center;
+  justify-content: center;
   place-items: center;
   border: 0;
   border-radius: var(--yok-radius-sm);
@@ -563,6 +570,7 @@ function handlePanelKeydown(event: KeyboardEvent) {
   color: var(--yok-color-textMuted);
   cursor: pointer;
   font-size: 16px;
+  line-height: 1;
 }
 
 .yok-date-time-picker__trigger {
@@ -643,13 +651,17 @@ function handlePanelKeydown(event: KeyboardEvent) {
 }
 
 .yok-date-time-picker__nav {
-  display: grid;
+  display: inline-flex;
   min-height: 32px;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--yok-color-border);
   border-radius: var(--yok-radius-sm);
   background: var(--yok-color-surface);
   color: var(--yok-color-text);
   cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
   place-items: center;
 }
 

@@ -51,14 +51,13 @@ async function waitForStableDocsPage(client, timeout = 8000) {
     const readyResult = await client.send('Runtime.evaluate', {
       returnByValue: true,
       expression: `(() => {
-        const bodyText = document.body?.innerText ?? '';
         const hasDocShell = Boolean(document.querySelector('.VPDoc, .vp-doc, main'));
-        const expectsLiveRunner = bodyText.includes('Live example') || bodyText.includes('Live editable example runner');
-        const liveRunnerReady = !expectsLiveRunner || Boolean(document.querySelector('.live-example-runner'));
+        const expectsDocDemo = Boolean(document.querySelector('[data-source-panel="element-plus"], .doc-demo'));
+        const docDemoReady = !expectsDocDemo || Boolean(document.querySelector('[data-source-panel="element-plus"], .doc-demo'));
         const hasViteErrorOverlay = Boolean(document.querySelector('vite-error-overlay'));
 
         return {
-          ready: document.readyState === 'complete' && hasDocShell && liveRunnerReady && !hasViteErrorOverlay
+          ready: document.readyState === 'complete' && hasDocShell && docDemoReady && !hasViteErrorOverlay
         };
       })()`
     })

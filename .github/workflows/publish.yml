@@ -1,0 +1,64 @@
+name: Publish packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact version shared by all public packages
+        required: true
+        default: 0.1.0
+      tag:
+        description: npm dist-tag
+        required: true
+        default: latest
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish-packages-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish public packages
+    environment: npm
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.14.0
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@11.9.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run unit tests
+        run: pnpm test
+
+      - name: Run type checks
+        run: pnpm typecheck
+
+      - name: Build documentation
+        run: pnpm docs:build
+
+      - name: Verify package artifacts
+        run: pnpm release:verify
+
+      - name: Publish packages with npm trusted publishing
+        run: pnpm release:publish -- --version "${{ inputs.version }}" --tag "${{ inputs.tag }}" --provenance --confirm-public-release

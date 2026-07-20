@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import YInternalIcon from '../_internal/YInternalIcon.vue'
+
 defineOptions({
   name: 'YNotification'
 })
@@ -48,7 +50,7 @@ defineEmits<{
       :aria-label="closeLabel"
       @click.stop="$emit('close')"
     >
-      ×
+      <YInternalIcon name="close" />
     </button>
   </article>
 </template>

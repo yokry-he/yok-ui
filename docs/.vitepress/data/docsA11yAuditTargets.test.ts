@@ -12,7 +12,6 @@ import {
   getDocsA11yAuditSummary,
   getDocsA11yAuditTarget
 } from './docsA11yAuditTargets'
-import { liveExampleDocs } from './liveExamples'
 
 const workspaceRoot = resolve(__dirname, '../../..')
 
@@ -35,8 +34,8 @@ function routeToDocsPath(route: string) {
     return 'docs/packages/index.md'
   }
 
-  if (cleanRoute === '/playground') {
-    return 'docs/playground/index.md'
+  if (cleanRoute === '/source') {
+    return 'docs/source/index.md'
   }
 
   return `docs${cleanRoute}.md`
@@ -72,16 +71,14 @@ describe('docsA11yAuditTargets', () => {
     })
   })
 
-  it('requires critical live examples to stay inside the audit target matrix', () => {
+  it('requires critical component demos to stay inside the audit target matrix', () => {
     const criticalProfiles = accessibilityEvidenceProfiles.filter((profile) => profile.risk === 'critical')
 
     criticalProfiles.forEach((profile) => {
-      expect(liveExampleDocs.has(profile.docsRoute), `${profile.componentName} should have a live example`).toBe(true)
-
       const target = getDocsA11yAuditTarget(profile.docsRoute)
 
-      expect(target?.checks, `${profile.componentName} should audit live examples`).toContain('live-example')
-      expect(target?.scenarioRoute).toBe(`${profile.docsRoute}#live-example`)
+      expect(target?.checks, `${profile.componentName} should audit demos`).toContain('demo')
+      expect(target?.route).toBe(profile.docsRoute)
     })
   })
 
@@ -129,7 +126,7 @@ describe('docsA11yAuditTargets', () => {
     expect(summary.critical).toBeGreaterThan(0)
     expect(summary.high).toBeGreaterThan(0)
     expect(summary.mobileCoverageRate).toBe(100)
-    expect(summary.liveExampleTargets).toBeGreaterThan(0)
+    expect(summary.demoTargets).toBeGreaterThan(0)
     expect(summary.checkCoverage.keyboard).toBeGreaterThan(0)
     expect(summary.checkCoverage.responsive).toBe(docsA11yAuditTargets.length)
   })

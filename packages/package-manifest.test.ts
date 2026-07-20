@@ -96,7 +96,20 @@ describe('package manifests', () => {
     })
 
     const { packageDir, manifest } = readPackageManifest('themes')
-    const themeExports = ['./yok-light.css', './yok-clean.css', './yok-candy.css']
+    const themeExports = [
+      './yok-light.css',
+      './yok-clean.css',
+      './yok-candy.css',
+      './yok-mint.css',
+      './yok-ocean.css',
+      './yok-sakura.css',
+      './yok-lavender.css',
+      './yok-sunrise.css',
+      './yok-forest.css',
+      './yok-ink.css',
+      './yok-peach.css',
+      './yok-slate.css'
+    ]
 
     themeExports.forEach((exportPath) => {
       const target = exportTarget(manifest.exports?.[exportPath])

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 
 defineOptions({
   name: 'YAlert'
@@ -42,14 +43,14 @@ defineEmits<{
   close: []
 }>()
 
-const toneIcons: Record<YAlertTone, string> = {
-  info: 'i',
-  success: '✓',
-  warning: '!',
-  danger: '×'
-}
+const toneIconNames = {
+  info: 'info',
+  success: 'check',
+  warning: 'warning',
+  danger: 'error'
+} as const
 
-const resolvedIcon = computed(() => props.icon || toneIcons[props.tone])
+const resolvedIconName = computed(() => toneIconNames[props.tone])
 const liveMode = computed(() => props.role === 'alert' ? 'assertive' : 'polite')
 const alertClasses = computed(() => [
   `yok-alert--${props.tone}`,
@@ -70,7 +71,10 @@ const alertClasses = computed(() => [
     aria-atomic="true"
   >
     <span v-if="showIcon" class="yok-alert__icon" aria-hidden="true">
-      <slot name="icon">{{ resolvedIcon }}</slot>
+      <slot name="icon">
+        <template v-if="icon">{{ icon }}</template>
+        <YInternalIcon v-else :name="resolvedIconName" />
+      </slot>
     </span>
     <div class="yok-alert__content">
       <strong v-if="title">{{ title }}</strong>
@@ -88,7 +92,8 @@ const alertClasses = computed(() => [
       :aria-label="closeLabel"
       @click="$emit('close')"
     >
-      {{ closeText || '×' }}
+      <template v-if="closeText">{{ closeText }}</template>
+      <YInternalIcon v-else name="close" />
     </button>
   </div>
 </template>

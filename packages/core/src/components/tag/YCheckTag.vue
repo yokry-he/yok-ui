@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 import { useYokConfig, type YokConfigSize } from '../config-provider'
 
 defineOptions({
@@ -77,7 +78,9 @@ function toggleChecked(event: MouseEvent) {
       @focus="$emit('focus', $event)"
       @blur="$emit('blur', $event)"
     >
-      <span class="yok-check-tag__indicator" aria-hidden="true">{{ checked ? '✓' : '' }}</span>
+      <span class="yok-check-tag__indicator" aria-hidden="true">
+        <YInternalIcon v-if="checked" name="check" />
+      </span>
       <span class="yok-check-tag__content"><slot /></span>
     </button>
     <span v-if="error" class="yok-check-tag__error" role="alert">{{ error }}</span>

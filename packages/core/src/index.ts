@@ -6,7 +6,7 @@ export type { YAffixPosition, YAffixScrollPayload } from './components/affix'
 export { YAlert } from './components/alert'
 export type { YAlertRole, YAlertSize, YAlertTone, YAlertVariant } from './components/alert'
 export { YAutocomplete } from './components/autocomplete'
-export type { YAutocompleteOption, YAutocompleteSize } from './components/autocomplete'
+export type { YAutocompleteOption, YAutocompleteRemoteMethod, YAutocompleteSize } from './components/autocomplete'
 export { YAnchor } from './components/anchor'
 export type {
   YAnchorClickPayload,
@@ -20,7 +20,15 @@ export type { YAvatarFit, YAvatarGroupSpacing, YAvatarShape, YAvatarSize, YAvata
 export { YBacktop } from './components/backtop'
 export { YBreadcrumb } from './components/breadcrumb'
 export type { YBreadcrumbItem } from './components/breadcrumb'
-export { YButton, YIconButton } from './components/button'
+export { YButton, YButtonGroup, YIconButton } from './components/button'
+export type {
+  YButtonGroupDirection,
+  YButtonIcon,
+  YButtonNativeType,
+  YButtonSize,
+  YButtonType,
+  YButtonVariant
+} from './components/button'
 export { YCalendar } from './components/calendar'
 export type { YCalendarCell, YCalendarDisabledDate, YCalendarPanelChangePayload, YCalendarValue } from './components/calendar'
 export { YCarousel } from './components/carousel'
@@ -50,8 +58,39 @@ export { YCollapse } from './components/collapse'
 export type { YCollapseItem } from './components/collapse'
 export { YColorPicker, YColorPickerPanel } from './components/color-picker'
 export type { YColorPickerSize } from './components/color-picker'
-export { YConfigProvider } from './components/config-provider'
-export type { YokConfigContext, YokConfigDensity, YokConfigProviderProps, YokConfigSize } from './components/config-provider'
+export {
+  builtinYokFonts,
+  builtinYokLocales,
+  createDefaultYokConfig,
+  createYokConfigContext,
+  enUS,
+  isYokFontPreset,
+  jaJP,
+  resolveYokFontFamily,
+  resolveYokLocale,
+  translateYokLocale,
+  useYokConfig,
+  YConfigProvider,
+  yokConfigInjectionKey,
+  zhCN
+} from './components/config-provider'
+export type {
+  YokButtonConfig,
+  YokConfigContext,
+  YokConfigDensity,
+  YokConfigDirection,
+  YokConfigOptions,
+  YokConfigProviderProps,
+  YokConfigSize,
+  YokFontInput,
+  YokFontPreset,
+  YokFontPresetName,
+  YokLocale,
+  YokLocaleDirection,
+  YokLocaleInput,
+  YokLocaleMessages,
+  YokLocaleParams
+} from './components/config-provider'
 export { YDatePicker, YDatePickerPanel, YDateRangePicker } from './components/date-picker'
 export type {
   YDatePickerCell,
@@ -130,7 +169,7 @@ export type { YListItem, YListItemKey, YListLayout, YListSize } from './componen
 export { YMenu } from './components/menu'
 export type { YMenuItem, YMenuKey, YMenuMode, YMenuSelectPayload } from './components/menu'
 export { YMention } from './components/mention'
-export type { YMentionOption, YMentionSelectPayload, YMentionSize } from './components/mention'
+export type { YMentionOption, YMentionRemoteMethod, YMentionSelectPayload, YMentionSize } from './components/mention'
 export { closeAllMessages, message, openMessage, YMessage } from './components/message'
 export type { YMessageHandle, YMessageOptions, YMessageTone } from './components/message'
 export { closeAllMessageBoxes, messageBox, openMessageBox, YMessageBox } from './components/message-box'
@@ -162,7 +201,7 @@ export type { YScrollbarScrollPayload } from './components/scrollbar'
 export { YSegmented } from './components/segmented'
 export type { YSegmentedOption, YSegmentedOrientation, YSegmentedShape, YSegmentedSize, YSegmentedValue } from './components/segmented'
 export { YSelect } from './components/select'
-export type { YSelectOption, YSelectSize, YSelectValue } from './components/select'
+export type { YSelectOption, YSelectRemoteMethod, YSelectSize, YSelectValue } from './components/select'
 export { YSkeleton } from './components/skeleton'
 export { YSpace } from './components/space'
 export type { YSpaceAlign, YSpaceDirection, YSpaceJustify, YSpaceSize, YSpaceSizePair } from './components/space'

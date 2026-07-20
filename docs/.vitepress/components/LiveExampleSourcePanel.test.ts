@@ -19,13 +19,6 @@ const sourcePanelProps = {
     { value: 'js', label: 'JS' }
   ],
   copiedSourcePanel: false,
-  playgroundHandoffUrl: '/playground/?import=demo',
-  sourceFileUrl: '/source/?file=packages/core/src/components/button/YButton.vue',
-  playgroundHandoffItems: [
-    { label: 'Component', value: 'YButton' },
-    { label: 'Theme', value: 'yok-light' }
-  ],
-  copiedPlaygroundLink: false,
   sourceDiffSummary: {
     added: 2,
     removed: 1,
@@ -77,7 +70,7 @@ describe('LiveExampleSourcePanel', () => {
     expect(wrapper.emitted('update:sourcePanelMode')).toEqual([['template']])
   })
 
-  it('emits language, package manager, copy and playground handoff actions', async () => {
+  it('emits language, package manager and copy actions', async () => {
     const wrapper = mount(LiveExampleSourcePanel, {
       props: {
         ...sourcePanelProps,
@@ -97,14 +90,10 @@ describe('LiveExampleSourcePanel', () => {
     await jsButton?.trigger('click')
     await npmButton?.trigger('click')
     await wrapper.get('.live-example-runner__source-copy').trigger('click')
-    await wrapper.get('[data-live-source-action="playground"]').trigger('click')
-    await wrapper.get('[data-live-source-action="copy-playground-link"]').trigger('click')
 
     expect(wrapper.emitted('update:sourceLanguageMode')).toEqual([['js']])
     expect(wrapper.emitted('update:installPackageManager')).toEqual([['npm']])
     expect(wrapper.emitted('copy-source')).toHaveLength(1)
-    expect(wrapper.emitted('persist-playground-handoff')).toHaveLength(1)
-    expect(wrapper.emitted('copy-playground-link')).toHaveLength(1)
   })
 
   it('exposes an Element Plus style compact source toolbar in the code panel header', async () => {
@@ -114,7 +103,7 @@ describe('LiveExampleSourcePanel', () => {
 
     expect(wrapper.get('#live-example-source-panel').attributes('data-source-panel')).toBe('element-plus')
     expect(wrapper.find('.live-example-runner__source-header').exists()).toBe(false)
-    expect(wrapper.find('.live-example-runner__playground-handoff').exists()).toBe(false)
+    expect(wrapper.find('.live-example-runner__source-handoff').exists()).toBe(false)
     expect(wrapper.find('.live-example-runner__source-help').exists()).toBe(false)
     expect(wrapper.get('.live-example-runner__source-code-shell').attributes('data-source-panel')).toBe('element-plus')
     expect(wrapper.get('.live-example-runner__source-modebar').attributes('data-source-placement')).toBe('code-top-left')
@@ -140,52 +129,25 @@ describe('LiveExampleSourcePanel', () => {
     expect(actions).toEqual([
       'language-ts',
       'language-js',
-      'playground',
-      'source-file',
       'copy-source',
-      'copy-playground-link',
       'hide-source'
     ])
-    expect(wrapper.get('[data-live-source-action="playground"]').attributes('href')).toBe('/playground/?import=demo')
-    expect(wrapper.get('[data-live-source-action="playground"]').attributes('data-tooltip')).toBe('在 Playground 中编辑')
-    expect(wrapper.get('[data-live-source-action="playground"]').attributes('title')).toBe('在 Playground 中编辑')
-    expect(wrapper.get('[data-live-source-action="playground"] .live-example-runner__source-tool-glyph').attributes('data-icon')).toBe('playground')
-    expect(wrapper.get('[data-live-source-action="playground"] .live-example-runner__source-tool-glyph').text()).toBe('')
-    expect(wrapper.get('[data-live-source-action="playground"] .live-example-runner__source-tool-text').text()).toBe('Playground')
-    expect(wrapper.get('[data-live-source-action="source-file"]').attributes('href')).toBe(
-      '/source/?file=packages/core/src/components/button/YButton.vue'
-    )
-    expect(wrapper.get('[data-live-source-action="source-file"]').attributes('data-tooltip')).toBe('查看组件源码')
-    expect(wrapper.get('[data-live-source-action="source-file"]').attributes('title')).toBe('查看组件源码')
-    expect(wrapper.get('[data-live-source-action="source-file"] .live-example-runner__source-tool-glyph').attributes('data-icon')).toBe('source')
-    expect(wrapper.get('[data-live-source-action="source-file"] .live-example-runner__source-tool-glyph').text()).toBe('')
-    expect(wrapper.get('[data-live-source-action="source-file"] .live-example-runner__source-tool-text').text()).toBe('Vue source')
+    expect(wrapper.find('[data-live-source-action="source-file"]').exists()).toBe(false)
     expect(wrapper.get('[data-live-source-action="copy-source"]').attributes('data-tooltip')).toBe('复制源码')
     expect(wrapper.get('[data-live-source-action="copy-source"]').attributes('title')).toBe('复制源码')
     expect(wrapper.get('[data-live-source-action="copy-source"] .live-example-runner__source-tool-glyph').attributes('data-icon')).toBe('copy')
     expect(wrapper.get('[data-live-source-action="copy-source"] .live-example-runner__source-tool-glyph').text()).toBe('')
     expect(wrapper.get('[data-live-source-action="copy-source"] .live-example-runner__source-tool-text').text()).toBe('Copy source')
-    expect(wrapper.get('[data-live-source-action="copy-playground-link"]').attributes('data-tooltip')).toBe('复制导入链接')
-    expect(wrapper.get('[data-live-source-action="copy-playground-link"]').attributes('title')).toBe('复制导入链接')
-    expect(wrapper.get('[data-live-source-action="copy-playground-link"] .live-example-runner__source-tool-glyph').attributes('data-icon')).toBe('external')
-    expect(wrapper.get('[data-live-source-action="copy-playground-link"] .live-example-runner__source-tool-glyph').text()).toBe('')
-    expect(wrapper.get('[data-live-source-action="copy-playground-link"] .live-example-runner__source-tool-text').text()).toBe('Copy import link')
     expect(wrapper.get('[data-live-source-action="hide-source"]').attributes('data-tooltip')).toBe('隐藏源码')
     expect(wrapper.get('[data-live-source-action="hide-source"]').attributes('title')).toBe('隐藏源码')
     expect(wrapper.get('[data-live-source-action="hide-source"]').attributes('aria-controls')).toBe('live-example-source-panel')
     expect(wrapper.get('[data-live-source-action="hide-source"] .live-example-runner__source-tool-glyph').attributes('data-icon')).toBe('code')
     expect(wrapper.get('[data-live-source-action="hide-source"] .live-example-runner__source-tool-glyph').text()).toBe('')
     expect(wrapper.get('[data-live-source-action="hide-source"] .live-example-runner__source-tool-text').text()).toBe('Hide source')
-    await wrapper.get('[data-live-source-action="playground"]').trigger('click')
-    await wrapper.get('[data-live-source-action="source-file"]').trigger('click')
     await wrapper.get('[data-live-source-action="copy-source"]').trigger('click')
-    await wrapper.get('[data-live-source-action="copy-playground-link"]').trigger('click')
     await wrapper.get('[data-live-source-action="hide-source"]').trigger('click')
 
-    expect(wrapper.emitted('persist-playground-handoff')).toHaveLength(1)
-    expect(wrapper.emitted('persist-playground-handoff')).not.toHaveLength(2)
     expect(wrapper.emitted('copy-source')).toHaveLength(1)
-    expect(wrapper.emitted('copy-playground-link')).toHaveLength(1)
     expect(wrapper.emitted('hide-source')).toHaveLength(1)
   })
 

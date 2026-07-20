@@ -1,6 +1,6 @@
 export type SourcePanelExperienceStatus = 'complete' | 'partial' | 'missing'
 
-export type SourcePanelExperienceSurfaceKey = 'doc-demo' | 'live-example' | 'playground'
+export type SourcePanelExperienceSurfaceKey = 'doc-demo' | 'live-example'
 
 export type SourcePanelExperienceCheckKey =
   | 'element-plus-panel'
@@ -8,7 +8,6 @@ export type SourcePanelExperienceCheckKey =
   | 'bottom-collapse'
   | 'language-switch'
   | 'shared-action-model'
-  | 'playground-edit'
   | 'copy-source'
 
 export interface SourcePanelExperienceCheck {
@@ -39,7 +38,6 @@ export interface SourcePanelExperienceSummary {
   bottomCollapseBars: number
   languageSwitches: number
   sharedActionModels: number
-  playgroundEditActions: number
   copyActions: number
   nextQueue: SourcePanelExperienceItem[]
 }
@@ -53,11 +51,10 @@ interface SourcePanelExperienceSurface {
   bottomCollapseMarkers: string[]
   languageMarkers: string[]
   sharedActionMarkers: string[]
-  playgroundMarkers: string[]
   copyMarkers: string[]
 }
 
-const sourceModules = import.meta.glob('../components/{DocDemo,LiveExampleSourcePanel,PlaygroundWorkbench}.vue', {
+const sourceModules = import.meta.glob('../components/{DocDemo,LiveExampleSourcePanel}.vue', {
   eager: true,
   query: '?raw',
   import: 'default'
@@ -73,7 +70,6 @@ const sourcePanelSurfaces: SourcePanelExperienceSurface[] = [
     bottomCollapseMarkers: ['data-source-placement="bottom-collapse"'],
     languageMarkers: ['data-demo-language', 'sourceLanguageOptions'],
     sharedActionMarkers: ['import ExampleSourceActions', '<ExampleSourceActions'],
-    playgroundMarkers: ["key: 'playground'", '在 Playground 中编辑'],
     copyMarkers: ["key: 'copy'", '复制代码']
   },
   {
@@ -85,20 +81,7 @@ const sourcePanelSurfaces: SourcePanelExperienceSurface[] = [
     bottomCollapseMarkers: ['data-source-placement="bottom-collapse"'],
     languageMarkers: ['language-value-prefix="language-"', 'sourceLanguageOptions'],
     sharedActionMarkers: ['import ExampleSourceActions', '<ExampleSourceActions'],
-    playgroundMarkers: ["key: 'playground'", '在 Playground 中编辑'],
     copyMarkers: ["key: 'copy-source'", '复制源码']
-  },
-  {
-    key: 'playground',
-    label: 'Playground imported source',
-    file: 'PlaygroundWorkbench.vue',
-    elementPlusMarkers: ['data-source-panel="element-plus"'],
-    topRightMarkers: ['data-source-placement="code-top-right"'],
-    bottomCollapseMarkers: ['data-source-placement="bottom-collapse"'],
-    languageMarkers: ['language-value-prefix="language-"', 'playgroundCodeLanguageOptions'],
-    sharedActionMarkers: ['import ExampleSourceActions', '<ExampleSourceActions'],
-    playgroundMarkers: ["key: 'mode-edit'", '在 Playground 中编辑'],
-    copyMarkers: ["key: 'copy-code'", '复制代码']
   }
 ]
 
@@ -167,13 +150,7 @@ function createSourcePanelExperienceItem(surface: SourcePanelExperienceSurface):
       'shared-action-model',
       'Shared action model',
       hasAllMarkers(source, surface.sharedActionMarkers),
-      `${surface.label} 必须复用 ExampleSourceActions，避免 DocDemo、Live Example 和 Playground 的源码工具栏分叉。`
-    ),
-    createCheck(
-      'playground-edit',
-      'Playground edit',
-      hasAllMarkers(source, surface.playgroundMarkers),
-      `${surface.label} 必须提供进入 Playground 编辑当前源码的真实动作。`
+      `${surface.label} 必须复用 ExampleSourceActions，避免 DocDemo 和 Live Example 的源码工具栏分叉。`
     ),
     createCheck(
       'copy-source',
@@ -216,7 +193,6 @@ export function getSourcePanelExperienceSummary(): SourcePanelExperienceSummary 
     bottomCollapseBars: countWithPassedCheck('bottom-collapse'),
     languageSwitches: countWithPassedCheck('language-switch'),
     sharedActionModels: countWithPassedCheck('shared-action-model'),
-    playgroundEditActions: countWithPassedCheck('playground-edit'),
     copyActions: countWithPassedCheck('copy-source'),
     nextQueue: items
       .filter((item) => item.missingChecks.length > 0)

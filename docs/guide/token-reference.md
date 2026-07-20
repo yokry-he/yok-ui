@@ -1,6 +1,6 @@
 # Token Reference
 
-Yok UI 的主题 token 同时服务 TypeScript 和 CSS variables。`@yok-ui/themes` 提供 `yokLight`、`yokClean`、`yokCandy`、`builtinThemes` 和 `createThemeVars`，组件侧统一读取 `--yok-*` 变量。
+Yok UI 的主题 token 同时服务 TypeScript 和 CSS variables。`@yok-ui/themes` 提供 12 套内置主题、`builtinThemes` 和 `createThemeVars`，组件侧统一读取 `--yok-*` 变量。
 
 ## Color tokens
 

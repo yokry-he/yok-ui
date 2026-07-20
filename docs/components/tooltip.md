@@ -22,7 +22,11 @@ const code = `<template>
 
 Tooltip 用于给按钮、图标或短文本补充说明。它只承载短说明，需要可交互内容时请使用 `YPopover`。
 
-## Example
+::: tip TIP
+`YTooltip` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Short explanation {#tooltip-short-explanation}
 
 <DocDemo
   title="Short explanation"
@@ -47,15 +51,7 @@ Tooltip 用于给按钮、图标或短文本补充说明。它只承载短说明
   </div>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="tooltip"
-  title="在线编辑 Tooltip 示例"
-  description="试验 hover/focus、点击触发、浅色主题、禁用、错误说明、位置和延迟，确认短说明不会干扰主操作。"
-/>
-
-## Usage notes
+## Usage notes {#tooltip-usage-notes}
 
 - Tooltip 只放短文本，不承载按钮、表单或链接；需要交互内容时使用 `YPopover`。
 - 文案应补充触发元素的目的、限制或快捷键，不重复按钮本身的文字。
@@ -65,11 +61,11 @@ Tooltip 用于给按钮、图标或短文本补充说明。它只承载短说明
 - `trigger="click"` 适合密集工具栏中的短说明；需要完全由业务状态控制时使用 `trigger="manual"` 和 `open`。
 - `theme="light"` 适合浅色设置项、表格操作列或密集工具条，但仍应保持边框和阴影，避免和页面内容混在一起。
 
-## API
+## Tooltip API {#tooltip-api}
 
 <ComponentApiSection name="YTooltip" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 自动生成稳定 tooltip id。
 - 合并触发元素已有的 `aria-describedby`，不覆盖原有描述关系。

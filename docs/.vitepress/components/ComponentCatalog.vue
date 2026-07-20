@@ -9,13 +9,22 @@ import {
   type ComponentMeta,
   type ComponentStatus
 } from '../data/componentRegistry'
-import { liveExampleDocs } from '../data/liveExamples'
+import {
+  getComponentVerificationItems,
+  getComponentVerificationSummary,
+  type ComponentVerificationItem
+} from '../data/componentVerification'
 
 const query = ref('')
 const selectedPackage = ref<ComponentPackage | 'all'>('all')
 const selectedStatus = ref<ComponentStatus | 'all'>('all')
 const selectedA11y = ref<ComponentMeta['accessibility'] | 'all'>('all')
-const selectedLive = ref<'all' | 'covered' | 'missing'>('all')
+const selectedEvidence = ref<'all' | 'example-ready' | 'browser-verified' | 'missing-example'>('all')
+const verificationItems = getComponentVerificationItems()
+const verificationSummary = getComponentVerificationSummary()
+const verificationByComponent = new Map(
+  verificationItems.map((item) => [item.component.name, item])
+)
 
 const packageOptions = computed(() =>
   Array.from(new Set(components.map((component) => component.packageName)))
@@ -44,18 +53,16 @@ const filteredComponents = computed(() => {
 
     const matchesStatus = selectedStatus.value === 'all' || component.status === selectedStatus.value
     const matchesA11y = selectedA11y.value === 'all' || component.accessibility === selectedA11y.value
-    const matchesLive =
-      selectedLive.value === 'all' ||
-      (selectedLive.value === 'covered' && liveExampleDocs.has(component.docs)) ||
-      (selectedLive.value === 'missing' && !liveExampleDocs.has(component.docs))
+    const evidence = verificationByComponent.get(component.name)
+    const matchesEvidence =
+      selectedEvidence.value === 'all' ||
+      (selectedEvidence.value === 'example-ready' && evidence?.exampleReady) ||
+      (selectedEvidence.value === 'browser-verified' && evidence?.browserVerified) ||
+      (selectedEvidence.value === 'missing-example' && !evidence?.exampleReady)
 
-    return matchesQuery && matchesPackage && matchesStatus && matchesA11y && matchesLive
+    return matchesQuery && matchesPackage && matchesStatus && matchesA11y && matchesEvidence
   })
 })
-
-const liveExampleComponents = computed(() =>
-  components.filter((component) => liveExampleDocs.has(component.docs))
-)
 
 const familyCards = computed(() =>
   componentFamilies
@@ -96,6 +103,30 @@ const recommendedRoutes = computed(() => [
 function getComponentByDocs(docs: string) {
   return components.find((component) => component.docs === docs)
 }
+
+function getVerification(component: ComponentMeta) {
+  return verificationByComponent.get(component.name)
+}
+
+function getEvidenceLabel(evidence?: ComponentVerificationItem) {
+  if (evidence?.releaseReady) {
+    return 'release ready'
+  }
+
+  if (evidence?.browserVerified) {
+    return 'browser verified'
+  }
+
+  return evidence?.exampleReady ? 'example ready' : 'needs example'
+}
+
+function getEvidenceStatus(evidence?: ComponentVerificationItem) {
+  if (evidence?.browserVerified) {
+    return 'documented'
+  }
+
+  return evidence?.exampleReady ? 'beta' : 'needs-review'
+}
 </script>
 
 <template>
@@ -122,20 +153,20 @@ function getComponentByDocs(docs: string) {
       <span>components</span>
     </div>
     <div>
-      <strong>{{ packageOptions.length }}</strong>
-      <span>packages</span>
-    </div>
-    <div>
       <strong>{{ components.filter((component) => component.status === 'Stable').length }}</strong>
       <span>stable</span>
     </div>
     <div>
-      <strong>{{ components.filter((component) => component.accessibility !== 'needs-review').length }}</strong>
-      <span>a11y tracked</span>
+      <strong>{{ verificationSummary.exampleReadyRoutes }}</strong>
+      <span>example ready</span>
     </div>
     <div>
-      <strong>{{ liveExampleComponents.length }}</strong>
-      <span>live examples</span>
+      <strong>{{ verificationSummary.browserVerifiedRoutes }}</strong>
+      <span>browser verified</span>
+    </div>
+    <div>
+      <strong>{{ verificationSummary.releaseReadyComponents }}</strong>
+      <span>release ready</span>
     </div>
   </section>
 
@@ -214,15 +245,18 @@ function getComponentByDocs(docs: string) {
         {{ a11y }}
       </button>
     </div>
-    <div class="catalog-segments" aria-label="Live example filter">
-      <button :class="{ active: selectedLive === 'all' }" type="button" @click="selectedLive = 'all'">
-        Any live
+    <div class="catalog-segments" aria-label="Verification evidence filter">
+      <button :class="{ active: selectedEvidence === 'all' }" type="button" @click="selectedEvidence = 'all'">
+        Any evidence
       </button>
-      <button :class="{ active: selectedLive === 'covered' }" type="button" @click="selectedLive = 'covered'">
-        Has live
+      <button :class="{ active: selectedEvidence === 'example-ready' }" type="button" @click="selectedEvidence = 'example-ready'">
+        Example ready
       </button>
-      <button :class="{ active: selectedLive === 'missing' }" type="button" @click="selectedLive = 'missing'">
-        Needs live
+      <button :class="{ active: selectedEvidence === 'browser-verified' }" type="button" @click="selectedEvidence = 'browser-verified'">
+        Browser verified
+      </button>
+      <button :class="{ active: selectedEvidence === 'missing-example' }" type="button" @click="selectedEvidence = 'missing-example'">
+        Needs example
       </button>
     </div>
   </section>
@@ -254,9 +288,9 @@ function getComponentByDocs(docs: string) {
           <span>{{ packageLabels[component.packageName] }} · {{ component.status }}</span>
           <span
             class="coverage-chip"
-            :data-coverage="liveExampleDocs.has(component.docs) ? 'live' : 'missing'"
+            :data-coverage="getVerification(component)?.exampleReady ? 'live' : 'missing'"
           >
-            {{ liveExampleDocs.has(component.docs) ? 'Live example' : 'Needs live example' }}
+            {{ getEvidenceLabel(getVerification(component)) }}
           </span>
           <p>{{ component.description }}</p>
         </a>
@@ -272,7 +306,7 @@ function getComponentByDocs(docs: string) {
           <th>Package</th>
           <th>Status</th>
           <th>A11y</th>
-          <th>Live</th>
+          <th>Evidence</th>
           <th>Description</th>
         </tr>
       </thead>
@@ -295,9 +329,9 @@ function getComponentByDocs(docs: string) {
           <td>
             <span
               class="status-badge"
-              :data-status="liveExampleDocs.has(component.docs) ? 'documented' : 'needs-review'"
+              :data-status="getEvidenceStatus(getVerification(component))"
             >
-              {{ liveExampleDocs.has(component.docs) ? 'covered' : 'missing' }}
+              {{ getEvidenceLabel(getVerification(component)) }}
             </span>
           </td>
           <td>{{ component.description }}</td>
@@ -306,7 +340,7 @@ function getComponentByDocs(docs: string) {
     </table>
     <div v-if="filteredComponents.length === 0" class="component-empty-state">
       <strong>No components found</strong>
-      <span>Try another package, status, accessibility, live example filter or search keyword.</span>
+      <span>Try another package, status, accessibility, evidence filter or search keyword.</span>
     </div>
   </div>
 </template>

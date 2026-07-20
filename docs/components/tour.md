@@ -10,9 +10,9 @@ const tourSteps = [
     target: '#tour-doc-search'
   },
   {
-    title: 'Open Playground',
+    title: 'Open source',
     description: 'Edit the current example, copy source and export a reproduction bundle.',
-    target: '#tour-doc-playground'
+    target: '#tour-doc-source'
   },
   {
     title: 'Ship evidence',
@@ -38,7 +38,11 @@ const code = `<YTour
 
 Tour 用于产品引导、功能发现和逐步新手教程。它参考主流组件库的产品引导模式：用弹层解释当前步骤，用目标高亮把说明绑定到真实界面元素。
 
-## Example
+::: tip TIP
+`YTour` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Product guidance {#tour-product-guidance}
 
 <DocDemo
   title="Product guidance"
@@ -50,7 +54,7 @@ Tour 用于产品引导、功能发现和逐步新手教程。它参考主流组
   <div class="demo-stack">
     <div class="demo-row">
       <YButton id="tour-doc-search" variant="secondary">Search docs</YButton>
-      <YButton id="tour-doc-playground" variant="primary">Open Playground</YButton>
+      <YButton id="tour-doc-source" variant="primary">Open source</YButton>
       <YButton id="tour-doc-ship" variant="secondary">Ship evidence</YButton>
     </div>
     <YTour
@@ -63,26 +67,18 @@ Tour 用于产品引导、功能发现和逐步新手教程。它参考主流组
   </div>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="tour"
-  title="在线编辑 Tour 示例"
-  description="验证基础引导、目标高亮、受控步骤、完成关闭、移动端和键盘关闭路径。"
-/>
-
-## Usage notes
+## Usage notes {#tour-usage-notes}
 
 - `steps` 是数据源，`target` 可以传 CSS 选择器或 HTMLElement。
 - `open` 和 `current` 都保持受控，适合接入路由状态、用户偏好和埋点。
 - 最后一步点击完成时会触发 `finish`，同时请求 `update:open=false`。
 - Tour 用于短流程引导，不适合替代复杂表单、Modal 或整页帮助中心。
 
-## API
+## Tour API {#tour-api}
 
 <ComponentApiSection name="YTour" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - Tour 面板使用 `role="dialog"` 和 `aria-modal="true"`，标题作为可访问名称。
 - 打开后通过统一弹层能力进行焦点锁定、滚动锁定和 Escape 关闭。

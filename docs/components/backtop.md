@@ -8,7 +8,11 @@ const code = `<YBacktop :visibility-height="240" :right="24" :bottom="24" />`
 
 Backtop 用于长文档、长表格和详情页快速返回顶部。它是页面级辅助操作，不应替代主要导航。
 
-## Example
+::: tip TIP
+`YBacktop` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Page helper {#backtop-page-helper}
 
 <DocDemo
   title="Page helper"
@@ -24,19 +28,11 @@ Backtop 用于长文档、长表格和详情页快速返回顶部。它是页面
   </div>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="backtop"
-  title="在线编辑 Backtop 示例"
-  description="预览返回顶部辅助按钮的固定位置、可访问标签和页面级辅助操作形态。"
-/>
-
-## API
+## Backtop API {#backtop-api}
 
 <ComponentApiSection name="YBacktop" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 使用原生 `button`。
 - 默认 `aria-label="Back to top"`。

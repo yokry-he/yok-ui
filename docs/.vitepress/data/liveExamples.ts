@@ -1099,7 +1099,7 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       label: '全局尺寸',
       kind: 'basic',
       controlValue: 'default',
-      description: '通过 ConfigProvider 给子组件统一设置默认 size 和 namespace，减少重复 props。'
+      description: '通过 ConfigProvider 给子组件统一设置 size、namespace、theme、font、tokens、button 和 z-index，减少重复 props。'
     },
     {
       key: 'config-provider-density',
@@ -1113,7 +1113,7 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       label: '中文区域',
       kind: 'controlled',
       controlValue: 'locale',
-      description: 'locale 会映射到 lang 属性，为未来 i18n 文案和辅助技术读法留出入口。'
+      description: 'locale 和 direction 会映射到 lang、dir 属性，为 i18n 文案和辅助技术读法提供正确上下文。'
     },
     {
       key: 'disabled-config-provider',
@@ -1608,14 +1608,14 @@ export const liveExampleScenarios: Partial<Record<LiveExamplePreset, LiveExample
       label: '局部主题',
       kind: 'basic',
       controlValue: 'default',
-      description: '覆盖 tokens、theme 和 density，ThemeProvider 在局部区域注入主题和密度变量，适合文档示例隔离。'
+      description: '覆盖 tokens、theme、font 和 density，ThemeProvider 在局部区域注入主题、字体和密度变量，适合文档示例隔离。'
     },
     {
       key: 'theme-provider-clean',
       label: '清爽主题',
       kind: 'controlled',
       controlValue: 'clean',
-      description: '受控主题值让文档示例、Playground 和组件预览保持一致。'
+      description: '受控主题值让文档示例、Live Example 和组件预览保持一致。'
     },
     {
       key: 'theme-provider-review',

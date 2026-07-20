@@ -3,20 +3,19 @@ import { describe, expect, it } from 'vitest'
 import ReleaseDashboard from './ReleaseDashboard.vue'
 
 describe('ReleaseDashboard', () => {
-  it('renders the package release plan, changelog draft and promotion queue', () => {
+  it('renders a secret-free operations center for npm, GitHub, Vercel and mirrors', () => {
     const wrapper = mount(ReleaseDashboard)
 
-    expect(wrapper.text()).toContain('release workflow')
-    expect(wrapper.text()).toContain('0.2.0')
-    expect(wrapper.text()).toContain('Release gate evidence')
-    expect(wrapper.text()).toContain('Edited Source Share')
-    expect(wrapper.text()).toContain('Stable promotions')
-    expect(wrapper.text()).toContain('pnpm release:dry-run')
-    expect(wrapper.text()).toContain('outputs/release/yok-ui-0.2.0-release-plan.md')
-    expect(wrapper.text()).toContain('outputs/release/yok-ui-0.2.0-release-plan.json')
-    expect(wrapper.findAll('.release-dashboard__package').length).toBeGreaterThan(0)
-    expect(wrapper.findAll('.release-dashboard__checklist li')).toHaveLength(6)
-    expect(wrapper.findAll('.release-dashboard__promotion a').length).toBeGreaterThan(0)
-    expect(wrapper.find('.release-dashboard__changelog pre').text()).toContain('pnpm docs:build')
+    expect(wrapper.text()).toContain('Release Operations')
+    expect(wrapper.text()).toContain('@yok-ui/core')
+    expect(wrapper.text()).toContain('GitHub Trusted Publishing')
+    expect(wrapper.text()).toContain('Vercel documentation')
+    expect(wrapper.text()).toContain('npmmirror')
+    expect(wrapper.text()).toContain('pnpm release:verify')
+    expect(wrapper.text()).toContain('pnpm release:publish -- --version 0.1.0 --tag latest --confirm-public-release')
+    expect(wrapper.findAll('input, textarea').length).toBe(0)
+    expect(wrapper.findAll('.release-dashboard__package').length).toBe(8)
+    expect(wrapper.findAll('.release-dashboard__command').length).toBeGreaterThanOrEqual(6)
+    expect(wrapper.html()).not.toMatch(/NPM_TOKEN|NODE_AUTH_TOKEN|_authToken|otp=|token=|password/i)
   })
 })

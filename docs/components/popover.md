@@ -57,7 +57,11 @@ const disabledCode = [
 
 Popover 用于点击后展示较短的补充内容、操作说明或轻量预览。它比 Tooltip 更适合承载多行内容或按钮。
 
-## Example
+::: tip TIP
+`YPopover` 文档已按 Select 页面同一套结构组织：每个场景独立成段，示例块保留 TS/JS 切换、复制代码和展开源码，API 与可访问性约定集中在页尾。
+:::
+
+## Controlled popover {#popover-controlled-popover}
 
 <DocDemo
   title="Controlled popover"
@@ -78,6 +82,8 @@ Popover 用于点击后展示较短的补充内容、操作说明或轻量预览
   </YPopover>
   <p class="demo-note">Open: {{ open ? 'yes' : 'no' }}</p>
 </DocDemo>
+
+## Hover placement {#popover-hover-placement}
 
 <DocDemo
   title="Hover placement"
@@ -101,6 +107,8 @@ Popover 用于点击后展示较短的补充内容、操作说明或轻量预览
   </YPopover>
 </DocDemo>
 
+## Disabled trigger {#popover-disabled-trigger}
+
 <DocDemo
   title="Disabled trigger"
   description="流程未满足时禁用触发器，避免暴露一个不可执行的浮层关系。"
@@ -119,15 +127,7 @@ Popover 用于点击后展示较短的补充内容、操作说明或轻量预览
   </YPopover>
 </DocDemo>
 
-## Live example
-
-<LiveExampleRunner
-  preset="popover"
-  title="在线编辑 Popover 示例"
-  description="验证说明卡片、确认提示、空状态引导、移动避让、悬浮方位、禁用触发和键盘触发在文档场景中的表现。"
-/>
-
-## Usage notes
+## Usage notes {#popover-usage-notes}
 
 - Popover 适合承载比 Tooltip 更长的补充信息，也可以放入少量操作，但不应承载复杂表单或关键阻断流程。
 - `placement` 支持四个方向和 `start/end` 对齐，例如 `right-start` 适合表格行操作说明。
@@ -138,11 +138,11 @@ Popover 用于点击后展示较短的补充内容、操作说明或轻量预览
 - 确认提示应保持文案短而明确，避免把复杂危险操作塞进轻量浮层。
 - 键盘触发场景应验证 Enter / Space 打开弹层，`Escape` 关闭弹层，并让焦点保持在触发器上。
 
-## API
+## Popover API {#popover-api}
 
 <ComponentApiSection name="YPopover" />
 
-## Accessibility
+## Accessibility {#accessibility}
 
 - 触发器使用 `role="button"`、`aria-expanded` 和 `aria-controls` 关联面板。
 - 面板使用 `role="dialog"`，并通过 `title` 或默认文案提供可访问名称。

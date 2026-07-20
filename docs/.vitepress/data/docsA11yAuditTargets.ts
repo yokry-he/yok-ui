@@ -4,13 +4,11 @@ import {
   type AccessibilityEvidenceProfile,
   type AccessibilityEvidenceRisk
 } from './accessibilityEvidence'
-import { liveExampleDocs } from './liveExamples'
 
 const docsA11yNavigationItems = [
   { text: '指南', link: '/guide/' },
   { text: '组件', link: '/components/' },
-  { text: '资源', link: '/resources/' },
-  { text: 'Playground', link: '/playground/' }
+  { text: '资源', link: '/resources/' }
 ]
 
 export type DocsA11yAuditPriority = 'critical' | 'high' | 'standard'
@@ -24,6 +22,7 @@ export type DocsA11yAuditCheck =
   | 'contrast'
   | 'motion'
   | 'responsive'
+  | 'demo'
   | 'live-example'
 
 export interface DocsA11yAuditViewport {
@@ -76,7 +75,6 @@ const routeTitleOverrides: Record<string, string> = {
   '/guide/': 'Guide overview',
   '/components/': 'Components overview',
   '/resources/': 'Resources overview',
-  '/playground/': 'Playground overview',
   '/resources/maturity': 'Maturity dashboard',
   '/resources/support': 'Support Matrix',
   '/resources/live-examples': 'Live Example Matrix',
@@ -251,10 +249,6 @@ function routeToDocsPath(route: string) {
     return 'docs/packages/index.md'
   }
 
-  if (cleanRoute === '/playground') {
-    return 'docs/playground/index.md'
-  }
-
   return `docs${cleanRoute}.md`
 }
 
@@ -287,7 +281,7 @@ function getPriority(risk: AccessibilityEvidenceRisk): DocsA11yAuditPriority {
 }
 
 function getChecks(profile: AccessibilityEvidenceProfile): DocsA11yAuditCheck[] {
-  const checks: DocsA11yAuditCheck[] = ['structure', 'responsive']
+  const checks: DocsA11yAuditCheck[] = ['structure', 'responsive', 'demo']
 
   if (profile.categories.includes('keyboard')) {
     checks.push('keyboard')
@@ -307,10 +301,6 @@ function getChecks(profile: AccessibilityEvidenceProfile): DocsA11yAuditCheck[] 
 
   if (profile.categories.includes('motion')) {
     checks.push('motion')
-  }
-
-  if (liveExampleDocs.has(profile.docsRoute)) {
-    checks.push('live-example')
   }
 
   return unique(checks)
@@ -340,7 +330,6 @@ function createComponentTarget(profile: AccessibilityEvidenceProfile): DocsA11yA
     id: `component-${routeToId(profile.docsRoute)}`,
     title: `${profile.title} component page`,
     route: profile.docsRoute,
-    scenarioRoute: liveExampleDocs.has(profile.docsRoute) ? `${profile.docsRoute}#live-example` : undefined,
     source: 'component',
     priority,
     checks: getChecks(profile),
@@ -349,8 +338,7 @@ function createComponentTarget(profile: AccessibilityEvidenceProfile): DocsA11yA
       docs: profile.evidence.docs,
       data: [
         'docs/.vitepress/data/componentRegistry.ts',
-        'docs/.vitepress/data/accessibilityEvidence.ts',
-        'docs/.vitepress/data/liveExamples.ts'
+        'docs/.vitepress/data/accessibilityEvidence.ts'
       ],
       tests: [
         ...profile.evidence.tests,
@@ -427,6 +415,7 @@ export function getDocsA11yAuditSummary() {
       contrast: 0,
       motion: 0,
       responsive: 0,
+      demo: 0,
       'live-example': 0
     }
   )
@@ -440,6 +429,7 @@ export function getDocsA11yAuditSummary() {
       (docsA11yAuditTargets.filter((target) => target.viewports.includes('mobile')).length /
         Math.max(docsA11yAuditTargets.length, 1)) * 100
     ),
+    demoTargets: docsA11yAuditTargets.filter((target) => target.checks.includes('demo')).length,
     liveExampleTargets: docsA11yAuditTargets.filter((target) => target.checks.includes('live-example')).length,
     checkCoverage
   }

@@ -123,7 +123,7 @@ function createBaselineEntry(): ReleaseHistoryEntry {
       {
         type: 'documentation',
         label: 'Documentation',
-        title: 'Establish docs, components, resources and playground routes',
+        title: 'Establish docs, components and resources routes',
         detail: 'The baseline version records the current docs architecture before the 0.2.0 release-candidate promotion flow.',
         href: '/resources/'
       },

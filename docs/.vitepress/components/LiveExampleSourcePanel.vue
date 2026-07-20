@@ -12,11 +12,6 @@ interface Option<T extends string> {
   label: string
 }
 
-interface PlaygroundHandoffItem {
-  label: string
-  value: string
-}
-
 interface SourceDiffSummary {
   added: number
   removed: number
@@ -31,10 +26,6 @@ const props = defineProps<{
   sourceLanguageMode: SourceLanguageMode
   sourceLanguageOptions: readonly Option<SourceLanguageMode>[]
   copiedSourcePanel: boolean
-  playgroundHandoffUrl: string
-  sourceFileUrl: string
-  playgroundHandoffItems: readonly PlaygroundHandoffItem[]
-  copiedPlaygroundLink: boolean
   sourceDiffSummary: SourceDiffSummary
   installPackageManager: InstallPackageManager
   installPackageManagerOptions: readonly Option<InstallPackageManager>[]
@@ -43,24 +34,6 @@ const props = defineProps<{
 
 const sourceCodeLines = computed(() => createCodeHighlightLines(props.sourcePanelCode, `${props.sourcePanelMode}-${props.sourceLanguageMode}`))
 const sourcePanelActions = computed(() => [
-  {
-    key: 'playground',
-    href: props.playgroundHandoffUrl,
-    tooltip: '在 Playground 中编辑',
-    label: '在 Playground 中编辑',
-    glyph: '',
-    icon: 'playground',
-    text: 'Playground'
-  },
-  {
-    key: 'source-file',
-    href: props.sourceFileUrl,
-    tooltip: '查看组件源码',
-    label: '查看组件源码',
-    glyph: '',
-    icon: 'source',
-    text: 'Vue source'
-  },
   {
     key: 'copy-source',
     tooltip: props.copiedSourcePanel ? `已复制 ${props.sourcePanelModeLabel}` : '复制源码',
@@ -71,16 +44,6 @@ const sourcePanelActions = computed(() => [
     className: 'live-example-runner__source-copy',
     feedback: props.copiedSourcePanel,
     feedbackText: '已复制'
-  },
-  {
-    key: 'copy-playground-link',
-    tooltip: props.copiedPlaygroundLink ? '已复制导入链接' : '复制导入链接',
-    label: props.copiedPlaygroundLink ? '已复制导入链接' : '复制导入链接',
-    glyph: '',
-    icon: 'external',
-    text: 'Copy import link',
-    feedback: props.copiedPlaygroundLink,
-    feedbackText: '已复制链接'
   },
   {
     key: 'hide-source',
@@ -98,24 +61,12 @@ const emit = defineEmits<{
   'update:sourceLanguageMode': [value: SourceLanguageMode]
   'update:installPackageManager': [value: InstallPackageManager]
   'copy-source': []
-  'copy-playground-link': []
-  'persist-playground-handoff': []
   'hide-source': []
 }>()
 
 function handleSourceAction(key: string) {
-  if (key === 'playground') {
-    emit('persist-playground-handoff')
-    return
-  }
-
   if (key === 'copy-source') {
     emit('copy-source')
-    return
-  }
-
-  if (key === 'copy-playground-link') {
-    emit('copy-playground-link')
     return
   }
 

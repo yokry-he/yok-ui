@@ -15,7 +15,7 @@ describe('apiLiveCoverage', () => {
 
     expect(coverage.status).toBe('covered')
     expect(coverage.label).toBe('Example')
-    expect(coverage.href).toBe('#demo-variants')
+    expect(coverage.href).toBe('#button-basic-usage')
   })
 
   it('marks content, media, layout and typography props as guided live props', () => {
@@ -133,11 +133,11 @@ describe('apiLiveCoverage', () => {
 
     expect(coverage.status).toBe('covered')
     expect(coverage.label).toBe('Example')
-    expect(coverage.href).toBe('#demo-basic-select')
-    expect(coverage.detail).toContain('Basic usage')
+    expect(coverage.href).toBe('#select-basic-usage')
+    expect(coverage.detail).toContain('基础用法')
     expect(coverage.docDemo).toEqual({
-      id: 'demo-basic-select',
-      title: 'Basic usage'
+      id: 'select-basic-usage',
+      title: '基础用法'
     })
   })
 
@@ -164,13 +164,13 @@ describe('apiLiveCoverage', () => {
     })
 
     expect(buttonVariant.label).toBe('Example')
-    expect(buttonVariant.href).toBe('#demo-variants')
+    expect(buttonVariant.href).toBe('#button-basic-usage')
     expect(buttonVariant.docDemo).toEqual({
-      id: 'demo-variants',
-      title: 'Variants'
+      id: 'button-basic-usage',
+      title: '基础用法'
     })
     expect(buttonSize.label).toBe('Example')
-    expect(buttonSize.href).toBe('#demo-sizes-and-states')
+    expect(buttonSize.href).toBe('#button-sizes')
     expect(inputType.label).toBe('Example')
     expect(inputType.href).toBe('#demo-clearable-search-and-count')
     expect(inputShowPassword.label).toBe('Example')

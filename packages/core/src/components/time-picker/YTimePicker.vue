@@ -10,6 +10,7 @@ import {
 } from './time'
 import { useDismissableLayer } from '../../composables/useDismissableLayer'
 import { useFloatingLayer } from '../../composables/useFloatingLayer'
+import YInternalIcon from '../_internal/YInternalIcon.vue'
 import { useYokConfig, type YokConfigSize } from '../config-provider'
 
 defineOptions({
@@ -276,7 +277,7 @@ function handlePanelKeydown(event: KeyboardEvent) {
         :aria-label="open ? 'Close time picker' : 'Open time picker'"
         @click="togglePanel"
       >
-        <span aria-hidden="true">◷</span>
+        <YInternalIcon name="clock" />
       </button>
       <button
         v-if="clearable && modelValue"
@@ -286,7 +287,7 @@ function handlePanelKeydown(event: KeyboardEvent) {
         aria-label="Clear time"
         @click="clearValue"
       >
-        ×
+        <YInternalIcon name="close" />
       </button>
     </div>
     <p v-if="error" :id="errorId" class="yok-time-picker__error" role="alert">{{ error }}</p>
@@ -425,8 +426,10 @@ function handlePanelKeydown(event: KeyboardEvent) {
 .yok-time-picker__clear {
   position: absolute;
   inset-block: var(--yok-time-picker-action-inset);
-  display: grid;
+  display: inline-flex;
   width: var(--yok-time-picker-action-size);
+  align-items: center;
+  justify-content: center;
   place-items: center;
   border: 0;
   border-radius: var(--yok-radius-sm);
@@ -434,6 +437,7 @@ function handlePanelKeydown(event: KeyboardEvent) {
   color: var(--yok-color-textMuted);
   cursor: pointer;
   font-size: 16px;
+  line-height: 1;
 }
 
 .yok-time-picker__trigger {

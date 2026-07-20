@@ -521,7 +521,7 @@ describe('DocDemo source quality', () => {
     expect(missingSetup).toEqual([])
   })
 
-  it('keeps common interaction component demos ready for Playground editing', () => {
+  it('keeps common interaction component demos ready for source repro editing', () => {
     const missingSetup = interactionDocs.flatMap((name) =>
       docDemoBlocks(readComponentDoc(name)).filter((block) => block.includes(':code=')).flatMap((block) => {
         const source = readComponentDoc(name)
@@ -535,7 +535,7 @@ describe('DocDemo source quality', () => {
     expect(missingSetup).toEqual([])
   })
 
-  it('keeps complex interaction component demos ready for Playground editing', () => {
+  it('keeps complex interaction component demos ready for source repro editing', () => {
     const missingSetup = complexInteractionDocs.flatMap((name) =>
       docDemoBlocks(readComponentDoc(name)).filter((block) => block.includes(':code=')).flatMap((block) => {
         const source = readComponentDoc(name)
@@ -549,7 +549,7 @@ describe('DocDemo source quality', () => {
     expect(missingSetup).toEqual([])
   })
 
-  it('keeps remaining static component demos ready for Playground editing', () => {
+  it('keeps remaining static component demos ready for source repro editing', () => {
     const missingSetup = remainingStaticDemoDocs.flatMap((name) =>
       docDemoBlocks(readComponentDoc(name)).filter((block) => block.includes(':code=')).flatMap((block) => {
         const source = readComponentDoc(name)

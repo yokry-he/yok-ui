@@ -27,6 +27,7 @@ async function copyCommand(commandId: string, command: string) {
         </p>
       </div>
       <div class="release-dashboard__hero-actions" aria-label="Release operation links">
+        <a :href="releaseOperations.vercel.siteUrl" target="_blank" rel="noreferrer">Open documentation</a>
         <a :href="releaseOperations.actionsUrl" target="_blank" rel="noreferrer">Open GitHub workflow</a>
         <a :href="releaseOperations.vercel.dashboardUrl" target="_blank" rel="noreferrer">Open Vercel dashboard</a>
       </div>
@@ -113,6 +114,14 @@ async function copyCommand(commandId: string, command: string) {
         <p class="docs-eyebrow">vercel</p>
         <h2 id="vercel-docs-title">Vercel documentation</h2>
         <dl>
+          <div>
+            <dt>Production site</dt>
+            <dd>
+              <a :href="releaseOperations.vercel.siteUrl" target="_blank" rel="noreferrer">
+                {{ releaseOperations.vercel.siteUrl }}
+              </a>
+            </dd>
+          </div>
           <div>
             <dt>Build command</dt>
             <dd>{{ releaseOperations.vercel.buildCommand }}</dd>

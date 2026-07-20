@@ -35,6 +35,7 @@ export interface ReleaseOperations {
   }
   vercel: {
     dashboardUrl: string
+    siteUrl: string
     buildCommand: string
     outputDirectory: string
     notes: string[]
@@ -97,6 +98,13 @@ export const releaseOperations: ReleaseOperations = {
       caution: '这是 npm 发布前最关键的本地验证。'
     },
     {
+      id: 'trusted-publisher-status',
+      label: 'Trusted Publisher status',
+      command: 'npx --yes npm@11.18.0 trust list @yok-ui/core --json --registry https://registry.npmjs.org/',
+      purpose: '读取 npm 官方 registry 中保存的 GitHub OIDC 发布身份。',
+      caution: '八个包都应显示 publish.yml、yokry-he/yok-ui、npm Environment 和 createPackage 权限。'
+    },
+    {
       id: 'dry-run',
       label: 'Publication dry-run',
       command: 'pnpm release:publish -- --version 0.1.0 --tag latest --dry-run',
@@ -122,11 +130,13 @@ export const releaseOperations: ReleaseOperations = {
     ]
   },
   vercel: {
-    dashboardUrl: 'https://vercel.com/dashboard',
+    dashboardUrl: 'https://vercel.com/yokry-projects/yok-ui',
+    siteUrl: 'https://yok-ui.vercel.app',
     buildCommand: 'pnpm docs:build',
     outputDirectory: 'docs/.vitepress/dist',
     notes: [
       'Vercel 项目根目录选择仓库根目录。',
+      'GitHub 仓库已连接，main 负责生产部署，其他分支生成 Preview。',
       'vercel.json 固定 installCommand、buildCommand 和 outputDirectory。',
       '.vercel/ 只保存本地链接状态，不提交到仓库。'
     ]

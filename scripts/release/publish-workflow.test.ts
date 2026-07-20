@@ -19,7 +19,7 @@ describe('npm publish workflow policy', () => {
     expect(workflow).toContain('contents: read')
     expect(workflow).toContain('environment: npm')
     expect(workflow).toContain('node-version: 24.14.0')
-    expect(workflow).toContain('npm install --global npm@11.9.0')
+    expect(workflow).toContain('npm install --global npm@11.18.0')
     expect(workflow).toContain('version: 10.12.1')
     expect(workflow).toContain('registry-url: https://registry.npmjs.org')
     expect(workflow).toContain('package-manager-cache: false')
